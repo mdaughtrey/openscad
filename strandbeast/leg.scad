@@ -1,40 +1,17 @@
+include <defs.scad>
+include <arc.scad>
 ViewScale=[.02,.02,.02];
 //ViewScale=[1,1,1];
 JointVertSpace=30;
-OneLayer=100+JointVertSpace;
+SpacedLayer=100+JointVertSpace;
 JointR = 400;
 ShaftR = 200;
 ShaftHole=230;
 
-MagicMult = 50;
-// Leg Triangle
-MagicG = MagicMult * 36.7; // a
-MagicH = MagicMult * 65.7; // c
-MagicI = MagicMult * 49;   // b
-
-// Driver Triangle
-MagicB = MagicMult * 41.5;
-MagicD = MagicMult * 40.1;
-MagicE = MagicMult * 55.8;
-
-// Front Strut
-MagicC = MagicMult * 39.3;
-FsLen = MagicC;
-
-// Back Strut
-MagicF = MagicMult * 39.4;
-BsLen = MagicF;
-
-// Lower Driver Strut
-MagicK = MagicMult * 81.9;
-
-// Upper Driver Strut
-MagicJ = MagicMult * 50;
-
 // Outer joint plus half the rod
 // rodwidth, rodlength, layers
 module strutA(rodw, rodl, layers) {
-    layerSpace = OneLayer*layers+JointVertSpace;
+    layerSpace = SpacedLayer*layers+JointVertSpace;
     echo("layerSpace ",layerSpace);
     difference() {
         union() {
@@ -51,17 +28,28 @@ module strutA(rodw, rodl, layers) {
         cylinder(200+layerSpace, r=ShaftR,$fn=96);
 }
 
+// Inner Joint
+module jointB()
+{
+    difference() {
+        // Inner joint
+        cylinder(100, r=400,$fn=96);
+        // Shaft hole
+        translate([0,0,-10]) cylinder(120, r=ShaftHole,$fn=96);
+    }
+}
+
 // Inner joint plus half the rod
 module strutB(rodw, rodl)
 {
-    // Inner joint
-//    translate([0, 0, 100+JointVertSpace]) 
-        difference() {
-            // Inner joint
-            cylinder(100, r=400,$fn=96);
-            // Shaft hole
-            translate([0,0,-10]) cylinder(120, r=ShaftHole,$fn=96);
-        }
+    jointB();
+    //// Inner joint
+    //    difference() {
+    //        // Inner joint
+    //        cylinder(100, r=400,$fn=96);
+    //        // Shaft hole
+    //        translate([0,0,-10]) cylinder(120, r=ShaftHole,$fn=96);
+    //    }
       translate([260,-rodw/2,0]) cube([rodl-260,rodw,100]);
 }
 
@@ -73,6 +61,29 @@ module strutAA(rodw, rodl, layers) {
 module strutBB(rodw, rodl) {
     strutB(rodw, rodl/2, 0);
     translate([rodl, 0, 0]) rotate([0, 0, 180]) strutB(rodw, rodl/2);
+}
+
+module strutABArc(rodw, rodl,layers)
+{
+    //translate([rodl, 0, 0]) rotate([0, 0, 180]) strutB(rodw, rodl/2);
+    layerSpace = SpacedLayer*layers+JointVertSpace;
+    echo("layerSpace ",layerSpace);
+    difference() {
+        union() {
+            cylinder(200+layerSpace,r=JointR,$fn=96);
+            // Strut
+            translate([rodl/2,-2300,0]) 
+                #3D_arc(w=rodw,r=3000,deg=60,fn=96);
+//           translate([0,-rodw/2,0]) cube([rodl,rodw,100]);
+            //translate([0,-rodw/2,0]) cube([rodl,rodw,300+JointVertSpace*2]);
+        }
+        // Cutout
+        translate([0,0,100]) cylinder(layerSpace,r=440,$fn=96);
+    }
+    // Shaft
+    translate([0,0,0])
+        cylinder(200+layerSpace, r=ShaftR,$fn=96);
+    translate([rodl, 0, 0]) jointB();
 }
 
 module strutAB(rodw, rodl, layers) {
@@ -161,12 +172,12 @@ scale(ViewScale) {
     lsA = MagicG * cos(loCosB(MagicG, MagicI, MagicH));
     lsB = MagicG * sin(loCosB(MagicG, MagicI, MagicH));
     //translate([lsA, -lsB, 0]) strutBB(200, MagicK);
-    translate([lsA, -lsB, 0]) rotate([0, 0, 235]) strutAB(200, MagicK, 2);
+    translate([lsA, -lsB, 0]) rotate([0, 0, 235]) strutABArc(200, MagicK, 2);
 }
 
 //scale(ViewScale) { strutAA(400,2500,2); }
 //scale(ViewScale) { strutBB(400,2500); }
 //scale(ViewScale) { strutA(400, 2000, 2); 
-//    translate([0, 0, OneLayer]) strutB(400,1500);
-//    translate([0, 0, 2*OneLayer]) strutB(400,1000);
+//    translate([0, 0, SpacedLayer]) strutB(400,1500);
+//    translate([0, 0, 2*SpacedLayer]) strutB(400,1000);
 //    }
