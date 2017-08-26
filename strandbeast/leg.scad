@@ -42,6 +42,7 @@ module jointB()
 // Inner joint plus half the rod
 module strutB(rodw, rodl)
 {
+    translate([260,-rodw/2,0]) cube([rodl-260,rodw,100]);
     jointB();
     //// Inner joint
     //    difference() {
@@ -50,7 +51,6 @@ module strutB(rodw, rodl)
     //        // Shaft hole
     //        translate([0,0,-10]) cylinder(120, r=ShaftHole,$fn=96);
     //    }
-      translate([260,-rodw/2,0]) cube([rodl-260,rodw,100]);
 }
 
 module strutAA(rodw, rodl, layers) {
@@ -63,6 +63,24 @@ module strutBB(rodw, rodl) {
     translate([rodl, 0, 0]) rotate([0, 0, 180]) strutB(rodw, rodl/2);
 }
 
+module strutBC(rodw, rodl) 
+{
+    translate([260,-rodw/2,100])
+    {
+        translate([0, 100, 0]) cylinder(300, r=100,$fn=96);
+        cube([rodl/2,rodw,100]);
+        translate([2*LayerUnit+ rodl/2, rodw, 0])
+        rotate([-90,-90,180])
+        linear_extrude(200)
+        polygon(points = [[0, 0], [0, 2*LayerUnit], [LayerUnit, 2*LayerUnit]], convexity = 0);
+    }
+    translate([rodl, 0, 0]) rotate([0, 0, 180]) strutB(rodw, rodl/2);
+    translate([rodl/2-(2*LayerUnit), rodw/2, LayerUnit])
+    rotate([0,90,-90])
+    linear_extrude(200)
+    polygon(points = [[0, 0], [0, 2*LayerUnit], [LayerUnit, 2*LayerUnit]], convexity = 0);
+}
+
 module strutABArc(rodw, rodl,layers)
 {
     //translate([rodl, 0, 0]) rotate([0, 0, 180]) strutB(rodw, rodl/2);
@@ -73,7 +91,7 @@ module strutABArc(rodw, rodl,layers)
             cylinder(200+layerSpace,r=JointR,$fn=96);
             // Strut
             translate([rodl/2,-2300,0]) 
-                #3D_arc(w=rodw,r=3000,deg=60,fn=96);
+                3D_arc(w=rodw,r=3000,deg=60,fn=96);
 //           translate([0,-rodw/2,0]) cube([rodl,rodw,100]);
             //translate([0,-rodw/2,0]) cube([rodl,rodw,300+JointVertSpace*2]);
         }
@@ -112,6 +130,15 @@ module triangle(rodw, lenA, lenB, lenC) {
     translate([lenC, 0, 0]) rotate([0, 0, 180-loCosB(lenA, lenB, lenC)]) strutBB(rodw, lenA);
 }
 
+module foot()
+{
+    //rotate([-90,-90,180])
+    //linear_extrude(200)
+    //polygon(points = [[0, 0], [0, LayerUnit], [LayerUnit, LayerUnit]], convexity = 0);
+    strutBC(200, MagicH);
+    rotate([0, 0, loCosA(MagicG, MagicI, MagicH)]) strutBC(200, MagicI);
+    translate([MagicH, 0, 0]) rotate([0, 0, 180-loCosB(MagicG, MagicI, MagicH)]) strutBB(200, MagicG);
+}
 
 scale(ViewScale) {
 //    lenA = MagicC;
@@ -139,11 +166,10 @@ scale(ViewScale) {
     angD = angD1;
     echo("angA ",angA," angB ",angB," angC ",angC," angD ",angD);
 
-
     //translate([0, 0, 100 + JointVertSpace/2]) {
     translate([0, 0, 100 + JointVertSpace]) {
         // leg triangle
-        translate([MagicH, 0, 0]) rotate([0, 0, 180]) triangle(200, MagicG, MagicI, MagicH);
+        translate([MagicH, 0, 0]) rotate([0, 0, 180]) foot();
         //dtA = loCosA(MagicB, MagicD, MagicE);
         //translate([0, 0, 0]) rotate([0, 0, 0]) triangle(200, MagicB, MagicD, MagicE);
         rotate([0, 0, angB-0.5]) {

@@ -4,7 +4,8 @@ SpacedLayer=LayerUnit+JointVertSpace;
 JointR = 400;
 ShaftR = 200;
 ShaftHole=230;
-ShaftTight=215;
+ShaftTight=205;
+HexTight=210;
 MagicMult = 50;
 
 // Spine Horizontal

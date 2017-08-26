@@ -10,26 +10,28 @@ module halfSpine(layers)
     baseHeight = JointVertSpace + LayerUnit * 3;
     shaftHeight = 4*SpacedLayer;
     difference() {
+        translate([0, 0, 160])
         union() {
             // shaft + base
                 difference(){ union() {
-                    cylinder(baseHeight, r=JointR,$fn=96); // base
+                    translate([0, 0, -160])
+                    cylinder(baseHeight+160, r=JointR,$fn=96); // base
                     translate([0, 0, baseHeight])
                         cylinder(shaftHeight, r=ShaftR,$fn=96); // shaft
                     // strut
-                    translate([0,-200,0]) cube([spineLength, 400, LayerUnit]);
+                    translate([0,-200,]) cube([spineLength, 400, LayerUnit]);
                 }
                 union() {
                 // hole in shaft
                 translate([0, 0, -2]) cylinder(baseHeight + shaftHeight + 20,r=100,$fn=4);
                 // insertion hole
-                translate([0, 0, -5]) cylinder(165, r=ShaftTight, $fn=96);
+                translate([0, 0, -165]) cylinder(230, r=ShaftTight, $fn=96);
                 }}
             // central joint
             translate([spineLength,0,0]) cylinder(LayerUnit, r=JointR, $fn=96);
         }
         // shaft hole
-        translate([spineLength,0,-10]) cylinder(220, r=ShaftHole, $fn=96);
+        translate([spineLength,0,150]) cylinder(220, r=ShaftHole, $fn=96);
 //        translate([0,0,100]) cylinder(layerSpace,r=440,$fn=96);
     }
 }
@@ -38,7 +40,7 @@ module cam()
 {
     shaftHeight = SpacedLayer * 5;
     // Cam
-    translate([0, -1000, 0]) { difference() {
+    translate([0, 0, 0]) { difference() {
         union() {
             // shaft
             translate([0, 0, 0]) cylinder(shaftHeight, r=ShaftR, $fn=96);
@@ -48,7 +50,7 @@ module cam()
             translate([MagicM,0,0]) cylinder(LayerUnit, r=JointR, $fn=96);
         }
         // hex cutout
-        translate([MagicM,0,-10]) cylinder(220, r=HexTight, $fn=6);
+        translate([MagicM,0,-10]) cylinder(220, r=ShaftTight, $fn=96);
         }
     }
 }
@@ -57,10 +59,10 @@ module cam2()
 {
     shaftHeight = SpacedLayer * 2 + JointVertSpace;
     // Cam
-    translate([0, -1000, 0]) { difference() {
+    translate([0, 0, 0]) { difference() {
         union() {
             // shaft
-            translate([0, 0, 0]) cylinder(shaftHeight, r=ShaftR, $fn=6);
+            translate([0, 0, 0]) cylinder(shaftHeight, r=ShaftR, $fn=96);
             // shaft circle
             translate([0, 0, 0]) cylinder(LayerUnit, r=JointR, $fn=96);
             // strut
@@ -76,6 +78,9 @@ module cam2()
 // Outer joint plus half the rod
 module spine(layers) {
     halfSpine(layers);
+    translate([spineLength, 0, JointVertSpace]) cam2();
+    translate([spineLength, 0, 1000])
+    rotate([0, 0, 180]) cam();
     translate([spineLength, 0, 0]) rotate([0, 0, 180-33.32]) 
     translate([-spineLength, 0, 0]) halfSpine(layers);
 
@@ -141,10 +146,11 @@ module collar() {
 
 scale(ViewScale) {
     spine(5);
-    cam();
-    translate([1700, -300, 0]) cam2();
-    translate([0, -2200, 0]) collar();
-    translate([1500, -2200, 0]) collar();
+    //cam();
+//    cam2()
+//    translate([1700, -300, 0]) cam2();
+//    translate([0, -2200, 0]) collar();
+//    translate([1500, -2200, 0]) collar();
 
     // Drill driver
     *translate([0, -2000, 0]) cylinder(1000, r=ShaftR, $fn=6);
