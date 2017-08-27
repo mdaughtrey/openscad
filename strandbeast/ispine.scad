@@ -10,12 +10,12 @@ module halfSpine(layers)
     baseHeight = JointVertSpace + LayerUnit * 3;
     shaftHeight = 4*SpacedLayer;
     difference() {
-        translate([0, 0, 160])
+        translate([0, 0, 160+LayerUnit])
         union() {
             // shaft + base
                 difference(){ union() {
-                    translate([0, 0, -160])
-                    cylinder(baseHeight+160, r=JointR,$fn=96); // base
+                    translate([0, 0, -160-LayerUnit])
+                    cylinder(baseHeight+LayerUnit+160, r=JointR,$fn=96); // base
                     translate([0, 0, baseHeight])
                         cylinder(shaftHeight, r=ShaftR,$fn=96); // shaft
                     // strut
@@ -25,7 +25,7 @@ module halfSpine(layers)
                 // hole in shaft
                 translate([0, 0, -2]) cylinder(baseHeight + shaftHeight + 20,r=100,$fn=4);
                 // insertion hole
-                translate([0, 0, -165]) cylinder(230, r=ShaftTight, $fn=96);
+                translate([0, 0, -165-LayerUnit]) cylinder(LayerUnit+230, r=ShaftTight, $fn=96);
                 }}
             // central joint
             translate([spineLength,0,0]) cylinder(LayerUnit, r=JointR, $fn=96);
@@ -40,19 +40,20 @@ module cam()
 {
     shaftHeight = SpacedLayer * 5;
     // Cam
-    translate([0, 0, 0]) { difference() {
+//    translate([0, 0, 0]) { difference() {
         union() {
             // shaft
             translate([0, 0, 0]) cylinder(shaftHeight, r=ShaftR, $fn=96);
+            translate([0, 0, 0]) cylinder(LayerUnit, r=JointR, $fn=96);
             // strut
             translate([0, -200, 0]) cube([MagicM, 400, LayerUnit]);
             // central shaft
             translate([MagicM,0,0]) cylinder(LayerUnit, r=JointR, $fn=96);
         }
         // hex cutout
-        translate([MagicM,0,-10]) cylinder(220, r=ShaftTight, $fn=96);
-        }
-    }
+//        translate([MagicM,0,-10]) cylinder(220, r=ShaftTight, $fn=96);
+//        }
+//    }
 }
 
 module cam2()
@@ -78,12 +79,16 @@ module cam2()
 // Outer joint plus half the rod
 module spine(layers) {
     halfSpine(layers);
-    translate([spineLength, 0, JointVertSpace]) cam2();
-    translate([spineLength, 0, 1000])
-    rotate([0, 0, 180]) cam();
+    union() {
+    translate([spineLength, 0, JointVertSpace+LayerUnit]) cam2();
+    translate([spineLength, 0, 0])
+    rotate([0, 0, 60])
+    translate([MagicM, 0, LayerUnit+JointVertSpace+(2*SpacedLayer)])
+    rotate([0, 0, 180])
+    cam();
+    }
     translate([spineLength, 0, 0]) rotate([0, 0, 180-33.32]) 
     translate([-spineLength, 0, 0]) halfSpine(layers);
-
 }
 
 // Inner joint plus half the rod
