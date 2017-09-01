@@ -8,7 +8,7 @@ module halfSpine(layers)
 {
     layerSpace = SpacedLayer*layers;
     baseHeight = JointVertSpace + LayerUnit * 3;
-    shaftHeight = 4*SpacedLayer;
+    shaftHeight = 2*SpacedLayer + 230 + LayerUnit;
     difference() {
         translate([0, 0, 160+LayerUnit])
         union() {
@@ -36,9 +36,10 @@ module halfSpine(layers)
     }
 }
 
+// upper
 module cam()
 {
-    shaftHeight = SpacedLayer * 5;
+    shaftHeight = SpacedLayer * 5 + 0.5 * LayerUnit;
     // Cam
 //    translate([0, 0, 0]) { difference() {
         union() {
@@ -56,6 +57,7 @@ module cam()
 //    }
 }
 
+// lower
 module cam2()
 {
     shaftHeight = SpacedLayer * 2 + JointVertSpace;
