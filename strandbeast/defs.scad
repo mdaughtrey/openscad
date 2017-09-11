@@ -39,3 +39,5 @@ MagicJ = MagicMult * 50;
 
 // Cam radius
 MagicM = MagicMult * 15;
+
+spineLength = sqrt(pow(MagicA, 2) + pow(MagicL,2));

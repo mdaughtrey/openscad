@@ -1,14 +1,13 @@
 include <defs.scad>
 ViewScale=[.02,.02,.02];
 //ViewScale=[1,1,1];
-spineLength = sqrt(pow(MagicA, 2) + pow(MagicL,2));
 
 
 module halfSpine(layers)
 {
     layerSpace = SpacedLayer*layers;
     baseHeight = JointVertSpace + LayerUnit * 3;
-    shaftHeight = 2*SpacedLayer + 230 + LayerUnit;
+    shaftHeight = 2*SpacedLayer + 210 + LayerUnit;
     difference() {
         translate([0, 0, 160+LayerUnit])
         union() {
