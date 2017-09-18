@@ -1,11 +1,20 @@
 include <defs.scad>
 use <MCAD/involute_gears.scad>
 RealityScale = 1.27;
-ViewScale=[.02*RealityScale,.02*RealityScale,.02*RealityScale];
+RealityVec=[RealityScale, RealityScale, RealityScale]; 
+ViewScale=[.02,.02,.02];
+//ViewScale=[.02*RealityScale,.02*RealityScale,.02*RealityScale];
 
 motorR = 190;
 motorR2 = 163;
-shroudOffset = 130;
+shroudOffset = 100;
+
+useShroud = 1;
+useUpperCam = 1;
+useLowerCam = 1;
+useCap = 1;
+useBigCog = 0;
+useMotorCog = 1;
 
 module cutout()
 {
@@ -187,30 +196,30 @@ module shroud() {
 // ---------------------------------------------------------------
 
 // upper
-module cam()
+module upperCam()
 {
     shaftHeight = SpacedLayer * 5 + 0.5 * LayerUnit;
     // Cam
-//    translate([0, 0, 0]) { difference() {
+    translate([0, 0, 0]) { difference() {
         union() {
             // shaft
-            //translate([0, 0, 0]) cylinder(shaftHeight, r=ShaftR, $fn=96);
-            //translate([0, 0, 0]) cylinder(LayerUnit, r=JointR, $fn=96);
+            translate([0, 0, 0]) cylinder(shaftHeight, r=ShaftR, $fn=96);
+            translate([0, 0, 0]) cylinder(LayerUnit, r=JointR, $fn=96);
             // strut
-            //translate([0, -200, 0]) cube([MagicM, 400, LayerUnit]);
+            translate([0, -200, 0]) cube([MagicM, 400, LayerUnit]);
             // central shaft
-            //translate([MagicM,0,0]) cylinder(LayerUnit, r=JointR, $fn=96);
+            translate([MagicM,0,0]) cylinder(LayerUnit, r=JointR, $fn=96);
         }
         // hex cutout
 //        translate([MagicM,0,-10]) cylinder(220, r=ShaftTight, $fn=96);
-//        }
-//    }
+        }
+    }
 }
 
 // lower
-module cam2()
+module lowerCam()
 {
-    shaftHeight = SpacedLayer * 2 + JointVertSpace;
+    shaftHeight = SpacedLayer * 2 + LayerUnit;  
     // Cam
     translate([0, 0, 0]) { difference() {
         union() {
@@ -239,8 +248,10 @@ module halfSpine(layers)
                 difference(){ union() {
                     translate([0, 0, -160-LayerUnit])
                     cylinder(baseHeight+LayerUnit+160, r=JointR,$fn=96); // base
-                    //translate([0, 0, baseHeight])
-                        //cylinder(shaftHeight, r=ShaftR,$fn=96); // shaft
+                    if (useCap) {
+                        translate([0, 0, baseHeight])
+                        cylinder(shaftHeight, r=ShaftR,$fn=96); // shaft
+                    }
                     // strut
                     translate([0,-200,]) cube([spineLength, 400, LayerUnit]);
                 }
@@ -267,38 +278,49 @@ module halfSpine(layers)
 // Outer joint plus half the rod
 module spine(layers) {
     halfSpine(layers);
-    union() {
-    translate([spineLength, 0, JointVertSpace+LayerUnit]) cam2();
-//    translate([spineLength, 0, 0])
-//    rotate([0, 0, 60])
-//    translate([MagicM, 0, LayerUnit+JointVertSpace+(2*SpacedLayer)])
-//    rotate([0, 0, 180])
-//    cam();
+    if (useLowerCam) { union() {
+    translate([spineLength, 0, JointVertSpace+LayerUnit]) lowerCam();
+    } }
+
+    if (useUpperCam) {
+        translate([spineLength, 0, 0])
+        rotate([0, 0, 60])
+        translate([MagicM, 0, LayerUnit+JointVertSpace+(2*SpacedLayer)])
+        rotate([0, 0, 180])
+        upperCam();
     }
+
     translate([spineLength, 0, 0]) rotate([0, 0, 180-33.32]) 
     translate([-spineLength, 0, 0]) halfSpine(layers);
 }
 
 scale(ViewScale)
 {
-   // Big cog and shaft
-   union() {
     offset = (JointVertSpace + LayerUnit + SpacedLayer * 2);
-    translate([spineLength, 0, offset]) {
-       difference() {
-       union() {
-           translate([0, 0, 0]) bigCog(100); 
-//           translate([0, 0, -shroudOffset]) rotate([0, 0, -33.32]) shroud();
-        }
-        translate([-spineLength, 0, -(offset+1)])
-        union() {
-            halfSpine(5);
-            translate([spineLength, 0, 0]) rotate([0, 0, 180-33.32]) 
-            translate([-spineLength, 0, 0]) halfSpine(5);
-        }
-        }
+    if (useBigCog)
+    {
+        translate([spineLength, 0, offset]) 
+        scale(RealityVec)
+        translate([0, 0, 0]) bigCog(100); 
     }
-     spine(5);
+
+   // Big cog and shaft
+    union() {
+        if (useShroud)
+        {
+            translate([spineLength, 0, offset]) {
+            difference() {
+//            union() {
+                scale(RealityVec) translate([0, 0, -shroudOffset]) rotate([0, 0, -33.32]) shroud();
+//            }
+            translate([-spineLength, 0, -(offset+1)])
+            union() {
+                halfSpine(5);
+                translate([spineLength, 0, 0]) rotate([0, 0, 180-33.32]) 
+                translate([-spineLength, 0, 0]) halfSpine(5);
+            } } }
+        }
+        spine(5);
    }
 }
 
