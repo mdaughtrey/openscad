@@ -9,6 +9,7 @@ ShaftHole=230;
 ShaftTight=205;
 HexTight=210;
 MagicMult = 50;
+StrutWidth = 200;
 
 // Spine Horizontal
 MagicA = MagicMult * 38;
