@@ -9,12 +9,13 @@ motorR = 190;
 motorR2 = 163;
 shroudOffset = 100;
 
-useShroud = 1;
-useUpperCam = 1;
-useLowerCam = 1;
-useCap = 1;
+useShroud = 0;
+useUpperCam = 0;
+useLowerCam = 0;
+useCap = 0;
 useBigCog = 0;
-useMotorCog = 1;
+onlyMotorCog = 0;
+useSpine = 1;
 
 module cutout()
 {
@@ -186,7 +187,9 @@ module shroud() {
             thickness = bcThickness + (bcClearance * 2) + shroudOffset;
             translate([-(mcRadius + bcRadius + mcClearance), 0, -1]) cylinder(thickness + 102, r=bcRadius + 100, $fn=96);
         }
+        if (useMotorCog) {
         translate([0, 0, shroudOffset]) { motorCog(100); } 
+        }
     }
     bcShroud();
 }
@@ -248,7 +251,7 @@ module halfSpine(layers)
                 difference(){ union() {
                     translate([0, 0, -160-LayerUnit])
                     cylinder(baseHeight+LayerUnit+160, r=JointR,$fn=96); // base
-                    if (useCap) {
+                    if (!useCap) {
                         translate([0, 0, baseHeight])
                         cylinder(shaftHeight, r=ShaftR,$fn=96); // shaft
                     }
@@ -320,7 +323,10 @@ scale(ViewScale)
                 translate([-spineLength, 0, 0]) halfSpine(5);
             } } }
         }
-        spine(5);
+        if (useSpine) { spine(5); }
+   }
+   if (onlyMotorCog) {
+    scale(RealityVec) motorCog(100);  
    }
 }
 

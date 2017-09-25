@@ -1,3 +1,5 @@
+RealityScale = [1.27, 1.27, 1.27];
+ViewScale = [0.0254, 0.0254, 0.0254];
 JointVertSpace=30;
 LayerUnit=100;
 SpacedLayer=LayerUnit+JointVertSpace;

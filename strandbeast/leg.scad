@@ -1,12 +1,6 @@
 include <defs.scad>
 include <arc.scad>
-ViewScale=[.02,.02,.02];
-//ViewScale=[1,1,1];
-JointVertSpace=30;
-SpacedLayer=100+JointVertSpace;
-JointR = 400;
-ShaftR = 200;
-ShaftHole=230;
+//ViewScale=[.02,.02,.02];
 
 // Outer joint plus half the rod
 // rodwidth, rodlength, layers
@@ -167,7 +161,7 @@ scale(ViewScale) {
     echo("angA ",angA," angB ",angB," angC ",angC," angD ",angD);
 
     //translate([0, 0, 100 + JointVertSpace/2]) {
-    translate([0, 0, 100 + JointVertSpace]) {
+    translate([0, 0, LayerUnit + JointVertSpace]) {
         // leg triangle
         translate([MagicH, 0, 0]) rotate([0, 0, 180]) foot();
         //dtA = loCosA(MagicB, MagicD, MagicE);
@@ -201,9 +195,3 @@ scale(ViewScale) {
     translate([lsA, -lsB, 0]) rotate([0, 0, 235]) strutABArc(200, MagicK, 2);
 }
 
-//scale(ViewScale) { strutAA(400,2500,2); }
-//scale(ViewScale) { strutBB(400,2500); }
-//scale(ViewScale) { strutA(400, 2000, 2); 
-//    translate([0, 0, SpacedLayer]) strutB(400,1500);
-//    translate([0, 0, 2*SpacedLayer]) strutB(400,1000);
-//    }
