@@ -1,6 +1,83 @@
 include <defs.scad>
 include <arc.scad>
 //ViewScale=[.02,.02,.02];
+LayerUnit = 300;
+StrutWidth = 400;
+rrectR = 100;
+
+// https://www.thingiverse.com/thing:9347
+module rectHull(r, x, y)
+{
+    hull()
+    {
+        // place 4 circles in the corners, with the given r
+        translate([(-x/2)+(r/2), (-y/2)+(r/2), 0])
+            circle(r=r);
+
+        translate([(x/2)-(r/2), (-y/2)+(r/2), 0])
+            circle(r=r);
+
+        translate([(-x/2)+(r/2), (y/2)-(r/2), 0])
+            circle(r=r);
+
+        translate([(x/2)-(r/2), (y/2)-(r/2), 0])
+            circle(r=r);
+    }
+}
+
+// rounded rectangle
+module rrect(z, y, x)
+{
+    y = y - rrectR;
+    x = x - rrectR;
+    translate([0, rrectR+x/2, 0]) // rrectR/2+y/2])
+    rotate([0, 90, 0]) 
+    linear_extrude(z)
+    rectHull(rrectR/2, x, y);
+}
+
+module arcStrut(sweep, radius, height, width)
+{
+    intersection() {
+        linear_extrude(1000)
+        hull(){
+            polygon([[0, 0], [0, radius*1.5], [radius*1.5*sin(sweep), radius*1.5*cos(sweep)]]);
+        }
+        translate([0, 0, height/2])
+        rotate_extrude($fn=96) 
+        {
+            echo("r ",radius," h ",height," w ",width);
+            translate([radius, 0,0 ])
+            rectHull(rrectR,width*3/4, height/2);
+            //rectHull(250,height, width/2);
+            //rrect(height, width);
+        }
+    }
+}
+
+module cap(height, radius)
+{
+    translate([0, 0, height/2])
+    rotate_extrude($fn=96) 
+    {
+        corner = 100;
+        translate([height/2, 0, 0]) //rrect(radius, height);
+        hull()
+        {
+            translate([(-radius/2)+(corner/2), (-height/2)+(corner/2), 0])
+                square(corner);
+
+            translate([(radius/2)-(corner/2), (-height/2)+(corner/2), 0])
+                square(corner);
+
+            translate([(-radius/2)+(corner/2), (height/2)-(corner/2), 0])
+                square(corner);
+
+            translate([(radius/2)-(corner/2), (height/2)-(corner/2), 0])
+                circle(r=corner);
+        }
+    }
+}
 
 // Outer joint plus half the rod
 // rodwidth, rodlength, layers
@@ -11,7 +88,8 @@ module strutA(rodw, rodl, layers) {
         union() {
             cylinder((LayerUnit * 2)+layerSpace,r=JointR,$fn=96);
             // Strut
-            translate([0,-rodw/2,0]) cube([rodl,rodw,LayerUnit]);
+            translate([0,-rodw/2,LayerUnit/2]) rrect(rodl,rodw,LayerUnit);
+//            translate([0,-rodw/2,0]) cube([rodl,rodw,LayerUnit]);
         }
         // Cutout
         translate([0,0,LayerUnit]) cylinder(layerSpace,r=440,$fn=96);
@@ -35,15 +113,9 @@ module jointB()
 // Inner joint plus half the rod
 module strutB(rodw, rodl)
 {
-    translate([260,-rodw/2,0]) cube([rodl-260,rodw,LayerUnit]);
+    translate([260,-rodw/2,LayerUnit/2]) rrect(rodl-260,rodw,LayerUnit);
+    //translate([260,-rodw/2,0]) cube([rodl-260,rodw,LayerUnit]);
     jointB();
-    //// Inner joint
-    //    difference() {
-    //        // Inner joint
-    //        cylinder(100, r=400,$fn=96);
-    //        // Shaft hole
-    //        translate([0,0,-10]) cylinder(120, r=ShaftHole,$fn=96);
-    //    }
 }
 
 module strutAA(rodw, rodl, layers) {
@@ -85,7 +157,9 @@ module strutABArc(rodw, rodl,layers)
             translate([sin(30) * arcR,
                 -cos(30) * arcR + JointR / 2,
                 0]) 
-                3D_arc(w=rodw,r=arcR,deg=57,h=LayerUnit,fn=96);
+            rotate([0, 0, 30])
+            arcStrut(59, arcR, LayerUnit, rodw);
+               // 3D_arc(w=rodw,r=arcR,deg=57,h=LayerUnit,fn=96);
         }
         // Cutout
         translate([0,0,LayerUnit]) cylinder(layerSpace,r=440,$fn=96);
