@@ -1,15 +1,17 @@
 RealityScale = [1.27, 1.27, 1.27];
 ViewScale = [0.0254, 0.0254, 0.0254];
-JointVertSpace=30;
-LayerUnit=100;
+JointVertSpace=20;
+LayerUnit=300;
 SpacedLayer=LayerUnit+JointVertSpace;
 JointR = 400;
 ShaftR = 200;
-ShaftHole=230;
+ShaftHole=220;
 ShaftTight=205;
 HexTight=210;
 MagicMult = 50;
-StrutWidth = 200;
+StrutWidth = 400;
+rrectR = 100;
+ShaftSleeve = 200;
 
 // Spine Horizontal
 MagicA = MagicMult * 38;

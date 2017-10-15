@@ -1,9 +1,4 @@
 include <defs.scad>
-include <arc.scad>
-//ViewScale=[.02,.02,.02];
-LayerUnit = 300;
-StrutWidth = 400;
-rrectR = 100;
 
 // https://www.thingiverse.com/thing:9347
 module rectHull(r, x, y)
@@ -46,7 +41,6 @@ module arcStrut(sweep, radius, height, width)
         translate([0, 0, height/2])
         rotate_extrude($fn=96) 
         {
-            echo("r ",radius," h ",height," w ",width);
             translate([radius, 0,0 ])
             rectHull(rrectR,width*3/4, height/2);
             //rectHull(250,height, width/2);
@@ -55,40 +49,45 @@ module arcStrut(sweep, radius, height, width)
     }
 }
 
-module cap(height, radius)
+
+module cap(height, radius, corner)
 {
-    translate([0, 0, height/2])
+    //echo("height ",height," radius ",radius," corner ",corner);
+//    height = height - (height/6);
+//    radius = radius - (radius/6); 
     rotate_extrude($fn=96) 
     {
-        corner = 100;
-        translate([height/2, 0, 0]) //rrect(radius, height);
+        corner = height/4;
         hull()
         {
-            translate([(-radius/2)+(corner/2), (-height/2)+(corner/2), 0])
-                square(corner);
-
-            translate([(radius/2)-(corner/2), (-height/2)+(corner/2), 0])
-                square(corner);
-
-            translate([(-radius/2)+(corner/2), (height/2)-(corner/2), 0])
-                square(corner);
-
-            translate([(radius/2)-(corner/2), (height/2)-(corner/2), 0])
+            translate([0, 0, 0]) square(corner, 0); // inside lower
+            translate([radius-corner, 0, 0]) square(corner, 0); // outside lower
+            translate([0, height, 0]) square(corner); // inside upper
+            translate([radius-corner, height, 0])    // outside upper
+            intersection()
+            {
                 circle(r=corner);
+                square(corner);
+            }
         }
     }
 }
-
 // Outer joint plus half the rod
 // rodwidth, rodlength, layers
 module strutA(rodw, rodl, layers) {
     layerSpace = SpacedLayer*layers+JointVertSpace;
-    echo("layerSpace ",layerSpace);
     difference() {
         union() {
-            cylinder((LayerUnit * 2)+layerSpace,r=JointR,$fn=96);
+            //cylinder((LayerUnit * 2)+layerSpace,r=JointR,$fn=96);
+            // upper cap
+            translate([0, 0, LayerUnit])
+            rotate([0, 180, 0])
+            cap(LayerUnit,JointR,LayerUnit/4);
+            // lower cap
+            translate([0, 0, (2*LayerUnit)+JointVertSpace])
+            cap(SpacedLayer/2,JointR,100);
             // Strut
-            translate([0,-rodw/2,LayerUnit/2]) rrect(rodl,rodw,LayerUnit);
+            translate([0,-rodw/2,LayerUnit/2]) rrect(rodl+5,rodw,LayerUnit);
 //            translate([0,-rodw/2,0]) cube([rodl,rodw,LayerUnit]);
         }
         // Cutout
@@ -96,7 +95,7 @@ module strutA(rodw, rodl, layers) {
     }
     // Shaft
     translate([0,0,0])
-        cylinder((LayerUnit * 2)+layerSpace, r=ShaftR,$fn=96);
+        cylinder(LayerUnit+layerSpace, r=ShaftR,$fn=96);
 }
 
 // Inner Joint
@@ -130,20 +129,9 @@ module strutBB(rodw, rodl) {
 
 module strutBC(rodw, rodl) 
 {
-    translate([260,-rodw/2,100])
-    {
-        translate([0, 100, 0]) cylinder(300, r=100,$fn=96);
-        cube([rodl/2,rodw,LayerUnit]);
-        translate([2*LayerUnit+ rodl/2, rodw, 0])
-        rotate([-90,-90,180])
-        linear_extrude(StrutWidth)
-        polygon(points = [[0, 0], [0, 2*LayerUnit], [LayerUnit, 2*LayerUnit]], convexity = 0);
-    }
+    translate([260,-rodw/2,LayerUnit/2])
+          rrect(rodl/2, rodw, 300);
     translate([rodl, 0, 0]) rotate([0, 0, 180]) strutB(rodw, rodl/2);
-    translate([rodl/2-(2*LayerUnit), rodw/2, LayerUnit])
-    rotate([0,90,-90])
-    linear_extrude(StrutWidth)
-    polygon(points = [[0, 0], [0, 2*LayerUnit], [LayerUnit, 2*LayerUnit]], convexity = 0);
 }
 
 module strutABArc(rodw, rodl,layers)
@@ -152,7 +140,16 @@ module strutABArc(rodw, rodl,layers)
     arcR = 3000;
     difference() {
         union() {
-            cylinder((LayerUnit * 2)+layerSpace,r=JointR,$fn=96);
+            // upper cap
+            translate([0, 0, SpacedLayer*3])
+            cap(SpacedLayer/2,JointR,SpacedLayer/8);
+            // lower cap
+            translate([0, 0, SpacedLayer])
+            rotate([0, 180, 0])
+            cap(SpacedLayer,JointR,SpacedLayer/4);
+
+
+            //cylinder((LayerUnit * 2)+layerSpace,r=JointR,$fn=96);
             // Strut
             translate([sin(30) * arcR,
                 -cos(30) * arcR + JointR / 2,
@@ -166,7 +163,7 @@ module strutABArc(rodw, rodl,layers)
     }
     // Shaft
     translate([0,0,0])
-        cylinder((LayerUnit * 2)+layerSpace, r=ShaftR,$fn=96);
+        cylinder((LayerUnit * 1.5)+layerSpace, r=ShaftR,$fn=96);
     translate([rodl, 0, 0]) jointB();
 }
 
@@ -196,14 +193,98 @@ module triangle(rodw, lenA, lenB, lenC) {
     translate([lenC, 0, 0]) rotate([0, 0, 180-loCosB(lenA, lenB, lenC)]) strutBB(rodw, lenA);
 }
 
+module jointExt(eW, eL, eO)
+{  
+    extR = ShaftR + ((JointR - ShaftHole)/2);
+    intersection() {
+    translate([extR, -eW/2, 0]) square([eL*2, eW], 1);
+    difference() {
+        circle(JointR + eL, $fn=96);
+        circle(JointR + eO, $fn=96);
+    }}
+}
+
+module footJointB()
+{
+
+    linear_extrude(LayerUnit)
+    difference()
+    {
+        circle(JointR, $fn=96);
+        circle(ShaftHole, $fn=96);
+    }
+}
+
+module footStrutB(rodw, rodl)
+{
+    // upper extension
+    linear_extrude(LayerUnit) jointExt(StrutWidth, 400, 0);
+    // lower extension
+    translate([0, 0, -LayerUnit])
+    linear_extrude(SpacedLayer)
+    jointExt(StrutWidth, 400, 30);
+
+    offset = 600;
+    translate([offset,-rodw/2,-LayerUnit/2]) rrect(rodl-offset,rodw,LayerUnit);
+    //translate([260,-rodw/2,0]) cube([rodl-260,rodw,LayerUnit]);
+    footJointB();
+}
+
+module foot2()
+{
+    //strutBC(StrutWidth, MagicH);
+    union() 
+    {
+        translate([0,-StrutWidth/2,-LayerUnit/2])
+              rrect(MagicH/2, StrutWidth, 300);
+        translate([MagicH, 0, 0]) rotate([0, 0, 180]) footStrutB(StrutWidth, MagicH/2);
+    }
+
+    rotate([0, 0, loCosA(MagicG, MagicI, MagicH)])
+    {
+        // strutBC(StrutWidth, MagicI);
+        translate([0,-StrutWidth/2,-LayerUnit/2])
+              rrect(MagicI/2, StrutWidth, 300);
+        translate([MagicI, 0, 0]) rotate([0, 0, 180]) footStrutB(StrutWidth, MagicI/2);
+    }
+    translate([MagicH, 0, 0]) rotate([0, 0, 180-loCosB(MagicG, MagicI, MagicH)])
+    {
+        strutBB(StrutWidth, MagicG);
+//        StrutB(StrutWidth, MagicG/2, 0);
+//        translate([MagicG, 0, 0]) rotate([0, 0, 180]) StrutB(StrutWidth, MagicG/2);
+    }
+}
+
 module foot()
 {
-    //rotate([-90,-90,180])
-    //linear_extrude(200)
-    //polygon(points = [[0, 0], [0, LayerUnit], [LayerUnit, LayerUnit]], convexity = 0);
-    strutBC(StrutWidth, MagicH);
-    rotate([0, 0, loCosA(MagicG, MagicI, MagicH)]) strutBC(StrutWidth, MagicI);
-    translate([MagicH, 0, 0]) rotate([0, 0, 180-loCosB(MagicG, MagicI, MagicH)]) strutBB(StrutWidth, MagicG);
+    //strutBC(StrutWidth, MagicH);
+    // long strut
+    union() 
+    {
+        translate([0,-StrutWidth/2,-LayerUnit/2])
+              rrect(MagicH/2, StrutWidth, 300);
+        translate([MagicH, 0, 0]) rotate([0, 0, 180]) footStrutB(StrutWidth, MagicH/2);
+    }
+
+    // short strut
+    xTrans = -sin(56.25) * MagicH;
+    yTrans = -cos(56.25) * MagicH;
+    echo("MagicH ",MagicH," sin ",sin(56.25),"cos ",cos(56.25)," xTrans ",xTrans," yTrans ",yTrans);
+
+    //translate([xTrans, yTrans, 0])
+    rotate([0, 0, loCosA(MagicG, MagicI, MagicH)])
+    {
+        // strutBC(StrutWidth, MagicI);
+//        translate([0,-StrutWidth/2,-LayerUnit/2])
+//              rrect(MagicI/2, StrutWidth, 300);
+        translate([MagicI, 0, 0]) rotate([0, 0, 215]) 
+        footStrutB(StrutWidth, MagicI*sin(35));
+    }
+    // cross strut
+    translate([MagicH, 0, 0]) rotate([0, 0, 180-loCosB(MagicG, MagicI, MagicH)])
+    {
+        strutBB(StrutWidth, MagicG);
+    }
 }
 
 scale(ViewScale) {

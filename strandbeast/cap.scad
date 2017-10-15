@@ -18,31 +18,44 @@ include <defs.scad>
 //            circle(r=corner);
 //    }
 //}
-
-module cap(height, radius)
+module cap(height, radius, corner)
 {
-    translate([0, 0, height/2])
+//    echo("height ",height," radius ",radius," corner ",corner);
+//    height = height - (height/6);
+//    radius = radius - (radius/6); 
     rotate_extrude($fn=96) 
     {
-        corner = 100;
-        translate([height/2, 0, 0]) //rrect(radius, height);
+////        corner = height/4;
         hull()
         {
-            translate([(-radius/2)+(corner/2), (-height/2)+(corner/2), 0])
-                square(corner);
-
-            translate([(radius/2)-(corner/2), (-height/2)+(corner/2), 0])
-                square(corner);
-
-            translate([(-radius/2)+(corner/2), (height/2)-(corner/2), 0])
-                square(corner);
-
-            translate([(radius/2)-(corner/2), (height/2)-(corner/2), 0])
+            translate([0, 0, 0]) square(corner, 0);
+            translate([radius, 0, 0]) square(corner, 0);
+            translate([0, height, 0]) square(corner);
+            union() {
+            translate([radius, height, 0]) {
+                intersection() {
                 circle(r=corner);
+                square(corner);
+            }}}
+        }
+    }
+}
+
+module cap2(height, radius)
+{
+    rotate_extrude($fn=96) 
+    {
+        corner = height/4;
+        hull()
+        {
+            translate([0, 0, 0]) square(corner, 0);
+            translate([radius, 0, 0]) square(corner, 0);
+            translate([0, height, 0]) square(corner);
+            translate([radius, height, 0]) circle(r=corner);
         }
     }
 }
 
 scale(ViewScale) {
-    cap(300, 400);
+    cap(960, 200, 100);
 }
