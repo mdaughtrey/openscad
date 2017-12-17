@@ -338,29 +338,29 @@ scale(ViewScale) {
         translate([MagicH, 0, 0]) rotate([0, 0, 180]) foot();
         //dtA = loCosA(MagicB, MagicD, MagicE);
         //translate([0, 0, 0]) rotate([0, 0, 0]) triangle(200, MagicB, MagicD, MagicE);
-        rotate([0, 0, angB-0.5]) {
-            // driver triangle
-            translate([-MagicC, 0, 0]) rotate([0, 0, -angA])
-            {
-                // Upper Driver Strut
-                translate([MagicE, 0, (LayerUnit * 2) + JointVertSpace]) rotate([180, 0, 115])
-                    strutAB(StrutWidth, MagicJ, 1);
-                triangle(StrutWidth, MagicB, MagicD, MagicE);
-            }
-            // front strut
-            //translate([-MagicC, 0, 100 + JointVertSpace/2]) strutBB(200, FsLen);
-            translate([-MagicC, 0, (LayerUnit * 2) + JointVertSpace])
-                rotate([180, 0, 0]) strutAA(StrutWidth, FsLen, 1);
-        }
+//        rotate([0, 0, angB-0.5]) {
+//            // driver triangle
+//            translate([-MagicC, 0, 0]) rotate([0, 0, -angA])
+//            {
+//                // Upper Driver Strut
+//                translate([MagicE, 0, (LayerUnit * 2) + JointVertSpace]) rotate([180, 0, 115])
+//                    strutAB(StrutWidth, MagicJ, 1);
+//                triangle(StrutWidth, MagicB, MagicD, MagicE);
+//            }
+//            // front strut
+//            //translate([-MagicC, 0, 100 + JointVertSpace/2]) strutBB(200, FsLen);
+//            translate([-MagicC, 0, (LayerUnit * 2) + JointVertSpace])
+//                rotate([180, 0, 0]) strutAA(StrutWidth, FsLen, 1);
+//        }
         // back strut
-        fsA = MagicG * cos(loCosB(MagicG, MagicI, MagicH));
-        fsB = MagicG * sin(loCosB(MagicG, MagicI, MagicH));
-        translate([-MagicF+fsA+FsLen, -fsB, LayerUnit + JointVertSpace])
-            rotate([0, 0, -angC-angB+0.5])  strutBB(StrutWidth, MagicF);
+//        fsA = MagicG * cos(loCosB(MagicG, MagicI, MagicH));
+//        fsB = MagicG * sin(loCosB(MagicG, MagicI, MagicH));
+//        translate([-MagicF+fsA+FsLen, -fsB, LayerUnit + JointVertSpace])
+//            rotate([0, 0, -angC-angB+0.5])  strutBB(StrutWidth, MagicF);
     }
     // Lower Driver Strut
-    lsA = MagicG * cos(loCosB(MagicG, MagicI, MagicH));
-    lsB = MagicG * sin(loCosB(MagicG, MagicI, MagicH));
-    translate([lsA, -lsB, 0]) rotate([0, 0, 235]) strutABArc(StrutWidth, MagicK, 2);
+//    lsA = MagicG * cos(loCosB(MagicG, MagicI, MagicH));
+//    lsB = MagicG * sin(loCosB(MagicG, MagicI, MagicH));
+//    translate([lsA, -lsB, 0]) rotate([0, 0, 235]) strutABArc(StrutWidth, MagicK, 2);
 }
 
