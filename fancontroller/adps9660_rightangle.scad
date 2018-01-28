@@ -140,6 +140,6 @@ scale(ViewScale)
 //    translate([760, 240, -260])
 //    rotate([90, 90, 0])
 //    color("CornflowerBlue")
-    clip();
-//    box();
+//    clip();
+    box();
 }
