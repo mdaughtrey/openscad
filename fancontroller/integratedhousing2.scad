@@ -121,8 +121,8 @@ module sides(w, h, d)
 module enclosure_gestureSensor()
 {
     // main pcb surround
-    translate([0, 0, 93])
-    linear_extrude(469)
+    translate([0, 0, 93+70])
+    linear_extrude(469-70)
     {
     difference() {
     translate([0, 0, 0])
@@ -167,7 +167,7 @@ module enclosure_gestureSensor()
 
     // surround with cutout for usb
     translate([0, 0, -300])
-    linear_extrude(403) {
+    linear_extrude(403+70) {
     difference() {
         translate([0, 0, 0])
         rectHull(100, 968, 935);
@@ -186,7 +186,7 @@ module enclosure_gestureSensor()
 
 scale(ViewScale)
 {
-    //linear_extrude(900)
+//    linear_extrude(900)
     faceplate();
     translate([165, -410, 872])
     rotate([180, 0, 90])
@@ -196,6 +196,7 @@ scale(ViewScale)
     translate([-1400, -390, 562])
     rotate([180, 0, -90])
     enclosure_gestureSensor();
-//    translate([0, 0, 453-65])
+//    translate([-1400, -380, 560-70])
+//    rotate([180, 0, -90])
 //    ADPS9660Carrier();
 }
