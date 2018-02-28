@@ -72,18 +72,18 @@ module cam2()
     }
 
     // Cam
-//    #linear_extrude(LayerUnit) {
-//    translate([0, 0, 0]) { difference() {
-//        union() {
-////            #circle(JointR, $fn=96);
-//            // strut
-//            translate([JointR, 0, 0]) square([300, 400], center=true);
-//            // central shaft
-//            translate([MagicM,0,0]) circle(JointR, $fn=96);
-//        }
-//        translate([MagicM,0,-1]) circle(ShaftTight, $fn=96);
-//        }
-//    }}
+    linear_extrude(LayerUnit) {
+    translate([0, 0, 0]) { difference() {
+        union() {
+//            #circle(JointR, $fn=96);
+            // strut
+            translate([JointR, 0, 0]) square([300, 400], center=true);
+            // central shaft
+            translate([MagicM,0,0]) circle(JointR, $fn=96);
+        }
+        translate([MagicM,0,-1]) circle(ShaftTight, $fn=96);
+        }
+    }}
     shaftLower = shaftHeight-5+LayerUnit-320;
     shaftUpper = 320;
     echo("ShaftLower ",shaftLower," LayerUnit ",LayerUnit);
@@ -115,9 +115,10 @@ module cap2()
 
 // Outer joint plus half the rod
 module spine(layers) {
-   cam2();
-//    translate([0, 1000, 0])
-//    cam();
+    cam2();
+    translate([0, 1000, 0])
+    cam();
+    translate([0, 2000, 0])
 }
 
 scale(ViewScale) {

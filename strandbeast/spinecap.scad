@@ -69,7 +69,7 @@ module cap2()
         translate([JointR-50, 50]) circle(50, $fn=96);
     }
     translate([0, LayerUnit])
-    square([ShaftR, shaftHeight]);
+    square([ShaftR-10, shaftHeight]);
 }
 
 scale(ViewScale) {

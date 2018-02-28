@@ -51,37 +51,37 @@ module halfSpine2(layers)
     }
 
     // base
-    translate([0, 0, linkLength])
-    linear_extrude(baseHeight - linkLength) 
-    circle(JointR, $fn=96);
+//    translate([0, 0, linkLength])
+//    linear_extrude(baseHeight - linkLength) 
+//    circle(JointR, $fn=96);
 
-    // shaft
-    translate([0, 0, baseHeight-1])
-    linear_extrude(shaftHeight) 
-    difference() {
-        circle(ShaftR, $fn=96);
-        circle(40, $fn=4);
-    }
-
-    // central hole
-    translate([spineLength, 0, SpacedLayer * 2 -20])
-    linear_extrude(LayerUnit) 
-    difference() {
-        circle(JointR, $fn=96);
-        circle(ShaftHole, $fn=96);
-    }
-    translate([0,-200,2*SpacedLayer])
-    difference() {
-        rrect(spineLength, StrutWidth*2, LayerUnit);
-        // bite out of central end
-        translate([spineLength, StrutWidth/2, -1])
-        linear_extrude(LayerUnit)
-        circle(ShaftHole, $fn=96);
-        // bit out of base end
-        translate([0, StrutWidth/2, -1])
-        linear_extrude(LayerUnit)
-        circle(ShaftHole, $fn=96);
-    }
+//    // shaft
+//    translate([0, 0, baseHeight-1])
+//    linear_extrude(shaftHeight) 
+//    difference() {
+//        circle(ShaftR, $fn=96);
+//        circle(40, $fn=4);
+//    }
+//
+//    // central hole
+//    translate([spineLength, 0, SpacedLayer * 2 -20])
+//    linear_extrude(LayerUnit) 
+//    difference() {
+//        circle(JointR, $fn=96);
+//        circle(ShaftHole, $fn=96);
+//    }
+//    translate([0,-200,2*SpacedLayer])
+//    difference() {
+//        rrect(spineLength, StrutWidth*2, LayerUnit);
+//        // bite out of central end
+//        translate([spineLength, StrutWidth/2, -1])
+//        linear_extrude(LayerUnit)
+//        circle(ShaftHole, $fn=96);
+//        // bit out of base end
+//        translate([0, StrutWidth/2, -1])
+//        linear_extrude(LayerUnit)
+//        circle(ShaftHole, $fn=96);
+//    }
 
 }
 
@@ -164,17 +164,6 @@ module cam2()
 module spine(layers) {
     //halfSpine(layers);
     halfSpine2(layers);
-//    union() {
-//    translate([spineLength, 0, SpacedLayer*1]) rotate([0, 0, 180]) cam2();
-//    translate([spineLength, 0, SpacedLayer*2+JointVertSpace])
-//    rotate([0, 0, 300])
-//    translate([MagicM, 0, LayerUnit*1])
-//    rotate([0, 0, 180])
-//    cam();
-//    }
-// temp
-    translate([spineLength, 0, 0]) rotate([0, 0, 180-33.32]) 
-    translate([-spineLength, 0, 0]) halfSpine2(layers);
 }
 
 // Inner joint plus half the rod

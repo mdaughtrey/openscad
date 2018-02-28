@@ -74,14 +74,13 @@ ShaftSleeve = 200;
 // upper
 module cam()
 {
-    shaftHeight = SpacedLayer * 5;
+    shaftHeight = SpacedLayer * 5 - 20;
     // Cam
-//    translate([0, 0, 0]) { difference() {
-        union() {
-            // shaft
-            translate([0, 0, LayerUnit]) cylinder(shaftHeight, r=ShaftR, $fn=96);
-            linear_extrude(LayerUnit)
-            {
+    union() {
+        // shaft
+        translate([0, 0, LayerUnit]) cylinder(shaftHeight, r=ShaftR, $fn=96);
+        linear_extrude(LayerUnit)
+        {
             translate([0, 0, 0]) circle(JointR, $fn=96);
             // strut
             translate([JointR, 0, 0]) square([400, 400], center=true);
@@ -89,13 +88,10 @@ module cam()
             translate([MagicM,0,0])
             difference() {
                 circle(JointR, $fn=96);
-                circle(ShaftR/3*2+10, $fn=6);
-            } } }
-        //}
-        // hex cutout
-//        translate([MagicM,0,-10]) cylinder(220, r=ShaftTight, $fn=96);
-//        }
-    //}
+                circle(ShaftR/3*2+16, $fn=6);
+            }
+        }
+    }
 }
 
 //// lower
@@ -116,11 +112,11 @@ module cam2()
         }
     }}
     translate([0, 0, LayerUnit])
-    linear_extrude(shaftHeight)
+    linear_extrude(shaftHeight-15)
     circle(ShaftR, $fn=96);
     
-    translate([0, 0, LayerUnit+shaftHeight])
-    linear_extrude(LayerUnit)
+    translate([0, 0, LayerUnit+shaftHeight-15])
+    linear_extrude(LayerUnit+10)
     circle(ShaftR/3*2, $fn=6);
 }
 

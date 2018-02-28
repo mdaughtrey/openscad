@@ -1,6 +1,4 @@
 include <defs.scad>
-include <model_squareinsert.scad>
-
 //ViewScale=[1,1,1];
 
 StrutWidth = 400;
@@ -9,10 +7,8 @@ rrectR = 100;
 JointVertSpace=20;
 //ShaftHole=220;
 ShaftSleeve = 200;
-//InsertR = 150;
-//InsertX = 400;
-//InsertY = 150;
-//InsertH = 600;
+InsertR = 100;
+InsertH = 600;
 
 // upper
 module cam()
@@ -23,16 +19,14 @@ module cam()
         // shaft
         translate([0, 0, LayerUnit]) cylinder(shaftHeight, r=ShaftR, $fn=96);
         {
-            // central shaft lower section with square cutout
+            // central shaft lower section with hex cutout
             translate([MagicM,0,0])
             linear_extrude(250)
             difference() {
                 circle(JointR, $fn=96);
-                rotate([0, 0, 120])
-                square([InsertE+30, InsertCapX+30], center=true);
-                //circle(InsertR, $fn=6);
+                circle(InsertR, $fn=6);
             }
-            // central shaft upper section without square cutout
+            // central shaft upper section without hex cutout
             translate([MagicM,0,250])
             linear_extrude(LayerUnit-250)
                 circle(JointR, $fn=96);
@@ -40,7 +34,7 @@ module cam()
             {
                 translate([0, 0, 0]) circle(JointR, $fn=96);
                 // strut
-                translate([JointR, 0, 0]) square([200, 400], center=true);
+                translate([JointR, 0, 0]) square([400, 400], center=true);
                 // central shaft
 //                translate([MagicM,0,0])
 //                difference() {
@@ -58,32 +52,29 @@ module cam2()
     shaftHeight = SpacedLayer + JointVertSpace;
     // two sections of the shaft base
     // lower section
-    union() {
-        linear_extrude(LayerUnit-100)
+    linear_extrude(LayerUnit-50)
+    circle(JointR, $fn=96);
+    // upper section with hex cutout
+    translate([0, 0, LayerUnit-50])
+    linear_extrude(50)
+    difference() {
         circle(JointR, $fn=96);
-        // upper section with square cutout
-        translate([0, 0, LayerUnit-101])
-        linear_extrude(101)
-        difference() {
-            circle(JointR, $fn=96);
-            square([InsertE+30, InsertCapX+30], center=true);
-            //circle(InsertR, $fn=6);
-        }
+        circle(InsertR, $fn=6);
     }
 
     // Cam
-//    #linear_extrude(LayerUnit) {
-//    translate([0, 0, 0]) { difference() {
-//        union() {
-////            #circle(JointR, $fn=96);
-//            // strut
-//            translate([JointR, 0, 0]) square([300, 400], center=true);
-//            // central shaft
-//            translate([MagicM,0,0]) circle(JointR, $fn=96);
-//        }
-//        translate([MagicM,0,-1]) circle(ShaftTight, $fn=96);
-//        }
-//    }}
+    linear_extrude(LayerUnit) {
+    translate([0, 0, 0]) { difference() {
+        union() {
+//            #circle(JointR, $fn=96);
+            // strut
+            translate([JointR, 0, 0]) square([300, 400], center=true);
+            // central shaft
+            translate([MagicM,0,0]) circle(JointR, $fn=96);
+        }
+        translate([MagicM,0,-1]) circle(ShaftTight, $fn=96);
+        }
+    }}
     shaftLower = shaftHeight-5+LayerUnit-320;
     shaftUpper = 320;
     echo("ShaftLower ",shaftLower," LayerUnit ",LayerUnit);
@@ -92,7 +83,7 @@ module cam2()
     linear_extrude(shaftLower)
     difference() {
         circle(ShaftR, $fn=96);
-        square([InsertE+30, InsertCapX+60], center=true);
+        circle(InsertR, $fn=6);
     }
 
     // shaft upper section
@@ -115,9 +106,9 @@ module cap2()
 
 // Outer joint plus half the rod
 module spine(layers) {
-   cam2();
-//    translate([0, 1000, 0])
-//    cam();
+    cam2();
+    translate([0, 1000, 0])
+    cam();
 }
 
 scale(ViewScale) {

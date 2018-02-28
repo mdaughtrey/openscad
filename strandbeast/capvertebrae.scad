@@ -42,9 +42,8 @@ module halfSpine(layers)
 {
     linkLength = 500;
     layerSpace = SpacedLayer*layers;
-    //baseHeight = LayerUnit * 2 + JointVertSpace + (3 * SpacedLayer);
     baseHeight = LayerUnit * 0 + JointVertSpace + (3 * SpacedLayer);
-    shaftHeight = SpacedLayer * 2 + linkLength;
+    shaftHeight = SpacedLayer * 2 + linkLength - 70;
 
     difference() {
         union() {
@@ -59,7 +58,7 @@ module halfSpine(layers)
                 }
                 union() {
                 // hole in shaft
-                translate([0, 0, -2]) cylinder(baseHeight + shaftHeight + 20,r=100,$fn=4);
+                translate([0, 0, -2]) cylinder(baseHeight + shaftHeight + 20,r=40,$fn=4);
                 // insertion hole
                 translate([0, 0, -1]) cylinder(linkLength, r=ShaftTight, $fn=96);
                 }}
@@ -188,13 +187,5 @@ module collar() {
 
 scale(ViewScale) {
     spine(5);
-    //cam();
-//    cam2()
-//    translate([1700, -300, 0]) cam2();
-//    translate([0, -2200, 0]) collar();
-//    translate([1500, -2200, 0]) collar();
-
-    // Drill driver
-//    *translate([0, -2000, 0]) cylinder(1000, r=ShaftR, $fn=6);
 }
 
