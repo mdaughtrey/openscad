@@ -1,8 +1,8 @@
-include <defs.scad>
-include <model_stepper.scad>
-include <driver_vertebrae.scad>
-include <driverinsert.scad>
-include <drivercam.scad>
+include <../defs.scad>
+include <model-geared2.scad>
+include <../driver_vertebrae.scad>
+include <../driverinsert.scad>
+include <../drivercam.scad>
 
 module tab() {
     difference()
@@ -63,7 +63,7 @@ module shroudShapeOuter()
         armShapeOuter();
         translate([-spineLength/2, 0, 0])
         translate([(1100-363-63)/2, 0, 0])
-        circle(1290/2, $fn=96);
+        circle(1590/2, $fn=96);
         square([600, 850], center=true);
     }
 }
@@ -90,7 +90,7 @@ module shroudShapeInner()
         armShapeInner();
         translate([-spineLength/2, 0, 0])
         translate([(1100-363-63)/2, 0, 0])
-        circle(1130/2+20, $fn=96);
+        circle(1460/2, $fn=96);
         square([600, 720], center=true);
     }
 }
@@ -150,53 +150,53 @@ module tabs()
 module shroud()
 {
     // Cover
-    linear_extrude(50)
-    difference() {
-        union() {
-            shroudShapeOuter();
-            tabs();
-        }
-        tabHoleCutout();
-        circleSegs();
-        wireCutout();
-    }
+//    linear_extrude(50)
+//    difference() {
+//        union() {
+//            shroudShapeOuter();
+//            tabs();
+//        }
+//        tabHoleCutout();
+//        circleSegs();
+//        wireCutout();
+//    }
 
     // Body 1
-    translate([0, 0, 50])
-    linear_extrude(710)
-    difference() {
-        union() {
-            shroudShapeOuter();
-            tabs();
-        }
-        tabHoleCutout();
-        shroudShapeInner();
-        wireCutout();
-    }
+//    translate([0, 0, 50])
+//    linear_extrude(710)
+//    difference() {
+//        union() {
+//            shroudShapeOuter();
+//            tabs();
+//        }
+//        tabHoleCutout();
+//        shroudShapeInner();
+//        wireCutout();
+//    }
 
     // Body 2
-    translate([0, 0, 460])
-    linear_extrude(300)
-    difference() {
-        union() {
-            shroudShapeOuter();
-            tabs();
-        }
-        tabHoleCutout();
-        shroudShapeInner();
-    //    wireCutout();
-    }
+//    translate([0, 0, 460])
+//    linear_extrude(300)
+//    difference() {
+//        union() {
+//            shroudShapeOuter();
+//            tabs();
+//        }
+//        tabHoleCutout();
+//        shroudShapeInner();
+//    //    wireCutout();
+//    }
 
     // Tab cutouts
-    translate([0, 0, 760])
-    linear_extrude(50)
+//    translate([0, 0, 760])
+//    linear_extrude(50)
     difference() {
         shroudShapeOuter();
         shroudShapeInner();
-        tabs();
-        tabHoleCutout();
+ //       tabs();
+ //       tabHoleCutout();
         wireCutout();
-        circle(JointR+20, $fn=96);
+ //       circle(JointR+20, $fn=96);
     }
 }
 
@@ -204,21 +204,21 @@ module shroud()
 scale(ViewScale)
 {
 //    translate([0, 0, 1640])
-    *rotate([0, 0,90]) 
-    translate([0, (1100-363-63)/2, 0])
-    {
-        translate([0, 0, 1650])
-        rotate([180, 0, 0])
-        color("CornflowerBlue") stepper();
-    }
-    *translate([-spineLength, 0, 0])
+//    *rotate([0, 0,90]) 
+//    translate([0, (1100-363-63)/2, 0])
+//    {
+//        translate([0, 0, 1650])
+//        rotate([180, 0, 0])
+//        color("CornflowerBlue") stepper();
+//    }
+    translate([-spineLength, 0, 0])
     color("LightSeaGreen") driver_vertebrae();
 
-    *translate([0, 0, 1700])
+    !translate([0, 0, 1700])
     rotate([180, 0, 180-33.32])
     shroud();
 
-    translate([0, 0, 260])
+    *#translate([0, 0, 260])
     driver_insert();
 
     *translate([0, 0, 300])

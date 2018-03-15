@@ -30,15 +30,15 @@ module ledMount(ext)
     square([150, LedD], center=true);
     }
 
-    translate([0, 0, 100])
-    linear_extrude(250+ext)
-    translate([212, MountR, 0]) 
+    translate([0, 0, 650])
+    linear_extrude(700)
+    translate([-212, MountR, 0]) 
     {
-    translate([-105, 100, 0])
-    square([100, 400], center=true);
-    translate([105, 50, 0])
-    square([100, 500], center=true);
-    translate([-100, 60, 0])
+    translate([105, 140, 0])
+    square([100, 440], center=true);
+    translate([-105, 90, 0])
+    square([100, 530], center=true);
+    translate([100, 60, 0])
     square([500, 200], center=true);
     }
 }

@@ -1,4 +1,5 @@
 use <model_adps9660.scad>
+use <lids.scad>
 
 ViewScale = [0.0254, 0.0254, 0.0254];
 
@@ -186,7 +187,6 @@ module enclosure_gestureSensor()
 
 scale(ViewScale)
 {
-//    linear_extrude(900)
     faceplate();
     translate([165, -410, 872])
     rotate([180, 0, 90])
@@ -199,4 +199,8 @@ scale(ViewScale)
 //    translate([-1400, -380, 560-70])
 //    rotate([180, 0, -90])
 //    ADPS9660Carrier();
+
+//    translate([-1400, -400, 920])
+//    rotate([180, 0, 90])
+//    apdsLid();
 }

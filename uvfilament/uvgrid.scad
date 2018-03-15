@@ -3,7 +3,7 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 extension = 0;
 rows = 3;
 cols = 3;
-facemils = 10;
+facemils = 40;
 module cell()
 {
     //rotate([180, 0, 0]) {

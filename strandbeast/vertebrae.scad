@@ -82,7 +82,6 @@ module halfSpine2(layers)
         linear_extrude(LayerUnit)
         circle(ShaftHole, $fn=96);
     }
-
 }
 
 module halfSpine(layers)
@@ -97,7 +96,6 @@ module halfSpine(layers)
             // shaft + base
                 difference(){
                     union() {
-                    #cylinder(baseHeight, r=JointR,$fn=96); // base
                     translate([0, 0, baseHeight])
                         cylinder(shaftHeight, r=ShaftR,$fn=96); // shaft
                     // strut
@@ -162,17 +160,7 @@ module cam2()
 
 // Outer joint plus half the rod
 module spine(layers) {
-    //halfSpine(layers);
     halfSpine2(layers);
-//    union() {
-//    translate([spineLength, 0, SpacedLayer*1]) rotate([0, 0, 180]) cam2();
-//    translate([spineLength, 0, SpacedLayer*2+JointVertSpace])
-//    rotate([0, 0, 300])
-//    translate([MagicM, 0, LayerUnit*1])
-//    rotate([0, 0, 180])
-//    cam();
-//    }
-// temp
     translate([spineLength, 0, 0]) rotate([0, 0, 180-33.32]) 
     translate([-spineLength, 0, 0]) halfSpine2(layers);
 }
@@ -235,15 +223,8 @@ module collar() {
     }
 }
 
-scale(ViewScale) {
+//scale(ViewScale) {
+ module vertebrae() {
     spine(5);
-    //cam();
-//    cam2()
-//    translate([1700, -300, 0]) cam2();
-//    translate([0, -2200, 0]) collar();
-//    translate([1500, -2200, 0]) collar();
-
-    // Drill driver
-//    *translate([0, -2000, 0]) cylinder(1000, r=ShaftR, $fn=6);
 }
 

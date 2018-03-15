@@ -53,8 +53,10 @@ module apdsLid()
     square([230, 670], center=true);
     }
     translate([0, 0, 100])
-    linear_extrude(240)
-    square(300, center=true);
+    //linear_extrude(328)
+    linear_extrude(280)
+    circle(100, center=true);
+    //square(300, center=true);
 }
 
 

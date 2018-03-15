@@ -118,7 +118,7 @@ module spine(layers) {
     cam2();
     translate([0, 1000, 0])
     cam();
-    translate([0, 2000, 0])
+//    translate([0, 2000, 0])
 }
 
 scale(ViewScale) {

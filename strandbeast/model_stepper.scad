@@ -18,7 +18,10 @@ module shaft() {
 
     translate([0, 0, 83])
     linear_extrude(300)
-    circle(194/2, center=true);
+    intersection() {
+    circle(194/2, $fn=96);
+    square([120, 400], center=true);
+    }
 }
 
 module body()
@@ -40,7 +43,8 @@ module body()
     motorTab();
 }
 
-scale(ViewScale)
+//scale(ViewScale)
+module stepper()
 {
     body();
     translate([0, (1100-363-63)/2, 710])

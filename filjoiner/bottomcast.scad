@@ -8,7 +8,7 @@ filR = 35+5;
 filD = filR * 2;
 fillAW = 250;
 fillBW = 250;
-baseHeight = 50;
+baseHeight = 70;
 wallThick = 100;
 
 filamentTx = 0;
@@ -68,11 +68,11 @@ module wall1()
     square([500, wallBTx+(-wallATx)+400], center=true);
     union() {
         translate([100, heaterTx, 0])
-        circle(heaterR*2/3, $fn=96);
+        circle(heaterR, $fn=96);
         translate([80, 0, 0])
         circle(filR, $fn-96);
         translate([90, sensorTx, 0])
-        circle(sensorR/3*2, $fn-96);
+        circle(sensorR, $fn-96);
     } }
 }
 
