@@ -8,5 +8,6 @@ polygon(points=[[0,0],
 
 scale(ViewScale)
 {
+    linear_extrude(1000)
     bridgeData();
 }
