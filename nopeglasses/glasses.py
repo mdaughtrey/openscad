@@ -58,7 +58,7 @@ def loadBmp2():
         vala = whites[0][0]*mult
         valb = whites[-1][0]*mult
         plotlist1.append((index, vala))
-        plotlist2.appendleft((index, valb))
+        plotlist2.append((index, valb))
         if vala > maxa: maxa = vala
         if valb > maxb: maxb = valb
 #        plotlist1.appendleft((index, whites[-1][0]))
