@@ -46,15 +46,21 @@ def loadBmp2():
     #print("polygon(points=[[0,0],[10,0],")
     file2a = open("glasses2a.dat", "w")
     file2b = open("glasses2b.dat", "w")
-    print("polygon(points=[[0,0],",sep="",end="",file=file2a)
-    print("polygon(points=[[0,0],",sep="",end="",file=file2b)
+    print("polygon(points=[",sep="",end="",file=file2a)
+    print("polygon(points=[",sep="",end="",file=file2b)
+    maxa = 0
+    maxb = 0
     for ii in bmp:
         whites = numpy.argwhere(ii)
         if 0 == len(whites):
             continue
             #print("[",int(index),",0],",sep="",end=""),
-        plotlist1.append((index, whites[0][0]*mult))
-        plotlist2.appendleft((index, whites[-1][0]*mult))
+        vala = whites[0][0]*mult
+        valb = whites[-1][0]*mult
+        plotlist1.append((index, vala))
+        plotlist2.appendleft((index, valb))
+        if vala > maxa: maxa = vala
+        if valb > maxb: maxb = valb
 #        plotlist1.appendleft((index, whites[-1][0]))
         #else:
         #    print("[",int(index),",",first1[0][0]*mult+offset,"],",sep="",end=""),
@@ -63,8 +69,12 @@ def loadBmp2():
         print("[",xx[0],",",xx[1],"],",sep="",end="", file=file2a)
     for xx in plotlist2:
         print("[",xx[0],",",xx[1],"],",sep="",end="", file=file2b)
-    print("],convexity=1);", sep="", file=file2a)
-    print("],convexity=1);", sep="", file=file2b)
+
+    print("[",int(index-inc),",",maxa+500,"],[0,",maxa+500,"]],convexity=1);",sep="",file=file2a)
+    print("[",int(index-inc),",",maxb+500,"],[0,",maxb+500,"]],convexity=1);",sep="",file=file2b)
+
+    #print("],convexity=1);", sep="", file=file2a)
+    #print("],convexity=1);", sep="", file=file2b)
     #print("[",int(index),",0],[",int(index)+10,",0]],convexity=1);",sep="")
 
 loadBmp1()
