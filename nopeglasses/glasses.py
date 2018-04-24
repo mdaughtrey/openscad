@@ -71,7 +71,7 @@ def loadBmp2():
         print("[",xx[0],",",xx[1],"],",sep="",end="", file=file2b)
 
     print("[",int(index-inc),",",maxa+500,"],[0,",maxa+500,"]],convexity=1);",sep="",file=file2a)
-    print("[",int(index-inc),",",maxb+500,"],[0,",maxb+500,"]],convexity=1);",sep="",file=file2b)
+    print("[",int(index-inc),",0],[0,0]],convexity=1);",sep="",file=file2b)
 
     #print("],convexity=1);", sep="", file=file2a)
     #print("],convexity=1);", sep="", file=file2b)
