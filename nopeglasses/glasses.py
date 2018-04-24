@@ -30,7 +30,7 @@ def loadBmp1():
             print("[",int(index),",",val,"],",sep="",end="",file=file1),
             if val > max: max = val
         index = index+inc
-    print("[",int(index-inc),",",max+100,"],[0,",max+100,"]],convexity=1);",sep="",file=file1)
+    print("[",int(index-inc),",",max+500,"],[0,",max+500,"]],convexity=1);",sep="",file=file1)
 
 def loadBmp2():
     plotlist1 = collections.deque()
