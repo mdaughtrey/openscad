@@ -17,16 +17,20 @@ def loadBmp1():
     mult = inc
 
     file1 = open("./glasses1.dat", "w")
+    max = 0
     #print("polygon(points=[[0,0],[10,0],")
-    print("polygon(points=[[0,0],", sep="", end="", file=file1)
+    print("polygon(points=[", sep="", end="", file=file1)
     for ii in bmp:
         first1 = numpy.argwhere(ii)
         if 0 == len(first1):
-            print("[",int(index),",0],",sep="",end="",file=file1),
+            continue
+            #print("[",int(index),",0],",sep="",end="",file=file1),
         else:
-            print("[",int(index),",",first1[0][0]*mult+offset,"],",sep="",end="",file=file1),
+            val = first1[0][0]*mult+offset
+            print("[",int(index),",",val,"],",sep="",end="",file=file1),
+            if val > max: max = val
         index = index+inc
-    print("[",int(index),",0],[",int(index)+10,",0]],convexity=1);",sep="",file=file1)
+    print("[",int(index-inc),",",max+100,"],[0,",max+100,"]],convexity=1);",sep="",file=file1)
 
 def loadBmp2():
     plotlist1 = collections.deque()
