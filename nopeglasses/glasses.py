@@ -26,13 +26,13 @@ def loadBmp(input, output):
             #print("[",int(index),",0],",sep="",end="",file=file1),
         else:
             val = first1[0][0]*mult+offset
-            if 1 == len(first1):
-                print("[",index,",",val,"],",sep="",end="",file=file1)
-            else:
-                valnext = first1[1][0]*mult+offset
-                for jj in range(0, inc):
-                    print("[",int(jj+index),",",jj+int(val+((valnext-val)/inc)),"],",sep="",end="",file=file1)
-            if val > max: max = val
+#            if 1 == len(first1):
+            print("[",index,",",val,"],",sep="",end="",file=file1)
+#            else:
+#                valnext = first1[1][0]*mult+offset
+#                for jj in range(0, inc):
+#                    print("[",int(jj+index),",",jj+int(val+((valnext-val)/inc)),"],",sep="",end="",file=file1)
+        if val > max: max = val
         index = index+inc
     print("[",int(index-inc),",",max+500,"],[0,",max+500,"]],convexity=1);",sep="",file=file1)
 
@@ -63,6 +63,7 @@ def loadBmp2():
             valbnext = whites[-2][0]*mult
             for jj in range(0, inc):
                 plotlist1.append((jj+index, jj+int(vala+((valanext-vala)/inc))))
+            for jj in range(0, inc):
                 plotlist2.append((jj+index, jj+int(valb+((valbnext-valb)/inc))))
         else:
             plotlist1.append((index, vala))
