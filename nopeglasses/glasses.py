@@ -7,18 +7,17 @@ from PIL import Image
 import pdb
 import collections
 
-def loadBmp1():
-    #pdb.set_trace()
-    bmp = numpy.rot90(imageio.imread("./glasses1.bmp"))
+def loadBmp(input, output):
+    #bmp = numpy.rot90(imageio.imread("./glasses1.bmp"))
+    bmp = numpy.rot90(imageio.imread(input))
     offset=-100
-    #mult = 16
     index = 0
     inc = int(3025/bmp.shape[0])
     mult = inc
 
-    file1 = open("./glasses1.dat", "w")
+    #file1 = open("./glasses1.dat", "w")
+    file1 = open(output, "w")
     max = 0
-    #print("polygon(points=[[0,0],[10,0],")
     print("polygon(points=[", sep="", end="", file=file1)
     for ii in bmp:
         first1 = numpy.argwhere(ii)
@@ -27,7 +26,12 @@ def loadBmp1():
             #print("[",int(index),",0],",sep="",end="",file=file1),
         else:
             val = first1[0][0]*mult+offset
-            print("[",int(index),",",val,"],",sep="",end="",file=file1),
+            if 1 == len(first1):
+                print("[",index,",",val,"],",sep="",end="",file=file1)
+            else:
+                valnext = first1[1][0]*mult+offset
+                for jj in range(0, inc):
+                    print("[",int(jj+index),",",jj+int(val+((valnext-val)/inc)),"],",sep="",end="",file=file1)
             if val > max: max = val
         index = index+inc
     print("[",int(index-inc),",",max+500,"],[0,",max+500,"]],convexity=1);",sep="",file=file1)
@@ -37,13 +41,10 @@ def loadBmp2():
     plotlist2 = collections.deque()
     bmp = numpy.rot90(imageio.imread("./glasses2.bmp"))
     offset=0
-    #mult = 16
     index = 0
     inc = int(3025/bmp.shape[0])
-    #inc = 1
     mult = inc
 
-    #print("polygon(points=[[0,0],[10,0],")
     file2a = open("glasses2a.dat", "w")
     file2b = open("glasses2b.dat", "w")
     print("polygon(points=[",sep="",end="",file=file2a)
@@ -54,16 +55,20 @@ def loadBmp2():
         whites = numpy.argwhere(ii)
         if 0 == len(whites):
             continue
-            #print("[",int(index),",0],",sep="",end=""),
+        #pdb.set_trace()
         vala = whites[0][0]*mult
         valb = whites[-1][0]*mult
-        plotlist1.append((index, vala))
-        plotlist2.append((index, valb))
+        if len(whites) > 2:
+            valanext = whites[1][0]*mult
+            valbnext = whites[-2][0]*mult
+            for jj in range(0, inc):
+                plotlist1.append((jj+index, jj+int(vala+((valanext-vala)/inc))))
+                plotlist2.append((jj+index, jj+int(valb+((valbnext-valb)/inc))))
+        else:
+            plotlist1.append((index, vala))
+            plotlist2.append((index, valb))
         if vala > maxa: maxa = vala
         if valb > maxb: maxb = valb
-#        plotlist1.appendleft((index, whites[-1][0]))
-        #else:
-        #    print("[",int(index),",",first1[0][0]*mult+offset,"],",sep="",end=""),
         index = index+inc
     for xx in plotlist1:
         print("[",xx[0],",",xx[1],"],",sep="",end="", file=file2a)
@@ -78,5 +83,5 @@ def loadBmp2():
     #print("],convexity=1);", sep="", file=file2b)
     #print("[",int(index),",0],[",int(index)+10,",0]],convexity=1);",sep="")
 
-loadBmp1()
+loadBmp("./glasses1.bmp", "glasses1.dat")
 loadBmp2()
