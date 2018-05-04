@@ -105,17 +105,16 @@ def loadBmp2():
         whites = numpy.argwhere(ii)
         if 0 == len(whites):
             continue
-        #pdb.set_trace()
         vala = whites[0][0]*mult
         valb = whites[-1][0]*mult
         if len(whites) > 2:
             valanext = whites[1][0]*mult
             valbnext = whites[-2][0]*mult
             for dd in bres((index, vala),(index+inc,valanext)):
-                if len(plotlist1) > 1 and dd != plotlist1[-1]:
+                if len(plotlist1) == 0 or dd != plotlist1[-1]:
                     plotlist1.append((dd[0], dd[1])) 
             for dd in bres((index, valb),(index+inc,valbnext)):
-                if len(plotlist2) > 1 and dd != plotlist2[-1]:
+                if len(plotlist2) == 0 or dd != plotlist2[-1]:
                     plotlist2.append((dd[0], dd[1]))
 #                print("[",dd[0],",",dd[1],"],",sep="",end="",file=file1)
 #            for jj in range(0, inc):
