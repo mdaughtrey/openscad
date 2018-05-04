@@ -114,7 +114,7 @@ def loadBmp2():
             for dd in bres((index, vala),(index+inc,valanext)):
                 plotlist1.append((dd[0], dd[1])) 
             for dd in bres((index, valb),(index+inc,valbnext)):
-                plotlist1.append((dd[0], dd[1]))
+                plotlist2.append((dd[0], dd[1]))
 #                print("[",dd[0],",",dd[1],"],",sep="",end="",file=file1)
 #            for jj in range(0, inc):
 #                plotlist1.append((jj+index, jj+int(vala+((valanext-vala)/inc))))
