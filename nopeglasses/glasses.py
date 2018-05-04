@@ -7,6 +7,55 @@ from PIL import Image
 import pdb
 import collections
 
+def bres(start, end):
+    """Bresenham's Line Algorithm
+    Produces a list of tuples from start and end
+    >>> points1 = get_line((0, 0), (3, 4))
+    >>> points2 = get_line((3, 4), (0, 0))
+    >>> assert(set(points1) == set(points2))
+    >>> print points1
+    [(0, 0), (1, 1), (1, 2), (2, 3), (3, 4)]
+    >>> print points2
+    [(3, 4), (2, 3), (1, 2), (1, 1), (0, 0)]
+    """
+    # Setup initial conditions
+    x1, y1 = start
+    x2, y2 = end
+    dx = x2 - x1
+    dy = y2 - y1
+    # Determine how steep the line is
+    is_steep = abs(dy) > abs(dx)
+    # Rotate line
+    if is_steep:
+        x1, y1 = y1, x1
+        x2, y2 = y2, x2
+    # Swap start and end points if necessary and store swap state
+    swapped = False
+    if x1 > x2:
+        x1, x2 = x2, x1
+        y1, y2 = y2, y1
+        swapped = True
+    # Recalculate differentials
+    dx = x2 - x1
+    dy = y2 - y1
+    # Calculate error
+    error = int(dx / 2.0)
+    ystep = 1 if y1 < y2 else -1
+    # Iterate over bounding box generating points between start and end
+    y = y1
+    points = []
+    for x in range(x1, x2 + 1):
+        coord = (y, x) if is_steep else (x, y)
+        points.append(coord)
+        error -= abs(dy)
+        if error < 0:
+            y += ystep
+            error += dx
+    # Reverse the list if the coordinates were swapped
+    if swapped:
+        points.reverse()
+    return points
+
 def loadBmp(input, output):
     #bmp = numpy.rot90(imageio.imread("./glasses1.bmp"))
     bmp = numpy.rot90(imageio.imread(input))
@@ -26,12 +75,13 @@ def loadBmp(input, output):
             #print("[",int(index),",0],",sep="",end="",file=file1),
         else:
             val = first1[0][0]*mult+offset
-#            if 1 == len(first1):
-            print("[",index,",",val,"],",sep="",end="",file=file1)
-#            else:
-#                valnext = first1[1][0]*mult+offset
-#                for jj in range(0, inc):
-#                    print("[",int(jj+index),",",jj+int(val+((valnext-val)/inc)),"],",sep="",end="",file=file1)
+            if val == -100: val = 80
+            if 1 == len(first1):
+                print("[",index,",",val,"],",sep="",end="",file=file1)
+            else:
+                valnext = first1[1][0]*mult+offset
+                for dd in bres((index, val),(index+inc,valnext)):
+                    print("[",dd[0],",",dd[1],"],",sep="",end="",file=file1)
         if val > max: max = val
         index = index+inc
     print("[",int(index-inc),",",max+500,"],[0,",max+500,"]],convexity=1);",sep="",file=file1)
@@ -61,10 +111,15 @@ def loadBmp2():
         if len(whites) > 2:
             valanext = whites[1][0]*mult
             valbnext = whites[-2][0]*mult
-            for jj in range(0, inc):
-                plotlist1.append((jj+index, jj+int(vala+((valanext-vala)/inc))))
-            for jj in range(0, inc):
-                plotlist2.append((jj+index, jj+int(valb+((valbnext-valb)/inc))))
+            for dd in bres((index, vala),(index+inc,valanext)):
+                plotlist1.append((dd[0], dd[1])) 
+            for dd in bres((index, valb),(index+inc,valbnext)):
+                plotlist1.append((dd[0], dd[1]))
+#                print("[",dd[0],",",dd[1],"],",sep="",end="",file=file1)
+#            for jj in range(0, inc):
+#                plotlist1.append((jj+index, jj+int(vala+((valanext-vala)/inc))))
+#            for jj in range(0, inc):
+#                plotlist2.append((jj+index, jj+int(valb+((valbnext-valb)/inc))))
         else:
             plotlist1.append((index, vala))
             plotlist2.append((index, valb))
