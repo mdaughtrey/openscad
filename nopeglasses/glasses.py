@@ -115,7 +115,7 @@ def loadBmp2():
                 if len(plotlist1) > 1 and dd != plotlist1[-1]:
                     plotlist1.append((dd[0], dd[1])) 
             for dd in bres((index, valb),(index+inc,valbnext)):
-                if len(plotlist1) > 1 and dd != plotlist2[-1]:
+                if len(plotlist2) > 1 and dd != plotlist2[-1]:
                     plotlist2.append((dd[0], dd[1]))
 #                print("[",dd[0],",",dd[1],"],",sep="",end="",file=file1)
 #            for jj in range(0, inc):
