@@ -21,9 +21,9 @@ module oneCap(count)
 
 }
 
-scale(ViewScale)
-{
-    oneCap(3);
-    translate([400, 700, 0])
-    oneCap(2);
-}
+//scale(ViewScale)
+//{
+//    oneCap(3);
+//    translate([400, 700, 0])
+//    oneCap(2);
+//}
