@@ -44,6 +44,17 @@ module airhole()
 
 module hetab()
 {
+    // cover support
+    translate([0, 0, -50])
+    linear_extrude(40)
+    difference () {
+    hull() union() { circle(902/2, $fn=96); translate([714, 0, 0]) circle(444, $fn=96); }
+    hull() union() { circle(389, $fn=96); translate([714, 0, 0]) circle(389, $fn=96); }
+
+    circle(912/2, $fn=96);
+    }
+
+    // insert
     translate([0, 0, -50])
     linear_extrude(50)
     difference () {
@@ -51,6 +62,7 @@ module hetab()
     circle(902/2, $fn=96);
     }
 
+    // cover
     linear_extrude(50)
     difference () {
     hull() union() { circle(902/2, $fn=96); translate([714, 0, 0]) circle(444, $fn=96); }
