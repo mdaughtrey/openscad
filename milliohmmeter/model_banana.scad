@@ -17,8 +17,20 @@ module bananaPlug()
     }
 }
 
+module bananaPlug_cutout()
+{
+    rotate([180, 0, 0])
+    translate([0, 0, -200])
+    linear_extrude(400)
+    intersection() {
+    circle(310/2, $fn=96);
+    square([270, 400], center=true);
+    }
+}
+
 //scale(ViewScale)
 //{
 //    bananaPlug();
+//    bananaPlug_cutout();
 //}
 

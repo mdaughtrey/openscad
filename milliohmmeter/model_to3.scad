@@ -33,8 +33,30 @@ module to3()
     circle(40/2, $fn=96);
 }
 
+module to3_cutout()
+{
+    // mounting holes
+    translate([0, 0, -150])
+    linear_extrude(200) {
+    translate([1190/2, 0, 0]) 
+    circle(160/2, $fn=96);
+    translate([-1190/2, 0, 0]) 
+    circle(160/2, $fn=96);
+    }
+
+    // pins
+    translate([-75, 220, -200])
+    linear_extrude(300)
+    circle(100/2, $fn=96);
+
+    translate([-75, -220, -200])
+    linear_extrude(300)
+    circle(100/2, $fn=96);
+}
+
 //scale(ViewScale)
 //{
 //    to3();
+//    #to3_cutout();
 //}
 

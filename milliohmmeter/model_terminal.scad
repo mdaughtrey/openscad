@@ -27,8 +27,22 @@ module terminals()
     circle(38/2, $fn=96);
 }
 
+module terminals_cutout()
+{
+    // block
+    translate([0, 0, -50])
+    linear_extrude(400)
+    union() {
+    translate([-15, 0, 0])
+    square([593+30+24, 306+30],center=true);
+    translate([-593/2-12, 240-306/2, 0])
+    square([24, 43], center=true);
+    }
+}
+
 //scale(ViewScale)
 //{
 //    terminals();
+//    #terminals_cutout();
 //}
 

@@ -30,7 +30,16 @@ module switch()
     square([30, 80], center=true);
 }
 
+module switch_cutout()
+{
+    // screw
+    translate([0, 0, 380])
+    linear_extrude(200)
+    circle(248/2, $fn=96);
+}
+
 //scale(ViewScale)
-//`{
-//`    switch();
-//`}
+//{
+//    switch();
+//    switch_cutout();
+//}

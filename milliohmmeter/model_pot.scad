@@ -24,7 +24,16 @@ module pot()
     square([20, 20], center=true);
 }
 
+module pot_cutout()
+{
+    // base
+    translate([0, 0, -50])
+    linear_extrude(400)
+    square([378+30,173+30], center=true);
+}
+
 //scale(ViewScale)
 //{
 //    pot();
+//    pot_cutout();
 //}
