@@ -1,5 +1,6 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 include <model_hotend.scad>
+include <lionpair.scad>
 
 module base()
 {
@@ -45,7 +46,7 @@ module airhole()
 module hetab()
 {
     // cover support
-    translate([0, 0, -50])
+    *translate([0, 0, -50])
     linear_extrude(40)
     difference () {
     hull() union() { circle(902/2, $fn=96); translate([714, 0, 0]) circle(444, $fn=96); }
@@ -55,7 +56,7 @@ module hetab()
     }
 
     // insert
-    translate([0, 0, -50])
+    *translate([0, 0, -50])
     linear_extrude(50)
     difference () {
     hull() union() { circle(379, $fn=96); translate([714, 0, 0]) circle(379, $fn=96); }
@@ -72,7 +73,7 @@ module hetab()
 
 module hotend() 
 {
-    translate([0, 0, -50])
+    *#translate([0, 0, -50])
     linear_extrude(40)
     difference() {
     circle(902/2, $fn=96);
@@ -96,19 +97,68 @@ module hotend()
     hetab();
 }
 
+module iltube(clearance)
+{
+    rotate([90, 0, 0])
+    linear_extrude(1000)
+    translate([714-902/2, 0, 0])
+    circle(200+clearance, $fn=96);
+}
+
+module ilcutout(clearance)
+{
+    translate([-300, 500, 0])
+    iltube(clearance);
+    translate([500, 500, 0])
+    iltube(clearance);
+}
+
+module interlockhigh(hh)
+{
+    difference() 
+    {
+    rib(hh);
+    ilcutout(10);
+    }
+}
+
+module interlocklow(hh)
+{
+   rib(hh);
+   translate([0, 0, 400])
+   intersection() {
+       rib(400);
+       translate([0, 0, hh-400])
+       ilcutout(-10);
+   }
+}
+
 scale(ViewScale)
 {
+    union() {
+    // body base
     linear_extrude(50)
     base();
     translate([0, 0, 50])
-    rib(2880);
+    rib(1880);
 
-    *rotate([0, 0, 135])
-    translate([0, 0, 2980])
+    // interlocks
+    translate([0, 0, 1880])
+    interlocklow(500);
+    }
+    translate([0, 0, 2380+200])
+    interlockhigh(500);
+    
+
+    rotate([0, 0, 135])
+    translate([0, 0, 2980+100])
     {
 //    rotate([0, 0, 180])
 //    color("cornflowerblue")
 //    model_hotend();
     hotend();
     }
+    *translate([0, 0, 50])
+    color("cornflowerblue") 
+ lionpair();
 }
