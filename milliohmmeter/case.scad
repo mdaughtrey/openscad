@@ -30,17 +30,17 @@ module models()
     switch();
 
     // terminal
-    translate([1000, -1800, 1000-caseThickness])
+    translate([1000, -1730, 1000-caseThickness])
     rotate([0, 0, 0])
     terminals();
 
     // pot
-    translate([-500, -1800, 1000-caseThickness])
+    translate([-500, -1730, 1000-caseThickness])
     rotate([0, 0, 0])
     pot();
 
     // board
-    translate([0, -1710, 1000-caseThickness-300])
+    translate([0, -1675, 1000-caseThickness-300])
     rotate([90, 0, 0])
     linear_extrude(60)
     square([3800-caseThickness*2-50, 1000-caseThickness*2-200], center=true);
@@ -63,12 +63,13 @@ module roundedTemplate()
     }
 }
 
-module screwMount()
+module screwMount(ex, dia) 
 {
-    linear_extrude(intHeight-caseThickness)
+    //linear_extrude(intHeight-caseThickness)
+    linear_extrude(ex)
     difference() {
         circle(150, $fn=96);
-        circle(50/2, $fn=96);
+        circle(dia/2, $fn=96);
     }
 }
 
@@ -76,13 +77,27 @@ module screwMounts()
 {
     translate([0, 0, caseThickness]) {
     translate([3800/2-250, -250, 0])
-    screwMount();
+    screwMount(intHeight-caseThickness, 50);
     translate([-(3800/2-250), -250, 0])
-    screwMount();
+    screwMount(intHeight-caseThickness, 50);
     translate([3800/2-250, -1500, 0])
-    screwMount();
+    screwMount(intHeight-caseThickness, 50);
     translate([-(3800/2-250), -1500, 0])
-    screwMount();
+    screwMount(intHeight-caseThickness, 50);
+    }
+}
+
+module lidScrewMounts()
+{
+    translate([0, 0, caseThickness]) {
+    translate([3800/2-250, -250, 0])
+    screwMount(caseThickness-20, 100);
+    translate([-(3800/2-250), -250, 0])
+    screwMount(caseThickness-20, 100);
+    translate([3800/2-250, -1500, 0])
+    screwMount(caseThickness-20, 100);
+    translate([-(3800/2-250), -1500, 0])
+    screwMount(caseThickness-20, 100);
     }
 }
 
@@ -129,7 +144,7 @@ module caseCutouts()
     switch_cutout();
 
     // terminal
-    translate([1000, -1800, 1000-caseThickness])
+    translate([1000, -1730, 1000-caseThickness])
     rotate([0, 0, 0])
     terminals_cutout();
     translate([1000, -2000, 1000-caseThickness])
@@ -137,7 +152,7 @@ module caseCutouts()
     terminals_cutout();
 
     // pot
-    translate([-500, -1800, 1000-caseThickness])
+    translate([-500, -1730, 1000-caseThickness])
     rotate([0, 0, 0])
     pot_cutout();
 }
@@ -155,19 +170,38 @@ module boardMountPoint()
 
 module boardMount()
 {
-    translate([3800/2-caseThickness-190/2, -1710-90/2+15, 200])
+    translate([3800/2-caseThickness-190/2, -1710-20/2+15, 200])
     boardMountPoint();
+    translate([-(3800/2-caseThickness-190/2), -1710-20/2+15, 200])
+    boardMountPoint();
+}
 
-    translate([-(3800/2-caseThickness-190/2), -1710-90/2+15, 200])
-    boardMountPoint();
+module lid()
+{
+    linear_extrude(caseThickness) 
+    difference() {
+        roundedTemplate();
+        translate([3800/2-250, 750, 0])
+        circle(90, $fn=96);
+        translate([-(3800/2-250), 750, 0])
+        circle(90, $fn=96);
+        translate([3800/2-250, -500, 0])
+        circle(90, $fn=96);
+        translate([-(3800/2-250), -500, 0])
+        circle(90, $fn=96);
+    }
+    translate([0, 1000, 0])
+    lidScrewMounts();
 }
 
 scale(ViewScale)
 {
 //    color("cornflowerblue")
 //    models();
-    difference() {
-    case();
-    caseCutouts();
-    }
+//    difference() {
+//    case();
+//    caseCutouts();
+//    }
+//    translate([0, -1000, -1000])
+    lid();
 }
