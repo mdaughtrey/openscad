@@ -85,7 +85,7 @@ module ledshroud()
     }
 
     // slips over heatsink
-    linear_extrude(450)
+    linear_extrude(250)
     difference() {
         square([1060, 1060], center=true);
         square([960, 960], center=true);
