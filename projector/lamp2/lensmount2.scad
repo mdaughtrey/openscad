@@ -6,40 +6,26 @@ module cutouts()
         circle(1600/2, $fn=96);
         circle(1490/2, $fn=96);
         // tab
-        rotate([0, 0, 45]) 
         translate([0, 700, 0])
-        square([200, 200], center=true);
+        square([400, 200], center=true);
         // tab
-        rotate([0, 0, 165]) 
+        rotate([0, 0, 120]) 
         translate([0, 700, 0])
-        square([200, 200], center=true);
+        square([400, 200], center=true);
         // tab
-        rotate([0, 0, 285]) 
+        rotate([0, 0, 240]) 
         translate([0, 700, 0])
-        square([200, 200], center=true);
+        square([400, 200], center=true);
     }
 }
 
-module cutouts2()
-{
-   difference() {
-        circle(1600/2, $fn=96);
-        circle(1490/2, $fn=96);
-        // tab
-        rotate([0, 0, 53]) 
-        translate([0, 700, 0])
-        square([400, 200], center=true);
-        // tab
-        rotate([0, 0, 173]) 
-        translate([0, 700, 0])
-        square([400, 200], center=true);
-        // tab
-        //#rotate([0, 0, 240]) 
-        rotate([0, 0, 293]) 
-        translate([0, 700, 0])
-        square([400, 200], center=true);
-    }
-}
+//module rotcutouts() {
+//    for(ii=[0:90:360]) {
+//        rotate([0, 0, ii])
+//        translate([0, 500, 0])
+//        square([400, 200], center=true);
+//    }
+//}
 
 module bodymain()
 {
@@ -134,7 +120,7 @@ module vexmount1()
     difference() {
         hull() {
             circle(380/2);
-            translate([820, 0, 0])
+            translate([0, 1000, 0])
             square([380, 380], center=true);
         }
         circle(200/2);
@@ -146,32 +132,36 @@ module vexmount()
 {
     linear_extrude(150) {
         vexmount1();
-        translate([2000, 0, 0])
-        rotate([0, 180, 0])
+        translate([1000, 0, 0])
         vexmount1();
     }
 }
 
 module mountsupport()
 {
-    difference() {
-        translate([0, 650, 0])
-        square([1500, 200], center=true);
-        //circle(1490/2, $fn=96);
-        circle(1600/2, $fn=96);
-    }
+    square([700, 100], center=true);
 }
 
-module tabbedmirrormount()
+scale(ViewScale)
 {
+//    #linear_extrude(200){
+//        ledframe1();
+//        bodycutout();
+//    }
+//    #linear_extrude(170)
+//    support();
+//
+//    #translate([0, 0, 200])
+//    linear_extrude(200)
+//    bodycutout2();
+//
+//    #translate([0, 0, 200])
+//    linear_extrude(200)
+//    ledframe2();
 
     translate([0, 0, 0])
-    linear_extrude(150)
+    linear_extrude(300)
     cutouts();
-
-    translate([0, 0, 150])
-    linear_extrude(150)
-    cutouts2();
 
     translate([0, 0, 300])
     linear_extrude(200)
@@ -184,98 +174,12 @@ module tabbedmirrormount()
     translate([0, 0, 300])
     mirror();
 
-    translate([-1000, 750, 300])
+    translate([-500, 690, 1190])
     rotate([-90, 0, 0])
     vexmount();
 
-    translate([0, 0, 110])
-    linear_extrude(380)
+    translate([0, 790, 300])
+    linear_extrude(250)
     mountsupport();
 
-}
-
-module tab()
-{
-    // tab big bit
-    *linear_extrude(160)
-    intersection() {
-        difference() {
-            circle(1660/2, $fn=96);
-            circle(1460/2, $fn=96);
-        }
-        rotate([0, 0, 52]) 
-        translate([0, 700, 0])
-        square([380, 260], center=true);
-    }
-    //translate([0, 0, 160])
-    // tab little bit
-    linear_extrude(130)
-    intersection() {
-        difference() {
-            circle(1600/2, $fn=96);
-            circle(1460/2, $fn=96);
-        }
-        rotate([0, 0, 45]) 
-        translate([0, 700, 0])
-        square([180, 300], center=true);
-    }
-}
-
-module tabs()
-{
-    tab();
-    rotate([0, 0, 120])
-    tab();
-    rotate([0, 0, 240])
-    tab();
-}
-
-module tabbedlensmount() 
-{
-    // base
-    linear_extrude(300)
-    difference() {
-        circle(1460/2, $fn=96);
-        circle(1360/2, $fn=96);
-    }
-
-    // support1
-    linear_extrude(270)
-    difference() {
-        circle(1330/2, $fn=96);
-        circle(1180/2, $fn=96);
-    }
-
-    // support2
-    linear_extrude(270)
-    difference() {
-        circle(1150/2, $fn=96);
-        circle(1000/2, $fn=96);
-    }
-
-    translate([0, 0, 300])
-    linear_extrude(50)
-    difference() {
-        circle(1460/2, $fn=96);
-        circle(1010/2, $fn=96);
-    }
-
-    translate([0, 0, 350])
-    linear_extrude(500) {
-        difference() {
-            circle(1110/2, $fn=96);
-            circle(1010/2, $fn=96);
-        }
-    }
-    translate([0, 0, 10])
-    tabs();
-}
-
-scale(ViewScale)
-{
-    //translate([0, 0, 0])
-    tabbedmirrormount();
-    //translate([0, 0, 300])
-    //rotate([180, 0, 45])
-    //tabbedlensmount();
 }

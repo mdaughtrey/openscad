@@ -156,6 +156,15 @@ module fanshroudlower()
     }
 }
 
+module strainrelief()
+{
+    linear_extrude(100)
+    difference() {
+        circle(300, $fn=96);
+        circle(200, $fn=96);
+    }
+}
+
 scale(ViewScale)
 {
 //    translate([0, 0, 1400])
@@ -169,4 +178,8 @@ scale(ViewScale)
     fanshroudside();
     translate([0, 0, 390])
     fanshroudlower();
+
+    translate([-900, 0, 700])
+    rotate([0, 90, 0])
+    strainrelief();
 }
