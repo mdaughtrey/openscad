@@ -56,8 +56,8 @@ module bodycutout2()
         circle(1110/2, $fn=96);
         circle(1010/2, $fn=96);
         scale([1.3,1.3,1.3])
-        translate([0, 500, 0])
-        square([400, 200], center=true);
+        translate([0, 450, 0])
+        square([300, 200], center=true);
         //rotcutouts();
     }
 }
@@ -77,7 +77,7 @@ module bodycutout3()
 module ledframe2()
 {
     difference() {
-    square([1030, 1030], center=true);
+    square([1140, 1140], center=true);
     square([800, 800], center=true);
     rotcutouts();
 //    translate([0, 500, 0])
@@ -88,7 +88,7 @@ module ledframe2()
 module ledframe1()
 {
     difference() {
-        square([1030, 1030], center=true);
+        square([1140, 1140], center=true);
         square([900, 900], center=true);
         rotcutouts();
     }
@@ -104,19 +104,33 @@ module support()
 
 module ledmount()
 {
-    linear_extrude(200){
+    linear_extrude(200)
+    difference() {
+        square([1140, 1140], center=true);
+        square([1040, 1040], center=true);
+        translate([-300, 550, 0])
+        square([200, 100], center=true);
+    }
+    translate([0, 0, 200])
+    linear_extrude(200)
+    difference() {
+        square([1140, 1140], center=true);
+        square([1040, 1040], center=true);
+    }
+    translate([0, 0, 400])
+    linear_extrude(400){
         ledframe1();
     }
 
-    translate([0, 0, 200])
+    translate([0, 0, 800])
     linear_extrude(200)
     ledframe2();
 
-    translate([0, 0, 200])
-    linear_extrude(400)
+    translate([0, 0, 800])
+    linear_extrude(200)
     bodycutout2();
 
-    translate([0, 0, 400])
+    translate([0, 0, 1000])
     linear_extrude(1000)
     bodycutout3();
 
@@ -162,6 +176,6 @@ scale(ViewScale)
     ledmount();
     //linear_extrude(170)
     //support();
-    translate([0, 1300, 0])
-    lensmount();
+    //translate([0, 1300, 0])
+    //lensmount();
 }

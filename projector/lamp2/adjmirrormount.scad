@@ -141,6 +141,17 @@ module vexmount1()
     }
 }
 
+module bump()
+{
+    linear_extrude(100)
+    difference() {
+    square([170, 170], center=true);
+    for(ii=[45:90:315]) {
+        rotate([0, 0, ii])
+        translate([0, 120, 0])
+        square([80, 30], center=true);
+    }}
+}
 
 module vexmount()
 {
@@ -150,14 +161,23 @@ module vexmount()
         rotate([0, 180, 0])
         vexmount1();
     }
+    translate([500, 0, 150])
+    bump();
+    translate([2500, 0, 150])
+    bump();
 }
 
 module mountsupport()
 {
     difference() {
         translate([0, 650, 0])
-        square([1500, 200], center=true);
-        circle(1600/2, $fn=96);
+        union() {
+            translate([-590, 100, 0])
+            square([200, 400], center=true);
+            translate([590, 100, 0])
+            square([200, 400], center=true);
+        }
+        circle(1620/2, $fn=96);
     }
 }
 
@@ -302,21 +322,56 @@ module tabbedlensmount()
     tabs();
 }
 
+module diagonal()
+{
+    translate([1500, 1040, 190])
+    rotate([90, 60, 0])
+    linear_extrude(150)
+    difference() {
+        hull() {
+            circle(380/2);
+            translate([-1900, 0, 0])
+            square([380, 380], center=true);
+        }
+        circle(200/2);
+        translate([-2105, -240, 0])
+        rotate([0,0,60]) {
+        square([500, 700],center=true);
+        translate([400, 237, 0])
+        square([500, 300],center=true);
+        }
+    }
+}
+
 module adjvexmount()
 {
     translate([-1500, 890, 190])
     rotate([-90, 0, 0])
     vexmount();
 
-    translate([0, 140, 0])
+    //translate([0, 140, 0])
+    // lower support
     linear_extrude(380)
     mountsupport();
 
-    linear_extrude(1000)
+    // upper support
+    translate([0, 0, 1600])
+    linear_extrude(380)
+    mountsupport();
+
+    // diagonalsupport
+    diagonal();
+    translate([0, 1930, 0])
+    rotate([0, 0, 180])
+    diagonal();
+
+    linear_extrude(2000)
     difference() {
-        circle(2050/2, $fn=96);
         circle(1820/2, $fn=96);
-        mirrormountgrooves();
+        circle(1620/2, $fn=96);
+        translate([0, 800, 0])
+        square([980, 400], center=true);
+    //    mirrormountgrooves();
     }
     *linear_extrude(1000)
     mirrormountgrooves();
