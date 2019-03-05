@@ -88,20 +88,20 @@ module planetgear()
 // big gear in the middle
 module sungear()
 {
-//    difference() {
+    difference() {
         union() {
             gear(number_of_teeth=52,
                 circular_pitch=6280,
-                 gear_thickness=100,
+                 gear_thickness=200,
                  rim_thickness=500,
                  rim_width=50,
-                 bore_diameter = 270,
-                 bore_sides = 96,
-                 circle_diameter = 100);
-//                 circle_rim_inner_dia = 325,
-//                 circle_rim_thickness = 50,
-//                 circle_rim_height = 105,
-//                 circles=4);
+                 bore_diameter = 280,
+                 bore_sides = 6,
+                 circle_diameter = 100,
+                 circle_rim_inner_dia = 325,
+                 circle_rim_thickness = 50,
+                 circle_rim_height = 105,
+                 circles=4);
             // bottom flange
             //translate([0, 0, -30])
             linear_extrude(30)
@@ -110,14 +110,8 @@ module sungear()
                 circle(380/2, $fn=6);
             }
         }
-        translate([0, 0, 100])
-        linear_extrude(210)
-        difference() {
-            circle(400, $fn=96);
-            circle(506/2, $fn=6);
-        }
 
-        *union() {
+        union() {
         linear_extrude(100)
         gearcircles(number_of_teeth=52,
             circular_pitch=6280,
@@ -132,7 +126,7 @@ module sungear()
             circle_rim_height = 105,
             circles=4);
 
-        *translate([0, 0, 100])
+        translate([0, 0, 100])
         linear_extrude(105)
         gearcircles(number_of_teeth=52,
             circular_pitch=6280,
@@ -147,7 +141,7 @@ module sungear()
             circle_rim_height = 105,
             circles=4);
         }
-//    }
+    }
 }
 
 // arm that moves the lens interface around
@@ -173,29 +167,29 @@ module planetarm()
             difference() {
                 hull() {
                     circle(400);
-                    translate([0, geartranslate, 0])
+                    translate([0, 1560, 0])
                     circle(400);
                 }
                 // center hole
-                translate([0, geartranslate, 0]) {
-                  //  union() {
-                        circle(415/2, $fn=96);
-                        //intersection() {
-                            *difference() {
+                translate([0, 1560, 0]) {
+                    union() {
+                        circle(200, $fn=96);
+                        intersection() {
+                            difference() {
                                 circle(440, $fn=96);
                                 circle(310, $fn=96);
                             }
-                        //    union() {
-                        //        square([800, 210], center=true);
-                        //        square([210, 800], center=true);
-                        //    } // union
-                        //} // intersection
-                    // } // union
+                            union() {
+                                square([800, 210], center=true);
+                                square([210, 800], center=true);
+                            } // union
+                        } // intersection
+                    } // union
                 } // translate
             } // difference
         } // linear_extrude
     } // translate
-    *translate([0, 1560, 310]) 
+    translate([0, 1560, 310]) 
     armshaft();
 
 }
@@ -203,27 +197,89 @@ module planetarm()
 // sun gear shaft
 module sunshaft()
 {
-    // layer 0
-    linear_extrude(210)
+    // level 0
+    linear_extrude(105)
     difference() {
+        union() {
         circle(500, $fn=96);
-        circle(405, $fn=96);
-    }
-    // layer 1
-    translate([0, 0, 210])
-    linear_extrude(190)
-    difference() {
-        circle(500, $fn=96);
-        circle(280/2, $fn=96);
-    }
-    // layer 2
-    translate([0, 0, 400])
-    linear_extrude(1500)
-    difference() {
-        circle(400/2, $fn=96);
-        circle(280/2, $fn=96);
+        gearcircles(number_of_teeth=52,
+            circular_pitch=6280,
+            gear_thickness=200,
+            rim_thickness=500,
+            rim_width=50,
+            circle_diameter=535,
+            circles=4);
+        }
+        gearcircles(number_of_teeth=52,
+            circular_pitch=6280,
+            gear_thickness=200,
+            rim_thickness=500,
+            rim_width=50,
+            circle_diameter=435,
+            circles=4);
+        square(100, center=true);
+        //circle(280/2, $fn=6);
     }
 
+    // level 1
+    translate([0, 0, 105])
+    linear_extrude(105)
+    difference() {
+        union() {
+        circle(500, $fn=96);
+        gearcircles(number_of_teeth=52,
+            circular_pitch=6280,
+            gear_thickness=200,
+            rim_thickness=500,
+            rim_width=50,
+            circle_diameter=535,
+            circles=4);
+        }
+        gearcircles(number_of_teeth=52,
+            circular_pitch=6280,
+            gear_thickness=200,
+            rim_thickness=500,
+            rim_width=50,
+            circle_diameter=325,
+            circles=4);
+        square(100, center=true);
+        //circle(280/2, $fn=6);
+    }
+
+    // level 2
+    translate([0, 0, 210])
+    linear_extrude(100)
+    difference() {
+        circle(500, $fn=96);
+        square(100, center=true);
+    }
+
+    // level 3
+    translate([0, 0, 310])
+    linear_extrude(100)
+    difference() {
+        circle(150, $fn=96);
+        square(100, center=true);
+    }
+
+
+//    // hex insert
+//    linear_extrude(200)
+//    circle(370/2, $fn=6);
+//
+//    // lip thing
+//    translate([0, 0, 200])
+//    linear_extrude(310)
+//    circle(500, $fn=96);
+//
+//    // main shaft
+//    translate([0, 0, 200])
+//    linear_extrude(1000)
+//    circle(370/2, $fn=96);
+//
+//    // circles that overlap the sun gear 
+//    translate([0, 0, 200])
+//    shaftcircles();
 }
 
 module shaftcircles()
@@ -273,64 +329,21 @@ module armshaft()
     
 }
 
-module base()
-{
-    base_r = 850;
-    // level 0
-    linear_extrude(105)
-    difference() {
-        circle(base_r, $fn=96);
-        circle(470/2, $fn=96);
-        for (ii = [0:90:360])
-        {
-            rotate([0, 0, ii])
-            translate([600, 0, 0])
-            circle(335/2, $fn=96);
-        }
-    }
-    // level 1
-    translate([0, 0, 105])
-    linear_extrude(105)
-    difference() {
-        circle(base_r, $fn=96);
-        circle(470/2, $fn=96);
-    }
-    translate([0, 0, 210])
-    linear_extrude(100)
-    difference() {
-        circle(base_r, $fn=96);
-        circle(250/2, $fn=96);
-    }
-
-}
-
-
 scale(ViewScale)
 {
-    base();
-    translate([0, 0, 500]) {
-        sungear();
-        translate([0, 0, 100])
-        sunshaft();
-        translate([0, -geartranslate, -180]) 
-        planetgear();
-
-        #translate([0, -geartranslate, 310])
-        planetarm();
-    }
-//    translate([0, -geartranslate-300, 30]) {
+    translate([0, -geartranslate-300, 30]) {
 //        lens_model();
-//        translate([0, 0, 120])
-//        planetgear();
+        translate([0, 0, 120])
+        planetgear();
 //        translate([0, 0, 620])
 //        planetarm();
-//    }
+    }
     
-//    translate([0, 0, 320]) {
-//    sungear();
-//    translate([0, 0, 1200])
-//    sunshaft();
-//    }
+    translate([0, 0, 320]) {
+    sungear();
+    translate([0, 0, 1200])
+    sunshaft();
+    }
 //    translate([0, 0, 1200]) 
 //    sunshaft();
 //    }
