@@ -6,62 +6,9 @@ use <../libs/MCAD/involute_gears.scad>
 //include "planetgear.scad"
 //include "rim.scad"
 use <../lenses/proj2.scad>
+use <../strandbeast/geared2/housing.scad>
+use <../strandbeast/geared2/model_geared2.scad>
 geartranslate=1430;
-
-module gearcircles (
-	number_of_teeth=15,
-	circular_pitch=false, //  diametral_pitch=false,
-	pressure_angle=28,
-	clearance = 0.2,
-	gear_thickness=5,
-	rim_thickness=8,
-	rim_width=5,
-	hub_thickness=10,
-	hub_diameter=15,
-	circles=0,
-    circle_diameter=0)
-{
-    pi=3.1415926535897932384626433832795;
-
-	// Pitch diameter: Diameter of pitch circle.
-	pitch_diameter  =  number_of_teeth * circular_pitch / 180;
-    echo("pitch_diameter ",pitch_diameter);
-	pitch_radius = pitch_diameter/2;
-	echo ("Teeth:", number_of_teeth, " Pitch radius:", pitch_radius);
-
-	// Diametrial pitch: Number of teeth per unit length.
-	pitch_diametrial = number_of_teeth / pitch_diameter;
-
-	// Addendum: Radial distance from pitch circle to outside circle.
-	addendum = 1/pitch_diametrial;
-
-	//Outer Circle
-	outer_radius = pitch_radius+addendum;
-
-	// Dedendum: Radial distance from pitch circle to root diameter
-	dedendum = addendum + clearance;
-
-	// Root diameter: Diameter of bottom of tooth spaces.
-	root_radius = pitch_radius-dedendum;
-
-	// Variables controlling the rim.
-	rim_radius = root_radius - rim_width;
-
-	// Variables controlling the circular holes in the gear.
-	circle_orbit_diameter=hub_diameter/2+rim_radius;
-	circle_orbit_circumference=pi*circle_orbit_diameter;
-
-	if (circles>0)
-	{
-		for(i=[0:circles-1]) {
-			rotate([0,0,i*360/circles])
-			translate([circle_orbit_diameter/2,0,0]) {
-                //linear_extrude_flat_option(flat =flat, height=max(gear_thickness,rim_thickness)+3)
-                circle(r=circle_diameter/2, $fn=96);
-            }
-        }
-	}
-}
 
 // spinny gear that spins the lens
 module planetgear()
@@ -69,8 +16,8 @@ module planetgear()
     translate([0, 0, 10])
     linear_extrude(200)
     difference() {
-    circle(250, $fn=96);
-    circle(105, $fn=6);
+    circle(350, $fn=96);
+    circle(205, $fn=6);
     }
 
     translate([0, 0, 210])
@@ -88,116 +35,75 @@ module planetgear()
 // big gear in the middle
 module sungear()
 {
-//    difference() {
-        union() {
-            gear(number_of_teeth=52,
-                circular_pitch=6280,
-                 gear_thickness=100,
-                 rim_thickness=500,
-                 rim_width=50,
-                 bore_diameter = 270,
-                 bore_sides = 96,
-                 circle_diameter = 100);
-//                 circle_rim_inner_dia = 325,
-//                 circle_rim_thickness = 50,
-//                 circle_rim_height = 105,
-//                 circles=4);
-            // bottom flange
-            //translate([0, 0, -30])
-            linear_extrude(30)
-            difference(){
-                circle(1050, $fn=96);
-                circle(380/2, $fn=6);
-            }
-        }
-        translate([0, 0, 100])
-        linear_extrude(210)
-        difference() {
-            circle(400, $fn=96);
-            circle(506/2, $fn=6);
-        }
-
-        *union() {
-        linear_extrude(100)
-        gearcircles(number_of_teeth=52,
+    union() {
+        gear(number_of_teeth=52,
             circular_pitch=6280,
-            gear_thickness=200,
-            rim_thickness=500,
-            rim_width=50,
-            bore_diameter = 380,
-            bore_sides = 6,
-            circle_diameter = 425,
-            circle_rim_inner_dia = 325,
-            circle_rim_thickness = 50,
-            circle_rim_height = 105,
-            circles=4);
-
-        *translate([0, 0, 100])
-        linear_extrude(105)
-        gearcircles(number_of_teeth=52,
-            circular_pitch=6280,
-            gear_thickness=200,
-            rim_thickness=500,
-            rim_width=50,
-            bore_diameter = 380,
-            bore_sides = 6,
-            circle_diameter = 325,
-            circle_rim_inner_dia = 325,
-            circle_rim_thickness = 50,
-            circle_rim_height = 105,
-            circles=4);
+             gear_thickness=100,
+             rim_thickness=500,
+             rim_width=50,
+             bore_diameter = 270,
+             bore_sides = 96,
+             circle_diameter = 100);
+        // bottom flange
+        //translate([0, 0, -30])
+        linear_extrude(30)
+        difference(){
+            circle(1050, $fn=96);
+            circle(380/2, $fn=6);
         }
-//    }
+    }
+    translate([0, 0, 100])
+    linear_extrude(210)
+    difference() {
+        circle(400, $fn=96);
+        circle(506/2, $fn=6);
+    }
 }
 
 // arm that moves the lens interface around
 module planetarm()
 {
+    armthickness=100;
     // fits into lens interface gear
     linear_extrude(210)
     circle(420, $fn=96);
 
     // shaft into gear
-    translate([0, 0, -180])
-    linear_extrude(180)
+    translate([0, 0, -250])
+    linear_extrude(250)
     circle(100, $fn=96);
 
     // upper flange
     translate([0, 0, 210])
-    linear_extrude(100)
+    linear_extrude(armthickness)
     circle(700, $fn=96);
 
     // arm and shaft cutout
     translate([0, 0, 210]) {
-        linear_extrude(100) {
+        linear_extrude(armthickness) {
             difference() {
                 hull() {
                     circle(400);
                     translate([0, geartranslate, 0])
-                    circle(400);
+                    circle(1000);
                 }
                 // center hole
                 translate([0, geartranslate, 0]) {
-                  //  union() {
-                        circle(415/2, $fn=96);
-                        //intersection() {
-                            *difference() {
-                                circle(440, $fn=96);
-                                circle(310, $fn=96);
-                            }
-                        //    union() {
-                        //        square([800, 210], center=true);
-                        //        square([210, 800], center=true);
-                        //    } // union
-                        //} // intersection
-                    // } // union
+                    circle(415/2, $fn=96);
                 } // translate
             } // difference
         } // linear_extrude
     } // translate
-    *translate([0, 1560, 310]) 
-    armshaft();
-
+    // arm gear
+    translate([0, geartranslate, 210+armthickness])
+    gear(number_of_teeth=22,
+        circular_pitch=6280,
+         gear_thickness=50,
+         rim_thickness=300,
+         rim_width=50,
+         bore_diameter = 270,
+         bore_sides = 96,
+         circle_diameter = 100);
 }
 
 // sun gear shaft
@@ -218,34 +124,24 @@ module sunshaft()
     }
     // layer 2
     translate([0, 0, 400])
-    linear_extrude(1500)
-    difference() {
-        circle(400/2, $fn=96);
-        circle(280/2, $fn=96);
+    linear_extrude(1450) {
+        difference() {
+            square(420, center=true);
+            circle(300/2, $fn=96);
+            //circle(280/2, $fn=96);
+        }
     }
-
-}
-
-module shaftcircles()
-{
-//    linear_extrude(110)
-    difference() {
-    gearcircles(number_of_teeth=52,
-        circular_pitch=6280,
-        gear_thickness=200,
-        rim_thickness=500,
-        rim_width=50,
-        circle_diameter=535,
-        circles=4);
-    gearcircles(number_of_teeth=52,
-        circular_pitch=6280,
-        gear_thickness=200,
-        rim_thickness=500,
-        rim_width=50,
-        circle_diameter=435,
-        circles=4);
+    // layer 3
+    translate([0, 0, 1850])
+    linear_extrude(50) {
+        difference() {
+            square(420, center=true);
+            circle(95/2, $fn=96);
+            //circle(280/2, $fn=96);
+        }
     }
 }
+
 
 // arm shaft
 module armshaft()
@@ -304,6 +200,74 @@ module base()
 
 }
 
+module motorgear()
+{
+    // arm gear
+    translate([0, geartranslate+770, 310+330])
+    rotate([180, 0, 0])
+    gear(number_of_teeth=22,
+        circular_pitch=6280,
+         gear_thickness=200,
+         rim_thickness=300,
+         rim_width=50,
+         bore_diameter = 270,
+         bore_sides = 96,
+         circle_diameter = 100);
+}
+
+module housingcoupling0(cdia)
+{
+    clearance = 25;
+    difference() {
+        hull() {
+            square(540, center=true);
+            translate([0, 770, 0])
+            circle((784+clearance)/2, $fn=96);
+        }
+        square(440, center=true);
+        translate([0, 770, 0])
+        circle(cdia, $fn=96);
+    }
+}
+
+module housingcoupling1()
+{
+    clearance = 25;
+    difference() {
+        hull() {
+            square(540, center=true);
+            translate([0, 770, 0])
+            circle((784+clearance)/2, $fn=96);
+        }
+        circle(120/2, $fn=96);
+        translate([0, 770, 0])
+        circle((584+clearance)/2, $fn=96);
+    }
+}
+
+module housingcoupling()
+{
+    clearance = 25;
+    linear_extrude(200)
+    housingcoupling0((584+clearance)/2);
+
+    translate([0, 0, 200])
+    linear_extrude(350)
+    difference() {
+        square(540, center=true);
+        square(440, center=true);
+    }
+
+    translate([0, 0, 550])
+    linear_extrude(100)
+    housingcoupling0((584+clearance)/2);
+
+    translate([0, 0, 650])
+    linear_extrude(50)
+    housingcoupling1();
+}
+TODO rim on gear
+
 
 scale(ViewScale)
 {
@@ -314,24 +278,17 @@ scale(ViewScale)
         sunshaft();
         translate([0, -geartranslate, -180]) 
         planetgear();
+        translate([0, -geartranslate, 310])
+        !planetarm();
+        translate([0, -geartranslate, 310])
+        motorgear();
 
-        #translate([0, -geartranslate, 310])
-        planetarm();
     }
-//    translate([0, -geartranslate-300, 30]) {
-//        lens_model();
-//        translate([0, 0, 120])
-//        planetgear();
-//        translate([0, 0, 620])
-//        planetarm();
-//    }
-    
-//    translate([0, 0, 320]) {
-//    sungear();
-//    translate([0, 0, 1200])
-//    sunshaft();
-//    }
-//    translate([0, 0, 1200]) 
-//    sunshaft();
-//    }
+    translate([0, 770, 2550])
+    rotate([180, 0, 0]) {
+        motorhousing();
+        model_geared2();
+    }
+    translate([0, 0, 1900])
+    housingcoupling();
 }

@@ -340,9 +340,9 @@ scale(ViewScale)
     }
     
     translate([0, 0, 320]) {
-    sungear();
-    translate([0, 0, 1200])
-    sunshaft();
+        sungear();
+        translate([0, 0, 1200])
+        sunshaft();
     }
 //    translate([0, 0, 1200]) 
 //    sunshaft();
