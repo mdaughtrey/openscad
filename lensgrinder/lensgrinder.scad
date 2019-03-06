@@ -89,7 +89,8 @@ module planetarm()
                 }
                 // center hole
                 translate([0, geartranslate, 0]) {
-                    circle(415/2, $fn=96);
+                    //circle(415/2, $fn=96);
+                    circle(260, $fn=6);
                 } // translate
             } // difference
         } // linear_extrude
@@ -101,9 +102,16 @@ module planetarm()
          gear_thickness=50,
          rim_thickness=300,
          rim_width=50,
-         bore_diameter = 270,
+         bore_diameter = 300,
          bore_sides = 96,
          circle_diameter = 100);
+
+    translate([0, geartranslate, 210])
+    linear_extrude(armthickness)
+    difference() {
+        circle(250, $fn=6);
+        circle(300/2, $fn=96);
+    }
 }
 
 // sun gear shaft
@@ -186,17 +194,40 @@ module base()
     }
     // level 1
     translate([0, 0, 105])
-    linear_extrude(105)
-    difference() {
-        circle(base_r, $fn=96);
-        circle(470/2, $fn=96);
+    linear_extrude(105) {
+        difference() {
+            circle(base_r, $fn=96);
+            circle(base_r-100, $fn=96);
+            //circle(470/2, $fn=96);
+        }
+        for (ii = [0:90:360])
+        {
+            rotate([0, 0, ii])
+            translate([600, 0, 0])
+            circle(355/2, $fn=96);
+        }
+        difference() {
+            circle(570/2, $fn=96);
+            circle(470/2, $fn=96);
+        }
     }
     translate([0, 0, 210])
-    linear_extrude(100)
-    difference() {
-        circle(base_r, $fn=96);
-        circle(250/2, $fn=96);
+    linear_extrude(100) {
+        difference() {
+            circle(base_r, $fn=96);
+            circle(base_r-100, $fn=96);
+            //circle(470/2, $fn=96);
+        }
+        difference() {
+            circle(570/2, $fn=96);
+            circle(250/2, $fn=96);
+        }
     }
+
+//    difference() {
+//        circle(base_r, $fn=96);
+//        circle(250/2, $fn=96);
+//    }
 
 }
 
@@ -266,29 +297,28 @@ module housingcoupling()
     linear_extrude(50)
     housingcoupling1();
 }
-TODO rim on gear
 
 
 scale(ViewScale)
 {
     base();
-    translate([0, 0, 500]) {
-        sungear();
-        translate([0, 0, 100])
-        sunshaft();
-        translate([0, -geartranslate, -180]) 
-        planetgear();
-        translate([0, -geartranslate, 310])
-        !planetarm();
-        translate([0, -geartranslate, 310])
-        motorgear();
-
-    }
-    translate([0, 770, 2550])
-    rotate([180, 0, 0]) {
-        motorhousing();
-        model_geared2();
-    }
-    translate([0, 0, 1900])
-    housingcoupling();
+//    translate([0, 0, 500]) {
+//        sungear();
+//        translate([0, 0, 100])
+//        sunshaft();
+//        translate([0, -geartranslate, -180]) 
+//        planetgear();
+//        translate([0, -geartranslate, 310])
+//        planetarm();
+//        translate([0, -geartranslate, 310])
+//        motorgear();
+//
+//    }
+//    translate([0, 770, 2550])
+//    rotate([180, 0, 0]) {
+//        motorhousing();
+//        model_geared2();
+//    }
+//    translate([0, 0, 1900])
+//    housingcoupling();
 }
