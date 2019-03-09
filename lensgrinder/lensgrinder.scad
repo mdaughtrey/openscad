@@ -301,11 +301,11 @@ module housingcoupling()
 
 scale(ViewScale)
 {
-    base();
+//    base();
 //    translate([0, 0, 500]) {
 //        sungear();
 //        translate([0, 0, 100])
-//        sunshaft();
+        sunshaft();
 //        translate([0, -geartranslate, -180]) 
 //        planetgear();
 //        translate([0, -geartranslate, 310])
