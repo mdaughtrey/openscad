@@ -1,5 +1,6 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 use <../libs/MCAD/involute_gears.scad>
+use <../libs/MCAD/boxes.scad>
 use <../strandbeast/geared2/model_geared2.scad>
 use <../strandbeast/geared2/housing.scad>
 
@@ -109,8 +110,8 @@ module gears()
 
 module lowersupport()
 {
-//    linear_extrude(100)
-//    circle(800, $fn=96);
+    linear_extrude(100)
+    circle(800, $fn=96);
 
     translate([0, 0, 100])
     linear_extrude(30)
@@ -118,7 +119,7 @@ module lowersupport()
 
     translate([0, 0, 130])
     linear_extrude(300)
-    circle(105, $fn=96);
+    circle(100, $fn=96);
 }
 
 module lowersupports()
@@ -296,25 +297,173 @@ module arm()
 
 }
 
-scale(ViewScale)
+module arm2()
 {
-    lowersupports();
-    translate([0, 0, 130])
-    gears();
-    translate([0, 0, 250])
-    drivercrossbar();
-    translate([0, 0, 1850]) {
-        rotate([180, 0, 0]) {
-        motorhousing();
-        model_geared2();
+    armwheels();
+    translate([0, 0, 400])
+    linear_extrude(300) {
+        // collars
+        for(ii = [geartx, -geartx])
+        {
+            translate([ii, 0, 0]) {
+                difference() {
+                    circle(420/2, $fn=96);
+                    circle(220/2, $fn=96);
+                }
+                // projecting arms
+                difference() {
+                    translate([0, -500, 0]) 
+                    square([300, 1000], center=true);
+                    circle(220/2, $fn=96);
+                } // difference
+            }
+        }
+        translate([0, -geartx+550, 0])
+        difference() {
+            circle(geartx+150, $fn=96);
+            circle(geartx-150, $fn=96);
+            translate([0, 1000, 0])
+            square([4000, 2000], center=true);
+        }
+        // pushrod mounting
+        translate([0, -geartx-1150-100, 400])
+        square([300, 400], center=true);
+    }
+    
+}
+
+module pushrod() {
+    linear_extrude(200) {
+        circle(400/2, $fn=96);
+        translate([2000, 0, 0])
+        circle(400/2, $fn=96);
+        translate([1000, 0, 0])
+        square([2000, 400], center=true);
+    }
+}
+
+module pushpair() 
+{
+    pushrod();
+    translate([0, 1000, 0])
+    pushrod();
+
+
+    translate([0, 0, 750])
+    pushrod();
+
+    translate([0, 1000, 750])
+    pushrod();
+}
+
+module pushrods()
+{
+    for(ii = [0, 2000]) {
+        translate([ii, 500, 470])
+        rotate([0, 90, 0])
+        difference() {
+            roundedBox([500, 1500, 500], 50.0, false);
+            cube([320, 320, 510], center=true);
+            for(ii = [500,-500]) {
+                translate([-300, ii, 0])
+                rotate([0, 90, 0])
+                linear_extrude(600)
+                circle(230/2, $fn=96);
+            }
         }
     }
-    translate([0, 0, 100])
-    motorsupport();
 
-    translate([0, 0, 500])
-    housingsupport();
+    pushpair();
+
+    for(jj = [0, 1000]) {
+        for(ii = [0, 2000]) {
+            translate([ii, jj, 200])
+            linear_extrude(600)
+            circle(200/2, $fn=96);
+        }
+    }
+
+//    translate([2000, 0, 200])
+//    linear_extrude(600)
+//    circle(200/2, $fn=96);
+
+
+//    circle(200/2, $fn=96);
+//    circle(200/2, $fn=96);
+
+//    // arm mount
+//    difference() {
+//        roundedSquare(pos=[500,1500],r=100);
+//        square([320, 420], center=true);
+//    }
+//    //linear_extrude(300)
+//    *difference() {
+//        square([300, 800], center=true);
+//        translate([0, 100, 0])
+//        circle(220/2, $fn=96);
+//        translate([0, -100, 0])
+//        circle(220/2, $fn=96);
+//    }
+}
+
+module weightedbase0(delta)
+{
+    hull() {
+        translate([geartx+delta/2, 0, 0])
+        circle(800+delta, $fn=96);
+        translate([-geartx-delta/2, 0, 0])
+        circle(800+delta, $fn=96);
+    }
+    circle(1200+delta, $fn=96);
+}
+
+module weightedbase()
+{
+    linear_extrude(100)
+    weightedbase0(70);
     
-    translate([0, 0, 1000])
-    arm();
+    translate([0, 0, 100])
+    linear_extrude(300)
+    difference() {
+        weightedbase0(70);
+        weightedbase0(20);
+    }
+
+    translate([0, 0, 400])
+    linear_extrude(100)
+    difference() {
+        weightedbase0(70);
+        weightedbase0(20);
+    }
+}
+
+
+scale(ViewScale)
+{
+//    lowersupports();
+//    translate([0, 0, 130])
+//    gears();
+//    translate([0, 0, 250])
+//    drivercrossbar();
+//    translate([0, 0, 1850]) {
+//        rotate([180, 0, 0]) {
+//        motorhousing();
+//        model_geared2();
+//        }
+//    }
+//    translate([0, 0, 100])
+//    motorsupport();
+
+//    translate([0, 0, 500])
+//    housingsupport();
+//    
+//    translate([0, 0, 1000])
+//    arm2();
+//
+//    translate([450, -3200, 1050])
+//    rotate([90, 0, -90])
+//    pushrods();
+//
+//    translate([0, 0, -400])
+    weightedbase();
 }
