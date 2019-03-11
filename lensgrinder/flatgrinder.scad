@@ -150,7 +150,7 @@ module drivercrossbar()
         rim_thickness=500,
         rim_width=50,
         circles=2,
-        circle_diameter=cdia);
+        circle_diameter=200);
     translate([0, 0, 400])
     linear_extrude(100)
     difference() {
@@ -181,9 +181,9 @@ module housingsupport()
         circle(1315, $fn=96);
         circle(985, $fn=96);
         difference() {
-            circle(1205, $fn=96);
-            circle(1095, $fn=96);
-            square([2500, 1580], center=true);
+            circle(1225, $fn=96);
+            circle(1075, $fn=96);
+            square([2500, 1600], center=true);
         }
         square([2700, 1400], center=true);
     }
@@ -208,7 +208,9 @@ module housingsupport()
 
 module armwheels()
 {
-    for(ii = [-geartx, geartx]) {
+     // TODO
+    //for(ii = [-geartx, geartx]) {
+    for(ii = [geartx]) {
         linear_extrude(270) 
         translate([ii, 0, 270]) {
         gearcircles(number_of_teeth=not,
@@ -217,7 +219,7 @@ module armwheels()
             rim_thickness=500,
             rim_width=50,
             circles=2,
-            circle_diameter=cdia);
+            circle_diameter=200);
         }
         translate([ii, 0, 270]) 
         linear_extrude(100) 
@@ -230,7 +232,7 @@ module armwheels()
             rim_thickness=500,
             rim_width=50,
             circles=1,
-            circle_diameter=cdia);
+            circle_diameter=200);
     }
 }
 
@@ -267,15 +269,22 @@ module arm()
     translate([geartx, 0, 0])
     mirror([1, 0, 0])
     armcurve();
+
     translate([-geartx, -2100, 0])
     linear_extrude(300)
     square([geartx*2, 200], $fn=96);
 
+    
+    // pushrod mounting
     linear_extrude(300)
+    translate([0, -geartx-750, 0])
+    square([300, 400], center=true);
+
+    *linear_extrude(300)
     translate([0, -2900, 0]) 
     square([400, 1800], center=true);
 
-    linear_extrude(100) 
+    *linear_extrude(100) 
     translate([0, -4300, 0]) {
         difference() {
             circle(1200/2, $fn=96);
@@ -283,7 +292,7 @@ module arm()
         }
     }
 
-    translate([0, -4300, 100]) 
+    *translate([0, -4300, 100]) 
     linear_extrude(200) {
         difference() {
             circle(1200/2, $fn=96);
@@ -437,9 +446,48 @@ module weightedbase()
     }
 }
 
+module interfacemount()
+{
+    // pushrod mounting
+    linear_extrude(300)
+    //translate([0, -geartx-750, 0])
+    square([300, 400], center=true);
+
+    translate([0, 500, 0])
+    linear_extrude(600)
+    difference() {
+        square(600, center=true);
+        square(520, center=true);
+    }
+}
+
+module lensinterface0()
+{
+    linear_extrude(50)
+    difference() {
+        square(600, center=true);
+        circle(230/2, $fn=96);
+    }
+
+    translate([0, 0, 50])
+    linear_extrude(100)
+    difference() {
+        square(500, center=true);
+        circle(230/2, $fn=96);
+    }
+
+    translate([0, 0, 150])
+    linear_extrude(200)
+    difference() {
+        square(500, center=true);
+        square(450, center=true);
+    }
+
+}
 
 scale(ViewScale)
 {
+//    armwheels();
 //    lowersupports();
 //    translate([0, 0, 130])
 //    gears();
@@ -458,12 +506,18 @@ scale(ViewScale)
 //    housingsupport();
 //    
 //    translate([0, 0, 1000])
-//    arm2();
+//    arm();
 //
 //    translate([450, -3200, 1050])
 //    rotate([90, 0, -90])
 //    pushrods();
 //
 //    translate([0, 0, -400])
-    weightedbase();
+//    weightedbase();
+
+    translate([0, -400, 75])
+    interfacemount();
+    *lensinterface0();
+    
+    
 }
