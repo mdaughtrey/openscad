@@ -341,7 +341,7 @@ module arm2()
     
 }
 
-module pushrod() {
+module pushrod0() {
     linear_extrude(200) {
         circle(400/2, $fn=96);
         translate([2000, 0, 0])
@@ -349,42 +349,63 @@ module pushrod() {
         translate([1000, 0, 0])
         square([2000, 400], center=true);
     }
+    for(ii = [0, 2000]) {
+        translate([ii, 0, 199])
+        linear_extrude(600)
+        circle(200/2, $fn=96);
+    }
+}
+
+module pushrod1() {
+    linear_extrude(400) {
+        difference() {
+            union() {
+                circle(400/2, $fn=96);
+                translate([2000, 0, 0])
+                circle(400/2, $fn=96);
+                translate([1000, 0, 0])
+                square([2000, 400], center=true);
+            }
+            circle(210/2, $fn=96);
+            translate([2000, 0, 0])
+            circle(210/2, $fn=96);
+        }
+    }
 }
 
 module pushpair() 
 {
-    pushrod();
-    translate([0, 1000, 0])
-    pushrod();
-
-
-    translate([0, 0, 750])
-    pushrod();
-
-    translate([0, 1000, 750])
-    pushrod();
+    pushrod0();
+//    translate([0, 1000, 0])
+//    pushrod();
+//
+//    translate([0, 0, 750])
+//    pushrod();
+//
+//    translate([0, 1000, 750])
+//    pushrod();
 }
 
 module pushrods()
 {
-    for(ii = [0, 2000]) {
-        translate([ii, 500, 470])
-        rotate([0, 90, 0])
+//    *for(ii = [0, 2000]) {
+        //translate([ii, 500, 470])
+        *rotate([0, 90, 0])
         difference() {
-            roundedBox([500, 1500, 500], 50.0, false);
+            roundedBox([500, 1100, 500], 50.0, false);
             cube([320, 320, 510], center=true);
-            for(ii = [500,-500]) {
+            for(ii = [350,-350]) {
                 translate([-300, ii, 0])
                 rotate([0, 90, 0])
                 linear_extrude(600)
-                circle(230/2, $fn=96);
+                circle(235/2, $fn=96);
             }
         }
-    }
+//    }
 
     pushpair();
 
-    for(jj = [0, 1000]) {
+    *for(jj = [0, 1000]) {
         for(ii = [0, 2000]) {
             translate([ii, jj, 200])
             linear_extrude(600)
@@ -454,7 +475,7 @@ module interfacemount()
     square([300, 400], center=true);
 
     translate([0, 500, 0])
-    linear_extrude(600)
+    linear_extrude(1600)
     difference() {
         square(600, center=true);
         square(520, center=true);
@@ -510,14 +531,14 @@ scale(ViewScale)
 //
 //    translate([450, -3200, 1050])
 //    rotate([90, 0, -90])
-//    pushrods();
+    pushrods();
 //
 //    translate([0, 0, -400])
 //    weightedbase();
 
-    translate([0, -400, 75])
-    interfacemount();
-    *lensinterface0();
+//    translate([0, -400, 75])
+//    interfacemount();
+//    lensinterface0();
     
     
 }

@@ -8,7 +8,8 @@ use <../libs/MCAD/involute_gears.scad>
 use <../lenses/proj2.scad>
 use <../strandbeast/geared2/housing.scad>
 use <../strandbeast/geared2/model_geared2.scad>
-geartranslate=1430;
+//geartranslate=1430;
+geartranslate=1450;
 
 // spinny gear that spins the lens
 module planetgear()
@@ -23,8 +24,8 @@ module planetgear()
     translate([0, 0, 210])
     gear(number_of_teeth=31,
         circular_pitch=6000,
-	    gear_thickness=300,
-	    rim_thickness=480,
+	    gear_thickness=280,
+	    rim_thickness=460,
         rim_width=50,
         bore_diameter = 210,
         bore_sides=96,
@@ -85,28 +86,36 @@ module planetarm()
                 hull() {
                     circle(400);
                     translate([0, geartranslate, 0])
-                    circle(1000);
+                    circle(1000, $fn=96);
                 }
                 // center hole
                 translate([0, geartranslate, 0]) {
-                    //circle(415/2, $fn=96);
-                    circle(260, $fn=6);
+                    circle(900/2, $fn=96);
                 } // translate
             } // difference
         } // linear_extrude
     } // translate
+
+    // collar protrudes into sungear
+    translate([0, geartranslate, -149])
+    linear_extrude(350)
+    difference() {
+        circle(1620/2, $fn=96);
+        circle(1520/2, $fn=96);
+    }
+
     // arm gear
     translate([0, geartranslate, 210+armthickness])
-    gear(number_of_teeth=22,
+    gear(number_of_teeth=35,
         circular_pitch=6280,
          gear_thickness=50,
          rim_thickness=300,
          rim_width=50,
-         bore_diameter = 300,
+         bore_diameter = 900,
          bore_sides = 96,
          circle_diameter = 100);
 
-    translate([0, geartranslate, 210])
+    *translate([0, geartranslate, 210])
     linear_extrude(armthickness)
     difference() {
         circle(250, $fn=6);
@@ -117,35 +126,53 @@ module planetarm()
 // sun gear shaft
 module sunshaft()
 {
-    // layer 0
+    // layer 0 - ring around the hub
     linear_extrude(210)
     difference() {
         circle(500, $fn=96);
-        circle(405, $fn=96);
+        circle(410, $fn=96);
     }
-    // layer 1
+    // layer 1 - hub cab
     translate([0, 0, 210])
     linear_extrude(190)
     difference() {
         circle(500, $fn=96);
-        circle(280/2, $fn=96);
+        //circle(280/2, $fn=96);
+        circle(520/2, $fn=6);
     }
-    // layer 2
+    //circle(205, $fn=6);
+    // layer 2 - hex hole big enough for nut to slide through
     translate([0, 0, 400])
-    linear_extrude(1450) {
+    linear_extrude(200) {
         difference() {
-            square(420, center=true);
-            circle(300/2, $fn=96);
-            //circle(280/2, $fn=96);
+            square(600, center=true);
+           // circle(300/2, $fn=96);
+            circle(520/2, $fn=6);
         }
     }
-    // layer 3
-    translate([0, 0, 1850])
-    linear_extrude(50) {
+    // layer 3 - nut capture
+    translate([0, 0, 600])
+    linear_extrude(250) {
         difference() {
-            square(420, center=true);
+            square(600, center=true);
+           // circle(300/2, $fn=96);
+            circle(506/2, $fn=6);
+        }
+    }
+    // layer 4 - shaft cavity
+    translate([0, 0, 850])
+    linear_extrude(1000) {
+        difference() {
+            square(600, center=true);
+            circle(300/2, $fn=96);
+        }
+    }
+    // layer 5 - cap
+    translate([0, 0, 1850])
+    linear_extrude(100) {
+        difference() {
+            square(600, center=true);
             circle(95/2, $fn=96);
-            //circle(280/2, $fn=96);
         }
     }
 }
@@ -234,31 +261,43 @@ module base()
 module motorgear()
 {
     // arm gear
-    translate([0, geartranslate+770, 310+330])
     rotate([180, 0, 0])
     gear(number_of_teeth=22,
         circular_pitch=6280,
          gear_thickness=200,
          rim_thickness=300,
          rim_width=50,
-         bore_diameter = 270,
-         bore_sides = 96,
+         bore_diameter = 320,
+         bore_sides = 6,
          circle_diameter = 100);
 }
 
 module housingcoupling0(cdia)
 {
-    clearance = 25;
+    linear_extrude(200)
     difference() {
-        hull() {
-            square(540, center=true);
-            translate([0, 770, 0])
-            circle((784+clearance)/2, $fn=96);
-        }
-        square(440, center=true);
-        translate([0, 770, 0])
-        circle(cdia, $fn=96);
+        circle(500, $fn=96);
+        square(630, center=true);
     }
+
+    translate([0, 0, 200])
+    linear_extrude(1130)
+    difference()
+    {
+        square(720, center=true);
+        square(620, center=true);
+    }
+//    clearance = 25;
+//    difference() {
+//        hull() {
+//            square(540, center=true);
+//            translate([0, 770, 0])
+//            circle((784+clearance)/2, $fn=96);
+//        }
+//        square(440, center=true);
+//        translate([0, 770, 0])
+//        circle(cdia, $fn=96);
+//    }
 }
 
 module housingcoupling1()
@@ -278,24 +317,106 @@ module housingcoupling1()
 
 module housingcoupling()
 {
-    clearance = 25;
-    linear_extrude(200)
-    housingcoupling0((584+clearance)/2);
+//    clearance = 25;
+//    linear_extrude(200)
+//    housingcoupling0((584+clearance)/2);
+        linear_extrude(200)
+        difference() {
+            circle(500, $fn=96);
+            square(630, center=true);
+        }
 
-    translate([0, 0, 200])
-    linear_extrude(350)
-    difference() {
-        square(540, center=true);
-        square(440, center=true);
+        translate([0, 0, 200])
+        linear_extrude(1130)
+        difference()
+        {
+            square(720, center=true);
+            square(630, center=true);
+        }
+        translate([0, 0, 1329])
+        linear_extrude(50)
+        difference() {
+            square(720, center=true);
+            circle(100/2, $fn=96);
+        }
+    translate([0, 1000, 1400]) {
+        rotate([180, 0, 0]) {
+            motorhousing();
+          //  model_geared2();
+        }
     }
+    translate([300, 820, 335]) 
+    linear_extrude(370)
+    square([120, 955], center=true);
+    translate([-300, 820, 335]) 
+    linear_extrude(370)
+    square([120, 955], center=true);
 
-    translate([0, 0, 550])
+    
+
+//    translate([0, 0, 200])
+//    linear_extrude(350)
+//    difference() {
+//        square(540, center=true);
+//        square(440, center=true);
+//    }
+//
+//    translate([0, 0, 550])
+//    linear_extrude(100)
+//    housingcoupling0((584+clearance)/2);
+//
+//    translate([0, 0, 650])
+//    linear_extrude(50)
+//    housingcoupling1();
+}
+
+module armgearfitter()
+{
+    linear_extrude(200)
+    difference() {
+        circle(880/2, $fn=96);
+        translate([250+50, 250+50, 0])
+        square(500, center=true);
+        translate([-250-50, 250+50, 0])
+        square(500, center=true);
+        translate([+250+50, -250-50, 0])
+        square(500, center=true);
+        translate([-250-50, -250-50, 0])
+        square(500, center=true);
+    }
+}
+
+module motorgearinsert()
+{
+    clearance = 10;
+    linear_extrude(200)
+    difference() {
+        circle((320 - clearance)/2, $fn=6);
+        difference() {
+            circle(118/2+clearance, $fn=96);
+            translate([0, 25+118/2-20+clearance-10, 0])
+            square([120, 50], center=true);
+        }
+    }
+    translate([0, 0, 199])
     linear_extrude(100)
-    housingcoupling0((584+clearance)/2);
+    difference() {
+        circle(280, $fn=96);
+        difference() {
+            circle(118/2+clearance, $fn=96);
+            translate([0, 25+118/2-20+clearance-10, 0])
+            square([120, 50], center=true);
+        }
+    }
+}
 
-    translate([0, 0, 650])
-    linear_extrude(50)
-    housingcoupling1();
+module sunflange()
+{
+    linear_extrude(100)
+    difference() {
+        circle(500, $fn=96);
+        square(630, center=true);
+    }
 }
 
 
@@ -305,20 +426,31 @@ scale(ViewScale)
 //    translate([0, 0, 500]) {
 //        sungear();
 //        translate([0, 0, 100])
-        sunshaft();
-//        translate([0, -geartranslate, -180]) 
-//        planetgear();
+//        sunshaft();
+//        translate([0, -geartranslate, -180]) {
+//            planetgear();
+//        }
+//        translate([0, 0, 820])
+//        sunflange();
+//        translate([0, 0, 720])
+        housingcoupling();
 //        translate([0, -geartranslate, 310])
-//        planetarm();
-//        translate([0, -geartranslate, 310])
-//        motorgear();
+//        {
+//            %planetarm();
+//            translate([0, geartranslate+1000, 310+300]) {
+//            motorgear();
+//            rotate([180, 0, 0])
+//            motorgearinsert();
+//            }
+//        }
 //
 //    }
-//    translate([0, 770, 2550])
+//    *translate([0, 770, 2550])
 //    rotate([180, 0, 0]) {
 //        motorhousing();
 //        model_geared2();
 //    }
-//    translate([0, 0, 1900])
-//    housingcoupling();
+//    translate([0, 0, 2400])
+//    armgearfitter();
+//    motorshaftcutout();
 }
