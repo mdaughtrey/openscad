@@ -339,7 +339,7 @@ module housingcoupling()
             square(720, center=true);
             circle(100/2, $fn=96);
         }
-    translate([0, 1000, 1400]) {
+    translate([0, 1020, 1400]) {
         rotate([180, 0, 0]) {
             motorhousing();
           //  model_geared2();
@@ -419,6 +419,26 @@ module sunflange()
     }
 }
 
+module lensinterface(dia)
+{
+    linear_extrude(250)
+    circle(200, $fn=6);
+    translate([0, 0, 249])
+    linear_extrude(100)
+    circle((dia+100)/2,$fn=96);
+    translate([0, 0, 349]) {
+        linear_extrude(550)
+        difference() {
+            circle((dia+100)/2, $fn=96);
+            circle(dia/2, $fn=96);
+        }
+        linear_extrude(450)
+        difference() {
+            circle((dia+100)/2, $fn=96);
+            circle((dia-100)/2, $fn=96);
+        }
+    }
+}
 
 scale(ViewScale)
 {
@@ -427,13 +447,16 @@ scale(ViewScale)
 //        sungear();
 //        translate([0, 0, 100])
 //        sunshaft();
-//        translate([0, -geartranslate, -180]) {
-//            planetgear();
-//        }
+        //translate([0, -geartranslate, -180]) {
+        *translate([0, 0, 00]){
+            planetgear();
+        }
+        rotate([180, 0, 0])
+        lensinterface(1040);
 //        translate([0, 0, 820])
 //        sunflange();
 //        translate([0, 0, 720])
-        housingcoupling();
+//        housingcoupling();
 //        translate([0, -geartranslate, 310])
 //        {
 //            %planetarm();
