@@ -3,29 +3,29 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 module layer0()
 {
     difference() {
-        square([1660, 1380], center=true);
+        square([1560, 1380], center=true);
         translate([0, 50, 0])
-        square([1460, 1280], center=true);
+        square([1360, 1280], center=true);
     }
-    translate([0, 0, 0])
+    *translate([0, 0, 0])
     square([1460, 100], center=true);
 }
 
 module layer1()
 {
     difference() {
-        square([1660, 1380], center=true);
-        translate([0, 50, 0])
         square([1560, 1380], center=true);
+        translate([0, 50, 0])
+        square([1460, 1380], center=true);
     }
 }
 
 module layer2()
 {
     difference() {
-        square([1660, 1380], center=true);
+        square([1560, 1380], center=true);
         translate([0, 50, 0])
-        square([1460, 1280], center=true);
+        square([1360, 1280], center=true);
     }
 }
 
@@ -46,9 +46,9 @@ module mount()
 
 scale(ViewScale)
 {
-    translate([950, 0, 0])
+    translate([900, 0, 0])
     mount();
-    translate([-950, 0, 0])
+    translate([-900, 0, 0])
     mount();
     linear_extrude(100)
     layer0();

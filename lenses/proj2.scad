@@ -2,7 +2,7 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 
 dia=2200;
 
-module lens()
+module lens_model()
 {
     translate([0, 0, -100])
     linear_extrude(100)
@@ -14,9 +14,10 @@ module lens()
     translate([0, 0, -dia/2])
     cube(dia, center=true);
     }
-    translate([0, 0, 30])
-    linear_extrude(100)
-    circle(75);
+    // grabber bit at the top
+    translate([0, 0, 50])
+    linear_extrude(200)
+    circle(100, $fn=6);
 }
 
 module arm()
@@ -40,11 +41,11 @@ module arm()
 
 }
 
-scale(ViewScale)
-{
+//scale(ViewScale)
+//{
 //    translate([0, 0, -200])
-    lens();
+//    lens();
 //    translate([1000, 0, 0])
 //    linear_extrude(100)
 //    arm();
-}
+//}

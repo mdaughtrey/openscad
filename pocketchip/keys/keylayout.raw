@@ -1,0 +1,57 @@
+<element name="PWR" library="PocketCHIP-Components-v0.7" package="SNAPDOME_100105" value="100105" x="0" y="9.6012" smashed="yes"/>
+<element name="SPACER" library="PocketCHIP-Components-v0.71" package="SNAPDOME_E.22-ONN-230" value="E.22-ONN-230" x="7.62" y="20.04" smashed="yes"/>
+<element name="Z" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="-35.5266" y="29.4" smashed="yes" rot="R180"/>
+<element name="T" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="-5.0766" y="46" smashed="yes"/>
+<element name="R" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="-15.2266" y="46" smashed="yes" rot="R180"/>
+<element name="E" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="-25.3766" y="46" smashed="yes"/>
+<element name="W" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="-35.5266" y="46" smashed="yes" rot="R180"/>
+<element name="Q" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="-45.6766" y="46" smashed="yes"/>
+<element name="A" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="-40.5966" y="37.7" smashed="yes"/>
+<element name="U" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="15.2234" y="46" smashed="yes"/>
+<element name="Y" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="5.0734" y="46" smashed="yes" rot="R180"/>
+<element name="F" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="-10.1466" y="37.7" smashed="yes" rot="R180"/>
+<element name="D" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="-20.2966" y="37.7" smashed="yes"/>
+<element name="I" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="25.3734" y="46" smashed="yes" rot="R180"/>
+<element name="G" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="-0.0034" y="37.7" smashed="yes"/>
+<element name="J" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="20.3034" y="37.7" smashed="yes"/>
+<element name="H" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="10.1534" y="37.7" smashed="yes" rot="R180"/>
+<element name="O" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="35.5234" y="46" smashed="yes"/>
+<element name="V" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="-5.0766" y="29.4" smashed="yes"/>
+<element name="C" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="-15.2266" y="29.4" smashed="yes" rot="R180"/>
+<element name="X" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="-25.3766" y="29.4" smashed="yes"/>
+<element name="P" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="45.6766" y="46" smashed="yes" rot="R180"/>
+<element name="K" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="30.4534" y="37.7" smashed="yes" rot="R180"/>
+<element name="L" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="40.6034" y="37.7" smashed="yes"/>
+<element name="B" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="5.0734" y="29.4" smashed="yes" rot="R180"/>
+<element name="M" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="25.3734" y="29.4" smashed="yes" rot="R180"/>
+<element name="N" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="15.2234" y="29.4" smashed="yes"/>
+<element name="SPACEL" library="PocketCHIP-Components-v0.71" package="SNAPDOME_E.22-ONN-230" value="E.22-ONN-230" x="-7.62" y="20.04" smashed="yes" rot="R180"/>
+<element name="J1" library="PocketCHIP-Components-v0.73" package="98401-801-40LF" value="98401-801-40LF" x="17.608" y="111.284" smashed="yes" rot="MR270"/>
+<element name="ENTER" library="PocketCHIP-Components-v0.7" package="SNAPDOME_BL08260" value="BL08260" x="46.4126" y="29.4" smashed="yes"/>
+<element name="?/" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="30.4466" y="21.1" smashed="yes"/>
+<element name="SHFT" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="40.5966" y="21.1" smashed="yes" rot="R180"/>
+<element name="TAB" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="20.2966" y="21.1" smashed="yes" rot="R180"/>
+<element name="ALT" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="-20.2966" y="21.1" smashed="yes"/>
+<element name="FN" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="-30.4466" y="21.1" smashed="yes" rot="R180"/>
+<element name="CTRL" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="-40.5966" y="21.1" smashed="yes"/>
+<element name="SHIFT" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="-45.6766" y="29.4" smashed="yes"/>
+<element name="BKSPC" library="PocketCHIP-Components-v0.7" package="SNAPDOME_BL08260" value="BL08260" x="46.4126" y="64.61" smashed="yes"/>
+<element name="+" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="35.5234" y="64.61" smashed="yes" rot="R270"/>
+<element name="ESC" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="-45.6766" y="66.52" smashed="yes"/>
+<element name="-" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="30.45" y="56.31" smashed="yes" rot="R90"/>
+<element name="1" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="40.6034" y="56.31" smashed="yes" rot="R270"/>
+<element name="2" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="-15.3" y="64.61" smashed="yes" rot="R270"/>
+<element name="3" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="-10.2266" y="56.31" smashed="yes" rot="R90"/>
+<element name="4" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="-5.0766" y="64.61" smashed="yes" rot="R270"/>
+<element name="5" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="-0.0034" y="56.31" smashed="yes" rot="R90"/>
+<element name="6" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="5.0734" y="64.61" smashed="yes" rot="R270"/>
+<element name="7" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="10.1534" y="56.31" smashed="yes" rot="R90"/>
+<element name="8" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="15.2234" y="64.61" smashed="yes" rot="R270"/>
+<element name="9" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="20.3034" y="56.31" smashed="yes" rot="R90"/>
+<element name="0" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="25.3734" y="64.61" smashed="yes" rot="R270"/>
+<element name="'" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="35.5234" y="29.4" smashed="yes"/>
+<element name="UP" library="PocketCHIP-Components-v0.71" package="SNAPDOME_E9-TDF-340" value="E9-TDF-340" x="-30.4466" y="66.52" smashed="yes" rot="R270"/>
+<element name="DWN" library="PocketCHIP-Components-v0.71" package="SNAPDOME_E9-TDF-340" value="E9-TDF-340" x="-30.4466" y="54.44" smashed="yes" rot="R90"/>
+<element name="LEFT" library="PocketCHIP-Components-v0.71" package="SNAPDOME_E9-TDF-340" value="E9-TDF-340" x="-36.4866" y="60.48" smashed="yes"/>
+<element name="RIGHT" library="PocketCHIP-Components-v0.71" package="SNAPDOME_E9-TDF-340" value="E9-TDF-340" x="-24.4066" y="60.48" smashed="yes" rot="R180"/>
+<element name="S" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="-30.4466" y="37.7" smashed="yes"/>

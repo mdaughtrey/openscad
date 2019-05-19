@@ -1,3 +1,4 @@
+ViewScale = [0.0254, 0.0254, 0.0254];
 clearance = 25;
 
 module motor_housing()
@@ -22,8 +23,9 @@ module gear_housing()
     }
 }
 
-module housing()
+//module housing()
 //scale(ViewScale)
+module motorhousing()
 {
     //model_geared2();
     linear_extrude(700)
