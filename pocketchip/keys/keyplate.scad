@@ -9,7 +9,7 @@ module keyplate()
     difference() {
     translate([-2210, -110, 0])
     square([4420, 2990]);
-include <keys.scad>
+include <cutouts.scad>
 // pencil keyplate
     translate([1399, 439, 0])
     circle(330/2, $fn=6);
@@ -33,6 +33,53 @@ include <keys.scad>
     translate([-800, -110, -300])
     linear_extrude(100)
     square([1600, 250]);
+    // supports
+    translate([0, 0, -100])
+    linear_extrude(120) {
+        // top letters
+        for(ii = [-800:400:2000]){
+            translate([ii, 1980, 0])
+            circle(50, $fn=96);
+        }
+        // middle letters
+        for(ii = [-1800:400:2000]){
+            translate([ii, 1590, 0])
+            circle(50, $fn=96);
+        }
+        // bottom letters
+        for(ii = [-2000:400:2000]){
+            translate([ii, 1260, 0])
+            circle(50, $fn=96);
+        }
+        // top numbers
+        for(ii = [-800:400:2000]){
+            translate([ii, 2730, 0])
+            circle(50, $fn=96);
+        }
+        // middle numbers
+        for(ii = [-400:400:2000]){
+            translate([ii, 2430, 0])
+            circle(50, $fn=96);
+        }
+        // between letters and mod keys
+        for(ii = [-2000:400:2000]){
+            translate([ii, 1040, 0])
+            circle(50, $fn=96);
+        }
+        // mod keys 1
+        for(ii = [600:400:1600]){
+            translate([ii, 700, 0])
+            circle(50, $fn=96);
+        }
+        // mod keys 2
+        for(ii = [-1800:400:-400]){
+            translate([ii, 700, 0])
+            circle(50, $fn=96);
+        }
+        // dirkey 
+        #translate([-1800,2300, 0])
+        circle(50, $fn=96);
+    }
 
 
 }
