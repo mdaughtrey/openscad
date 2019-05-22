@@ -3,7 +3,7 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 module key()
 {
     linear_extrude(150)
-    circle(250/2, $fn=96);
+    circle(280/2, $fn=96);
     translate([0, 0, 149])
     linear_extrude(50) {
     circle(270/2, $fn=96);
@@ -20,19 +20,18 @@ module key()
     }
 
     translate([0, 0, 199])
-    linear_extrude(50)
+    linear_extrude(30)
     circle(100/2, $fn=96);
 }
 
 module keys()
 {
-//    for(ii = [0:500:4000]) {
+    for(ii = [0:500:4000]) {
         for(jj = [0:500:2500]) {
-            //translate([ii,jj,0])
-            translate([0,jj,0])
+            translate([ii,jj,0])
                 key();
         }
-//    }
+    }
 }
 
 module spacekey()
@@ -40,7 +39,7 @@ module spacekey()
     linear_extrude(150)
     hull() {
         circle(270/2, $fn=96);
-        translate([300,0,0])
+        translate([280,0,0])
         circle(270/2, $fn=96);
     }
     translate([0, 0, 149])
@@ -65,7 +64,7 @@ scale(ViewScale)
 //    key();
     rotate([180, 0, 0])
     keys();
-//    translate([0, 600,0])
-//    rotate([180, 0, 0])
-//    spacekey();
+    translate([0, 600,0])
+    rotate([180, 0, 0])
+    spacekey();
 }
