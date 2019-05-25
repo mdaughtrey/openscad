@@ -5,7 +5,7 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 // 2990-2885=110
 module keyplate()
 {
-    linear_extrude(100)
+    linear_extrude(30)
     difference() {
     translate([-2210, -40, 0])
     square([4420, 2920]);
