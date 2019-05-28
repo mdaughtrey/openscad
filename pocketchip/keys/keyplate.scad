@@ -8,13 +8,16 @@ module keyplate()
     linear_extrude(30)
     difference() {
     translate([-2210, -40, 0])
-    square([4420, 2920]);
+    square([4420, 2920+70]);
+    translate([0, 70, 0])
+    {
 include <cutouts.scad>
+    }
 // pencil keyplate
-    translate([1399, 439, 0])
+    translate([1399, 439+70, 0])
     circle(330/2, $fn=6);
     // pen keyplate
-    translate([-1400, 450, 0])
+    translate([-1400, 450+70, 0])
     circle(330/2, $fn=96);
     // corner cutout
     translate([-1590, -40, 0])
@@ -36,9 +39,9 @@ include <cutouts.scad>
     translate([0, 0, -120])
     linear_extrude(120) {
         translate([2110, -40, 0])
-        square([100, 2920]);
+        square([100, 2920+70]);
         translate([-2210, 580, 0])
-        square([100, 2300]);
+        square([100, 2300+70]);
         translate([-2210+620, -40, 0])
         square([2210+1590, 100]);
         translate([-2210+620, -40, 0])
@@ -56,7 +59,7 @@ include <cutouts.scad>
     linear_extrude(100)
     square([1600, 250]);
     // supports
-    translate([0, 0, -100])
+    translate([0, 70, -100])
     linear_extrude(120) {
         // top letters
         for(ii = [-800:400:2000]){
