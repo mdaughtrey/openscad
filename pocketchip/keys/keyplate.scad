@@ -17,6 +17,7 @@ include <cutouts.scad>
     translate([1399, 439+70, 0])
     circle(330/2, $fn=6);
     // pen keyplate
+    //!translate([-1400, 165, 0])
     translate([-1400, 450+70, 0])
     circle(330/2, $fn=96);
     // corner cutout

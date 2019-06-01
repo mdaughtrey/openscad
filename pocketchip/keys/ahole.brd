@@ -22,7 +22,7 @@
 <layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="27" name="tValues" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="28" name="bValues" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
+<layer number="29" name="tStop" color="7" fill="3" visible="yes" active="yes"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="no" active="yes"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="yes"/>
 <layer number="32" name="bCream" color="7" fill="5" visible="no" active="yes"/>
@@ -104,11 +104,16 @@
 <hole x="-36.4866" y="60.48" drill="7.62"/>
 <hole x="-24.4066" y="60.48" drill="7.62"/>
 <hole x="-30.4466" y="37.7" drill="7.62"/>
-<wire x1="-58.42" y1="76.2" x2="57.15" y2="76.2" width="0.2032" layer="20"/>
-<wire x1="57.15" y1="76.2" x2="57.15" y2="-1.27" width="0.2032" layer="20"/>
-<wire x1="57.15" y1="-1.27" x2="-55.88" y2="-1.27" width="0.2032" layer="20"/>
-<wire x1="-55.88" y1="-1.27" x2="-58.42" y2="1.27" width="0.2032" layer="20"/>
-<wire x1="-58.42" y1="1.27" x2="-58.42" y2="76.2" width="0.2032" layer="20"/>
+<!-- north -->
+<wire x1="-56.134" y1="73.66" x2="56.134" y2="73.66" width="0.2032" layer="20"/>
+<!-- east -->
+<wire x1="56.134" y1="73.66" x2="56.134" y2="-5.9318" width="0.2032" layer="20"/>
+<!-- south -->
+<wire x1="56.134" y1="-5.9318" x2="-40.386" y2="-5.9318" width="0.2032" layer="20"/>
+<!-- west -->
+<wire x1="-56.134" y1="9.8612" x2="-56.134" y2="73.66" width="0.2032" layer="20"/>
+<!-- southwest -->
+<wire x1="-40.386" y1="-5.9318" x2="-56.134" y2="9.8612" width="0.2032" layer="20"/>
 
 <wire x1="33.21055625" y1="7.09435" x2="37.90355625" y2="7.09435" width="0.254" layer="20"/>
 <wire x1="33.21055625" y1="15.22235" x2="37.90355625" y2="15.22235" width="0.254" layer="20"/>
@@ -116,15 +121,12 @@
 <wire x1="39.87505625" y1="11.15835" x2="37.90355625" y2="15.22235" width="0.254" layer="20"/>
 <wire x1="33.21055625" y1="7.09435" x2="31.23905625" y2="11.15835" width="0.254" layer="20"/>
 <wire x1="33.21055625" y1="15.22235" x2="31.23905625" y2="11.15835" width="0.254" layer="20"/>
-
 <wire x1="-31.496" y1="11.412" x2="-35.56" y2="15.476" width="0.254" layer="20" curve="90"/>
 <wire x1="-35.56" y1="15.476" x2="-39.624" y2="11.412" width="0.254" layer="20" curve="90"/>
 <wire x1="-31.496" y1="10.904" x2="-31.496" y2="11.412" width="0.254" layer="20"/>
 <wire x1="-39.624" y1="10.904" x2="-35.56" y2="6.84" width="0.254" layer="20" curve="90"/>
 <wire x1="-35.56" y1="6.84" x2="-31.496" y2="10.904" width="0.254" layer="20" curve="90"/>
 <wire x1="-39.624" y1="11.412" x2="-39.624" y2="10.904" width="0.254" layer="20"/>
-
-
 <rectangle x1="-0.749146875" y1="1.558315625" x2="-0.726290625" y2="1.579653125" layer="29"/>
 <rectangle x1="-0.705965625" y1="1.558315625" x2="-0.642465625" y2="1.579653125" layer="29"/>
 <rectangle x1="-0.769465625" y1="1.579653125" x2="-0.622146875" y2="1.600734375" layer="29"/>
@@ -18304,7 +18306,6 @@
 <rectangle x1="25.285853125" y1="72.911234375" x2="25.308709375" y2="72.932315625" layer="29"/>
 <rectangle x1="25.329034375" y1="72.911234375" x2="25.372209375" y2="72.932315625" layer="29"/>
 <rectangle x1="4.691534375" y1="72.932315625" x2="4.711853125" y2="72.953653125" layer="29"/>
-
 </plain>
 <libraries>
 </libraries>
