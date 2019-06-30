@@ -125,7 +125,7 @@ module ledmount()
 module lensmount() 
 {
     // base
-    #linear_extrude(300)
+    linear_extrude(300)
     difference() {
     circle(1460/2, $fn=96);
     circle(1360/2, $fn=96);

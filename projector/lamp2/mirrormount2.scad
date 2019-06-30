@@ -184,7 +184,7 @@ module tabbedmirrormount()
     translate([0, 0, 300])
     mirror();
 
-    translate([-1000, 750, 300])
+    #translate([-1000, 750, 300])
     rotate([-90, 0, 0])
     vexmount();
 
