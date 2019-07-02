@@ -222,15 +222,24 @@ module adjmirrormount()
     cutouts2();
 
     translate([0, 0, 300])
-    linear_extrude(200)
+    linear_extrude(1200)
     bodymain();
 
-    translate([0, 0, 500])
+    translate([0, 0, 1500])
     linear_extrude(50)
     cap();
 
-    translate([0, 0, 300])
+    translate([0, 0, 1300])
     mirror();
+
+    translate([0, 0, 1500])
+    linear_extrude(1000)
+    difference() {
+        circle(1600/2, $fn=96);
+        circle(1500/2, $fn=96);
+//        translate([0, 500, 0])
+        square([800, 1600], center=true);
+    }
 
     *translate([0, 0, 0])
     rotate([-90, 0, 0])
@@ -240,7 +249,7 @@ module adjmirrormount()
     linear_extrude(380)
     mountsupport();
 
-    linear_extrude(1000)
+    *linear_extrude(1000)
     mirrormounttabs();
 }
 
@@ -361,7 +370,7 @@ module adjvexmount()
 
     // diagonalsupport
     diagonal();
-    translate([0, 1930, 0])
+    *translate([0, 1930, 0])
     rotate([0, 0, 180])
     diagonal();
 
@@ -379,7 +388,7 @@ module adjvexmount()
 
 scale(ViewScale)
 {
-    //translate([2000, 0, 0])
+    //translate([-2000, 0, 0])
     *adjmirrormount();
     adjvexmount();
     //translate([0, 0, 300])
