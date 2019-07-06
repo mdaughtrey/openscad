@@ -1,31 +1,32 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 
-module case()
-{
-    linear_extrude(350)
-    intersection() {
-        difference() {
-        circle(460/2, $fn=96);
-        circle(360/2, $fn=96);
-        }
-        union() {
-        rotate([0, 0, 45]) translate([200, 0, 0]) square([300, 100], center=true);
-        rotate([0, 0, 135]) translate([200, 0, 0]) square([300, 100], center=true);
-        rotate([0, 0, -90]) translate([200, 0, 0]) square([300, 100], center=true);
-        }
-    }
+EYELETR=334/2;
+EYELETCLEARANCE=20;
 
-    linear_extrude(200)
-    circle(370/2, $fn=96);
-    translate([0, 0, 200])
-    linear_extrude(25)
+include <holecoords.scad>
+
+module onekey()
+{
+    linear_extrude(50)
     difference() {
-    circle(370/2, $fn=96);
-    circle(180/2, $fn=96);
+        circle(520/2, $fn=96);
+        circle(200/2, $fn=96);
+    }
+    linear_extrude(150)
+    circle(220/2, $fn=96);
+
+    translate([0, 0, 50])
+    linear_extrude(125)
+    difference() {
+    circle(EYELETR, $fn=96);
+    circle(200/2, $fn=96);
     }
 }
 
 scale(ViewScale)
 {
-    case();
+    for(ii = holecoords){
+        translate([ii[0],ii[1],0])
+        onekey();
+    }
 }
