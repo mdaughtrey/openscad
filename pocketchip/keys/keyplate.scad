@@ -3,44 +3,38 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 PLATETHICKNESS=30;
 PLATELIFT=140;
 KEYCUTOUTR=220/2;
-RINGTHICKNESS=20;
-RINGHEIGHT=100;
+RINGTHICKNESS=80;
+RINGHEIGHT=90;
+EYELETR=334/2;
+EYELETCLEARANCE=20;
+HOLESHIFTY=90;
 
 include <holecoords.scad>
 
-// 2610+275=2885
-// 2990-2885=110
 module keyplate()
 {
     linear_extrude(PLATETHICKNESS)
     difference() {
-    translate([-2210, -40+70, 0])
-    square([4420, 2920+20]);
-    translate([0, 70, 0])
+    translate([-2210, -20, 0])
+    square([4420, 3010]);
+    translate([0, HOLESHIFTY, 0])
     {
         for(ii = holecoords){
             translate([ii[0],ii[1],0])
             circle(KEYCUTOUTR, $fn=96);
         }
     }
-// space bar
-//hull() {
-//    translate([300.00,780.00,0])
-//    circle(KEYCUTOUTR, $fn=96);
-//    translate([-300.00,780.00,0])
-//    circle(KEYCUTOUTR, $fn=96);
-//}
-// pencil keyplate
-    translate([1399, 439+70, 0])
+
+    translate([1399, 509, 0])
     circle(330/2, $fn=6);
     // pen keyplate
     //!translate([-1400, 165, 0])
-    translate([-1400, 450+70, 0])
+    translate([-1400, 520, 0])
     circle(330/2, $fn=96);
     // corner cutout
-    translate([-1590, -40+70, 0])
+    translate([-1590, -20, 0])
     rotate([0, 0, 45+90])
-    square([1000, 500]);
+    square([1200, 500]);
     }
 }
 
@@ -50,34 +44,44 @@ module sides()
     translate([0, 0, -PLATELIFT])
     linear_extrude(PLATELIFT) {
         // side
-        translate([2110, -40+70, 0])
+        translate([2110, 30, 0])
         square([100, 2920]);
-        // side
-        translate([-2210, 580+70, 0])
-        square([100, 2300]);
+        // side next to cutout
+        translate([-2210, 600, 0])
+        square([100, 2350]);
         // bottom
-        translate([-2210+620, -40+70, 0])
-        square([2210+1590, 100]);
-        translate([-2210+620, -40+70, 0])
+        translate([-2210+620, -20, 0])
+        square([2210+1590, 150]);
+        // corner cutout
+        translate([-2210+620, -20, 0])
         rotate([0, 0, 135])
         translate([0, -100, 0])
         square([877, 100]);
         // top
-        translate([-2210, 2870, 0])
+        translate([-2210, 2890, 0])
         square([2210+2210, 100]);
     }
+    // either side of tab
+    *translate([760, -20, -PLATELIFT-180])
+    linear_extrude(PLATELIFT+80)
+    square([1450, 50]);
+
+    translate([-1585, -20, -PLATELIFT-140])
+    linear_extrude(PLATELIFT+80)
+    square([3795, 50]);
+
 }
 
 module tab()
 {
     //bottom tab
-    translate([-800, -40+70, -PLATELIFT-80])
+    *translate([-800, -20, -PLATELIFT-80])
     linear_extrude(80)
-    square([1600, 100-70]);
+    square([1600, 100-70+50]);
 
-    translate([-800, -40+70, -PLATELIFT-180])
-    linear_extrude(100)
-    square([1600, 250]);
+    translate([-810, -20, -PLATELIFT-140])
+    linear_extrude(50)
+    square([1620, 200]);
 }
 
 module supports()
@@ -144,7 +148,7 @@ module supports()
 module rings()
 {
     for(ii = holecoords){
-        translate([ii[0], ii[1]+70, -RINGHEIGHT-5])
+        translate([ii[0], ii[1]+HOLESHIFTY, -RINGHEIGHT-5])
         linear_extrude(RINGHEIGHT+5)
         difference(){
             circle(KEYCUTOUTR+RINGTHICKNESS, $fn=96);
@@ -152,18 +156,44 @@ module rings()
         }
     }
     // pen support
-    translate([-1400, 450+70, -PLATELIFT])
+    translate([-1400, 520, -PLATELIFT])
     linear_extrude(PLATELIFT+5)
     difference() {
         circle(330/2+RINGTHICKNESS, $fn=96);
         circle(330/2, $fn=96);
     }
     // pencil support
-    translate([1399, 439+70, -PLATELIFT])
+    translate([1399, 509, -PLATELIFT])
     linear_extrude(PLATELIFT+5)
     difference() {
         circle(330/2+RINGTHICKNESS, $fn=6);
         circle(330/2, $fn=6);
+    }
+}
+
+module supports2()
+{
+    difference() {
+    translate([-1960, 680, 0])
+    square([3920, 2080]);
+    translate([0, HOLESHIFTY, 0])
+    {
+        for(ii = holecoords){
+            translate([ii[0],ii[1],0])
+            circle(EYELETR+EYELETCLEARANCE, $fn=96);
+        }
+    }
+
+    translate([1399, 509, 0])
+    circle(330/2, $fn=6);
+    // pen keyplate
+    //!translate([-1400, 165, 0])
+    *translate([-1400, 520, 0])
+    circle(330/2, $fn=96);
+    // corner cutout
+    *translate([-1590, 30, 0])
+    rotate([0, 0, 135])
+    square([1000, 500]);
     }
 }
 
@@ -180,6 +210,8 @@ scale(ViewScale)
     keyplate();
     sides();
     tab();
-    supports();
+    translate([0, 0, -PLATELIFT])
+    linear_extrude(PLATELIFT) 
+    supports2();
     rings();
 }

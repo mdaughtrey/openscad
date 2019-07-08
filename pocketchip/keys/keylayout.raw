@@ -26,7 +26,6 @@
 <element name="M" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="25.3734" y="29.4" smashed="yes" rot="R180"/>
 <element name="N" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="15.2234" y="29.4" smashed="yes"/>
 <element name="SPACEL" library="PocketCHIP-Components-v0.71" package="SNAPDOME_E.22-ONN-230" value="E.22-ONN-230" x="-7.62" y="20.04" smashed="yes" rot="R180"/>
-<element name="J1" library="PocketCHIP-Components-v0.73" package="98401-801-40LF" value="98401-801-40LF" x="17.608" y="111.284" smashed="yes" rot="MR270"/>
 <element name="ENTER" library="PocketCHIP-Components-v0.7" package="SNAPDOME_BL08260" value="BL08260" x="46.4126" y="29.4" smashed="yes"/>
 <element name="?/" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220" value="M27220" x="30.4466" y="21.1" smashed="yes"/>
 <element name="SHFT" library="PocketCHIP-Components-v0.71" package="SNAPDOME_M27220_1PAD" value="M272201PAD" x="40.5966" y="21.1" smashed="yes" rot="R180"/>
