@@ -28,10 +28,10 @@ module innerfins()
 {
     for(ii=[0:90:360]) {
         rotate([0,0,ii])
-        translate([-40,-430/2-10,0])
+        translate([-40,-440/2-10,0])
         rotate([180, 90, 180])
         linear_extrude(80)
-        polygon(points=[[0,0],[70,0],[0,70]]);
+        polygon(points=[[0,0],[200,0],[0,100]]);
     }
 }
 
@@ -41,21 +41,21 @@ scale(ViewScale)
     linear_extrude(950)
     difference() {
         circle(600/2, $fn=96);
-        circle(430/2, $fn=96);
+        circle(450/2, $fn=96);
     }
     // thin bas
     translate([0, 0, 949])
     linear_extrude(120)
     difference() {
         circle(550/2, $fn=96);
-        circle(430/2, $fn=96);
+        circle(440/2, $fn=96);
     }
     // thin cutout
     translate([0, 0, 1068])
     linear_extrude(310)
     difference() {
         circle(550/2, $fn=96);
-        circle(430/2, $fn=96);
+        circle(440/2, $fn=96);
         cutouts();
     }
     // thick cutout
@@ -63,7 +63,7 @@ scale(ViewScale)
     linear_extrude(325)
     difference() {
         circle(600/2, $fn=96);
-        circle(430/2, $fn=96);
+        circle(440/2, $fn=96);
         cutouts();
     }
     // outerfins
