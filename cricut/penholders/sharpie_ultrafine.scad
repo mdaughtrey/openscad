@@ -41,7 +41,7 @@ scale(ViewScale)
     linear_extrude(950)
     difference() {
         circle(600/2, $fn=96);
-        circle(450/2, $fn=96);
+        circle(460/2, $fn=96);
     }
     // thin bas
     translate([0, 0, 949])
