@@ -22,11 +22,11 @@ module oneside()
 
 module sides()
 {
-    translate([1000, 360, 0])
+    translate([1000, 370, 0])
     rotate([-90,0,90])
     {
         oneside();
-        translate([-720, 0, 2000])
+        translate([-740, 0, 2000])
         rotate([180, 0, 180])
         oneside();
     }
@@ -36,7 +36,7 @@ module bottom()
 {
     linear_extrude(50)
     difference() {
-        square([2000, 800], center=true);
+        square([2000, 820], center=true);
         translate([-600, 0, 0])
         circle(400/2, $fn=96);
         translate([600, 0, 0])

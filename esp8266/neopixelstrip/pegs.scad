@@ -1,7 +1,7 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 
-PegTx=857.75;
-PegTy=335;
+PegTx=896.25;
+PegTy=347.75;
 
 module peg()
 {
