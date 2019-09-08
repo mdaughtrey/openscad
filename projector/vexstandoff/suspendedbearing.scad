@@ -57,14 +57,14 @@ module disc()
     }
     // spacer
     translate([0, 0, 100])
-    linear_extrude(20)
+    linear_extrude(40)
     difference() {
         circle(460/2, $fn=96);
         circle(170/2, $fn=96);
     }
     // shaft
     translate([0, 0, 120])
-    linear_extrude(270/2)
+    linear_extrude(155)
     difference() {
         circle(310/2, $fn=96);
         circle(170/2, $fn=96);
@@ -85,8 +85,8 @@ module mount()
 
 scale(ViewScale)
 {
-    *disc();
-    translate([1000, 0, 1104+100-715])
+    disc();
+    *translate([1000, 0, 1104+100-715])
     rotate([180,0,0])
     mount();
 }
