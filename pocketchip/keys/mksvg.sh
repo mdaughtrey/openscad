@@ -15,33 +15,40 @@
 # bottom line 3800 96.52
 # side line 2523 64.09
 
-# key x locations
-#  3 -1790.00
-#  2 -1590.00
-#  1 -1430.00
-#  2 -1390.00
-#  4 -1190.00
-#  2 -990.00
-#  1 -960.00
-#  2 -790.00
-#  1 -600.00
-#  2 -590.00
-#  1 -400.00
-#  1 -390.00
-#  1 -300.00
-#  3 -190.00
-#  3 0
-#  3 190.00
-#  1 300.00
-#  2 390.00
-#  3 590.00
-#  3 790.00
-#  3 990.00
-#  3 1190.00
-#  3 1390.00
-#  3 1590.00
-#  1 1790.00
-#  2 1820.00
+let minx=0
+let maxx=0
+let miny=0
+let maxy=0
+read -a bounds <<< $(cat holesadjusted.txt | while read x y text
+do
+    if (($x>$maxx)); then let maxx=$x; fi
+    if (($x<$minx)); then let minx=$x; fi
+    if (($y>$maxy)); then let maxy=$y; fi
+    if (($y<$miny)); then let miny=$y; fi
+    echo $minx $maxx $miny $maxy
+done | tail -1) 
+xmid=$(((${bounds[0]}+${bounds[1]})/2))
+ymid=$(((${bounds[2]}+${bounds[3]})/2))
+
+tomm()
+{
+    echo `echo "scale=4;($1*.0254)" | bc -q`
+}
+
+mkoutline()
+{
+    # 4420-3600=820
+    read w <<<$(tomm 4420) 
+    read h <<<$(tomm 3010)
+    read short <<<$(tomm 2410)
+#    read cut <<<$(tomm 1600)
+#    echo $(tomm `echo "scale=4;($h-1000)" | bc -q` )
+#    read short <<<$(echo "scale=4;($h-1600)" | bc -q)
+#    short=$(tomm `echo "scale=4;($h-1600)" | bc -q`)
+    line="d=\"M0,0 L$w,0 L$w,$h L"$(tomm 600)",$h L0,$short Z\""
+#    $(tomm $((h-1000)))" Z\""
+    echo $line
+}
 
 cat <<HEAD
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -55,8 +62,8 @@ cat <<HEAD
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="6in"
-   height="4in"
+   width="150mm"
+   height="100mm"
    viewBox="0 0 152.4 101.6"
    version="1.1"
    id="svg8"
@@ -72,9 +79,9 @@ cat <<HEAD
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="207.13175"
-     inkscape:cy="216.54813"
-     inkscape:document-units="in"
+     inkscape:cx="0"
+     inkscape:cy="0"
+     inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="in"
@@ -97,48 +104,85 @@ cat <<HEAD
   </metadata>
 HEAD
 
+path=10
 # style="fill:none;stroke:#000000;stroke-width:0.02px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-if [[ "$1" == "2" ]]; then
+read outline <<<$(mkoutline)
 cat <<OUTER
 <g
-     inkscape:label="Layer 2"
+     inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer2"
-     transform="translate(0,0)">
+     id="Holes">
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M -5.6134,0 h 9.652 l 1.5748,1.5748 V 7.6454 h -11.22 Z"
-       id="path1618"
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       $outline
+       id="path${path}"
        inkscape:connector-curvature="0" />
 
-</g>
 OUTER
+((path++))
 
-fi
-
-       #style="stroke-width:0.02" />
-if [[ "$1" == "1" ]]; then
 XOFS=0
 YOFS=0
-path=10
-echo "<g"
-cat keylayout.raw | cut -d' ' -f2,6,7  | cut -d\" -f4,6 | tr \" ' ' | while read x y
+# ----------------------------------------------------------------------------------------
+# All the holes
+# ----------------------------------------------------------------------------------------
+cat holesadjusted.txt | while read x y a
 do
-cx=`echo "scale=4;($x+$XOFS)/10" | bc -q`
-cy=`echo "scale=4;($y+$YOFS)/10" | bc -q`
+    ((x+=420))
+    ((y-=370))
+    ((y+=(($ymid-$y)*2)))
+    ((x+=${bounds[0]#-}))
+cx=`echo "scale=4;($x*.0254)" | bc -q`
+cy=`echo "scale=4;($y*.0254)" | bc -q`
 
 cat <<MIDDLE
     <ellipse
        id="path${path}"
        cx="$cx"
        cy="$cy"
-       rx="0.228"
-       ry="0.228"
-       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       rx="2.921"
+       ry="2.921"
+       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
 MIDDLE
     ((path++))
 
 done
 echo "</g>"
-fi
+
+# ----------------------------------------------------------------------------------------
+# All the letters
+# ----------------------------------------------------------------------------------------
+cat <<TEXTPREFIX
+<g
+inkscape:groupmode="layer"
+id="layer1"
+inkscape:label="Text">
+TEXTPREFIX
+
+cat holesadjusted.txt | while read x y text
+do
+    ((x+=420))
+    ((y-=570))
+    ((y+=(($ymid-$y)*2)))
+    ((x+=${bounds[0]#-}))
+    x=`echo "scale=4;($x*.0254)" | bc -q`
+    y=`echo "scale=4;($y*.0254)" | bc -q`
+
+cat <<TEXTELEM
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       x="$x"
+       y="$y"
+       id="text${path}"><tspan
+         sodipodi:role="line"
+         id="tspan${path}"
+         x="$x"
+         y="$y">${text}</tspan></text>
+TEXTELEM
+    ((path++))
+
+done
+echo "</g>"
+
 echo "</svg>"
