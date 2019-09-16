@@ -19,7 +19,7 @@ let minx=0
 let maxx=0
 let miny=0
 let maxy=0
-read -a bounds <<< $(cat holesadjusted.txt | while read x y text
+read -a bounds <<< $(cat holesadjusted.txt | while read x y text layer
 do
     if (($x>$maxx)); then let maxx=$x; fi
     if (($x<$minx)); then let minx=$x; fi
@@ -109,9 +109,9 @@ path=10
 read outline <<<$(mkoutline)
 cat <<OUTER
 <g
-     inkscape:label="Layer 1"
+     inkscape:label="Holes"
      inkscape:groupmode="layer"
-     id="Holes">
+     id="layer99">
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        $outline
@@ -126,7 +126,7 @@ YOFS=0
 # ----------------------------------------------------------------------------------------
 # All the holes
 # ----------------------------------------------------------------------------------------
-cat holesadjusted.txt | while read x y a
+cat holesadjusted.txt | while read x y text layer
 do
     ((x+=420))
     ((y-=370))
@@ -149,29 +149,41 @@ MIDDLE
 done
 echo "</g>"
 
-# ----------------------------------------------------------------------------------------
-# All the letters
-# ----------------------------------------------------------------------------------------
+textlayer()
+{
+    layerid=$1
+    label=$2
+    color=$3
+
 cat <<TEXTPREFIX
 <g
 inkscape:groupmode="layer"
-id="layer1"
-inkscape:label="Text">
+id="${layerid}"
+inkscape:label="${label}">
 TEXTPREFIX
 
-cat holesadjusted.txt | while read x y text
-do
-    ((x+=420))
-    ((y-=570))
-    ((y+=(($ymid-$y)*2)))
-    ((x+=${bounds[0]#-}))
-    x=`echo "scale=4;($x*.0254)" | bc -q`
-    y=`echo "scale=4;($y*.0254)" | bc -q`
+    cat holesadjusted.txt | while read x y text layer
+    do
+        if [[ ! "$layer" == "$layerid" ]]; then continue; fi
+        if [[ "__" == "$text" ]]; then continue; fi
+        ((x+=420))
+
+        if [[ "_" == "${text:0:1}" ]]; then
+            text=${text:1}
+            ((y-=620))
+        else
+            ((y-=220))
+        fi
+        ((x-=${#text}*35))
+        ((y+=(($ymid-$y)*2)))
+        ((x+=${bounds[0]#-}))
+        x=`echo "scale=4;($x*.0254)" | bc -q`
+        y=`echo "scale=4;($y*.0254)" | bc -q`
 
 cat <<TEXTELEM
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#${color};fill-opacity:1;stroke:none;stroke-width:0.26881665"
        x="$x"
        y="$y"
        id="text${path}"><tspan
@@ -180,9 +192,12 @@ cat <<TEXTELEM
          x="$x"
          y="$y">${text}</tspan></text>
 TEXTELEM
-    ((path++))
+        ((path++))
 
-done
-echo "</g>"
+    done
+    echo "</g>"
+}
+
+textlayer 2 Main ff0000
 
 echo "</svg>"
