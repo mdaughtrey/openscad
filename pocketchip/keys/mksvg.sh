@@ -164,8 +164,13 @@ TEXTPREFIX
 
     cat holesadjusted.txt | while read x y text layer
     do
+        echo "x [$x] y [$y] text [$text] layer [$layer]"
         if [[ ! "$layer" == "$layerid" ]]; then continue; fi
         if [[ "__" == "$text" ]]; then continue; fi
+        case $layerid in
+            3) ((y+=120)) ;;
+            4) ((x-=200)); ((y-=100)) ;;
+        esac
         ((x+=420))
 
         if [[ "_" == "${text:0:1}" ]]; then
@@ -198,6 +203,8 @@ TEXTELEM
     echo "</g>"
 }
 
-textlayer 2 Main ff0000
+textlayer 2 Main 000000
+textlayer 3 Shift 0000ff
+textlayer 4 Alt 00ff00
 
 echo "</svg>"
