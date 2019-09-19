@@ -129,7 +129,7 @@ YOFS=0
 cat holesadjusted.txt | while read x y text layer
 do
     ((x+=420))
-    ((y-=370))
+    ((y-=300))
     ((y+=(($ymid-$y)*2)))
     ((x+=${bounds[0]#-}))
 cx=`echo "scale=4;($x*.0254)" | bc -q`
@@ -172,16 +172,17 @@ TEXTPREFIX
         if [[ ! "$layer" == "$layerid" ]]; then continue; fi
         if [[ "__" == "$text" ]]; then continue; fi
         case $layerid in
-            3) ((y+=120)) ;;
-            4) ((x-=200)); ((y-=100)) ;;
+            3) ((x-=50)); ((y+=0)) ;;
+            4) ((x-=180)); ((y-=100)) ;;
+            5) ((x+=50)) ;;
         esac
         ((x+=420))
 
         if [[ "_" == "${text:0:1}" ]] && ((1<${#text})); then
             text=${text:1}
-            ((y-=620))
+            ((y-=550))
         else
-            ((y-=220))
+            ((y-=150))
         fi
 
         color2=$color
@@ -221,5 +222,6 @@ TEXTELEM
 textlayer 2 Main $mainColor
 textlayer 3 Shift $shiftColor
 textlayer 4 Fn $fnColor
+textlayer 5 Main $mainColor
 
 echo "</svg>"
