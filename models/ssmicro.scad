@@ -22,7 +22,7 @@ module ssmicro()
     square([600, 600], center=true);
 }
 
-scale(ViewScale)
-{
-    ssmicro();
-}
+//scale(ViewScale)
+//{
+//    ssmicro();
+//}

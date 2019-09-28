@@ -43,7 +43,7 @@ module hbridge()
     square([275,198], center=true);
 }
 
-scale(ViewScale)
-{
-    hbridge();
-}
+//scale(ViewScale)
+//{
+//    hbridge();
+//}
