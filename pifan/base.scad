@@ -1,5 +1,10 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 
+include <../models/pizerow.scad>
+include <../models/ssmicro.scad>
+include <../models/hbridge.scad>
+include <../models/psu4073.scad>
+
 baseR=2000;
 shaftR=500;
 speakerH=1200;
@@ -12,7 +17,7 @@ module column()
 {
     // outer body
     translate([0, 0, 0])
-    linear_extrude(4500)
+    linear_extrude(5500)
     union() 
     {
         difference()
@@ -30,13 +35,14 @@ module electronics()
     linear_extrude(200)
     difference()
     {
-        circle(baseR, $fn=96);
-        for(ii=[0:45:360])
+        circle(baseR-120, $fn=96);
+        for(ii=[0:90:360])
         {
-            rotate([0, 0, ii])
+            rotate([0, 0, 45+ii])
             translate([1300, 0, 0])
             circle(200, $fn=96);
         }
+        tabcutouts();
     }
 
     // center shaft cutout
@@ -225,22 +231,54 @@ module tabcutouts()
     }
 }
 
+module models()
+{
+    rotate([0, 0, 30])
+    translate([0, -1200, 4500])
+    rotate([0, -90, 0])
+    scale([39.3,39.3,39.3])
+    pizerow();
+
+    translate([0, 1200, 4500])
+    rotate([0, -90, 180])
+    scale([39.3,39.3,39.3])
+    pizerow();
+
+    rotate([0, 0, 90])
+    translate([0, -1000, 3700])
+    rotate([90, 0, 90])
+    ssmicro();
+
+//    translate([600, 0, 3700])
+//    rotate([0, 90, 0])
+//    hbridge();
+
+    translate([600, 0, 5700])
+    rotate([0, 90, 0])
+    hbridge();
+
+//    translate([-1000, 0, 5300])
+//    rotate([0, 0, 90])
+//    rotate([0, 90, 180])
+//    psu();
+}
 
 scale(ViewScale)
 {
-    *color("Cyan")
+    color("Cyan")
     translate([0, 0, 600])
     rotate([180,0,0])
     ledInsert();
 
-    *color("Peru")
+    color("Peru")
     translate([0, 0, 1190+600])
     rotate([180,0,0])
     speaker();
 
-    *translate([0, 0, 100])
-    column();
+    translate([0, 0, 100])
+    %column();
 
+    translate([0, 0, -750])
     electronics();
 //    translate([0, 0, 500])
 //    insert();
@@ -249,5 +287,8 @@ scale(ViewScale)
 //    color("LawnGreen")
 //    baseWeight();
 //tabcutouts();
+
+    translate([0, 0, -750])
+    models();
 }
 
