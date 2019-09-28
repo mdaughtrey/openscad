@@ -1,78 +1,253 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 
+baseR=2000;
+shaftR=500;
+speakerH=1200;
+//ledInsertH=
+insertR=baseR-150;
+ledOuterR=85/25.4*1000/2;
+ledInnerR=72/25.4*1000/2;
 
-module foot()
+module column()
 {
-    radius=1000;
-    cutoutmult=0.85;
-    intersection()
+    // outer body
+    translate([0, 0, 0])
+    linear_extrude(4500)
+    union() 
     {
-        linear_extrude(1000)
         difference()
         {
-            circle(radius, $fn=96);
-            for(ii=[1:2:6])
-            {
-                radius0=radius*pow(cutoutmult,ii);
-                radius1=radius0*cutoutmult;
-                echo("radius0 ",radius0, " radius1 ",radius1);
-                // outer cutout
-                difference()
-                {
-                    circle(radius0, $fn=96);
-                    circle(radius1, $fn=96);
-                    translate([-490, 0, 0])
-                    square([1000, 200], center=true);
-                    //square([200, 1000], center=true);
-                }
-            }
+            circle(baseR, $fn=96);
+            circle(baseR-100, $fn=96);
         }
-        sphere(r=radius, $fn=96);
+        tabs();
     }
 }
 
-module strut()
+module electronics()
 {
-    linear_extrude(800)
+    translate([0,0,1190+600+790])
+    linear_extrude(200)
+    difference()
     {
-        difference()
+        circle(baseR, $fn=96);
+        for(ii=[0:45:360])
+        {
+            rotate([0, 0, ii])
+            translate([1300, 0, 0])
+            circle(200, $fn=96);
+        }
+    }
+
+    // center shaft cutout
+    translate([0, 0,1190+600+790+190])
+    linear_extrude(500)
+    difference()
+    {
+        circle(500, $fn=96);
+        circle(400, $fn=96);
+        translate([0, 0, 0])
+        square([400, 1100], center=true);
+    }
+    // center shaft
+    translate([0, 0, 690+1190+600+790])
+    linear_extrude(4000)
+    difference()
+    {
+        circle(shaftR, $fn=96);
+        circle(shaftR-100, $fn=96);
+    }
+}
+
+
+module insert()
+{
+    insertShaftR=shaftR+30;
+    linear_extrude(200)
+    circle(insertR, $fn=96);
+
+    translate([0, 0, 190])
+    linear_extrude(4000)
+    difference()
+    {
+        circle(insertShaftR+100, $fn=96);
+        circle(insertShaftR, $fn=96);
+    }
+}
+
+module speaker()
+{
+    linear_extrude(200)
+    difference()
+    {
+        circle(baseR-130, $fn=96);
+        for(ii=[0:45:360])
+        {
+            rotate([0, 0, ii])
+            translate([1300, 0, 0])
+            circle(200, $fn=96);
+        }
+        tabcutouts();
+    }
+
+    translate([0, 0, 190])
+    linear_extrude(1000)
+    difference()
+    {
+        circle(baseR-130, $fn=96);
+        circle(baseR-230, $fn=96);
+        tabcutouts();
+    }
+    translate([0, 0, 190])
+    linear_extrude(600)
+    difference()
+    {
+        circle(800, $fn=96);
+        circle(700, $fn=96);
+    }
+}
+
+module ledInsert()
+{
+//    color("Green")
+    linear_extrude(500)
+    {
+        intersection()
+        {
+            difference()
+            {
+                circle(baseR-130, $fn=96);
+                circle(ledOuterR-10, $fn=96);
+            }
+            for (ii = [0:45:360])
+            {
+                rotate([0, 0, ii])
+                square([200, baseR*2], center=true);
+            }
+        }
+        difference() 
+        {
+            circle(baseR-120, $fn=96);
+            circle(baseR-230, $fn=96);
+            rotate([0,0,22])
+            tabcutouts();
+        }
+    }
+    linear_extrude(200)
+    intersection()
+    {
+        difference() 
+        {
+            circle(ledOuterR+10, $fn=96);
+            circle(ledInnerR-20, $fn=96);
+        }
+        for (ii = [0:45:360])
+        {
+            rotate([0, 0, ii])
+            square([200, baseR*2], center=true);
+        }
+    }
+    linear_extrude(600)
+    difference() 
+    {
+    circle(ledInnerR-20, $fn=96);
+    circle(ledInnerR-70, $fn=96);
+    }
+
+}
+
+module baseWeight()
+{
+    rotate_extrude($fn=96)
+    translate([baseR+70, 0, 0])
+    {
+        difference() 
         {
             difference() 
             {
                 circle(2000, $fn=96);
-                circle(1800, $fn=96);
+                circle(1900, $fn=96);
             }
-            translate([-1000, 0, 0])
-            square([2000, 4000], center=true);
-
             translate([0, -1000, 0])
             square([4000, 2000], center=true);
+
+            translate([-1000, 0, 0])
+            square([2000, 4000], center=true);
         }
-        translate([1900, -490, 0])
-        square([200, 1000], center=true);
+        translate([0, 1000, 0])
+        square([100, 2000], center=true);
 
-        translate([-240, 1900, 0])
-        square([500, 200], center=true);
+        translate([-100, 50, 0])
+        square([300, 100], center=true);
 
-        translate([-125-500, 1900, 0])
-        rotate([0, 0, 30])
-        circle(250, $fn=6);
+        translate([100, 700, 0])
+        square([300, 500], center=true);
     }
 }
 
-module base()
+
+module ventcutouts()
 {
-    // rotate
-
-    rotate([0, 0, -90])
-    foot();
-    translate([-1900, 1000, 200])
-    strut();
-    // swivelbase
-
+    for (ii=[0:90:360])
+    {
+        rotate([0, 0, ii])
+        translate([0, baseR-200, 0])
+        rotate([90, 0, 0])
+        translate([0, 0, -200])
+        linear_extrude(400)
+        {
+            translate([-300, 0, 0])
+            circle(100, $fn=96);
+            translate([300, 0, 0])
+            circle(100, $fn=96);
+            square([600, 200], center=true);
+        }
+    }
 }
+
+module tabs()
+{
+    for(ii=[0:180:360])
+    {
+        rotate([0, 0, ii])
+        translate([baseR-150, 0, 0])
+        square([200, 300], center=true);
+    }
+}
+
+module tabcutouts()
+{
+    for(ii=[0:180:360])
+    {
+        rotate([0, 0, ii])
+        translate([baseR-150, 0, 0])
+        square([200, 320], center=true);
+    }
+}
+
 
 scale(ViewScale)
 {
-    base();
+    *color("Cyan")
+    translate([0, 0, 600])
+    rotate([180,0,0])
+    ledInsert();
+
+    *color("Peru")
+    translate([0, 0, 1190+600])
+    rotate([180,0,0])
+    speaker();
+
+    *translate([0, 0, 100])
+    column();
+
+    electronics();
+//    translate([0, 0, 500])
+//    insert();
+//    ventcutouts();
+
+//    color("LawnGreen")
+//    baseWeight();
+//tabcutouts();
 }
+
