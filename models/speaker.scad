@@ -1,6 +1,6 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 
-module speaker()
+module model_speaker()
 {
     linear_extrude(130)
     difference()
@@ -32,7 +32,7 @@ module speaker()
     circle(1620/2, $fn=96);
 }
 
-scale(ViewScale)
-{
-    speaker();
-}
+//scale(ViewScale)
+//{
+//    speaker();
+//}
