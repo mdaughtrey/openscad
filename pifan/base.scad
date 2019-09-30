@@ -4,6 +4,10 @@ include <../models/pizerow.scad>
 include <../models/ssmicro.scad>
 include <../models/hbridge.scad>
 include <../models/psu4073.scad>
+include <../models/speaker.scad>
+include <../models/usbhub.scad>
+include <./mountring.scad>
+include <./mount-pizerow.scad>
 
 baseR=2000;
 shaftR=500;
@@ -55,14 +59,40 @@ module electronics()
         translate([0, 0, 0])
         square([400, 1100], center=true);
     }
+    // shaft cap spacer
+    translate([0, 0,1190+600+790+190])
+    linear_extrude(500)
+    difference()
+    {
+        circle(600, $fn=96);
+        circle(400, $fn=96);
+        translate([0, 0, 0])
+        square([400, 1200], center=true);
+    }
+
     // center shaft
     translate([0, 0, 690+1190+600+790])
     linear_extrude(4000)
-    difference()
     {
-        circle(shaftR, $fn=96);
-        circle(shaftR-100, $fn=96);
+        difference()
+        {
+            circle(shaftR, $fn=96);
+            circle(shaftR-100, $fn=96);
+        }
+        shafttabs();
     }
+
+    translate([0, 0, 3500])
+    color("FireBrick")
+    rotate([0, 0, -60])
+    mountring(270);
+
+    rotate([0, 0, 30])
+    translate([0, -900, 4200])
+    color("FireBrick")
+    rotate([0, -90, 0])
+    mount_pizerow();
+
 }
 
 
@@ -87,10 +117,11 @@ module speaker()
     difference()
     {
         circle(baseR-130, $fn=96);
+        circle(1620/2+20, $fn=96);
         for(ii=[0:45:360])
         {
             rotate([0, 0, ii])
-            translate([1300, 0, 0])
+            translate([1400, 0, 0])
             circle(200, $fn=96);
         }
         tabcutouts();
@@ -105,12 +136,19 @@ module speaker()
         tabcutouts();
     }
     translate([0, 0, 190])
-    linear_extrude(600)
+    linear_extrude(450)
     difference()
     {
-        circle(800, $fn=96);
-        circle(700, $fn=96);
+        circle(2070/2+120, $fn=96);
+        circle(2070/2+20, $fn=96);
     }
+
+    *color("LawnGreen")
+    translate([0, 0, 1172])
+    rotate([0, 180, 0])
+    model_speaker();
+
+
 }
 
 module ledInsert()
@@ -231,10 +269,20 @@ module tabcutouts()
     }
 }
 
+module shafttabs()
+{
+    for(ii=[0:180:360])
+    {
+        rotate([0, 0, ii])
+        translate([shaftR-100, 0, 0])
+        square([150, 150], center=true);
+    }
+}
+
 module models()
 {
     rotate([0, 0, 30])
-    translate([0, -1200, 4500])
+    translate([0, -1350, 4200])
     rotate([0, -90, 0])
     scale([39.3,39.3,39.3])
     pizerow();
@@ -261,6 +309,15 @@ module models()
 //    rotate([0, 0, 90])
 //    rotate([0, 90, 180])
 //    psu();
+
+    color("LawnGreen")
+    translate([0, 0, 1370])
+    rotate([0, 0, 0])
+    model_speaker();
+
+    translate([-1000, 0, 3700])
+    rotate([90, -90, 0])
+    usbhub();
 }
 
 scale(ViewScale)
