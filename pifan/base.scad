@@ -6,7 +6,7 @@ include <../models/hbridge.scad>
 include <../models/psu4073.scad>
 include <../models/speaker.scad>
 include <../models/usbhub.scad>
-include <./mountring.scad>
+include <./mountring90.scad>
 include <./mount-pizerow.scad>
 
 baseR=2000;
@@ -84,13 +84,14 @@ module electronics()
 
     translate([0, 0, 3500])
     color("FireBrick")
-    rotate([0, 0, -60])
-    mountring(270);
+    rotate([0, 0, -90])
+    mountring90(270, 4);
 
-    rotate([0, 0, 30])
-    translate([0, -900, 4200])
-    color("FireBrick")
-    rotate([0, -90, 0])
+    for (ii=[0,180])
+    rotate([0, 0, ii])
+    translate([100, -850, 4200])
+    color("DarkOrange")
+    rotate([0, 90, 90])
     mount_pizerow();
 
 }
@@ -281,16 +282,17 @@ module shafttabs()
 
 module models()
 {
-    rotate([0, 0, 30])
-    translate([0, -1350, 4200])
-    rotate([0, -90, 0])
+    for (ii=[0,180])
+    rotate([0, 0, ii])
+    translate([550, -690, 4200])
+    rotate([90, -90, 0])
     scale([39.3,39.3,39.3])
     pizerow();
 
-    translate([0, 1200, 4500])
-    rotate([0, -90, 180])
-    scale([39.3,39.3,39.3])
-    pizerow();
+//    translate([0, 1200, 4500])
+//    rotate([0, -90, 180])
+//    scale([39.3,39.3,39.3])
+//    pizerow();
 
     rotate([0, 0, 90])
     translate([0, -1000, 3700])
