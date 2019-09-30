@@ -37,7 +37,7 @@ module usbhub()
     square([410, 150], center=true);
 }
 
-scale(ViewScale)
-{
-    usbhub();
-}
+//scale(ViewScale)
+//{
+//    usbhub();
+//}
