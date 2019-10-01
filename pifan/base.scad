@@ -6,8 +6,10 @@ include <../models/hbridge.scad>
 include <../models/psu4073.scad>
 include <../models/speaker.scad>
 include <../models/usbhub.scad>
+include <../models/tda2030a.scad>
 include <./mountring90.scad>
 include <./mount-pizerow.scad>
+include <./mount-ssmicro.scad>
 
 baseR=2000;
 shaftR=500;
@@ -82,7 +84,8 @@ module electronics()
         shafttabs();
     }
 
-    translate([0, 0, 3500])
+    for (ii=[3300,5000])
+    translate([0, 0, ii])
     color("FireBrick")
     rotate([0, 0, -90])
     mountring90(270, 4);
@@ -93,6 +96,11 @@ module electronics()
     color("DarkOrange")
     rotate([0, 90, 90])
     mount_pizerow();
+
+    color("DarkOrange")
+    translate([710, 110, 3400])
+    rotate([0, 0, 90])
+    mount_ssmicro();
 
 }
 
@@ -295,8 +303,8 @@ module models()
 //    pizerow();
 
     rotate([0, 0, 90])
-    translate([0, -1000, 3700])
-    rotate([90, 0, 90])
+    translate([110, -770, 4200])
+    rotate([90, 0, 180])
     ssmicro();
 
 //    translate([600, 0, 3700])
@@ -320,6 +328,10 @@ module models()
     translate([-1000, 0, 3700])
     rotate([90, -90, 0])
     usbhub();
+
+    translate([-800, -400, 5200])
+    rotate([0, -90, 0])
+    tda2030a();
 }
 
 scale(ViewScale)
