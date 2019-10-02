@@ -7,6 +7,7 @@ include <../models/psu4073.scad>
 include <../models/speaker.scad>
 include <../models/usbhub.scad>
 include <../models/tda2030a.scad>
+include <../models/audioinjector.scad>
 include <./mountring90.scad>
 include <./mount-pizerow.scad>
 include <./mount-ssmicro.scad>
@@ -288,19 +289,28 @@ module shafttabs()
     }
 }
 
+module pizerow_audio()
+{
+    scale([39.3,39.3,39.3])
+    pizerow();
+    translate([0, 0, 356])
+    audioinjector();
+}
+
 module models()
 {
-    for (ii=[0,180])
-    rotate([0, 0, ii])
+ //   for (ii=[0,180])
+ //   rotate([0, 0, ii])
     translate([550, -690, 4200])
     rotate([90, -90, 0])
     scale([39.3,39.3,39.3])
     pizerow();
 
-//    translate([0, 1200, 4500])
-//    rotate([0, -90, 180])
-//    scale([39.3,39.3,39.3])
-//    pizerow();
+    rotate([0, 0, 180])
+    translate([550, -690, 4200])
+    rotate([90, -90, 0])
+    scale([39.3,39.3,39.3])
+    !pizerow_audio();
 
     rotate([0, 0, 90])
     translate([110, -770, 4200])
