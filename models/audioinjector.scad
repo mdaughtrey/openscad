@@ -1,13 +1,13 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 
-module io()
+module audioinjector_io()
 {
-    translate([0, (1181/2)-138, 56])
+    translate([0, (1181/2)-138, 0])
     linear_extrude(100)
     square([2008,197], center=true);
 }
 
-module caps()
+module audioinjector_caps()
 {
     xs=2560;
     ys=1190;
@@ -32,7 +32,7 @@ module caps()
 }
 
 
-module pcb()
+module audioinjector_pcb()
 {
     linear_extrude(56)
     difference()
@@ -65,7 +65,7 @@ module pcb()
     }
 }
 
-module jack()
+module audioinjector_pins()
 {
     xs=2560;
     ys=1190;
@@ -82,28 +82,31 @@ module jack()
     square([300, 100], center=true);
 }
 
-module pins()
+module audioinjector_jack()
 {
+    xs=2560;
+    ys=1190;
+    translate([-xs/2+234/2+700, -ys/2+555/2-100, 0])
     linear_extrude(200)
-    square([100, 300], center=true);
+    square([234, 555], center=true);
 }
 
 
-module pizerow()
+module audioinjector()
 {
     xs=2560;
     ys=1190;
 
     color("cyan")
-    pcb();
+    audioinjector_pcb();
 
     color("CornflowerBlue")
     translate([0, 0, 55])
     {
-        io();
-        caps();
-        jack();
-        pins();
+        audioinjector_io();
+        audioinjector_caps();
+        audioinjector_jack();
+        audioinjector_pins();
         // microphone
         translate([-xs/2+300/2+2030, -ys/2+300/2, 0])
         linear_extrude(200)
@@ -115,7 +118,7 @@ module pizerow()
     }
 }
 
-scale(ViewScale)
-{
-    pizerow();
-}
+//scale(ViewScale)
+//{
+//    audioinjector();
+//}

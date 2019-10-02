@@ -11,6 +11,7 @@ include <../models/audioinjector.scad>
 include <./mountring90.scad>
 include <./mount-pizerow.scad>
 include <./mount-ssmicro.scad>
+include <./mount-audioinjector.scad>
 
 baseR=2000;
 shaftR=500;
@@ -89,14 +90,20 @@ module electronics()
     translate([0, 0, ii])
     color("FireBrick")
     rotate([0, 0, -90])
-    mountring90(270, 4);
+    mountring90(270, 4, 1);
 
-    for (ii=[0,180])
-    rotate([0, 0, ii])
+//    for (ii=[0,180])
+    //rotate([0, 0, 0])
     translate([100, -850, 4200])
     color("DarkOrange")
     rotate([0, 90, 90])
     mount_pizerow();
+
+    rotate([0, 0, 180])
+    translate([100, -1200, 4400])
+    color("DarkOrange")
+    rotate([0, 90, 90])
+    mount_audioinjector();
 
     color("DarkOrange")
     translate([710, 110, 3400])
@@ -307,10 +314,10 @@ module models()
     pizerow();
 
     rotate([0, 0, 180])
-    translate([550, -690, 4200])
+    translate([550, -690, 4400])
     rotate([90, -90, 0])
-    scale([39.3,39.3,39.3])
-    !pizerow_audio();
+//    scale([39.3,39.3,39.3])
+    pizerow_audio();
 
     rotate([0, 0, 90])
     translate([110, -770, 4200])

@@ -1,7 +1,7 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 include <../models/pizerow.scad>
 
-module mount_pizerow_jaw()
+module mount_audioinjector_jaw()
 {
     xpos=1140;
     //ypos=472;
@@ -26,7 +26,7 @@ module mount_pizerow_jaw()
     square([xpos*2+250, 200], center=true);
 }
 
-module mount_pizerow_cutouts()
+module mount_audioinjector_cutouts()
 {
     for(ii = [-1140:400:1140])
     {
@@ -35,7 +35,7 @@ module mount_pizerow_cutouts()
     }
 }
 
-module mount_pizerow()
+module mount_audioinjector()
 {
     for(ii = [0, 169, 356-10, 356+169-10])
     {
@@ -43,8 +43,8 @@ module mount_pizerow()
         linear_extrude(100)
         difference()
         {
-            mount_pizerow_jaw();
-//            mount_pizerow_cutouts();
+            mount_audioinjector_jaw();
+//            mount_audioinjector_cutouts();
         }
     }
 
@@ -64,9 +64,9 @@ module mount_pizerow()
     square([1000, 200], center=true);
 }
 
-scale(ViewScale)
-{
-    mount_pizerow();
-}
+//scale(ViewScale)
+//{
+//    mount_audioinjector();
+//}
 //*translate([0, 0, 2.54])
 //pizerow();

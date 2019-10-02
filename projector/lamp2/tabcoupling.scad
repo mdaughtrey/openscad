@@ -243,13 +243,13 @@ module tabcoupling()
     body1();
 
     translate([0, 0, 500])
-    linear_extrude(700)
+    linear_extrude(1700)
     difference() {
         circle(1460/2, $fn=96);
         circle(1400/2, $fn=96);
     }
 
-    translate([0, 0, 1070])
+    translate([0, 0, 2070])
     tabs();
 }
 

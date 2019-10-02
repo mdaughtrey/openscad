@@ -32,7 +32,7 @@ module cpu()
 
 module io()
 {
-    linear_extrude(10)
+    linear_extrude(2)
     square([51,5], center=true);
 }
 
