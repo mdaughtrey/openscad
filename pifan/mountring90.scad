@@ -24,11 +24,11 @@ module mountring90(space,mounts, wiremount)
                     translate([shaftR+space/2+80, -100, 0])
                     square([space+20, 300], center=true);
                 }
-                translate([shaftR+200, -470, 0])
+                translate([shaftR+200, -480, 0])
                 difference() 
                 {
+                    circle(350/2, $fn=96);
                     circle(300/2, $fn=96);
-                    circle(200/2, $fn=96);
                     rotate([0, 0, 45])
                     translate([100, 0, 0])
                     square([200, 100], center=true);

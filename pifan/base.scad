@@ -12,6 +12,7 @@ include <./mountring90.scad>
 include <./mount-pizerow.scad>
 include <./mount-ssmicro.scad>
 include <./mount-audioinjector.scad>
+include <./mount-usbhub.scad>
 
 baseR=2000;
 shaftR=500;
@@ -109,6 +110,11 @@ module electronics()
     translate([710, 110, 3400])
     rotate([0, 0, 90])
     mount_ssmicro();
+
+    color("DarkOrange")
+    translate([-945, -200, 3550])
+    rotate([180, -90, 0])
+    mount_usbhub();
 
 }
 
@@ -342,8 +348,8 @@ module models()
     rotate([0, 0, 0])
     model_speaker();
 
-    translate([-1000, 0, 3700])
-    rotate([90, -90, 0])
+    translate([-650, -670, 3550])
+    rotate([0, -90, 0])
     usbhub();
 
     translate([-800, -400, 5200])
