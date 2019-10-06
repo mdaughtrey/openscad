@@ -13,6 +13,9 @@ include <./mount-pizerow.scad>
 include <./mount-ssmicro.scad>
 include <./mount-audioinjector.scad>
 include <./mount-usbhub.scad>
+include <./mount-tda2030a.scad>
+include <./mount-hbridge.scad>
+include <./powermount.scad>
 
 baseR=2000;
 shaftR=500;
@@ -25,17 +28,29 @@ ledInnerR=72/25.4*1000/2;
 module column()
 {
     // outer body
-    translate([0, 0, 0])
-    linear_extrude(5500)
-    union() 
+    difference()
     {
-        difference()
+        translate([0, 0, 0])
+        linear_extrude(5500)
+        union() 
         {
-            circle(baseR, $fn=96);
-            circle(baseR-100, $fn=96);
+            difference()
+            {
+                circle(baseR, $fn=96);
+                circle(baseR-100, $fn=96);
+            }
+            tabs();
         }
-        tabs();
+     //   rotate([0, 0, 22])
+        translate([baseR+50, 0, 850/2+100])
+        rotate([0, -90, 0])
+        linear_extrude(300)
+        square([750,750], center=true);
     }
+    //rotate([0, 0, 22])
+    translate([baseR+750, 0, 850/2+100])
+    rotate([0, -90, 0])
+    powermount();
 }
 
 module electronics()
@@ -115,6 +130,16 @@ module electronics()
     translate([-945, -200, 3550])
     rotate([180, -90, 0])
     mount_usbhub();
+
+    color("DarkOrange")
+    translate([-750, -640, 5250])
+    rotate([180, 90, 0])
+    mount_tda2030a();
+
+    color("DarkOrange")
+    translate([750, 620, 5300])
+    rotate([0, 90, 0])
+    mount_hbridge();
 
 }
 
@@ -330,11 +355,7 @@ module models()
     rotate([90, 0, 180])
     ssmicro();
 
-//    translate([600, 0, 3700])
-//    rotate([0, 90, 0])
-//    hbridge();
-
-    translate([600, 0, 5700])
+    translate([850, 620, 5300])
     rotate([0, 90, 0])
     hbridge();
 
@@ -352,7 +373,7 @@ module models()
     rotate([0, -90, 0])
     usbhub();
 
-    translate([-800, -400, 5200])
+    translate([-860, -640, 5250])
     rotate([0, -90, 0])
     tda2030a();
 }
@@ -369,8 +390,8 @@ scale(ViewScale)
     rotate([180,0,0])
     speaker();
 
-    translate([0, 0, 100])
-    %column();
+    %translate([0, 0, 100])
+    column();
 
     translate([0, 0, -750])
     electronics();
