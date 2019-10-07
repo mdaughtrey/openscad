@@ -2,6 +2,7 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 
 module hbridge()
 {
+    color("Cyan")
     linear_extrude(63)
     difference()
     {
@@ -19,25 +20,25 @@ module hbridge()
         }
     }
     // Terminal
-    color("Cyan")
+    color("CornflowerBlue")
     translate([-1167/2+150, 0, 62])
     linear_extrude(410)
     square([300,840], center=true);
 
     // I/O
-    color("Cyan")
+    color("CornflowerBlue")
     translate([1167/2-90, 0, 62])
     linear_extrude(410)
     square([100,605], center=true);
 
     // Chip
-    color("Cyan")
+    color("CornflowerBlue")
     translate([1167/2-510, 918/2-198/2-22, 62])
     linear_extrude(60)
     square([275,198], center=true);
 
     // Chip
-    color("Cyan")
+    color("CornflowerBlue")
     translate([1167/2-510, -(918/2-198/2-22), 62])
     linear_extrude(60)
     square([275,198], center=true);

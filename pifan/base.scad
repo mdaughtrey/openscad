@@ -42,14 +42,14 @@ module column()
             tabs();
         }
      //   rotate([0, 0, 22])
-        translate([baseR+50, 0, 850/2+100])
+        translate([baseR+50, 0, 2550])
         rotate([0, -90, 0])
         linear_extrude(300)
-        square([750,750], center=true);
+        square([900,750], center=true);
     }
     //rotate([0, 0, 22])
-    translate([baseR+750, 0, 850/2+100])
-    rotate([0, -90, 0])
+    translate([baseR, 0, 2400])
+    //rotate([0, -90, 0])
     powermount();
 }
 
