@@ -113,7 +113,7 @@ cat <<OUTER
      inkscape:groupmode="layer"
      id="layer99">
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        $outline
        id="path${path}"
        inkscape:connector-curvature="0" />
@@ -142,7 +142,7 @@ cat <<MIDDLE
        cy="$cy"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
 MIDDLE
     ((path++))
 
@@ -166,16 +166,18 @@ id="${layerid}"
 inkscape:label="${label}">
 TEXTPREFIX
 
-    cat holesadjusted.txt | while read x y text layer
+    cat legends.txt | while read x y text layer
     do
 #        echo "x [$x] y [$y] text [$text] layer [$layer]"
         if [[ ! "$layer" == "$layerid" ]]; then continue; fi
         if [[ "__" == "$text" ]]; then continue; fi
-        case $layerid in
-            3) ((x-=50)); ((y+=0)) ;;
-            4) ((x-=180)); ((y-=100)) ;;
-            5) ((x+=50)) ;;
-        esac
+#        if ((1==${#text})); then
+#            case $layerid in
+#                3) ((x-=100)); ((y+=0)) ;;
+#                4) ((x-=180)); ((y-=100)) ;;
+#                5) ((x+=50)) ;;
+#            esac
+#        fi
         ((x+=420))
 
         if [[ "_" == "${text:0:1}" ]] && ((1<${#text})); then
@@ -188,14 +190,14 @@ TEXTPREFIX
         color2=$color
         case "$text" in 
             "Fn") color2=$fnColor ;;
-            "Shift") color2=$shiftColor ;;
+#            "Shift") color2=$shiftColor ;;
         esac
 
-        if [[ "&" == ${text:0:1} ]]; then
-            ((x-=35))
-        else
+#        if [[ "&" == ${text:0:1} ]]; then
+#            ((x-=35))
+#        else
             ((x-=${#text}*35))
-        fi
+#        fi
         ((y+=(($ymid-$y)*2)))
         ((x+=${bounds[0]#-}))
         x=`echo "scale=4;($x*.0254)" | bc -q`
@@ -204,7 +206,7 @@ TEXTPREFIX
 cat <<TEXTELEM
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#${color2};fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#${color2};fill-opacity:1;stroke:none;stroke-width:0.01"
        x="$x"
        y="$y"
        id="text${path}"><tspan
@@ -222,6 +224,6 @@ TEXTELEM
 textlayer 2 Main $mainColor
 textlayer 3 Shift $shiftColor
 textlayer 4 Fn $fnColor
-textlayer 5 Main $mainColor
+#textlayer 5 Main $mainColor
 
 echo "</svg>"

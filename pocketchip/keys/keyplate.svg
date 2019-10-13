@@ -25,15 +25,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8"
-     inkscape:cx="244.49608"
-     inkscape:cy="255.70707"
+     inkscape:zoom="1.979899"
+     inkscape:cx="0"
+     inkscape:cy="0"
      inkscape:document-units="mm"
-     inkscape:current-layer="2"
+     inkscape:current-layer="layer1"
      showgrid="false"
      units="in"
-     inkscape:window-width="1920"
-     inkscape:window-height="1137"
+     inkscape:window-width="2560"
+     inkscape:window-height="1377"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1" />
@@ -45,608 +45,616 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
-  <g
+<g
      inkscape:label="Holes"
      inkscape:groupmode="layer"
      id="layer99">
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M0,0 L112.2680,0 L112.2680,76.4540 L15.2400,76.4540 L0,61.2140 Z"
        id="path10"
        inkscape:connector-curvature="0" />
+
     <ellipse
        id="path11"
        cx="56.1340"
        cy="64.5160"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path12"
        cx="63.7540"
        cy="54.1020"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path13"
        cx="20.8280"
        cy="44.7040"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path14"
        cx="51.3080"
        cy="27.9400"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path15"
        cx="41.1480"
        cy="27.9400"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path16"
        cx="30.9880"
        cy="27.9400"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path17"
        cx="20.8280"
        cy="27.9400"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path18"
        cx="10.6680"
        cy="27.9400"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path19"
        cx="15.7480"
        cy="36.3220"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path20"
        cx="71.1200"
        cy="27.9400"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path21"
        cx="71.1200"
        cy="27.9400"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path22"
        cx="60.9600"
        cy="27.9400"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path23"
        cx="60.9600"
        cy="27.9400"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path24"
        cx="46.2280"
        cy="36.3220"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path25"
        cx="36.0680"
        cy="36.3220"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path26"
        cx="81.2800"
        cy="27.9400"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path27"
        cx="81.2800"
        cy="27.9400"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path28"
        cx="56.1340"
        cy="36.3220"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path29"
        cx="76.2000"
        cy="36.3220"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path30"
        cx="76.2000"
        cy="36.3220"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path31"
        cx="66.0400"
        cy="36.3220"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path32"
        cx="66.0400"
        cy="36.3220"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path33"
        cx="91.4400"
        cy="27.9400"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path34"
        cx="91.4400"
        cy="27.9400"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path35"
        cx="51.3080"
        cy="44.7040"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path36"
        cx="41.1480"
        cy="44.7040"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path37"
        cx="30.9880"
        cy="44.7040"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path38"
        cx="101.6000"
        cy="27.9400"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path39"
        cx="101.6000"
        cy="27.9400"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path40"
        cx="86.3600"
        cy="36.3220"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path41"
        cx="86.3600"
        cy="36.3220"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path42"
        cx="96.5200"
        cy="36.3220"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path43"
        cx="96.5200"
        cy="36.3220"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path44"
        cx="60.9600"
        cy="44.7040"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path45"
        cx="60.9600"
        cy="44.7040"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path46"
        cx="81.2800"
        cy="44.7040"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path47"
        cx="81.2800"
        cy="44.7040"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path48"
        cx="71.1200"
        cy="44.7040"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path49"
        cx="71.1200"
        cy="44.7040"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path50"
        cx="48.5140"
        cy="54.1020"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path51"
        cx="86.3600"
        cy="52.8320"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path52"
        cx="86.3600"
        cy="52.8320"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path53"
        cx="86.3600"
        cy="52.8320"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path54"
        cx="96.5200"
        cy="52.8320"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path55"
        cx="76.2000"
        cy="52.8320"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path56"
        cx="36.0680"
        cy="52.8320"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path57"
        cx="25.9080"
        cy="52.8320"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path58"
        cx="15.7480"
        cy="52.8320"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path59"
        cx="10.6680"
        cy="44.7040"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path60"
        cx="102.3620"
        cy="9.3980"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path61"
        cx="91.4400"
        cy="9.3980"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path62"
        cx="91.4400"
        cy="9.3980"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path63"
        cx="10.6680"
        cy="7.6200"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path64"
        cx="86.3600"
        cy="17.7800"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path65"
        cx="86.3600"
        cy="17.7800"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path66"
        cx="96.5200"
        cy="17.7800"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path67"
        cx="96.5200"
        cy="17.7800"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path68"
        cx="40.8940"
        cy="9.3980"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path69"
        cx="40.8940"
        cy="9.3980"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path70"
        cx="45.9740"
        cy="17.7800"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path71"
        cx="45.9740"
        cy="17.7800"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path72"
        cx="51.3080"
        cy="9.3980"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path73"
        cx="51.3080"
        cy="9.3980"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path74"
        cx="56.1340"
        cy="17.7800"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path75"
        cx="56.1340"
        cy="17.7800"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path76"
        cx="60.9600"
        cy="9.3980"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path77"
        cx="60.9600"
        cy="9.3980"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path78"
        cx="66.0400"
        cy="17.7800"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path79"
        cx="66.0400"
        cy="17.7800"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path80"
        cx="71.1200"
        cy="9.3980"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path81"
        cx="71.1200"
        cy="9.3980"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path82"
        cx="76.2000"
        cy="17.7800"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path83"
        cx="76.2000"
        cy="17.7800"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path84"
        cx="81.2800"
        cy="9.3980"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path85"
        cx="81.2800"
        cy="9.3980"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path86"
        cx="91.4400"
        cy="44.7040"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path87"
        cx="91.4400"
        cy="44.7040"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path88"
        cx="91.4400"
        cy="44.7040"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path89"
        cx="25.9080"
        cy="7.6200"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path90"
        cx="25.9080"
        cy="19.5580"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path91"
        cx="19.8120"
        cy="13.4620"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path92"
        cx="31.7500"
        cy="13.4620"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        id="path93"
        cx="25.9080"
        cy="36.3220"
        rx="2.921"
        ry="2.921"
-       style="fill:none;stroke:#000000;stroke-width:0.10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-  </g>
-  <g
-     inkscape:groupmode="layer"
-     id="2"
-     inkscape:label="Main">
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <ellipse
+       id="path94"
+       cx="102.3620"
+       cy="44.7040"
+       rx="2.921"
+       ry="2.921"
+       style="fill:none;stroke:#000000;stroke-width:0.01;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+</g>
+<g
+inkscape:groupmode="layer"
+id="2"
+inkscape:label="Main">
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="49.0220"
        y="70.8660"
        id="text11"><tspan
@@ -656,7 +664,7 @@
          y="70.8660">Pwr/Home</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="19.9390"
        y="40.8940"
        id="text12"><tspan
@@ -666,7 +674,7 @@
          y="40.8940">Z</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="50.4190"
        y="24.1300"
        id="text13"><tspan
@@ -676,7 +684,7 @@
          y="24.1300">T</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="40.2590"
        y="24.1300"
        id="text14"><tspan
@@ -686,7 +694,7 @@
          y="24.1300">R</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="30.0990"
        y="24.1300"
        id="text15"><tspan
@@ -696,7 +704,7 @@
          y="24.1300">E</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="19.9390"
        y="24.1300"
        id="text16"><tspan
@@ -706,7 +714,7 @@
          y="24.1300">W</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="9.7790"
        y="24.1300"
        id="text17"><tspan
@@ -716,7 +724,7 @@
          y="24.1300">Q</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="14.8590"
        y="32.5120"
        id="text18"><tspan
@@ -726,7 +734,7 @@
          y="32.5120">A</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="70.2310"
        y="24.1300"
        id="text19"><tspan
@@ -736,7 +744,7 @@
          y="24.1300">U</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="60.0710"
        y="24.1300"
        id="text20"><tspan
@@ -746,7 +754,7 @@
          y="24.1300">Y</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="45.3390"
        y="32.5120"
        id="text21"><tspan
@@ -756,7 +764,7 @@
          y="32.5120">F</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="35.1790"
        y="32.5120"
        id="text22"><tspan
@@ -766,7 +774,7 @@
          y="32.5120">D</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="80.3910"
        y="24.1300"
        id="text23"><tspan
@@ -776,7 +784,7 @@
          y="24.1300">I</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="55.2450"
        y="32.5120"
        id="text24"><tspan
@@ -786,7 +794,7 @@
          y="32.5120">G</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="75.3110"
        y="32.5120"
        id="text25"><tspan
@@ -796,7 +804,7 @@
          y="32.5120">J</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="65.1510"
        y="32.5120"
        id="text26"><tspan
@@ -806,7 +814,7 @@
          y="32.5120">H</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="90.5510"
        y="24.1300"
        id="text27"><tspan
@@ -816,7 +824,7 @@
          y="24.1300">O</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="50.4190"
        y="40.8940"
        id="text28"><tspan
@@ -826,7 +834,7 @@
          y="40.8940">V</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="40.2590"
        y="40.8940"
        id="text29"><tspan
@@ -836,7 +844,7 @@
          y="40.8940">C</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="30.0990"
        y="40.8940"
        id="text30"><tspan
@@ -846,7 +854,7 @@
          y="40.8940">X</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="100.7110"
        y="24.1300"
        id="text31"><tspan
@@ -856,7 +864,7 @@
          y="24.1300">P</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="85.4710"
        y="32.5120"
        id="text32"><tspan
@@ -866,7 +874,7 @@
          y="32.5120">K</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="95.6310"
        y="32.5120"
        id="text33"><tspan
@@ -876,7 +884,7 @@
          y="32.5120">L</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="60.0710"
        y="40.8940"
        id="text34"><tspan
@@ -886,7 +894,7 @@
          y="40.8940">B</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="80.3910"
        y="40.8940"
        id="text35"><tspan
@@ -896,7 +904,7 @@
          y="40.8940">M</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="70.2310"
        y="40.8940"
        id="text36"><tspan
@@ -906,17 +914,17 @@
          y="40.8940">N</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="93.419083"
-       y="59.181999"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="85.4710"
+       y="49.0220"
        id="text37"><tspan
          sodipodi:role="line"
          id="tspan37"
-         x="93.419083"
-         y="59.181999">Shift</tspan></text>
+         x="85.4710"
+         y="49.0220">/</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="72.6440"
        y="59.1820"
        id="text38"><tspan
@@ -926,508 +934,503 @@
          y="59.1820">Ctrl</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="34.457066"
-       y="59.181999"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="33.4010"
+       y="59.1820"
        id="text39"><tspan
          sodipodi:role="line"
          id="tspan39"
-         x="34.457066"
-         y="59.181999">Alt</tspan></text>
+         x="33.4010"
+         y="59.1820">Alt</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="24.418016"
-       y="59.181999"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="8.0010"
+       y="40.8940"
        id="text40"><tspan
          sodipodi:role="line"
          id="tspan40"
-         x="24.418016"
-         y="59.181999">Fn</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="12.839096"
-       y="59.181999"
-       id="text41"><tspan
-         sodipodi:role="line"
-         id="tspan41"
-         x="12.839096"
-         y="59.181999">Shift</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="8.0010"
-       y="40.8940"
-       id="text42"><tspan
-         sodipodi:role="line"
-         id="tspan42"
          x="8.0010"
          y="40.8940">Tab</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="100.5840"
        y="5.5880"
-       id="text43"><tspan
+       id="text41"><tspan
          sodipodi:role="line"
-         id="tspan43"
+         id="tspan41"
          x="100.5840"
          y="5.5880">BS</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="92.087097"
-       y="5.395988"
-       id="text44"><tspan
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="90.5510"
+       y="5.5880"
+       id="text42"><tspan
          sodipodi:role="line"
-         id="tspan44"
-         x="92.087097"
-         y="5.395988">-</tspan></text>
+         id="tspan42"
+         x="90.5510"
+         y="5.5880">-</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
        x="8.0010"
        y="13.9700"
-       id="text45"><tspan
+       id="text43"><tspan
          sodipodi:role="line"
-         id="tspan45"
+         id="tspan43"
          x="8.0010"
          y="13.9700">Esc</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="91.703072"
-       y="40.317966"
-       id="text46"><tspan
-         sodipodi:role="line"
-         id="tspan46"
-         x="91.703072"
-         y="40.317966">.</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="25.0190"
-       y="32.5120"
-       id="text47"><tspan
-         sodipodi:role="line"
-         id="tspan47"
-         x="25.0190"
-         y="32.5120">S</tspan></text>
-  </g>
-  <g
-     inkscape:groupmode="layer"
-     id="3"
-     inkscape:label="Shift">
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="84.2010"
-       y="49.0220"
-       id="text27087"><tspan
-         sodipodi:role="line"
-         id="tspan27085"
-         x="84.2010"
-         y="49.0220">?</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="87.840912"
-       y="3.8598926"
-       id="text27091"><tspan
-         sodipodi:role="line"
-         id="tspan27089"
-         x="87.840912"
-         y="3.8598926">_</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="84.777031"
-       y="13.585977"
-       id="text27095"><tspan
-         sodipodi:role="line"
-         id="tspan27093"
-         x="84.777031"
-         y="13.585977">)</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="94.3610"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="85.4710"
        y="13.9700"
-       id="text27099"><tspan
+       id="text44"><tspan
          sodipodi:role="line"
-         id="tspan27097"
-         x="94.3610"
-         y="13.9700">+</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="38.7350"
-       y="5.5880"
-       id="text27103"><tspan
-         sodipodi:role="line"
-         id="tspan27101"
-         x="38.7350"
-         y="5.5880">!</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="42.854939"
-       y="13.873994"
-       id="text27107"><tspan
-         sodipodi:role="line"
-         id="tspan27105"
-         x="42.854939"
-         y="13.873994">@</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="49.1490"
-       y="5.5880"
-       id="text27111"><tspan
-         sodipodi:role="line"
-         id="tspan27109"
-         x="49.1490"
-         y="5.5880">#</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="53.9750"
-       y="13.9700"
-       id="text27115"><tspan
-         sodipodi:role="line"
-         id="tspan27113"
-         x="53.9750"
-         y="13.9700">$</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="58.8010"
-       y="5.5880"
-       id="text27119"><tspan
-         sodipodi:role="line"
-         id="tspan27117"
-         x="58.8010"
-         y="5.5880">%</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="63.8810"
-       y="13.9700"
-       id="text27123"><tspan
-         sodipodi:role="line"
-         id="tspan27121"
-         x="63.8810"
-         y="13.9700">^</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="68.9610"
-       y="5.5880"
-       id="text27127"><tspan
-         sodipodi:role="line"
-         id="tspan27125"
-         x="68.9610"
-         y="5.5880">&amp;</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="74.0410"
-       y="13.9700"
-       id="text27131"><tspan
-         sodipodi:role="line"
-         id="tspan27129"
-         x="74.0410"
-         y="13.9700">*</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="79.697037"
-       y="5.2039762"
-       id="text27135"><tspan
-         sodipodi:role="line"
-         id="tspan27133"
-         x="79.697037"
-         y="5.2039762">(</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="89.377007"
-       y="40.125954"
-       id="text27139"><tspan
-         sodipodi:role="line"
-         id="tspan27137"
-         x="89.377007"
-         y="40.125954">,</tspan></text>
-  </g>
-  <g
-     inkscape:groupmode="layer"
-     id="4"
-     inkscape:label="Fn">
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="66.619057"
-       y="25.70994"
-       id="text27144"><tspan
-         sodipodi:role="line"
-         id="tspan27142"
-         x="66.619057"
-         y="25.70994">}</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="56.459061"
-       y="25.421923"
-       id="text27148"><tspan
-         sodipodi:role="line"
-         id="tspan27146"
-         x="56.459061"
-         y="25.421923">{</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="76.587051"
-       y="26.18997"
-       id="text27152"><tspan
-         sodipodi:role="line"
-         id="tspan27150"
-         x="76.587051"
-         y="26.18997">[</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="70.7390"
-       y="35.0520"
-       id="text27156"><tspan
-         sodipodi:role="line"
-         id="tspan27154"
-         x="70.7390"
-         y="35.0520">&gt;</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="60.5790"
-       y="35.0520"
-       id="text27160"><tspan
-         sodipodi:role="line"
-         id="tspan27158"
-         x="60.5790"
-         y="35.0520">&lt;</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="86.843048"
-       y="25.997959"
-       id="text27164"><tspan
-         sodipodi:role="line"
-         id="tspan27162"
-         x="86.843048"
-         y="25.997959">]</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="96.715034"
-       y="26.093964"
-       id="text27168"><tspan
-         sodipodi:role="line"
-         id="tspan27166"
-         x="96.715034"
-         y="26.093964">|</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="82.051071"
-       y="34.859985"
-       id="text27172"><tspan
-         sodipodi:role="line"
-         id="tspan27170"
-         x="82.051071"
-         y="34.859985">'</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="92.019058"
-       y="34.475964"
-       id="text27176"><tspan
-         sodipodi:role="line"
-         id="tspan27174"
-         x="92.019058"
-         y="34.475964">&quot;</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="56.555065"
-       y="43.241985"
-       id="text27180"><tspan
-         sodipodi:role="line"
-         id="tspan27178"
-         x="56.555065"
-         y="43.241985">`</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="76.77906"
-       y="42.665951"
-       id="text27184"><tspan
-         sodipodi:role="line"
-         id="tspan27182"
-         x="76.77906"
-         y="42.665951">:</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="66.139023"
-       y="42.761955"
-       id="text27188"><tspan
-         sodipodi:role="line"
-         id="tspan27186"
-         x="66.139023"
-         y="42.761955">~</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="80.8990"
-       y="51.5620"
-       id="text27192"><tspan
-         sodipodi:role="line"
-         id="tspan27190"
-         x="80.8990"
-         y="51.5620">\</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="85.9790"
-       y="43.4340"
-       id="text27196"><tspan
-         sodipodi:role="line"
-         id="tspan27194"
-         x="85.9790"
-         y="43.4340">;</tspan></text>
-  </g>
-  <g
-     inkscape:groupmode="layer"
-     id="5"
-     inkscape:label="Main">
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="86.7410"
-       y="49.0220"
-       id="text27201"><tspan
-         sodipodi:role="line"
-         id="tspan27199"
-         x="86.7410"
-         y="49.0220">/</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="86.7410"
-       y="13.9700"
-       id="text27205"><tspan
-         sodipodi:role="line"
-         id="tspan27203"
-         x="86.7410"
+         id="tspan44"
+         x="85.4710"
          y="13.9700">0</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="96.9010"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="95.6310"
        y="13.9700"
-       id="text27209"><tspan
+       id="text45"><tspan
          sodipodi:role="line"
-         id="tspan27207"
-         x="96.9010"
+         id="tspan45"
+         x="95.6310"
          y="13.9700">=</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="41.2750"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="40.0050"
        y="5.5880"
-       id="text27213"><tspan
+       id="text46"><tspan
          sodipodi:role="line"
-         id="tspan27211"
-         x="41.2750"
+         id="tspan46"
+         x="40.0050"
          y="5.5880">1</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="46.3550"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="45.0850"
        y="13.9700"
-       id="text27217"><tspan
+       id="text47"><tspan
          sodipodi:role="line"
-         id="tspan27215"
-         x="46.3550"
+         id="tspan47"
+         x="45.0850"
          y="13.9700">2</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="51.6890"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="50.4190"
        y="5.5880"
-       id="text27221"><tspan
+       id="text48"><tspan
          sodipodi:role="line"
-         id="tspan27219"
-         x="51.6890"
+         id="tspan48"
+         x="50.4190"
          y="5.5880">3</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="56.5150"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="55.2450"
        y="13.9700"
-       id="text27225"><tspan
+       id="text49"><tspan
          sodipodi:role="line"
-         id="tspan27223"
-         x="56.5150"
+         id="tspan49"
+         x="55.2450"
          y="13.9700">4</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="61.3410"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="60.0710"
        y="5.5880"
-       id="text27229"><tspan
+       id="text50"><tspan
          sodipodi:role="line"
-         id="tspan27227"
-         x="61.3410"
+         id="tspan50"
+         x="60.0710"
          y="5.5880">5</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="66.4210"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="65.1510"
        y="13.9700"
-       id="text27233"><tspan
+       id="text51"><tspan
          sodipodi:role="line"
-         id="tspan27231"
-         x="66.4210"
+         id="tspan51"
+         x="65.1510"
          y="13.9700">6</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="71.5010"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="70.2310"
        y="5.5880"
-       id="text27237"><tspan
+       id="text52"><tspan
          sodipodi:role="line"
-         id="tspan27235"
-         x="71.5010"
+         id="tspan52"
+         x="70.2310"
          y="5.5880">7</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="76.5810"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="75.3110"
        y="13.9700"
-       id="text27241"><tspan
+       id="text53"><tspan
          sodipodi:role="line"
-         id="tspan27239"
-         x="76.5810"
+         id="tspan53"
+         x="75.3110"
          y="13.9700">8</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26881665"
-       x="81.6610"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="80.3910"
        y="5.5880"
-       id="text27245"><tspan
+       id="text54"><tspan
          sodipodi:role="line"
-         id="tspan27243"
-         x="81.6610"
+         id="tspan54"
+         x="80.3910"
          y="5.5880">9</tspan></text>
-  </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="90.5510"
+       y="40.8940"
+       id="text55"><tspan
+         sodipodi:role="line"
+         id="tspan55"
+         x="90.5510"
+         y="40.8940">.</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="25.0190"
+       y="32.5120"
+       id="text56"><tspan
+         sodipodi:role="line"
+         id="tspan56"
+         x="25.0190"
+         y="32.5120">S</tspan></text>
+</g>
+<g
+inkscape:groupmode="layer"
+id="3"
+inkscape:label="Shift">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="85.4710"
+       y="45.9740"
+       id="text11"><tspan
+         sodipodi:role="line"
+         id="tspan11"
+         x="85.4710"
+         y="45.9740">?</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="92.0750"
+       y="59.1820"
+       id="text12"><tspan
+         sodipodi:role="line"
+         id="tspan12"
+         x="92.0750"
+         y="59.1820">Shift</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="11.3030"
+       y="59.1820"
+       id="text13"><tspan
+         sodipodi:role="line"
+         id="tspan13"
+         x="11.3030"
+         y="59.1820">Shift</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="88.0110"
+       y="4.0640"
+       id="text14"><tspan
+         sodipodi:role="line"
+         id="tspan14"
+         x="88.0110"
+         y="4.0640">_</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="84.2010"
+       y="13.9700"
+       id="text15"><tspan
+         sodipodi:role="line"
+         id="tspan15"
+         x="84.2010"
+         y="13.9700">)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="93.8530"
+       y="13.9700"
+       id="text16"><tspan
+         sodipodi:role="line"
+         id="tspan16"
+         x="93.8530"
+         y="13.9700">+</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="38.2270"
+       y="5.5880"
+       id="text17"><tspan
+         sodipodi:role="line"
+         id="tspan17"
+         x="38.2270"
+         y="5.5880">!</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="42.2910"
+       y="13.9700"
+       id="text18"><tspan
+         sodipodi:role="line"
+         id="tspan18"
+         x="42.2910"
+         y="13.9700">@</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="48.6410"
+       y="5.5880"
+       id="text19"><tspan
+         sodipodi:role="line"
+         id="tspan19"
+         x="48.6410"
+         y="5.5880">#</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="53.4670"
+       y="13.9700"
+       id="text20"><tspan
+         sodipodi:role="line"
+         id="tspan20"
+         x="53.4670"
+         y="13.9700">$</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="57.2770"
+       y="5.5880"
+       id="text21"><tspan
+         sodipodi:role="line"
+         id="tspan21"
+         x="57.2770"
+         y="5.5880">%</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="63.3730"
+       y="13.9700"
+       id="text22"><tspan
+         sodipodi:role="line"
+         id="tspan22"
+         x="63.3730"
+         y="13.9700">^</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="67.6910"
+       y="5.5880"
+       id="text23"><tspan
+         sodipodi:role="line"
+         id="tspan23"
+         x="67.6910"
+         y="5.5880">&amp;</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="73.5330"
+       y="13.9700"
+       id="text24"><tspan
+         sodipodi:role="line"
+         id="tspan24"
+         x="73.5330"
+         y="13.9700">*</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="78.8670"
+       y="5.5880"
+       id="text25"><tspan
+         sodipodi:role="line"
+         id="tspan25"
+         x="78.8670"
+         y="5.5880">(</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="90.5510"
+       y="38.8620"
+       id="text26"><tspan
+         sodipodi:role="line"
+         id="tspan26"
+         x="90.5510"
+         y="38.8620">,</tspan></text>
+</g>
+<g
+inkscape:groupmode="layer"
+id="4"
+inkscape:label="Fn">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="66.6750"
+       y="25.4000"
+       id="text11"><tspan
+         sodipodi:role="line"
+         id="tspan11"
+         x="66.6750"
+         y="25.4000">}</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="56.5150"
+       y="25.4000"
+       id="text12"><tspan
+         sodipodi:role="line"
+         id="tspan12"
+         x="56.5150"
+         y="25.4000">{</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="76.8350"
+       y="25.4000"
+       id="text13"><tspan
+         sodipodi:role="line"
+         id="tspan13"
+         x="76.8350"
+         y="25.4000">[</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="70.8660"
+       y="34.2900"
+       id="text14"><tspan
+         sodipodi:role="line"
+         id="tspan14"
+         x="70.8660"
+         y="34.2900">&gt;</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="60.7060"
+       y="34.2900"
+       id="text15"><tspan
+         sodipodi:role="line"
+         id="tspan15"
+         x="60.7060"
+         y="34.2900">&lt;</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="86.9950"
+       y="25.4000"
+       id="text16"><tspan
+         sodipodi:role="line"
+         id="tspan16"
+         x="86.9950"
+         y="25.4000">]</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="97.1550"
+       y="25.4000"
+       id="text17"><tspan
+         sodipodi:role="line"
+         id="tspan17"
+         x="97.1550"
+         y="25.4000">|</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="81.7880"
+       y="34.7980"
+       id="text18"><tspan
+         sodipodi:role="line"
+         id="tspan18"
+         x="81.7880"
+         y="34.7980">&apos;</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="91.4400"
+       y="34.7980"
+       id="text19"><tspan
+         sodipodi:role="line"
+         id="tspan19"
+         x="91.4400"
+         y="34.7980">&quot;</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="57.7850"
+       y="43.4340"
+       id="text20"><tspan
+         sodipodi:role="line"
+         id="tspan20"
+         x="57.7850"
+         y="43.4340">`</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="77.3430"
+       y="42.1640"
+       id="text21"><tspan
+         sodipodi:role="line"
+         id="tspan21"
+         x="77.3430"
+         y="42.1640">:</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="66.6750"
+       y="43.1800"
+       id="text22"><tspan
+         sodipodi:role="line"
+         id="tspan22"
+         x="66.6750"
+         y="43.1800">~</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="82.4230"
+       y="50.2920"
+       id="text23"><tspan
+         sodipodi:role="line"
+         id="tspan23"
+         x="82.4230"
+         y="50.2920">\</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="24.1300"
+       y="59.1820"
+       id="text24"><tspan
+         sodipodi:role="line"
+         id="tspan24"
+         x="24.1300"
+         y="59.1820">Fn</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:3.58422208px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.01"
+       x="87.5030"
+       y="42.1640"
+       id="text25"><tspan
+         sodipodi:role="line"
+         id="tspan25"
+         x="87.5030"
+         y="42.1640">;</tspan></text>
+</g>
 </svg>
