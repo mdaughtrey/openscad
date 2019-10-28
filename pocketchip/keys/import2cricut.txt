@@ -1,0 +1,54 @@
+# Holes
+Inkscape
+- load keyplate.svg
+- delete all layers but Holes
+- select all, Stroke to path
+- save to cricut dir as keyplate-s2p.svg
+Cricut
+- upload image keyplate-s2p.svg
+- insert image into project
+- scale to 4.42 W, 2.832x
+- set material color to white
+- Ungroup, select all, attach
+
+# Main
+Inkscape
+- load keyplate.svg
+- delete all layers but Main
+- select all in all layers, Object to path
+- save to cricut dir as keyplate-main-o2p.svg
+Cricut
+- drag image keyplate-main-o2p.png
+- drag image into project
+- scale 2.832x to 3.778W
+- change to draw
+- select layer, Weld
+- select all layers, Attach
+
+# Shift
+Inkscape
+- load keyplate.svg
+- delete all layers but Shift
+- select all in all layers, Object to path
+- save to cricut dir as keyplate-shift-o2p.svg
+Cricut
+- drag image keyplate-shift-o2p.png
+- drag image into project
+- scale 2.832x to 3.778W
+- change to draw
+- select layer, Weld
+- select all layers, Attach
+
+# Fn
+Inkscape
+- load keyplate.svg
+- delete all layers but Fn
+- select all in all layers, Object to path
+- save to cricut dir as keyplate-fn-o2p.svg
+Cricut
+- drag image keyplate-fn-o2p.png
+- drag image into project
+- scale 2.832x to 3.778W
+- change to draw
+- select layer, Weld
+- select all layers, Attach
