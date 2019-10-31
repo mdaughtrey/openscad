@@ -1,15 +1,15 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 
 PLATETHICKNESS=30;
-PLATELIFT=140;
+PLATELIFT=190;
 KEYCUTOUTR=230/2;
 RINGTHICKNESS=51;
-RINGHEIGHT=50;
-EYELETR=295/2;
+RINGHEIGHT=30;
+EYELETR=275/2;
 EYELETCLEARANCE=20;
 HOLESHIFTY=90;
 MAGNETR=325/2;
-MAGNETH=30;
+MAGNETH=80;
 
 include <holecoords.scad>
 magholes1=[ [-1900,2300.00], [1940,2300.00] ];
@@ -18,7 +18,7 @@ module magsupports()
 {
     magholes2=[
     [-1000,400,0],
-    [500,400,0],
+//    [500,400,0],
     [1800,400,0]
     
     ];
