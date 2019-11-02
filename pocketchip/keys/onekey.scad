@@ -2,6 +2,8 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 
 PLATETHICKNESS=30;
 PLATELIFT=190;
+PLATELIFT2=70;
+PLATELIFT1=PLATELIFT-PLATELIFT2;
 KEYCUTOUTR=230/2;
 RINGTHICKNESS=51;
 RINGHEIGHT=30;
@@ -211,11 +213,15 @@ module rings()
     magsupports();
 }
 
-module supports2()
+module supports1()
 {
     difference() {
-        translate([-1960-100, 680, 0])
-        square([3920+200, 2080]);
+        union() {
+            translate([-1960-100, 680, 0])
+            square([3920+200, 2080]);
+            translate([-800, 200, 0])
+            square([1600, 500]);
+        }
         translate([0, HOLESHIFTY, 0])
         {
             for(ii = holecoords){
@@ -243,6 +249,30 @@ module supports2()
     }
 }
 
+module supports2()
+{
+    difference() {
+        supports1();
+        translate([0, 660, 0])
+        square([1200,180], center=true);
+
+        translate([0, 1070, 0])
+        square([3800,140], center=true);
+        translate([0, 1740, 0])
+        square([3800,100], center=true);
+        translate([600, 2460, 0])
+        square([2700,100], center=true);
+
+    
+        translate([-1200, 2460, 0])
+        rotate([0, 0, 45])
+        union() {
+            square([600,100], center=true);
+            square([100,600], center=true);
+        }
+    }
+}
+
 module test()
 {
     arr=[[1,2,3],[4,5,6]];
@@ -251,13 +281,20 @@ module test()
     }
 }
 
+color("Green")
 scale(ViewScale)
 {
     keyplate();
     sides();
     tab();
-    translate([0, 0, -PLATELIFT])
-    linear_extrude(PLATELIFT) 
+
+    translate([0, 0, -PLATELIFT1])
+    linear_extrude(PLATELIFT1) 
+    supports1();
+
+    translate([0, 0, -PLATELIFT2-PLATELIFT1+1])
+    linear_extrude(PLATELIFT2) 
     supports2();
+
     rings();
 }
