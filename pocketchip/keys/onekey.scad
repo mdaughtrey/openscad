@@ -219,8 +219,8 @@ module supports1()
         union() {
             translate([-1960-100, 680, 0])
             square([3920+200, 2080]);
-            translate([-800, 200, 0])
-            square([1600, 500]);
+            translate([-300, 200, 0])
+            square([600, 500]);
         }
         translate([0, HOLESHIFTY, 0])
         {

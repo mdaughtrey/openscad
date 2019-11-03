@@ -1,23 +1,29 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 
-PLATELIFT=140;
-RINGTHICKNESS=80;
-
-scale(ViewScale)
+module inserts()
 {
-    // pen support
-    translate([-400, 520, -PLATELIFT])
-    linear_extrude(PLATELIFT*4)
-    difference() {
-        circle(346/2-10, $fn=96);
-        circle(246/2, $fn=96);
-    }
-    // pencil support
-    translate([300, 509, -PLATELIFT])
-    linear_extrude(PLATELIFT*4)
-    difference() {
-        circle(360/2-10, $fn=6);
-        circle(260/2, $fn=6);
+    offset=-20;
+    translate([0, 660, 0])
+    square([1200+offset,180+offset], center=true);
+
+    translate([0, 1070, 0])
+    square([3800+offset,140+offset], center=true);
+    translate([0, 1740, 0])
+    square([3800+offset,100+offset], center=true);
+    translate([600, 2460, 0])
+    square([2700+offset,100+offset], center=true);
+
+
+    translate([-1200, 2460, 0])
+    rotate([0, 0, 45])
+    union() {
+        square([600+offset,100+offset], center=true);
+        square([100+offset,600+offset], center=true);
     }
 }
 
+
+PLATELIFT2=70;
+scale(ViewScale)
+linear_extrude(PLATELIFT2) 
+inserts();
