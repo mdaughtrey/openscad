@@ -8,6 +8,9 @@ include <../models/speaker.scad>
 include <../models/usbhub.scad>
 include <../models/tda2030a.scad>
 include <../models/audioinjector.scad>
+include <../models/model_webfpga.scad>
+include <../models/model-levelshifter.scad>
+include <../models/model_geared2.scad>
 include <./mountring90.scad>
 include <./mount-pizerow.scad>
 include <./mount-ssmicro.scad>
@@ -15,7 +18,10 @@ include <./mount-audioinjector.scad>
 include <./mount-usbhub.scad>
 include <./mount-tda2030a.scad>
 include <./mount-hbridge.scad>
+include <./mount-webfpga.scad>
+include <./mount-levelshifter.scad>
 include <./powermount.scad>
+include <./motorhousing.scad>
 
 baseR=2000;
 shaftR=500;
@@ -80,6 +86,7 @@ module electronics()
         square([400, 1100], center=true);
     }
     // shaft cap spacer
+    color("Grey")
     translate([0, 0,1190+600+790+190])
     linear_extrude(500)
     difference()
@@ -92,7 +99,7 @@ module electronics()
 
     // center shaft
     translate([0, 0, 690+1190+600+790])
-    linear_extrude(4000)
+    linear_extrude(3300)
     {
         difference()
         {
@@ -121,12 +128,12 @@ module electronics()
     rotate([0, 90, 90])
     mount_audioinjector();
 
-    color("DarkOrange")
+    *color("DarkOrange")
     translate([710, 110, 3400])
     rotate([0, 0, 90])
     mount_ssmicro();
 
-    color("DarkOrange")
+    *color("DarkOrange")
     translate([-945, -200, 3550])
     rotate([180, -90, 0])
     mount_usbhub();
@@ -137,10 +144,14 @@ module electronics()
     mount_tda2030a();
 
     color("DarkOrange")
-    translate([750, 620, 5300])
-    rotate([0, 90, 0])
+    translate([-750, -620, 3600])
+    rotate([0, 90, 180])
     mount_hbridge();
 
+    color("DarkOrange")
+    translate([760, 620, 4500])
+    rotate([0, -90, 180])
+    mount_webfpga();
 }
 
 
@@ -201,6 +212,8 @@ module speaker()
 
 module ledInsert()
 {
+//    innter  2960
+//    outer -=3540
 //    color("Green")
     linear_extrude(500)
     {
@@ -209,7 +222,8 @@ module ledInsert()
             difference()
             {
                 circle(baseR-130, $fn=96);
-                circle(ledOuterR-10, $fn=96);
+                circle(3560/2, $fn=96);
+                //circle(ledOuterR-10, $fn=96);
             }
             for (ii = [0:45:360])
             {
@@ -230,7 +244,8 @@ module ledInsert()
     {
         difference() 
         {
-            circle(ledOuterR+10, $fn=96);
+            //circle(ledOuterR+10, $fn=96);
+            circle(3580/2, $fn=96);
             circle(ledInnerR-20, $fn=96);
         }
         for (ii = [0:45:360])
@@ -246,7 +261,62 @@ module ledInsert()
     circle(ledInnerR-70, $fn=96);
     }
 
+    *color("DarkOrange")
+    translate([-1300, 0, 100])
+    rotate([0, -90, 180])
+    mount_levelshifter();
 }
+
+//module ledInsert()
+//{
+//    innter  2960
+//    outer -=3540
+////    color("Green")
+//    linear_extrude(500)
+//    {
+//        intersection()
+//        {
+//            difference()
+//            {
+//                circle(baseR-130, $fn=96);
+//                circle(ledOuterR-10, $fn=96);
+//            }
+//            for (ii = [0:45:360])
+//            {
+//                rotate([0, 0, ii])
+//                square([200, baseR*2], center=true);
+//            }
+//        }
+//        difference() 
+//        {
+//            circle(baseR-120, $fn=96);
+//            circle(baseR-230, $fn=96);
+//            rotate([0,0,22])
+//            tabcutouts();
+//        }
+//    }
+//    linear_extrude(200)
+//    intersection()
+//    {
+//        difference() 
+//        {
+//            circle(ledOuterR+10, $fn=96);
+//            circle(ledInnerR-20, $fn=96);
+//        }
+//        for (ii = [0:45:360])
+//        {
+//            rotate([0, 0, ii])
+//            square([200, baseR*2], center=true);
+//        }
+//    }
+//    linear_extrude(600)
+//    difference() 
+//    {
+//    circle(ledInnerR-20, $fn=96);
+//    circle(ledInnerR-70, $fn=96);
+//    }
+//
+//}
 
 module baseWeight()
 {
@@ -335,10 +405,72 @@ module pizerow_audio()
     audioinjector();
 }
 
+module lower_bearing()
+{
+    bbr=233/2;
+    outerR=baseR-120;
+
+    difference() {
+    linear_extrude(bbr+50) {
+        difference() {
+            circle(outerR, $fn=96);
+            circle(shaftR, $fn=96);
+            tabcutouts();
+            for(ii=[0:90:360]) {
+                rotate([0, 0, ii])
+                translate([900, 0, 0])
+                square([523+20, 600+20], center=true);
+            }
+        }
+        difference() {
+            union(){
+                square([250, shaftR*2+50], center=true);
+                square([shaftR*2+50, 250], center=true);
+                circle(300, $fn=96);
+            }
+            circle(100, $fn=96);
+        }
+    }
+
+    // ring
+    translate([0, 0, bbr+70])
+    rotate_extrude($fn=192)
+    translate([outerR*5/6, 0, 0])
+    circle(bbr, $fn=96);
+   }
+
+
+   // motorhousing
+   translate([900, 0, -850])
+   motor_housing();
+
+   // support collar
+   translate([0, 0, -1000]) {
+       linear_extrude(700)
+       difference() {
+           circle(shaftR+70, $fn=96);
+           circle(shaftR+20, $fn=96);
+       }
+
+       translate([0, 0, 699])
+       linear_extrude(300)
+       difference() {
+           circle(shaftR+70, $fn=96);
+           circle(shaftR+20, $fn=96);
+           square([600, 1200], center=true);
+           square([1200, 600], center=true);
+       }
+   }
+
+
+   // motor model
+   color("Green")
+   translate([900, 0, -900])
+   model_geared2();
+}
+
 module models()
 {
- //   for (ii=[0,180])
- //   rotate([0, 0, ii])
     translate([550, -690, 4200])
     rotate([90, -90, 0])
     scale([39.3,39.3,39.3])
@@ -347,35 +479,38 @@ module models()
     rotate([0, 0, 180])
     translate([550, -690, 4400])
     rotate([90, -90, 0])
-//    scale([39.3,39.3,39.3])
     pizerow_audio();
 
-    rotate([0, 0, 90])
+    *rotate([0, 0, 90])
     translate([110, -770, 4200])
     rotate([90, 0, 180])
     ssmicro();
 
-    translate([850, 620, 5300])
-    rotate([0, 90, 0])
+    translate([-850, -620, 3600])
+    rotate([0, 90, -180])
     hbridge();
-
-//    translate([-1000, 0, 5300])
-//    rotate([0, 0, 90])
-//    rotate([0, 90, 180])
-//    psu();
 
     color("LawnGreen")
     translate([0, 0, 1370])
     rotate([0, 0, 0])
     model_speaker();
 
-    translate([-650, -670, 3550])
+    *translate([-650, -670, 3550])
     rotate([0, -90, 0])
     usbhub();
 
     translate([-860, -640, 5250])
     rotate([0, -90, 0])
     tda2030a();
+
+    translate([775, 620, 4500])
+    rotate([0, -90, 180])
+    model_webfpga();
+
+    *translate([-1200, 0, 1200])
+    rotate([0, 90, 0])
+    model_levelshifter();
+
 }
 
 scale(ViewScale)
@@ -390,7 +525,7 @@ scale(ViewScale)
     rotate([180,0,0])
     speaker();
 
-    %translate([0, 0, 100])
+    translate([0, 0, 100])
     column();
 
     translate([0, 0, -750])
@@ -405,5 +540,8 @@ scale(ViewScale)
 
     translate([0, 0, -750])
     models();
+
+    translate([0, 0, 5820])
+    lower_bearing();
 }
 
