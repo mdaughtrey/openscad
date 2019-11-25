@@ -22,6 +22,7 @@ include <./mount-webfpga.scad>
 include <./mount-levelshifter.scad>
 include <./powermount.scad>
 include <./motorhousing.scad>
+include <./gears/internal_gear.scad>
 
 baseR=2000;
 shaftR=500;
@@ -417,7 +418,7 @@ module lower_bearing()
             circle(shaftR, $fn=96);
             tabcutouts();
             for(ii=[0:90:360]) {
-                rotate([0, 0, ii])
+                rotate([0, 0, ii+45])
                 translate([900, 0, 0])
                 square([523+20, 600+20], center=true);
             }
@@ -441,6 +442,7 @@ module lower_bearing()
 
 
    // motorhousing
+   rotate([0, 0, -45])
    translate([900, 0, -850])
    motor_housing();
 
@@ -462,11 +464,58 @@ module lower_bearing()
        }
    }
 
-
    // motor model
    color("Green")
+   rotate([0, 0, -45])
    translate([900, 0, -900])
    model_geared2();
+}
+
+module upper_bearing()
+{
+    bbr=233/2;
+    outerR=baseR-120;
+
+    linear_extrude(100) {
+        difference() {
+            circle(outerR, $fn=96);
+            circle(outerR-600, $fn=96);
+        }
+       difference() {
+//           circle(shaftR+70, $fn=96);
+//           circle(shaftR+20, $fn=96);
+        union() {
+           square([600, outerR*2-50], center=true);
+           square([outerR*2-50, 600], center=true);
+        }
+        circle(100, $fn=96);
+       }
+    }
+    translate([0, 0, 99]) {
+        linear_extrude(300)
+        difference() {
+            circle(300, $fn=96);
+            circle(100, $fn=96);
+        }
+        difference() {
+        //linear_extrude(bbr+50) {
+        linear_extrude(300) {
+            difference() {
+                circle(outerR, $fn=96);
+                circle(outerR-500, $fn=96);
+            }
+        }
+
+        // ring
+        //translate([0, 0, bbr+70])
+        translate([0, 0, 300+20])
+        rotate_extrude($fn=192)
+        translate([outerR*5/6, 0, 0])
+        circle(bbr, $fn=96);
+       }
+       big_gear();
+        }
+//   translate([0, 0, -135])
 }
 
 module models()
@@ -525,7 +574,7 @@ scale(ViewScale)
     rotate([180,0,0])
     speaker();
 
-    translate([0, 0, 100])
+    *translate([0, 0, 100])
     column();
 
     translate([0, 0, -750])
@@ -543,5 +592,9 @@ scale(ViewScale)
 
     translate([0, 0, 5820])
     lower_bearing();
+
+    translate([0, 0, 6440])
+    rotate([0, 180, 0])
+    upper_bearing();
 }
 
