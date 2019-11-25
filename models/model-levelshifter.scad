@@ -26,7 +26,7 @@ module model_levelshifter()
 
 }
 
-scale(ViewScale)
-{
-    model_levelshifter();
-}
+//scale(ViewScale)
+//{
+//    model_levelshifter();
+//}
