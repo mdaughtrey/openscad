@@ -10,6 +10,8 @@ grommetRingIR=grommetOR + fabricThickness;
 grommetWing=50;
 grommetWingW=100;
 flapperShaftR=50;
+circleR=grommetIR+((grommetOR-grommetIR)/2);
+echo("Vinyl Circle Radius ", circleR);
 
 module outer()
 {
@@ -52,7 +54,7 @@ module flapper()
         circle(500, $fn=96);
         circle(450, $fn=96);
     }
-    linear_extrude(30)
+    linear_extrude(50)
     for(ii=[0:45:360]) {
         rotate([0, 0, ii])
         square([50, 1000], center=true);
@@ -168,17 +170,17 @@ module cap()
 
 module forprinting()
 {
-    grommet();
+    *grommet();
 
-    translate([0, 1200, ])
+//    translate([0, 1200, ])
     color("PaleGreen")
     flapper();
 
-    translate([1400, 0, grommetHeight-fabricThickness])
+    *translate([1400, 0, grommetHeight-fabricThickness])
     color("SkyBlue")
     rotate([180, 0, 0])
     grommetring();
-    translate([1400, 1600, 259])
+    *translate([1400, 1600, 259])
     rotate([180, 0, ])
     color("cornflowerblue")
     cap();
@@ -194,7 +196,7 @@ module maskvalve()
     translate([0, 0, 80])
     color("SkyBlue")
     grommetring();
-    translate([0, 0, 50])
+    *translate([0, 0, 50])
     rotate([0, 0, 90])
     color("cornflowerblue")
     cap();
