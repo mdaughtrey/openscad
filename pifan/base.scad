@@ -11,6 +11,7 @@ include <../models/audioinjector.scad>
 include <../models/model_webfpga.scad>
 include <../models/model-levelshifter.scad>
 include <../models/model_geared2.scad>
+include <../models/model-ws2812-24.scad>
 include <./mountring90.scad>
 include <./mount-pizerow.scad>
 include <./mount-ssmicro.scad>
@@ -24,7 +25,7 @@ include <./powermount.scad>
 include <./motorhousing.scad>
 include <./gears/internal_gear.scad>
 
-baseR=2000;
+baseR=2025;
 shaftR=500;
 speakerH=1200;
 //ledInsertH=
@@ -48,111 +49,228 @@ module column()
             }
             tabs();
         }
-     //   rotate([0, 0, 22])
+        // cutout square
         translate([baseR+50, 0, 2550])
         rotate([0, -90, 0])
         linear_extrude(300)
         square([900,750], center=true);
     }
-    //rotate([0, 0, 22])
     translate([baseR, 0, 2400])
-    //rotate([0, -90, 0])
     powermount();
+}
+
+module shortcolumn()
+{
+    // lower rim
+    linear_extrude(50)
+    difference()
+    {
+        circle(baseR, $fn=96);
+        circle(baseR-200, $fn=96);
+    }
+
+    // outer body
+    translate([0, 0, 0])
+    linear_extrude(1000)
+    union() 
+    {
+        difference()
+        {
+            circle(baseR, $fn=96);
+            circle(baseR-100, $fn=96);
+        }
+        tabs();
+    }
+
+    translate([0, 0, 999])
+    linear_extrude(1000)
+    union() 
+    {
+        difference()
+        {
+            circle(baseR, $fn=96);
+            circle(baseR-100, $fn=96);
+            square([baseR*2-400, baseR*2], center=true);
+        }
+        tabs();
+    }
+}
+
+module powerdist()
+{
+    // Insert
+    linear_extrude(100)
+    difference() {
+        difference() {
+            circle(baseR-640, $fn=96);
+            circle(620, $fn=96);
+            rotate([0, 0, 45])
+            square([(baseR-120)*2-50, 430], center=true);
+            rotate([0, 0, -45])
+            square([(baseR-120)*2-50, 430], center=true);
+        }
+
+        difference() {
+            circle(baseR-740, $fn=96);
+            circle(720, $fn=96);
+            rotate([0, 0, 45])
+            square([(baseR-120)*2-50, 630], center=true);
+            rotate([0, 0, -45])
+            square([(baseR-120)*2-50, 630], center=true);
+        }
+        rotate([0, 0, 45])
+        translate([0, baseR/2, 0])
+        square([baseR * 2, baseR], center=true);
+        rotate([0, 0, -45])
+        translate([0, baseR/2, 0])
+        square([baseR * 2, baseR], center=true);
+    }
+    // overlap
+    translate([0, 0, 99])
+    linear_extrude(100)
+    difference() {
+        difference() {
+            circle(baseR-440, $fn=96);
+            circle(620, $fn=96);
+            rotate([0, 0, 45])
+            square([(baseR-120)*2-50, 330], center=true);
+            rotate([0, 0, -45])
+            square([(baseR-120)*2-50, 330], center=true);
+        }
+
+        difference() {
+            circle(baseR-740, $fn=96);
+            circle(720, $fn=96);
+            rotate([0, 0, 45])
+            square([(baseR-120)*2-50, 630], center=true);
+            rotate([0, 0, -45])
+            square([(baseR-120)*2-50, 630], center=true);
+        }
+        rotate([0, 0, 45])
+        translate([0, baseR/2, 0])
+        square([baseR * 2, baseR], center=true);
+        rotate([0, 0, -45])
+        translate([0, baseR/2, 0])
+        square([baseR * 2, baseR], center=true);
+    }
+
+    translate([0, -1200, 300])
+    rotate([90, 0, 90])
+    translate([0, 0, -750])
+    linear_extrude(1500) {
+        translate([-350, 0, 0])
+        difference() {
+            square([150, 275], center=true);
+            translate([50, 25, 0])
+            square([50, 75], center=true);
+        }
+        translate([350, 0, 0])
+        rotate([0, 180, 0])
+        difference() {
+            square([150, 275], center=true);
+            translate([50, 25, 0])
+            square([50, 75], center=true);
+        }
+    }
 }
 
 module electronics()
 {
-    translate([0,0,1190+600+790])
+    // shaft base
+    *translate([0,0,1190+600+790])
     linear_extrude(200)
-    difference()
-    {
-        circle(baseR-120, $fn=96);
-        for(ii=[0:90:360])
-        {
-            rotate([0, 0, 45+ii])
-            translate([1300, 0, 0])
-            circle(200, $fn=96);
-        }
-        tabcutouts();
-    }
-
-    // center shaft cutout
-    translate([0, 0,1190+600+790+190])
-    linear_extrude(500)
-    difference()
-    {
-        circle(500, $fn=96);
-        circle(400, $fn=96);
-        translate([0, 0, 0])
-        square([400, 1100], center=true);
-    }
-    // shaft cap spacer
-    color("Grey")
-    translate([0, 0,1190+600+790+190])
-    linear_extrude(500)
-    difference()
-    {
-        circle(600, $fn=96);
-        circle(400, $fn=96);
-        translate([0, 0, 0])
-        square([400, 1200], center=true);
-    }
-
-    // center shaft
-    translate([0, 0, 690+1190+600+790])
-    linear_extrude(3300)
-    {
+    union() {
         difference()
         {
-            circle(shaftR, $fn=96);
-            circle(shaftR-100, $fn=96);
+            circle(baseR-120, $fn=96);
+            circle(baseR-620, $fn=96);
+            tabcutouts();
         }
-        shafttabs();
+    circle(600, $fn=96);
+    rotate([0, 0, 45])
+    square([(baseR-120)*2-50, 400], center=true);
+    rotate([0, 0, -45])
+    square([(baseR-120)*2-50, 400], center=true);
     }
 
-    for (ii=[3300,5000])
-    translate([0, 0, ii])
-    color("FireBrick")
-    rotate([0, 0, -90])
-    mountring90(270, 4, 1);
+    translate([0, 0, 2800])
+    color("Green")
+    powerdist();
 
-//    for (ii=[0,180])
-    //rotate([0, 0, 0])
-    translate([100, -850, 4200])
-    color("DarkOrange")
-    rotate([0, 90, 90])
-    mount_pizerow();
-
-    rotate([0, 0, 180])
-    translate([100, -1200, 4400])
-    color("DarkOrange")
-    rotate([0, 90, 90])
-    mount_audioinjector();
-
-    *color("DarkOrange")
-    translate([710, 110, 3400])
-    rotate([0, 0, 90])
-    mount_ssmicro();
-
-    *color("DarkOrange")
-    translate([-945, -200, 3550])
-    rotate([180, -90, 0])
-    mount_usbhub();
-
-    color("DarkOrange")
-    translate([-750, -640, 5250])
-    rotate([180, 90, 0])
-    mount_tda2030a();
-
-    color("DarkOrange")
-    translate([-750, -620, 3600])
-    rotate([0, 90, 180])
-    mount_hbridge();
-
-    color("DarkOrange")
-    translate([760, 620, 4500])
-    rotate([0, -90, 180])
-    mount_webfpga();
+//    // center shaft cutout
+//    translate([0, 0,1190+600+790+190])
+//    linear_extrude(500)
+//    difference()
+//    {
+//        circle(500, $fn=96);
+//        circle(400, $fn=96);
+//        translate([0, 0, 0])
+//        square([400, 1100], center=true);
+//    }
+//    // shaft cap spacer
+//    translate([0, 0,1190+600+790+190])
+//    linear_extrude(500)
+//    difference()
+//    {
+//        circle(600, $fn=96);
+//        circle(400, $fn=96);
+//        translate([0, 0, 0])
+//        square([400, 1200], center=true);
+//    }
+//
+//    // center shaft
+//    translate([0, 0, 3270])
+//    linear_extrude(3300)
+//    {
+//        difference()
+//        {
+//            circle(shaftR, $fn=96);
+//            circle(shaftR-100, $fn=96);
+//        }
+//        shafttabs();
+//    }
+//
+//    for (ii=[3300,5000])
+//    translate([0, 0, ii])
+//    color("FireBrick")
+//    rotate([0, 0, -90])
+//    mountring90(270, 4, 1);
+//
+//    translate([100, -850, 4200])
+//    color("DarkOrange")
+//    rotate([0, 90, 90])
+//    mount_pizerow();
+//
+//    rotate([0, 0, 180])
+//    translate([100, -1200, 4400])
+//    color("DarkOrange")
+//    rotate([0, 90, 90])
+//    mount_audioinjector();
+//
+//    *color("DarkOrange")
+//    translate([710, 110, 3400])
+//    rotate([0, 0, 90])
+//    mount_ssmicro();
+//
+//    *color("DarkOrange")
+//    translate([-945, -200, 3550])
+//    rotate([180, -90, 0])
+//    mount_usbhub();
+//
+//    color("DarkOrange")
+//    translate([-750, -640, 5250])
+//    rotate([180, 90, 0])
+//    mount_tda2030a();
+//
+//    color("DarkOrange")
+//    translate([-750, -620, 3600])
+//    rotate([0, 90, 180])
+//    mount_hbridge();
+//
+//    color("DarkOrange")
+//    translate([760, 620, 4500])
+//    rotate([0, -90, 180])
+//    mount_webfpga();
 }
 
 
@@ -218,12 +336,13 @@ module ledInsert()
 //    color("Green")
     linear_extrude(500)
     {
-        intersection()
+        *intersection()
         {
             difference()
             {
                 circle(baseR-130, $fn=96);
-                circle(3560/2, $fn=96);
+                circle(baseR-230, $fn=96);
+                //circle(3560/2, $fn=96);
                 //circle(ledOuterR-10, $fn=96);
             }
             for (ii = [0:45:360])
@@ -235,7 +354,7 @@ module ledInsert()
         difference() 
         {
             circle(baseR-120, $fn=96);
-            circle(baseR-230, $fn=96);
+            circle(baseR-200, $fn=96);
             rotate([0,0,22])
             tabcutouts();
         }
@@ -246,7 +365,7 @@ module ledInsert()
         difference() 
         {
             //circle(ledOuterR+10, $fn=96);
-            circle(3580/2, $fn=96);
+            circle(baseR-190, $fn=96);
             circle(ledInnerR-20, $fn=96);
         }
         for (ii = [0:45:360])
@@ -258,14 +377,17 @@ module ledInsert()
     linear_extrude(600)
     difference() 
     {
-    circle(ledInnerR-20, $fn=96);
-    circle(ledInnerR-70, $fn=96);
+    circle(ledInnerR+30, $fn=96);
+    circle(ledInnerR-40, $fn=96);
     }
 
     *color("DarkOrange")
     translate([-1300, 0, 100])
     rotate([0, -90, 180])
     mount_levelshifter();
+
+    *translate([0, 0, 300])
+    model_ws2812_24();
 }
 
 //module ledInsert()
@@ -373,8 +495,8 @@ module tabs()
     for(ii=[0:180:360])
     {
         rotate([0, 0, ii])
-        translate([baseR-150, 0, 0])
-        square([200, 300], center=true);
+        translate([baseR-100, 0, 0])
+        square([150, 300], center=true);
     }
 }
 
@@ -560,22 +682,24 @@ module models()
     rotate([0, 90, 0])
     model_levelshifter();
 
+
 }
 
 scale(ViewScale)
 {
-    color("Cyan")
-    translate([0, 0, 600])
+//    color("Orange")
+    *translate([0, 0, 600])
     rotate([180,0,0])
     ledInsert();
 
-    color("Peru")
+    *color("Peru")
     translate([0, 0, 1190+600])
     rotate([180,0,0])
     speaker();
 
     *translate([0, 0, 100])
     column();
+    *shortcolumn();
 
     translate([0, 0, -750])
     electronics();
@@ -587,13 +711,13 @@ scale(ViewScale)
 //    baseWeight();
 //tabcutouts();
 
-    translate([0, 0, -750])
+    *translate([0, 0, -750])
     models();
 
-    translate([0, 0, 5820])
+    *translate([0, 0, 5820])
     lower_bearing();
 
-    translate([0, 0, 6440])
+    *translate([0, 0, 6440])
     rotate([0, 180, 0])
     upper_bearing();
 }

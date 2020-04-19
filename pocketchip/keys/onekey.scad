@@ -251,25 +251,39 @@ module supports1()
 
 module supports2()
 {
+    offset=0;
     difference() {
         supports1();
         translate([0, 660, 0])
-        square([1200,180], center=true);
-
+        square([1200+offset,180+offset], center=true);
         translate([0, 1070, 0])
-        square([3800,140], center=true);
+        square([3800+offset,140+offset], center=true);
         translate([0, 1740, 0])
-        square([3800,100], center=true);
+        square([3800+offset,100+offset], center=true);
         translate([600, 2460, 0])
-        square([2700,100], center=true);
-
-    
+        square([2700+offset,100+offset], center=true);
         translate([-1200, 2460, 0])
         rotate([0, 0, 45])
         union() {
-            square([600,100], center=true);
-            square([100,600], center=true);
+            square([700+offset,100+offset], center=true);
+            square([100+offset,700+offset], center=true);
         }
+
+//
+//        translate([0, 660, 0])
+//        square([1200,180], center=true);
+//        translate([0, 1070, 0])
+//        square([3800,140], center=true);
+//        translate([0, 1740, 0])
+//        square([3800,100], center=true);
+//        translate([600, 2460, 0])
+//        square([2700,100], center=true);
+//        translate([-1200, 2460, 0])
+//        rotate([0, 0, 45])
+//        union() {
+//            square([600,100], center=true);
+//            square([100,600], center=true);
+//        }
     }
 }
 
