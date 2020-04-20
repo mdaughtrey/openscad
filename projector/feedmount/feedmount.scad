@@ -109,14 +109,10 @@ module endwalls()
 
 module truss()
 {
-    translate([-750, -960, 0])
+    translate([-750, -960, 10])
     rotate([90, 0, 0])
     linear_extrude(150)
-    difference() {
-        polygon(points=[[0,0],[1500,0],[1500,-2500]]);
-        translate([900, -400, 0])
-        circle(400, $fn=96);
-    }
+    polygon(points=[[0,0],[1500,0],[1500,-2500]]);
 }
 
 module vexmount()
@@ -125,12 +121,12 @@ module vexmount()
     difference() {
         hull() {
             circle(170, $fn=96);
-            translate([2500, 0, 0])
+            translate([1000, 0, 0])
             circle(170, $fn=96);
         }
         hull() {
             circle(90, $fn=96);
-            translate([2500, 0, 0])
+            translate([1000, 0, 0])
             circle(90, $fn=96);
         }
     }
@@ -139,12 +135,12 @@ module vexmount()
     difference() {
         hull() {
             circle(260, $fn=96);
-            translate([2500, 0, 0])
+            translate([1000, 0, 0])
             circle(260, $fn=96);
         }
         hull() {
             circle(160, $fn=96);
-            translate([2500, 0, 0])
+            translate([1000, 0, 0])
             circle(160, $fn=96);
         }
     }
@@ -177,13 +173,13 @@ module feedmount()
 
     endwalls();
 
-    truss();
+    *truss();
 
-    translate([750, -1300, -2650])
+    translate([750, -1850, 100])
     rotate([0, -90, 0])
     vexmount();
 
-    translate([750, -800, -2650])
+    translate([750, 650, 100])
     rotate([0, -90, 0])
     vexmount();
 
@@ -193,7 +189,15 @@ module feedmount()
     base();
 }
 
+module forprinting()
+{
+    translate([0, 0, 600])
+    rotate([0, 90, 0])
+    feedmount();
+}
+
 scale(ViewScale)
 {
+//    forprinting();
     feedmount();
 }
