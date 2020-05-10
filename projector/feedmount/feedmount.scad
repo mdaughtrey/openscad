@@ -11,18 +11,19 @@ module models()
     color("SteelBlue")
     model_motor();
 
-    translate([750, 0, 0])
+    translate([730, 0, 0])
     rotate([0, 90, 0])
     color("Aqua")
     model_smallcog();
 
-    translate([760, -1250/2-530/2+50, 0])
+    translate([730, -1250/2-530/2+50, 0])
     rotate([0, 90, 0])
     color("PaleGreen")
     model_bigcog();
 
     translate([1760, -1250/2-530/2+50, 0])
-    //rotate([90, 0, 0])
+    //rotate([90, 0, 30])
+    rotate([45, 0, 0])
     rotate([0, -90, 0])
     color("SpringGreen")
     model_arm();
@@ -56,7 +57,7 @@ module wall2()
         square([1500, 2000], center=true);
 
         translate([0, -1250/2-530/2+50, 0])
-        circle(510, $fn=96);
+        circle(540, $fn=96);
         translate([492, 0, 0])
         circle(180/2, $fn=96);
         translate([-492, 0, 0])
@@ -70,8 +71,10 @@ module w3_section(dia)
         circle(dia/2+50, $fn=96);
         difference() {
             circle(dia/2, $fn=96);
+            rotate([0, 0, 45])
             translate([560/2+30, 0, 0])
             square([180, 117], center=true);
+            rotate([0, 0, 45])
             translate([-560/2-30, 0, 0])
             square([180, 117], center=true);
         }
@@ -92,7 +95,8 @@ module wall3()
 
 module armshaft()
 {
-    linear_extrude(255)
+    translate([0, 0, -35])
+    linear_extrude(310)
     translate([0, -1250/2-530/2+50, 0]) 
     w3_section(580);
 }
@@ -117,30 +121,31 @@ module truss()
 
 module vexmount()
 {
+    mylength=2500;
     linear_extrude(100)
     difference() {
         hull() {
             circle(170, $fn=96);
-            translate([1000, 0, 0])
+            translate([mylength, 0, 0])
             circle(170, $fn=96);
         }
         hull() {
             circle(90, $fn=96);
-            translate([1000, 0, 0])
+            translate([mylength, 0, 0])
             circle(90, $fn=96);
         }
     }
 
-    linear_extrude(200)
+    linear_extrude(150)
     difference() {
         hull() {
             circle(260, $fn=96);
-            translate([1000, 0, 0])
+            translate([mylength, 0, 0])
             circle(260, $fn=96);
         }
         hull() {
             circle(160, $fn=96);
-            translate([1000, 0, 0])
+            translate([mylength, 0, 0])
             circle(160, $fn=96);
         }
     }
@@ -175,11 +180,11 @@ module feedmount()
 
     *truss();
 
-    translate([750, -1850, 100])
+    translate([750, -1850, 230-1150])
     rotate([0, -90, 0])
     vexmount();
 
-    translate([750, 650, 100])
+    translate([750, 650, 230-1150])
     rotate([0, -90, 0])
     vexmount();
 
@@ -188,6 +193,11 @@ module feedmount()
     rotate([0, 90, 0])
     base();
 }
+
+module feedclip()
+{
+//    circle(
+}    
 
 module forprinting()
 {
@@ -200,4 +210,6 @@ scale(ViewScale)
 {
 //    forprinting();
     feedmount();
+//    color("Orchid")
+//    feedclip();
 }
