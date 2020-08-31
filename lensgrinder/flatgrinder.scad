@@ -508,37 +508,37 @@ module lensinterface0()
 
 scale(ViewScale)
 {
-//    armwheels();
-//    lowersupports();
-//    translate([0, 0, 130])
-//    gears();
-//    translate([0, 0, 250])
-//    drivercrossbar();
-//    translate([0, 0, 1850]) {
-//        rotate([180, 0, 0]) {
-//        motorhousing();
-//        model_geared2();
-//        }
-//    }
-//    translate([0, 0, 100])
-//    motorsupport();
+    armwheels();
+    lowersupports();
+    translate([0, 0, 130])
+  gears();
+    translate([0, 0, 250])
+    drivercrossbar();
+  translate([0, 0, 1850]) {
+      rotate([180, 0, 0]) {
+      motorhousing();
+      model_geared2();
+      }
+  }
+    translate([0, 0, 100])
+   motorsupport();
 
-//    translate([0, 0, 500])
-//    housingsupport();
-//    
-//    translate([0, 0, 1000])
-//    arm();
-//
-//    translate([450, -3200, 1050])
-//    rotate([90, 0, -90])
+    translate([0, 0, 500])
+    housingsupport();
+    
+    translate([0, 0, 1000])
+    arm();
+
+    translate([450, -3200, 1050])
+    rotate([90, 0, -90])
     pushrods();
-//
-//    translate([0, 0, -400])
-//    weightedbase();
 
-//    translate([0, -400, 75])
-//    interfacemount();
-//    lensinterface0();
+    translate([0, 0, -400])
+    weightedbase();
+
+    translate([0, -400, 75])
+    interfacemount();
+    lensinterface0();
     
     
 }

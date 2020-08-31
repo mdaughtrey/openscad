@@ -4,15 +4,15 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 module nodule()
 {
     linear_extrude(200)
-    circle(100, $fn=96);
+    circle(75, $fn=96);
     translate([0, 0, 199])
     linear_extrude(100)
-    circle(200, $fn=96);
+    circle(150, $fn=96);
 }
 
 module center()
 {
-    nodestep = 45;
+    nodestep = 30;
     difference() {
         intersection() {
             union() {
@@ -21,7 +21,7 @@ module center()
                     rotate([jj, 0, 0])
                     for (ii = [-90:nodestep: 90]) {
                         rotate([0, ii, 0])
-                        translate([0, 0, 999])
+                        translate([0, 0, 949])
                         nodule();
                     }
                 }
@@ -38,13 +38,17 @@ module center()
 module shaft()
 {
     rotate([0, 90, 0])
-    translate([0, 0, 1199])
-
-    linear_extrude(1500)
-    intersection() {
-        circle(100, $fn=96);
-        translate([-50, 0, 0])
-        square([110, 500], center=true);
+    translate([0, 0, 1199]) {
+        linear_extrude(1500)
+        intersection() {
+            circle(100, $fn=96);
+            translate([-50, 0, 0])
+            square([110, 500], center=true);
+        }
+        translate([-200, 0, 1500])
+        rotate([0, 90, 0])
+        linear_extrude(200)
+        circle(200, $fn=96);
     }
 
 }
@@ -86,7 +90,7 @@ module hand()
 {
     center();
     shaft();
-    batwings();
+    //batwings();
 }
 
 scale(ViewScale)

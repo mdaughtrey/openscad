@@ -5,7 +5,7 @@ module roll()
     linear_extrude(500)
     difference() {
         circle(500, $fn=96);
-        square([180, 180], center=true);
+        square([130, 130], center=true);
     }
     translate([0, 0, 499])
     linear_extrude(51)
@@ -27,7 +27,7 @@ module twist()
 
 module trail()
 {
-    translate([1430, -200, 50])
+    translate([1250, -385, 50])
     rotate([0, 90, 0])
     linear_extrude(1000)
     square([50, 949]);
@@ -35,10 +35,10 @@ module trail()
 
 module toiletroll()
 {
-    color("White")
+//    color("White")
     {
         roll();
-        translate([1430, -200, 0])
+        translate([1250, -385, 0])
         rotate([0, -90, 0])
         twist();
         trail();
