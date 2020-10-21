@@ -149,8 +149,8 @@ module lid()
 
 scale(ViewScale)
 {
-    *buttoncase();
-    translate([0, 0, 1520])
+    buttoncase();
+    *translate([0, 0, 1520])
 //    color("cornflowerblue")
     lid();
     *color("royalblue")
