@@ -11,6 +11,7 @@ module aspheric_mount()
             translate([-1000, 0, 0])
             square([2000, 1100]);
         }
+
         translate([-1050, -100, 0])
         square([300, 200], center=true);
 
