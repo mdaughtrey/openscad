@@ -7,7 +7,7 @@
  wget https://github.com/MisterHW/IoP-satellite/archive/master.zip
  unzip master.zip
  rm master.zip
- Echo Fix up bottle threads
+ echo Fix up bottle threads
  mv scad-utils-master scad-utils
  mv list-comprehension-demos-master list-comprehension-demos
 
