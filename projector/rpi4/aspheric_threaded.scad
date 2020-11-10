@@ -17,46 +17,58 @@ function inner_thread_profile() = [
 
 module inner()
 {
-    linear_extrude(3000)
+    linear_extrude(4000)
     difference() {
-        circle(1560/2, $fn=96);
-        circle(1530/2, $fn=96);
+        circle(1609/2, $fn=96);
+        circle(1534/2, $fn=96);
     }
     straight_thread(
-        section_profile = [[0,0],[0, 142], [115, 122], [115, 22]],
+        section_profile = [[0,0],[100, 100], [0, 200]],
         higbee_arc = 20,
-        r = 1560/2,
-        turns = 9,
-        pitch = 300,
+        r = 1608/2,
+        turns = 16,
+        pitch = 201,
         fn=96);
 }
 
 module outer()
 {
-    linear_extrude(2100)
-     difference() {
-         circle(1860/2, $fn=96);
-         circle(1830/2, $fn=96);
+    // section_profile = [[0,0],[-115, 0], [-115, 140], [0, 140]],
+    union() {
+    color("cornflowerblue")
+    linear_extrude(1000)
+    difference() {
+         circle(1873/2, $fn=96);
+         circle(1823/2, $fn=96);
      }
+    color("cyan")
     straight_thread(
-        section_profile = [[0,0],[-115, 32], [-115, 112], [0, 142]],
+        section_profile = [[0,0], [-100, 100], [0, 200]],
         higbee_arc = 20,
-        r = 1830/2,
-        turns = 6,
-        pitch = 300,
-        fn=96);
+        r = 1834/2,
+        turns = 4,
+        pitch = 201,
+        fn=$fn);
+    }
 }
 
 
 module forViewing()
 {
     inner();
-    color("cyan")
-    rotate([0, 0, -180])
+    %rotate([0, 0, -180])
     outer();
+}
+
+module forPrinting()
+{
+    inner();
+    //translate([2000, 0, 0])
+    //outer();
 }
 
 scale(ViewScale)
 {
-    forViewing();
+    //forViewing();
+    forPrinting();
 }
