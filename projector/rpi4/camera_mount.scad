@@ -18,7 +18,7 @@ module mount0()
 {
     linear_extrude(200) {
         difference() {
-          circle(1500/2, $fn=96);
+          circle(1490/2, $fn=96);
           circle(1230/2, $fn=96);
         }
         for (ii=[0:12.86:360]) {
@@ -63,21 +63,62 @@ module mount1()
     translate([0, 0, 199])
     linear_extrude(400)
     difference() {
-        circle(1625/2, $fn=96);
+        union() {
+            circle(1625/2, $fn=96);
+            translate([0, 750, 0])
+            square([700, 500], center=true);
+        }
         circle(1425/2, $fn=96);
         translate([0, -400, 0])
         square([1700, 900], center=true);
+
+        translate([0, 1425/2-250+200, 0])
+        square([450, 500], center=true);
+
     }
+
+    *translate([0, -90, 200])
+    square([3390, 280], center=true);
+
     translate([0, 250, 350])
     rotate([90, 0, 0])
     linear_extrude(200)
-    for(ii = [-950, 950]) {
-        translate([ii, 0, 0])
+//    for(ii = [-950-425/2, 950+425/2]) {
+    for(ii = [0, 180]) {
+        rotate([0, 0, ii])
+        translate([950+510/2, 0, 0])
         difference() {
-            square([400, 300], center=true);
+            square([990, 300], center=true);
+            translate([-425/2, 0, 0])
             circle(150/2, $fn=96);
         }
     }
+    *translate([-3390/2-100, -20, 200])
+    linear_extrude(300)
+    square([200, 540], center=true);
+
+    // side bits
+    translate([3390/2+100, -50+200, -280])
+    //linear_extrude(300+240+40+200)
+    linear_extrude(780)
+    square([200, 200], center=true);
+
+    // 240 + 40 + 200 
+    translate([-3390/2-100, -50+200, 200])
+    linear_extrude(300+240+40+200)
+    square([200, 200], center=true);
+
+    // wraparound bits
+    *translate([-3390/2, -50+200, 200+300+240+40+200])
+    square([400, 200], center=true);
+
+    translate([3390/2-100, 240-100+10, -300])
+    //linear_extrude(300)
+    square([400, 200], center=true);
+
+    *translate([-3390/2, -240-50+10, 200])
+    linear_extrude(300)
+    square([400, 100], center=true);
 }
 
 
@@ -95,8 +136,8 @@ module forViewing()
 {
  //   model_hqcam();
 // model_mountto();
-//    color("cyan")
-//    mount0();
+    color("cyan")
+    mount0();
     mount1();
 }
 
