@@ -98,27 +98,27 @@ module mount1()
     square([200, 540], center=true);
 
     // side bits
-    translate([3390/2+100, -50+200, -280])
-    //linear_extrude(300+240+40+200)
-    linear_extrude(780)
+    translate([3390/2+100, -50+200, -270])
+    linear_extrude(770)
     square([200, 200], center=true);
 
     // 240 + 40 + 200 
-    translate([-3390/2-100, -50+200, 200])
-    linear_extrude(300+240+40+200)
+    translate([-3390/2-90, -50+200, -270])
+    linear_extrude(770)
     square([200, 200], center=true);
 
+    //translate([-3390/2-100, -50+200, 200])
+    //linear_extrude(300+240+40+200)
+    //square([200, 200], center=true);
+
     // wraparound bits
-    *translate([-3390/2, -50+200, 200+300+240+40+200])
+    translate([3390/2, 240-100+10, -270])
+    linear_extrude(200)
     square([400, 200], center=true);
 
-    translate([3390/2-100, 240-100+10, -300])
-    //linear_extrude(300)
+    translate([-3390/2+200, 240-100+10, -270])
+    linear_extrude(200)
     square([400, 200], center=true);
-
-    *translate([-3390/2, -240-50+10, 200])
-    linear_extrude(300)
-    square([400, 100], center=true);
 }
 
 
@@ -135,7 +135,9 @@ module model_mountto()
 module forViewing()
 {
  //   model_hqcam();
-// model_mountto();
+ color("green")
+ translate([0, 0, -50])
+ model_mountto();
     color("cyan")
     mount0();
     mount1();
