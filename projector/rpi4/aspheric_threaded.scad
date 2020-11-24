@@ -55,8 +55,8 @@ module outer()
 
 module forViewing()
 {
-    inner();
-    %rotate([0, 0, -180])
+    //inner();
+    //%rotate([0, 0, -180])
     outer();
 }
 
@@ -69,6 +69,6 @@ module forPrinting()
 
 scale(ViewScale)
 {
-    //forViewing();
-    forPrinting();
+    forViewing();
+    //forPrinting();
 }

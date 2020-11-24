@@ -13,7 +13,7 @@ module rpi4holes()
             translate([ii, jj, 0])
             difference() {
                 circle(147, $fn=96);
-                circle(25, $fn=96);
+                circle(35, $fn=96);
             }
         }
     }
@@ -88,6 +88,7 @@ module forviewing()
 {
     xtrans = 2421/2-1338/2;
     ytrans = 2067/2-1338/2;
+    // rotate([0, 0, 45])
     rpi4mount();
     translate([xtrans, ytrans, 0])
     hqcameramount();
