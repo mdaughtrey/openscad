@@ -1,5 +1,5 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
-include <./assembly_mount_smaller.scad>
+include <./assembly_mount_smaller2.scad>
 
 module model_pcb()
 {
@@ -22,18 +22,136 @@ module model_pcb()
         circle(650, $fn=96);
 
         // Top two holes
-        // x=2000-750;
-        // translate([x, pcbh-340, 0])
-        // circle(170/2, $fn=96);
-        // translate([4000-1150, 5360-370, 0])
-        // circle(170/2, $fn=96);
+        x=2000-750;
+        //translate([x, pcbh-340, 0])
+        translate([x, 2950+1990, 0])
+        circle(170/2, $fn=96);
+        //translate([4000-1150, 5360-370, 0])
+        translate([4000-1250, 2950+1990, 0])
+        circle(170/2, $fn=96);
 
         // Bottom two holes
-        // translate([1020, 967, 0])
-        // circle(170/2, $fn=96);
-        // translate([4000-1020, 967, 0])
-        // circle(170/2, $fn=96);
+        translate([pcbw/2-891, 2950-1900, 0])
+        circle(170/2, $fn=96);
+        translate([pcbw/2+891, 2950-1900, 0])
+        circle(170/2, $fn=96);
     }
+}
+
+module pcb_replacement()
+{
+    // 4 x 5 5/8
+    pcbw = 4000;
+    pcbh = 5360;
+//    linear_extrude(40)
+//    difference() {
+//        square([pcbw, pcbh]);
+
+
+        // Big circle
+        *translate([2000, 2950, 0])
+        circle(650, $fn=96);
+
+        // Frame 
+        points = [[1250, 2950+1990], [2750, 2950+1990], [3600+170/2, 4520+170/2], [3600+170/2, 4520+170/2],
+                    [3600+170/2, 1520+170/2], [pcbw/2+891, 2950-1900], [pcbw/2-891, 2950-1900],
+                    [400+170/2, 1520+170/2], [400+170/2, 4520+170/2], [400+170/2, 4520+170/2],
+                    [1250, 2950+1990]];
+
+        linear_extrude(200)
+        difference() {
+            union() {
+                for(ii = [0:9]) {
+                    hull() {
+                        translate([points[ii][0], points[ii][1], 0])
+                        circle(300, $fn=96);
+                        translate([points[ii+1][0], points[ii+1][1], 0])
+                        circle(300, $fn=96);
+                    }
+                }
+            }
+            for(jj = [400,3600]) {
+                for(ii = [1520:1000:4800]) {
+                    translate([jj+170/2, ii+170/2, 0])
+                    circle(170/2, $fn=96);
+                }
+            }
+            translate([1250, 2950+1990, 0])
+            circle(170/2, $fn=96);
+            translate([2750, 2950+1990, 0])
+            circle(170/2, $fn=96);
+            // Bottom two holes
+            translate([pcbw/2-891, 2950-1900, 0])
+            circle(170/2, $fn=96);
+            translate([pcbw/2+891, 2950-1900, 0])
+            circle(170/2, $fn=96);
+            }
+
+            
+//         difference() {
+//             union() {
+//                 hull() {
+//                     translate([1250, 2950+1990, 0])
+//                     circle(300, $fn=96);
+//                     translate([2750, 2950+1990, 0])
+//                     circle(300, $fn=96);
+//                 }
+//                 hull() {
+//                     translate([2750, 2950+1990, 0])
+//                     circle(300, $fn=96);
+//                     translate([3600+170/2, 4520+170/2, 0])
+//                     circle(300, $fn=96);
+//                 }
+//                 hull() {
+//                     translate([3600+170/2, 4520+170/2, 0])
+//                     circle(300, $fn=96);
+//                     translate([3600+170/2, 1520+170/2, 0])
+//                     circle(300, $fn=96);
+//                 }
+//                 hull() {
+//                     translate([3600+170/2, 1520+170/2, 0])
+//                     circle(300, $fn=96);
+//                     translate([pcbw/2+891, 2950-1900, 0])
+//                     circle(300, $fn=96);
+//                 }
+//                 hull() {
+//                     translate([pcbw/2+891, 2950-1900, 0])
+//                     circle(300, $fn=96);
+//                     translate([pcbw/2-891, 2950-1900, 0])
+//                     circle(300, $fn=96);
+//                 }
+//                 hull() {
+//                     translate([pcbw/2-891, 2950-1900, 0])
+//                     circle(300, $fn=96);
+//                     translate([400+170/2, 1520+170/2, 0])
+//                     circle(300, $fn=96);
+//                 }
+//                 hull() {
+//                     translate([400+170/2, 1520+170/2, 0])
+//                     circle(300, $fn=96);
+//                     translate([400+170/2, 4520+170/2, 0])
+//                     circle(300, $fn=96);
+//                 }
+//                 hull() {
+//                     translate([400+170/2, 4520+170/2, 0])
+//                     circle(300, $fn=96);
+//                     translate([1250, 2950+1990, 0])
+//                     circle(300, $fn=96);
+//                 }
+//             }
+
+//            translate([1250, 2950+1990, 0])
+//            circle(170/2, $fn=96);
+//            translate([2750, 2950+1990, 0])
+//            circle(170/2, $fn=96);
+//        }
+//
+//        // Bottom two holes
+//        translate([pcbw/2-891, 2950-1900, 0])
+//        circle(170/2, $fn=96);
+//        translate([pcbw/2+891, 2950-1900, 0])
+//        circle(170/2, $fn=96);
+//    }
 }
 
 module model_bracket()
@@ -120,7 +238,7 @@ module frameBracket()
 //         translate([500, 0, 0])
 //         circle(170/2, $fn=96);
      }
-     for(ii = [-1000, 1000]) {
+     for(ii = [-1200, 1200]) {
         translate([ii, -250, 0]) 
         linear_extrude(100)
         square([300, 200], center=true);
@@ -141,23 +259,13 @@ module frameBracket()
 
 module frameBrackets()
 {
-//    translate([190, 2200, 40]) rotate([0, 0, -90]) bracket();
     translate([190, 3200, 40]) rotate([0, 0, -90]) frameBracket();
-//     translate([190, 4200, 40]) rotate([0, 0, -90]) scale([-1, 1, 1]) bracket();
-// 
-//    translate([3890, 2200, 40]) rotate([0, 0, 90]) scale([-1, 1, 1]) bracket();
     translate([3890, 3200, 40]) rotate([0, 0, 90]) frameBracket();
-//     translate([3890, 4200, 40]) rotate([0, 0, 90]) bracket();
 }
 
 module pcbBrackets() {
-//    translate([440, 2230, 500]) rotate([0, 180, 90]) bracket();
     translate([440, 3230, 500]) rotate([0, 180, 90]) frameBracket();
-//    translate([440, 4230, 500]) rotate([180, 0, 90]) scale([1, -1, 1]) bracket();
-
-//    translate([3640, 2230, 500]) rotate([0, 180, -90]) scale([-1, 1, 1]) bracket();
     translate([3640, 3230, 500]) rotate([0, 180, -90]) scale([-1, 1, 1]) frameBracket();
-//    translate([3640, 4230, 500]) rotate([0, 180, -90]) scale([1, 1, 1]) bracket();
 
 }
 
@@ -165,7 +273,7 @@ module forViewing()
 {
     color("cornflowerblue")
     translate([-50, 120, 500])
-    model_pcb();
+    pcb_replacement();
     model_bracket();
     translate([3600-400, 0, 0])
     model_bracket();
@@ -175,9 +283,10 @@ module forViewing()
     color("BurlyWood")
     pcbBrackets();
 
-    translate([2000-50, 2950+120, 950])
-    rotate([0, 180, 0])
-    aspheric_mount();
+    translate([2000-50, 2950+120, 750])
+    rotate([0, 0, 0])
+    color("SandyBrown")
+    aspheric_mount2();
     translate([2000, 0, 0])
     *color("BurlyWood")
     frameBracket();
@@ -191,7 +300,9 @@ module forPrinting()
 //    translate([1500, 0, 0])
 //    scale([-1, 1, 1])
 //    bracket();
-    frameBracket();
+//    frameBracket();
+//    pcb_replacement();
+    aspheric_mount2();
 }
 
 scale(ViewScale)

@@ -94,22 +94,22 @@ module aspheric_mount()
     outer();
 }
 
-// module forPrinting()
-// {
-//     inner();
-// //    aspheric_mount();
-// }
-// 
-// module forViewing()
-// {
-//     aspheric_mount();
-//     *color("cyan")
-//     inner();
-// }
-// 
-// 
-// scale(ViewScale)
-// {
-//     forViewing();
-//     //forPrinting();
-// }
+//module forPrinting()
+//{
+//    inner();
+////    aspheric_mount();
+//}
+//
+//module forViewing()
+//{
+//    aspheric_mount();
+//    *color("cyan")
+//    inner();
+//}
+//
+//
+//scale(ViewScale)
+//{
+//    forViewing();
+//    //forPrinting();
+//}

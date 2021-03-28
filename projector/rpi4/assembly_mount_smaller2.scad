@@ -1,5 +1,5 @@
 use <../../libraries/OpenSCAD bottle threads/thread_profile.scad>;
-//ViewScale = [0.0254, 0.0254, 0.0254];
+ViewScale = [0.0254, 0.0254, 0.0254];
 
 module outer()
 {
@@ -8,13 +8,13 @@ module outer()
     union() {
     linear_extrude(1000)
     difference() {
-         circle(1290/2, $fn=96);
-         circle(1240/2, $fn=96);
+         circle(1310/2, $fn=96);
+         circle(1260/2, $fn=96);
      }
     straight_thread(
         section_profile = [[0,0], [-50, 50], [0, 100]],
         higbee_arc = 20,
-        r = 1243/2,
+        r = 1263/2,
         turns = 8.5,
         pitch = 101,
         fn=96);
@@ -24,30 +24,30 @@ module outer()
 module inner()
 {
     union() {
-    linear_extrude(2200)
+    linear_extrude(1200)
     difference() {
-         circle(1140/2, $fn=96);
-         circle(1040/2, $fn=96);
+         circle(1120/2, $fn=96);
+         circle(1020/2, $fn=96);
      }
     rotate([0, 0, 180])
     straight_thread(
         section_profile = [[0,0], [50, 50], [0, 100]],
         higbee_arc = 20,
-        r = 1138/2,
-        turns = 20.5,
+        r = 1118/2,
+        turns = 10.5,
         pitch = 101,
         fn=96);
     }
 
     // lens mount cone
-    translate([0, 0, 2270])
+    translate([0, 0, 1270])
     linear_extrude(center=true, height=140, scale=1.416)
     difference() {
          circle(1140/2, $fn=96);
          circle(1040/2, $fn=96);
     }
 
-    translate([0, 0, 2340])
+    translate([0, 0, 1340])
     linear_extrude(150)
     difference() {
          circle(1615/2, $fn=96);
@@ -108,22 +108,22 @@ module aspheric_mount2()
     outer();
 }
 
-//module forPrinting()
-//{
-//    inner();
-////    aspheric_mount();
-//}
-//
-//module forViewing()
-//{
-//    aspheric_mount2();
-//    *color("cyan")
-//    inner();
-//}
-//
-//
-//scale(ViewScale)
-//{
-//    forViewing();
-//    //forPrinting();
-//}
+module forPrinting()
+{
+    inner();
+//    aspheric_mount();
+}
+
+module forViewing()
+{
+    *aspheric_mount2();
+    color("cyan")
+    inner();
+}
+
+
+scale(ViewScale)
+{
+    forViewing();
+    //forPrinting();
+}

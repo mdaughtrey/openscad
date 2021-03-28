@@ -71,7 +71,7 @@ module mount1()
             square([700, 500], center=true);
         }
         circle(1425/2, $fn=96);
-        translate([0, -400, 0])
+        translate([0, -380, 0])
         square([1700, 900], center=true);
 
         translate([0, 1425/2-250+200, 0])
@@ -82,7 +82,7 @@ module mount1()
     *translate([0, -90, 200])
     square([3390, 280], center=true);
 
-    translate([0, 250, 350])
+    translate([0, 270, 350])
     rotate([90, 0, 0])
     linear_extrude(200)
     for(ii = [0, 180]) {
@@ -91,7 +91,7 @@ module mount1()
         difference() {
             square([990, 300], center=true);
             translate([-255, 0, 0])
-            circle(150/2, $fn=96);
+            circle(170/2, $fn=96);
         }
     }
     *translate([-3390/2-100, -20, 200])
@@ -104,7 +104,7 @@ module mount1()
     square([200, 200], center=true);
 
     // long side bit
-    translate([3390/2+50, -50+200, 0])
+    translate([3390/2+35, -50+200, 0])
     linear_extrude(200)
     square([100, 800], center=true);
 
@@ -114,7 +114,7 @@ module mount1()
     square([200, 200], center=true);
 
     // long side bit
-    translate([-3390/2-50, -50+200, 0])
+    translate([-3390/2-35, -50+200, 0])
     linear_extrude(200)
     square([100, 800], center=true);
 
