@@ -688,18 +688,18 @@ module models()
 scale(ViewScale)
 {
 //    color("Orange")
-    *translate([0, 0, 600])
+    translate([0, 0, 600])
     rotate([180,0,0])
     ledInsert();
 
-    *color("Peru")
+    color("Peru")
     translate([0, 0, 1190+600])
     rotate([180,0,0])
     speaker();
 
-    *translate([0, 0, 100])
+    translate([0, 0, 100])
     column();
-    *shortcolumn();
+    shortcolumn();
 
     translate([0, 0, -750])
     electronics();
@@ -711,13 +711,13 @@ scale(ViewScale)
 //    baseWeight();
 //tabcutouts();
 
-    *translate([0, 0, -750])
+    translate([0, 0, -750])
     models();
 
-    *translate([0, 0, 5820])
+    translate([0, 0, 5820])
     lower_bearing();
 
-    *translate([0, 0, 6440])
+    !translate([0, 0, 6440])
     rotate([0, 180, 0])
     upper_bearing();
 }
