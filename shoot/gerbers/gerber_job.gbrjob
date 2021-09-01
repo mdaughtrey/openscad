@@ -1,0 +1,24 @@
+{
+    "Header": {
+        "Comment": "All values are metric (mm)",
+        "CreationDate": "2021-06-03T11:54:37Z",
+        "GenerationSoftware": {
+            "Application": "EAGLE",
+            "Vendor": "Autodesk",
+            "Version": "9.6.2"
+        },
+        "Part": "Single"
+    },
+    "Overall": {
+        "BoardThickness": 1.57,
+        "LayerNumber": 2,
+        "Name": {
+            "ProjectId": "Shoot - throughole"
+        },
+        "Owner": "Steve Newport <newport@ts.co.nz>",
+        "Size": {
+            "X": 50,
+            "Y": 100
+        }
+    }
+}

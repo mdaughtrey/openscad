@@ -4,6 +4,7 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 
 module case()
 {
+    color("black")
     linear_extrude(63)
     difference()
     {
@@ -16,6 +17,7 @@ module test()
 {
     tx = 3430;
     ty = 2030;
+    color("black")
     translate([-3990/2+tx/2, 0, 62])
     difference()
     {
@@ -32,6 +34,7 @@ module test2()
 {
     tx = 400;
     ty = 2030;
+    color("black")
     translate([3990/2-tx/2, 0, 62])
     difference()
     {
@@ -48,9 +51,9 @@ module test2()
 module forViewing()
 {
     model_shoot();
-    case();
-    test();
-    test2();
+    *case();
+    *test();
+    *test2();
 }
 
 scale(ViewScale)
