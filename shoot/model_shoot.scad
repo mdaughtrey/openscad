@@ -2,7 +2,7 @@ include <../models/0805_resistor.scad>
 //include <soldermask_top.scad>
 include <components_top.scad>
 
-model_shoot_chipSocket = function (pins) [400, pins * 100 + 40];
+model_shoot_chipSocket = function (pins) [400, pins * 100];
 model_shoot_chipIC = function (pins) [240, 770];
 model_shoot_pcb = function() [1970, 3940];
 model_shoot_pcbX = function(x,xofs) -(model_shoot_pcb()[0]/2)+(x/2)+xofs;
@@ -24,8 +24,7 @@ module model_shoot_ic(pins)
     square(model_shoot_chipIC(pins/2), center=true);
 
     // Pins
-    offset = (pins % 2) ? -50 : 0;
-    pinV = [-floor(pins/4)*100+offset:100:floor(pins/4)*100+offset];
+    pinV = (pins/2 % 2) ? [-floor(pins/4)*100:100:floor(pins/4)*100] : [-floor(pins/4)*100+50:100:floor(pins/4)*100-50];
     for(ii = pinV)
     {
         for(jj = [-200+30+10, 200-30-10])

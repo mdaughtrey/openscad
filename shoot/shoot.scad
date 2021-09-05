@@ -2,7 +2,7 @@ include <model_shoot.scad>
 
 ViewScale = [0.0254, 0.0254, 0.0254];
 
-module case()
+module surround()
 {
 //    color("black")
     linear_extrude(63)
@@ -20,7 +20,7 @@ module case()
     }
 }
 
-module test()
+module body0()
 {
     ty = 3460;
     tx = 2030;
@@ -54,13 +54,81 @@ module test2()
     }
 }
 
+module chipsurround14()
+{
+    translate([0, -395, 200])
+    linear_extrude(110)
+    difference()
+    {
+        translate([0, -5, 0])
+        square([1700, 500], center=true);
+
+        translate([-435, 0, 0])
+        square([790, 410], center=true);
+        translate([435, 0, 0])
+        square([790, 410], center=true);
+    }
+}
+
+module chipsurround14_cutout()
+{
+    //color("red")
+    translate([0, -395, 200])
+    linear_extrude(200)
+    {
+        translate([-435, 0, 0])
+        square([790, 410], center=true);
+        translate([435, 0, 0])
+        square([790, 410], center=true);
+    }
+}
+
+module chipsurround16()
+{
+    translate([0, 835, 63])
+    linear_extrude(250)
+    difference()
+    {
+        translate([0, -5, 0])
+        square([1750, 500], center=true);
+
+        translate([-435, 0, 0])
+        square([820, 410], center=true);
+        translate([435, 0, 0])
+        square([820, 410], center=true);
+    }
+}
+
+module chipsurround16_cutout()
+{
+    //color("red")
+    translate([0, 835, 200])
+    linear_extrude(300)
+    {
+        translate([-435, 0, 0])
+        square([820, 410], center=true);
+        translate([435, 0, 0])
+        square([820, 410], center=true);
+    }
+}
+
+module case()
+{
+    surround();
+    difference()
+    {
+        body0();
+        chipsurround14_cutout();
+        chipsurround16_cutout();
+    }
+    chipsurround14();
+    chipsurround16();
+}
 
 module forViewing()
 {
     model_shoot();
     case();
-    test();
-    *test2();
 }
 
 scale(ViewScale)
