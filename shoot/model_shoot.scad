@@ -132,7 +132,6 @@ module model_shoot()
     linear_extrude(100)
     square([200, 200], center=true);
     translate([centerof(443, 344) - 1970/2, centerof(319, 394) - 3840/2, 150])
-    //translate([-pcbW/2+200/2+320, pcbH/2-100-310, 150])
     color("lightgray")
     linear_extrude(20)
     circle(50, $fn=96);
