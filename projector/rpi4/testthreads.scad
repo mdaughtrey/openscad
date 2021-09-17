@@ -43,5 +43,5 @@ module outer()
 scale(ViewScale)
 {
     inner();
-    //outer();
+    outer();
 }
