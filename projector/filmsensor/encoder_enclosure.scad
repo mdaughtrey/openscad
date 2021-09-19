@@ -25,36 +25,60 @@ module inner()
 
 module vexmount()
 {
-    union() {
-//        translate([0, 0, 50])
-        //linear_extrude(900)
-        linear_extrude(1100)
+    linear_extrude(100)
+    difference()
+    {
+        hull()
+        {
+            circle(270/2, $fn=96);
+            translate([-370/2, 0, 0])
+            square([370, 270], center = true);
+        }
+        circle(170/2, $fn=96);
+    }
+}
+
+module outerthread()
+{
+    linear_extrude(1100)
+    {
         difference() 
         {
-             //circle(1310/2, $fn=96);
-             //circle(1260/2, $fn=96);
-             circle(1308/2, $fn=96);
+             circle(1305/2, $fn=96);
              circle(1265/2, $fn=96);
         }
-
-//        linear_extrude(900)
-//        difference()
-//        {
-//            square(1360, center=true);
-//            square(1260, center=true);
-//        }
-
-        // color("green")
-//        translate([0, 0, 50])
-        translate([0, 0, 100])
-       straight_thread(
-            section_profile = [[0, 0], [-45, 45], [0, 90], [0, 210], [-45, 255], [0, 300]],
-            higbee_arc = 20,
-            r = 1268/2,
-            turns = 2,
-            pitch = 300,
-            fn=96);
+        translate([0, 250, 0])
+        difference()
+        {
+            square([1365, 1865], center=true);
+            square([1265, 1765], center=true);
+        }
     }
+   translate([0, 0, 100])
+   straight_thread(
+        section_profile = [[0, 0], [-45, 45], [0, 90], [0, 210], [-45, 255], [0, 300]],
+        higbee_arc = 20,
+        r = 1268/2,
+        turns = 2,
+        pitch = 300,
+        fn=96);
+
+   // mounts
+   translate([1000, 1365/2+500, 270/2])
+   rotate([90, 0, 0])
+   vexmount();
+
+   translate([-1000, 1365/2+400, 270/2])
+   rotate([90, 0, 180])
+   vexmount();
+
+   translate([1000, 1365/2+500, 1100-270/2])
+   rotate([90, 0, 0])
+   vexmount();
+
+   translate([-1000, 1365/2+400, 1100-270/2])
+   rotate([90, 0, 180])
+   vexmount();
 }
 
 module outer()
@@ -165,13 +189,15 @@ module encoder_enclosure0()
     translate([0, 0, 450])
     {
         innerthread();
-        vexmount();
+        outerthread();
+//        vexmount();
     }
 
 }
 
 module encoder_enclosure()
 {
-        vexmount();
+ //       vexmount();
+    outerthread();
 }
 
