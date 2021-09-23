@@ -25,14 +25,14 @@ module inner()
 
 module vexmount()
 {
-    linear_extrude(100)
+    linear_extrude(200)
     difference()
     {
         hull()
         {
-            circle(270/2, $fn=96);
+            circle(370/2, $fn=96);
             translate([-370/2, 0, 0])
-            square([370, 270], center = true);
+            square([370, 370], center = true);
         }
         circle(170/2, $fn=96);
     }
@@ -40,43 +40,87 @@ module vexmount()
 
 module outerthread()
 {
-    linear_extrude(1100)
+    color("lightblue")
+    translate([0, 0, 0])
     {
-        difference() 
-        {
-             circle(1305/2, $fn=96);
-             circle(1265/2, $fn=96);
-        }
-        translate([0, 250, 0])
+        straight_thread(
+            section_profile = [[0,0], [-100,0], [-145, 45], [-145, 55],  [-100, 100], [0,100]],
+            higbee_arc = 20,
+            r = 1470/2,
+            turns = 5.5,
+            pitch = 300,
+            //pitch = 101,
+            fn=96);
+
+        translate([0, 0, 100])
+        straight_thread(
+            section_profile = [[0,0], [-100,0], [-145, 45], [-145, 55],  [-100, 100], [0,100]],
+            higbee_arc = 20,
+            r = 1470/2,
+            turns = 5.5,
+            pitch = 300,
+            //pitch = 101,
+            fn=96);
+    }
+    color("lightgreen")
+//    translate([0, 0, -80])
+    linear_extrude(1900)
+    {
         difference()
         {
-            square([1365, 1865], center=true);
-            square([1265, 1765], center=true);
+            circle(1471/2, $fn=96);
+            circle(1369/2, $fn=96);
+            //circle(1469/2, $fn=96);
+        }
+        translate([0, 150, 0])
+        intersection()
+        {
+         difference()
+         {
+             square([1470, 1870], center=true);
+             square([1370, 1765], center=true);
+         }
+         translate([0, 1569/2, 0])
+         square([2000, 2000], center=true);
         }
     }
-   translate([0, 0, 100])
-   straight_thread(
-        section_profile = [[0, 0], [-45, 45], [0, 90], [0, 210], [-45, 255], [0, 300]],
-        higbee_arc = 20,
-        r = 1268/2,
-        turns = 2,
-        pitch = 300,
-        fn=96);
+//     linear_extrude(1100)
+//     {
+//         difference() 
+//         {
+//              circle(1305/2, $fn=96);
+//              circle(1265/2, $fn=96);
+//         }
+//         *translate([0, 250, 0])
+//         difference()
+//         {
+//             square([1365, 1865], center=true);
+//             square([1265, 1765], center=true);
+//         }
+//     }
+//    translate([0, 0, 100])
+//    straight_thread(
+//         section_profile = [[0, 0], [-45, 45], [0, 90], [0, 210], [-45, 255], [0, 300]],
+//         higbee_arc = 20,
+//         r = 1268/2,
+//         turns = 2,
+//         pitch = 300,
+//         fn=96);
 
    // mounts
-   translate([1000, 1365/2+500, 270/2])
+   translate([1000, 1365/2+400, 370/2])
    rotate([90, 0, 0])
    vexmount();
 
-   translate([-1000, 1365/2+400, 270/2])
+   translate([-1000, 1365/2+200, 370/2])
    rotate([90, 0, 180])
    vexmount();
 
-   translate([1000, 1365/2+500, 1100-270/2])
+   translate([1000, 1365/2+400, 370/2+1500])
    rotate([90, 0, 0])
    vexmount();
 
-   translate([-1000, 1365/2+400, 1100-270/2])
+   translate([-1000, 1365/2+200, 370/2+1500])
    rotate([90, 0, 180])
    vexmount();
 }
@@ -115,12 +159,12 @@ module innerthread()
             section_profile = [[0,0], [100,0], [145, 45], [145, 55],  [100, 100], [0,100]],
             higbee_arc = 20,
             r = 950/2,
-            turns = 7,
+            turns = 12,
             pitch = 300,
             //pitch = 101,
             fn=96);
 
-       linear_extrude(2209)
+       linear_extrude(3209)
        for (ii = [60:120:360])
        {
             rotate([0, 0, ii])
@@ -163,7 +207,7 @@ module encoder_enclosure0()
     // Support shafts
 //    color("green")
     translate([0, 0, 389])
-    linear_extrude(2209)
+    linear_extrude(3410)
     difference()
     {
         intersection()
@@ -179,17 +223,17 @@ module encoder_enclosure0()
         circle(805/2, $fn=96);
     }
 
-    translate([0, 0, 2445])
+    translate([0, 0, 3645])
     bearing_support();
 
-    translate([0, 0, 1555])
-    rotate([180, 0, 0])
+    translate([0, 0, 1700])
+ //   rotate([180, 0, 0])
     bearing_support();
 
     translate([0, 0, 450])
     {
         innerthread();
-        outerthread();
+//        outerthread();
 //        vexmount();
     }
 
@@ -197,7 +241,7 @@ module encoder_enclosure0()
 
 module encoder_enclosure()
 {
- //       vexmount();
+//     vexmount();
     outerthread();
 }
 

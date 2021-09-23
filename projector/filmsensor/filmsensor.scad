@@ -69,19 +69,20 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 module forViewing()
 {
     model_encoder();
-    //translate([0, 0, 5950])
-    translate([0, 0, 4550])
+    translate([0, 0, 5950])
+    //translate([0, 0, 4550])
     rotate([180, 0, 0])
     model_indexwheels();
 
     color("dodgerblue")
-    translate([0, 0, 3600])
+    //translate([0, 0, 3600])
+    translate([0, 0, 4800])
     rotate([180, 0, 0])
     model_bearing_4_11_4_flanged();
 
     color("dodgerblue")
-    translate([0, 0, 2400])
-//    rotate([180, 0, 0])
+    translate([0, 0, 2710])
+    rotate([180, 0, 0])
     model_bearing_4_11_4_flanged();
 
     translate([0, 0, 1000])
@@ -95,6 +96,6 @@ module forPrinting()
 
 scale(ViewScale)
 {
-    //forViewing();
+//    forViewing();
     forPrinting();
 }
