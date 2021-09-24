@@ -159,7 +159,7 @@ module innerthread()
             section_profile = [[0,0], [100,0], [145, 45], [145, 55],  [100, 100], [0,100]],
             higbee_arc = 20,
             r = 950/2,
-            turns = 12,
+            turns = 8.2,
             pitch = 300,
             //pitch = 101,
             fn=96);
@@ -184,7 +184,7 @@ module bearing_support()
 //    zerh(36, 121, 433/2, 157/2);
 }
 
-module encoder_enclosure0()
+module encoder_enclosure()
 {
     // Encoder enclosure
     zerh(0, 341, 1640/2, 1540/2);
@@ -202,12 +202,26 @@ module encoder_enclosure0()
         circle(805/2, $fn=96);
         //circle(1640/2, $fn=96);
     }
-    zerh(390, 150, 905/2, 805/2);
+    translate([0, 0, 390])
+    linear_extrude(150)
+    difference()
+    {
+        circle(905/2, $fn=96);
+        circle(805/2, $fn=96);
+        for (ii = [0:120:360])
+        {
+            rotate([0, 0, ii])
+            translate([446, 0, 0])
+            square([200, 200], center=true);
+        }
+    }
+
+//    zerh(390, 150, 905/2, 805/2);
 
     // Support shafts
 //    color("green")
     translate([0, 0, 389])
-    linear_extrude(3410)
+    linear_extrude(3410-800)
     difference()
     {
         intersection()
@@ -223,10 +237,10 @@ module encoder_enclosure0()
         circle(805/2, $fn=96);
     }
 
-    translate([0, 0, 3645])
+    translate([0, 0, 3645-800])
     bearing_support();
 
-    translate([0, 0, 1700])
+    translate([0, 0, 1550])
  //   rotate([180, 0, 0])
     bearing_support();
 
@@ -239,7 +253,7 @@ module encoder_enclosure0()
 
 }
 
-module encoder_enclosure()
+module encoder_enclosure0()
 {
 //     vexmount();
     outerthread();

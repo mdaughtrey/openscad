@@ -69,14 +69,14 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 module forViewing()
 {
     model_encoder();
-    translate([0, 0, 5950])
+    translate([0, 0, 5950-800-300])
     //translate([0, 0, 4550])
     rotate([180, 0, 0])
     model_indexwheels();
 
     color("dodgerblue")
     //translate([0, 0, 3600])
-    translate([0, 0, 4800])
+    translate([0, 0, 4800-800])
     rotate([180, 0, 0])
     model_bearing_4_11_4_flanged();
 

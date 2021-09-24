@@ -30,7 +30,7 @@ module model_indexwheels()
             square([720, 35], center = true);
         }
         // shaft
-        linear_extrude(3880)
+        linear_extrude(3880-800-300)
         //linear_extrude(2500)
         circle(150/2, $fn=96);
     }
