@@ -314,7 +314,7 @@ module tabcoupling()
 //    mirrormountgrooves();
 //}
 
-scale(ViewScale)
-{
-    tabcoupling();
-}
+// scale(ViewScale)
+// {
+//     tabcoupling();
+// }
