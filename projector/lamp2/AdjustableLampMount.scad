@@ -1,4 +1,5 @@
 include <tabcoupling.scad>
+include <model_fan.scad>
 ViewScale = [0.0254, 0.0254, 0.0254];
 
 module model_vexstrip(holes)
@@ -109,10 +110,70 @@ module bodymount()
     }
 }
 
+module fan_mount()
+{
+//     linear_extrude(100)
+//     {
+//         difference()
+//         {
+//             hull()
+//             fourcircles(1570, 250);
+//             fourcircles(1400, 140);
+//             circle(700, $fn=96);
+//         }
+//         difference()
+//         {
+//             vexarm(2800, hollow = 1);
+//             circle(1500/2, $fn=96);
+//         }
+//     }
+
+    linear_extrude(100)
+    {
+        difference()
+        {
+            hull()
+            {
+                translate([1270/2, 1270/2, 0])
+                circle(340/2, $fn=96);
+                translate([-1270/2, 1270/2, 0])
+                circle(340/2, $fn=96);
+            }
+            translate([0, -100, 0])
+            circle(1570/2, $fn=96);
+            for (ii = [1270/2,-1270/2])
+            {
+                translate([ii, 1270/2, 0])
+//                difference()
+//                {
+//                    circle(340/2, $fn=96);
+                    circle(140/2, $fn=96);
+//                }
+            }
+        }
+        difference()
+        {
+            translate([0, 700, 0])
+            vexarm(1400, hollow = 1);
+            circle(1500/2, $fn=96);
+        }
+    }
+}
+
+module standoff()
+{
+    linear_extrude(700)
+    difference()
+    {
+        circle(400/2, $fn=96);
+        circle(180/2, $fn=96);
+    }
+}
+
 module forViewing()
 {
     // Models
-    translate([800, 500, 0])
+    translate([800, 140, 0])
     rotate([90, 0, 0])
     tabcoupling();
 
@@ -134,16 +195,32 @@ module forViewing()
     rotate([90, 0, 0])
     linear_extrude(200)
     bodymount();
+
+    // Fan
+    translate([800, 600, 0])
+    rotate([-90, 0, 0])
+    {
+        color("red")
+        model_fan();
+        translate([0, 0, -100])
+        color("cyan")
+        fan_mount();
+
+        color("brown")
+        translate([0, 1570/2+400, -800])
+        standoff();
+    }
 }
 
 module forPrinting()
 {
-    linear_extrude(200)
+    *linear_extrude(200)
     {
         vexmount();
         translate([2500, 0, 0])
         bodymount();
     }
+    standoff();
 }
 
 scale(ViewScale)
