@@ -163,7 +163,7 @@ module chipsurround16()
 module chipsurround16_cutout()
 {
     //color("red")
-    translate([0, 835, 200])
+    translate([0, 835, 100])
     linear_extrude(300)
     {
         translate([-435, 0, 0])
@@ -217,12 +217,12 @@ module liposurround()
 
 module button_cutout()
 {
-    translate([centerof(d22(0), d22(2)), centerof(d22(1), d22(3)), 200])
+    translate([centerof(d22(0), d22(2)), centerof(d22(1), d22(3)) + 20 - 24, 200])
     linear_extrude(150)
     {
-        circle(145/2, $fn=96);
-        square([40, 260], center = true);
-        square([260, 40], center = true);
+        circle(260/2, $fn=96);
+//        square([40, 260], center = true);
+//        square([260, 40], center = true);
     }
 }
 
@@ -264,11 +264,13 @@ module case()
     difference()
     {
         body0();
+        translate([0, 25-4, 0])
         chipsurround14_cutout();
+        translate([0, -40, 0])
         chipsurround16_cutout();
-        translate([520, -2000, 100])
-        linear_extrude(130)
-        square([400, 200], center = true);
+        translate([520, -2000, 60])
+        linear_extrude(220)
+        square([500, 200], center = true);
         button_cutout();
         pot_cutout();
         translate([500, -740, 100])
@@ -301,7 +303,9 @@ module case()
 
     }
     
+    translate([0, 25-4, 0])
     chipsurround14();
+    translate([0, -40, 0])
     chipsurround16();
     chargersurround();
     liposurround();
@@ -320,7 +324,7 @@ module forViewing()
     rotate([0, 0, 90])
     model_lipo("silver");
 
-    *case();
+    case();
 
     *translate([500, -740, 100])
     model_slideswitch();
@@ -328,7 +332,13 @@ module forViewing()
 //model_shoot_pcbY = function(y,yofs) -(model_shoot_pcb()[1]/2)+(y/2)+yofs;
 }
 
+module forPrinting()
+{
+    case();
+}
+
 scale(ViewScale)
 {
-    forViewing();
+    //forViewing();
+    forPrinting();
 }

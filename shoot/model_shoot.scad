@@ -67,23 +67,28 @@ module model_shoot()
     square(model_shoot_pcb(), center=true);
 
     // ICs
-    translate([centerof(ic1(0), ic1(2)), centerof(ic1(1), ic1(3)) + 200, 61])
+    translate([centerof(ic1(0), ic1(2)), centerof(ic1(1), ic1(3)) + 160, 61])
     rotate([0, 0, 90])
     model_shoot_ic(16);
 
-    translate([centerof(ic2(0), ic2(2)), centerof(ic2(1), ic2(3)) + 200, 61])
+    // measure
+//     yofs = model_shoot_pcb()[1]/2-3447/2;
+//     translate([-500, yofs, 150])
+//     linear_extrude(100)
+//     square([400, 3447], center=true);
+
+
+    translate([centerof(ic2(0), ic2(2)), centerof(ic2(1), ic2(3)) + 160, 61])
     rotate([0, 0, 90])
     model_shoot_ic(16);
 
-    translate([centerof(ic3(0), ic3(2)), centerof(ic3(1), ic3(3)), 61])
+    translate([centerof(ic3(0), ic3(2)), centerof(ic3(1), ic3(3)) + 28, 61])
     rotate([0, 0, 90])
     model_shoot_ic(14);
 
-    translate([centerof(ic4(0), ic4(2)), centerof(ic4(1), ic4(3)), 61])
+    translate([centerof(ic4(0), ic4(2)), centerof(ic4(1), ic4(3)) + 28, 61])
     rotate([0, 0, 90])
     model_shoot_ic(14);
-
-
 
     *translate([mspcbx(mscs(7)[0], 1400), mspcby(mscs(7)[1], 193), 61])
     model_shoot_ic(14);
@@ -108,13 +113,13 @@ module model_shoot()
     }
     // Button body
     color("darkslategray")
-    translate([centerof(d22(0), d22(2)), centerof(d22(1), d22(3)), 61])
+    translate([centerof(d22(0), d22(2)), centerof(d22(1), d22(3)) + 18, 61])
     //translate([-pcbW/2+250/2+280, 0, 62])
     linear_extrude(166)
     square([250, 250], center=true);
     // Button actuator
     color("darkred")
-    translate([centerof(d22(0), d22(2)), centerof(d22(1), d22(3)), 215])
+    translate([centerof(d22(0), d22(2)), centerof(d22(1), d22(3)) + 18, 215])
     //translate([-pcbW/2+250/2+280, 0, 215])
     linear_extrude(50)
     circle(135/2, $fn=96);
@@ -127,11 +132,11 @@ module model_shoot()
 //[394,469
 
     color("lightslategray")
-    translate([centerof(443, 344) - 1970/2, centerof(319, 394) - 3840/2, 61])
+    translate([centerof(443, 344) - 1970/2, centerof(319, 394) - 3840/2 - 20, 61])
     //translate([-pcbW/2+200/2+320, pcbH/2-100-310, 62])
     linear_extrude(100)
     square([200, 200], center=true);
-    translate([centerof(443, 344) - 1970/2, centerof(319, 394) - 3840/2, 150])
+    translate([centerof(443, 344) - 1970/2, centerof(319, 394) - 3840/2 - 20, 150])
     color("lightgray")
     linear_extrude(20)
     circle(50, $fn=96);
