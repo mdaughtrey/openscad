@@ -162,7 +162,7 @@ module fan_mount()
 
 module standoff()
 {
-    linear_extrude(700)
+    linear_extrude(1200)
     difference()
     {
         circle(400/2, $fn=96);
