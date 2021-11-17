@@ -34,12 +34,15 @@ module vexmount_tab()
 
 module vexmount_body()
 {
+    // Side
     linear_extrude(51)
     difference()
     {
         cutout(965);
         cutout(675);
     }
+
+    // Middle
     translate([0, 0, 50])
     linear_extrude(295)
     difference()
@@ -48,6 +51,7 @@ module vexmount_body()
         cutout(875);
     }
 
+    // Side
     translate([0, 0, 344])
     linear_extrude(51)
     difference()
@@ -56,12 +60,20 @@ module vexmount_body()
         cutout(675);
     }
 
+    // Extend
+    translate([0, 0, 394])
+    linear_extrude(395)
+    difference()
+    {
+        cutout(965);
+        cutout(675);
+    }
 }
 
 module vexmount()
 {
     vexmount_body();
-    color("lightblue")
+    *color("lightblue")
     {
         translate([0, 0, 60])
         model_setscrew_bearing();

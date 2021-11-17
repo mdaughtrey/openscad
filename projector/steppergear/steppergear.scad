@@ -12,9 +12,39 @@ module model_cog()
     circle(3580/2, $fn=96);
 }
 
+module captureTab()
+{
+    difference()
+    {
+        union()
+        {
+            circle(385/2, $fn=96);
+            translate([285/2-1, 0, 0])
+            square([285, 385], center = true);
+        }
+        circle(180/2, $fn=96);
+    }
+}
+
+module axleTab()
+{
+//    linear_extrude(385)
+    difference()
+    {
+        union()
+        {
+            circle(500/2, $fn=96);
+            translate([250, 0, 0])
+            square([500, 500], center = true);
+        }
+        circle(150/2, $fn=96);
+    }
+}
+
+
 module frontStepperMount()
 {
-    translate([0, 0, 3000-390])
+//    translate([0, 0, 3000])
     {
         linear_extrude(385)
         {
@@ -28,52 +58,61 @@ module frontStepperMount()
                 //square([1860, 1860], center=true);
                 //circle(1860/2, $fn=96);
                 circle(1620/2, $fn=96);
-                circle(1420/2, $fn=96);
+                circle(1440/2, $fn=96);
             }
         }
-        linear_extrude(385)
         translate([-1865/2+250, -1860/2-499, 0])
         rotate([0, 0, 90])
-        difference()
-        {
-            union()
-            {
-                circle(500/2, $fn=96);
-                translate([250, 0, 0])
-                square([500, 500], center = true);
-            }
-            circle(150/2, $fn=96);
-        }
+        linear_extrude(385)
+        axleTab();
+        translate([1860/2+280, -730, 190])
+        rotate([90, 180, 0])
+        linear_extrude(200)
+        captureTab();
+
+        translate([1400, 650, 0])
+        rotate([0, 0, 180])
+        linear_extrude(385)
+        axleTab();
     }
 }
 
 module rearStepperMount()
 {
-    translate([0, 0, 1000-390])
+    translate([0, 0, 1000])
     {
         linear_extrude(385)
         difference()
         {
             square([1860, 1860], center=true);
-            square([1660, 1660], center=true);
+            square([1670, 1670], center=true);
+            square([2000, 50], center=true);
         }
 
-        linear_extrude(385)
         translate([-1865/2+250, -1860/2-499, 0])
         rotate([0, 0, 90])
-        difference()
+        linear_extrude(385)
+        axleTab();
+
+        for (ii=[-20,125])
         {
-            union()
-            {
-                circle(500/2, $fn=96);
-                translate([250, 0, 0])
-                square([500, 500], center = true);
-            }
-            circle(150/2, $fn=96);
+            translate([-1860/2-250, ii, 385/2])
+            rotate([90, 0, 0])
+            linear_extrude(100)
+            captureTab();
         }
+
+        for (ii=[-20,125])
+        {
+            translate([1860/2+250, ii-100, 385/2])
+            rotate([90, 0, 180])
+            linear_extrude(100)
+            captureTab();
+        }
+
+
+
     }
-
-
 }
 
 module supportArm()
@@ -109,28 +148,70 @@ module forViewing()
     rotate([0, 90, 0])
     model_vexplate(5, 10);
 
+    color("lightblue")
+    translate([2500, -1450, 3000])
+    rotate([0, 0, 90])
+    rotate([0, 90, 0])
+    model_vexplate(2, 8);
+
     *color("lightblue")
     translate([0, -2500, 4000])
     model_cog();
 
     translate([0, -2500, 1000])
     vexmount();
-    translate([0, -2500, 3000])
+
+    translate([0, -2500, 3385])
+    rotate([180, 0, 0])
     vexmount();
+
+    translate([0, 0, 3000])
     frontStepperMount();
     rearStepperMount();
-
     
-    translate([0, 0, 1000])
+    translate([0, 0, 1404])
     supportArm();
-    translate([0, 0, 3000])
+    translate([0, 0, 3000-395])
     supportArm();
 
 }
 
+module testPrint1()
+{
+    translate([-1000, 0, 0])
+    linear_extrude(200)
+    {
+        difference()
+        {
+            square([1860, 1860], center=true);
+            square([1650, 1650], center=true);
+        }
+    }
+    translate([1000, 0, 0])
+    linear_extrude(200)
+    difference()
+    {
+        //square([1860, 1860], center=true);
+        //circle(1860/2, $fn=96);
+        circle(1620/2, $fn=96);
+        circle(1430/2, $fn=96);
+    }
+}
+
+module forPrinting()
+{
+    translate([0, 0, 1404])
+    //translate([0, 0, 3000])
+    supportArm();
+    translate([0, -2500, 1000])
+    vexmount();
+}
+
 scale(ViewScale)
 {
-    forViewing();
+    forPrinting();
+//    forViewing();
+//    testPrint1();
 }
 
 
