@@ -70,9 +70,75 @@ module vexmount_body()
     }
 }
 
+module vexmount_body2()
+{
+    // Extend
+    translate([0, 0, -394])
+    linear_extrude(395)
+    difference()
+    {
+        cutout(965);
+        cutout(675);
+    }
+
+    // Side
+    linear_extrude(51)
+    difference()
+    {
+        cutout(965);
+        cutout(675);
+    }
+
+    // Middle
+    translate([0, 0, 50])
+    linear_extrude(295)
+    difference()
+    {
+        cutout(965);
+        cutout(875);
+    }
+
+    // Side
+    translate([0, 0, 344])
+    linear_extrude(51)
+    difference()
+    {
+        cutout(965);
+        cutout(675);
+    }
+
+    // Extend
+    translate([0, 0, 394])
+    linear_extrude(395)
+    difference()
+    {
+        cutout(965);
+        cutout(675);
+    }
+}
+
 module vexmount()
 {
     vexmount_body();
+    *color("lightblue")
+    {
+        translate([0, 0, 60])
+        model_setscrew_bearing();
+    }
+    translate([865/2-200, -750, 385/2])
+    rotate([0, 90, 0])
+    rotate([0, 0, 90])
+    vexmount_tab();
+
+    translate([865/2-200, 750, 385/2])
+    rotate([0, 90, 0])
+    rotate([0, 0, -90])
+    vexmount_tab();
+}
+
+module vexmount2()
+{
+    vexmount_body2();
     *color("lightblue")
     {
         translate([0, 0, 60])
