@@ -204,12 +204,7 @@ module testPrint1()
 
 module forPrinting()
 {
-    // Front vexmount
-    translate([0, -2500, 3450])
-    rotate([180, 0, 0])
-    vexmount();
-    translate([0, 0, 3000-200])
-    supportArm();
+    rearStepperMount();
 }
 
 scale(ViewScale)
