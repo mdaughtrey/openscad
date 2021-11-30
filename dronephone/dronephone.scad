@@ -126,9 +126,9 @@ module forViewing()
 
 module forPrinting()
 {
-    translate([-2500, 0, 0])
-    mount();
-    translate([2500, 0, 0])
+    //translate([-2500, 0, 0])
+    //mount();
+    //translate([2500, 0, 0])
     slider();
 }
 
