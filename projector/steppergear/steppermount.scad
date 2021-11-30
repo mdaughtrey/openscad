@@ -210,8 +210,8 @@ module forPrinting()
 scale(ViewScale)
 {
 //    scale([1, -1, 1])
-    forPrinting();
-//    forViewing();
+//    forPrinting();
+    forViewing();
 //    testPrint1();
 }
 
