@@ -79,39 +79,55 @@ module frontStepperMount()
 
 module rearStepperMount()
 {
-    translate([0, 0, 1000])
+    linear_extrude(385)
+    difference()
     {
-        linear_extrude(385)
+        square([1860, 1860], center=true);
+        square([1650, 1650], center=true);
+        square([2000, 50], center=true);
+    }
+
+    // Link between mounts
+    translate([0, 0, 384])
+    linear_extrude(1300)
+    intersection()
+    {
+        union()
+        {
+            translate([-800, -800, 0])
+            square([500, 500], center=true);
+            translate([800, -800, 0])
+            square([500, 500], center=true);
+        }
+
         difference()
         {
             square([1860, 1860], center=true);
             square([1650, 1650], center=true);
-            square([2000, 50], center=true);
+//            square([2000, 50], center=true);
         }
-
-        translate([-1865/2+250, -1860/2-499, 0])
-        rotate([0, 0, 90])
-        linear_extrude(385)
-        axleTab();
-
-        for (ii=[-20,125])
-        {
-            translate([-1860/2-250, ii, 385/2])
-            rotate([90, 0, 0])
-            linear_extrude(100)
-            captureTab();
-        }
-
-        for (ii=[-20,125])
-        {
-            translate([1860/2+250, ii-100, 385/2])
-            rotate([90, 0, 180])
-            linear_extrude(100)
-            captureTab();
-        }
+    }
 
 
+    translate([-1865/2+250, -1860/2-499, 0])
+    rotate([0, 0, 90])
+    linear_extrude(385)
+    axleTab();
 
+    for (ii=[-20,125])
+    {
+        translate([-1860/2-250, ii, 385/2])
+        rotate([90, 0, 0])
+        linear_extrude(100)
+        captureTab();
+    }
+
+    for (ii=[-20,125])
+    {
+        translate([1860/2+250, ii-100, 385/2])
+        rotate([90, 0, 180])
+        linear_extrude(100)
+        captureTab();
     }
 }
 
@@ -135,12 +151,20 @@ module supportArm()
     }
 }
 
+module stepperMount()
+{
+//    translate([0, 0, 2250])
+    rearStepperMount();
+    translate([0, 0, 1540])
+    frontStepperMount();
+}
+
 module forViewing()
 {
     color("lightblue")
     translate([-1650/2, -1650/2, 0])
     model_steppergear();
-    color("lightblue")
+    *color("lightblue")
     translate([-2850, -600, 1720])
     model_projmount();
     color("lightblue")
@@ -173,11 +197,11 @@ module forViewing()
     translate([0, 0, 3000-345])
     supportArm();
 
-    translate([0, 0, 2250])
-    frontStepperMount();
-    rearStepperMount();
-    
-
+    translate([0, 0, 740])
+    stepperMount();
+//    frontStepperMount();
+//    translate([0, 0, 740])
+//    rearStepperMount();
 }
 
 module testPrint1()
@@ -204,14 +228,15 @@ module testPrint1()
 
 module forPrinting()
 {
-    rearStepperMount();
+    stepperMount();
+//    rearStepperMount();
 }
 
 scale(ViewScale)
 {
 //    scale([1, -1, 1])
-//    forPrinting();
-    forViewing();
+    forPrinting();
+//    forViewing();
 //    testPrint1();
 }
 
