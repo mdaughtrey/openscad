@@ -70,6 +70,23 @@ module vexmount()
     screwmount();
 }
 
+module vexmount2()
+{
+    translate([-100, 450, 0])
+    linear_extrude(151)
+    square([200, 2000]);
+    // board mount
+    translate([0, 270, 229])
+    rotate([-90, 0, 0])
+    boardsupport(1000);
+
+    translate([0, 2720, 229])
+    rotate([90, 0, 0])
+    boardsupport(1000);
+
+    screwmount();
+}
+
 module forViewing()
 {
 //    model_Veroboard(20, 26);
@@ -78,10 +95,10 @@ module forViewing()
 
 module forPrinting()
 {
-    vexmount();
+//    vexmount();
     translate([1500, 0, 0])
     scale([-1, 1, 1])
-    vexmount();
+    vexmount2();
 }
 
 scale(ViewScale)
