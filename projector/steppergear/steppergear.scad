@@ -1,218 +1,103 @@
-include <model_steppergear.scad>
-include <model_projmount.scad>
-include <model_vexplate.scad>
-//include <setscrew_bearing.scad>
-include <vexmount.scad>
-
 ViewScale = [0.0254, 0.0254, 0.0254];
+use <../../libs/MCAD/involute_gears.scad>
 
-module model_cog()
+module shaft2d(pad)
 {
-    linear_extrude(270)
-    circle(3580/2, $fn=96);
-}
-
-module captureTab()
-{
+    sq = 400;
     difference()
     {
-        union()
-        {
-            circle(385/2, $fn=96);
-            translate([285/2-1, 0, 0])
-            square([285, 385], center = true);
-        }
-        circle(180/2, $fn=96);
+        circle(pad+306/2, $fn=96);
+        translate([sq/2+306/2-(316-275)+pad/2, 0, 0])
+        square([sq, 1000], center=true);
     }
+
 }
 
-module axleTab()
+//    gear(number_of_teeth=24,
+//        circular_pitch=5250,
+//        gear_thickness=thick,
+//        rim_thickness=thick,
+//        rim_width=50,
+//        bore_diameter = 316+10,
+//        bore_sides = 96,
+//        circles=0,
+//        circle_diameter = cdia,
+//        circle_rim_inner_dia=220,
+//        circle_rim_thickness=100,
+//        circle_rim_height=300);
+
+module steppergear()
 {
-//    linear_extrude(385)
+    thick = 500;
     difference()
     {
-        union()
-        {
-            circle(500/2, $fn=96);
-            translate([250, 0, 0])
-            square([500, 500], center = true);
-        }
-        circle(180/2, $fn=96);
+//        linear_extrude(100)
+        gear(number_of_teeth=16,
+            circular_pitch=140,
+            //circular_pitch=100,
+            gear_thickness = 500,
+            rim_thickness = 500,
+            hub_thickness = 500,
+            pressure_angle = 25
+            );
+         //   gear_thickness=100,
+          //  pressure_angle=25,
+          //  rim_thickness=0);
+    //        rim_width=50,
+    //        bore_diameter = 316+10,
+    //        bore_sides = 96,
+    //        circles=0,
+    //        circle_diameter = cdia,
+    //        circle_rim_inner_dia=220,
+    //        circle_rim_thickness=100,
+    //        circle_rim_height=300);
+
+    translate([0, 0, -10])
+    linear_extrude(thick+20)
+//        difference()
+//        {
+//            circle(400/2, $fn=96);
+            shaft2d(10);
+//        }
     }
-}
 
 
-module frontStepperMount()
-{
-//    translate([0, 0, 3000])
-    {
-        linear_extrude(385)
-        {
-            difference()
-            {
-                square([1860, 1860], center=true);
-                square([1560, 1560], center=true);
-            }
-            difference()
-            {
-                //square([1860, 1860], center=true);
-                //circle(1860/2, $fn=96);
-                circle(1620/2, $fn=96);
-                circle(1440/2, $fn=96);
-            }
+    *linear_extrude(120)
+    translate([150, 0, 0])
+    square([180, 180], center=true);
+
+    *translate([0, 0, 119])
+    linear_extrude(41)
+    difference() {
+        circle(310, $fn=96);
+        difference() {
+            circle(90, $fn=96);
+            translate([150, 0, 0])
+            square([180, 180], center=true);
         }
-        translate([-1865/2+250, -1860/2-499, 0])
-        rotate([0, 0, 90])
-        linear_extrude(385)
-        axleTab();
-        translate([1860/2+280, -730, 190])
-        rotate([90, 180, 0])
-        linear_extrude(200)
-        captureTab();
-
-        translate([1400, 650, 0])
-        rotate([0, 0, 180])
-        linear_extrude(385)
-        axleTab();
-    }
-}
-
-module rearStepperMount()
-{
-    translate([0, 0, 1000])
-    {
-        linear_extrude(385)
-        difference()
-        {
-            square([1860, 1860], center=true);
-            square([1650, 1650], center=true);
-            square([2000, 50], center=true);
-        }
-
-        translate([-1865/2+250, -1860/2-499, 0])
-        rotate([0, 0, 90])
-        linear_extrude(385)
-        axleTab();
-
-        for (ii=[-20,125])
-        {
-            translate([-1860/2-250, ii, 385/2])
-            rotate([90, 0, 0])
-            linear_extrude(100)
-            captureTab();
-        }
-
-        for (ii=[-20,125])
-        {
-            translate([1860/2+250, ii-100, 385/2])
-            rotate([90, 0, 180])
-            linear_extrude(100)
-            captureTab();
-        }
-
-
-
-    }
-}
-
-module supportArm()
-{
-//    translate([0, 0, 4500])
-    linear_extrude(300)
-    difference()
-    {
-        hull()
-        {
-            translate([-1865/2+250, -1860/2-499, 0])
-            circle(250, $fn=96);
-            translate([0, -2500, 0])
-            circle(250, $fn=96);
-        }
-        translate([-1865/2+250, -1860/2-499, 0])
-        circle(180/2, $fn=96);
-        translate([0, -2500, 0])
-        circle(945/2, $fn=96);
     }
 }
 
 module forViewing()
 {
-    color("lightblue")
-    translate([-1650/2, -1650/2, 0])
-    model_steppergear();
-    color("lightblue")
-    translate([-2850, -600, 1720])
-    model_projmount();
-    color("lightblue")
-    translate([430, -4000, 2250])
-    rotate([0, 90, 0])
-    model_vexplate(5, 10);
-
-    color("lightblue")
-    translate([2500, -1450, 3000])
-    rotate([0, 0, 90])
-    rotate([0, 90, 0])
-    model_vexplate(2, 8);
-
     *color("lightblue")
-    translate([0, -2500, 4000])
-    model_cog();
+    linear_extrude(600)
+    shaft2d(0);
 
-    // Rear vexmount
-    translate([0, -2500, 1550])
-    vexmount2();
-    translate([0, 0, 1550+400])
-    supportArm();
-    translate([0, 0, 1155])
-    supportArm();
-
-    // Front vexmount
-    translate([0, -2500, 3450])
-    rotate([180, 0, 0])
-    vexmount();
-    translate([0, 0, 3000-345])
-    supportArm();
-
-    translate([0, 0, 2250])
-    frontStepperMount();
-    rearStepperMount();
-    
-
-}
-
-module testPrint1()
-{
-    translate([-1000, 0, 0])
-    linear_extrude(200)
-    {
-        difference()
-        {
-            square([1860, 1860], center=true);
-            square([1650, 1650], center=true);
-        }
-    }
-    translate([1000, 0, 0])
-    linear_extrude(200)
+    *linear_extrude(100)
     difference()
     {
-        //square([1860, 1860], center=true);
-        //circle(1860/2, $fn=96);
-        circle(1620/2, $fn=96);
-        circle(1430/2, $fn=96);
+        circle(300, $fn=96);
+        shaft2d(5);
     }
+    steppergear();
 }
 
-module forPrinting()
-{
-    rearStepperMount();
-}
 
 scale(ViewScale)
 {
-//    scale([1, -1, 1])
-    forPrinting();
-//    forViewing();
-//    testPrint1();
+    forViewing();
+//    steppergear();
+//    color("CornflowerBlue")
+//    square([762, 762], center=true);
 }
-
-
