@@ -4,6 +4,7 @@ include <model_vexplate.scad>
 //include <model_bolt.scad>
 //include <setscrew_bearing.scad>
 include <vexmount.scad>
+include <adjuster.scad>
 
 ViewScale = [0.0254, 0.0254, 0.0254];
 
@@ -181,7 +182,7 @@ module forViewing()
     rotate([0, 90, 0])
     model_vexplate(2, 8);
 
-    *color("lightblue")
+    color("lightblue")
     translate([0, -2500, 4000])
     model_cog();
 
@@ -205,6 +206,10 @@ module forViewing()
 //    frontStepperMount();
 //    translate([0, 0, 740])
 //    rearStepperMount();
+
+    translate([2250, -1350, 3000])
+    rotate([-90, 0, 0])
+    model_adjuster();
 }
 
 //module forViewing0()

@@ -1,5 +1,23 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 
+module model_nut()
+{
+    linear_extrude(170)
+    difference()
+    {
+        circle(377/2, $fn=6);
+        circle(140/2, $fn=96);
+    }
+
+    translate([0, 0, 169])
+    linear_extrude(60)
+    difference()
+    {
+        circle(320/2, $fn=96);
+        circle(140/2, $fn=96);
+    }
+}
+
 module model_bolt()
 {
     // head
@@ -18,7 +36,7 @@ module model_rod()
     square([130, 1000], center=true);
 }
 
-module rrect(w,h,r)
+module adj_rrect(w,h,r)
 {
     hull()
     {
@@ -34,7 +52,7 @@ module rrect(w,h,r)
     }
 }
 
-module boltswivel()
+module adj_boltswivel()
 {
     // base
     linear_extrude(50)
@@ -74,7 +92,7 @@ module boltswivel()
 
 }
 
-module vexmount_side()
+module adj_vexmount_side()
 {
     difference()
     {
@@ -84,24 +102,24 @@ module vexmount_side()
             translate([0, 370/2, 0])
             square([370, 170], center=true);
         }
-        circle(170/2, $fn=96);
+        circle(190/2, $fn=96);
     }
 }
 
-module vexmount()
+module adj_vexmount()
 {
     for (ii = [-400,300])
     {
         translate([0, ii, 370/2+170])
         rotate([-90, 0, 0])
         linear_extrude(100)
-        vexmount_side();
+        adj_vexmount_side();
     }
     linear_extrude(100)
     {
         difference()
         {
-            rrect(1400, 900, 100);
+            adj_rrect(1400, 900, 100);
             for (ii = [-500,500])
             {
                 for (jj = [-250,250])
@@ -114,30 +132,38 @@ module vexmount()
     }
 }
 
-module forViewing()
+module adjuster_forViewing()
 {
-    translate([0, 0, 200])
+    translate([0, 0, 220])
     {
         color("lightblue")
         translate([0, 0, 160])
         model_bolt();
-        boltswivel();
+        adj_boltswivel();
         color("lightblue")
-        translate([0, 0, 50])
+        translate([0, 0, 70])
         model_rod();
+        color("lightblue")
+        translate([0, 0, 1000])
+        model_nut();
     }
-    vexmount();
+    adj_vexmount();
 }
 
-module forPrinting()
+//module forPrinting()
+//{
+//    adj_boltswivel();
+//}
+//
+module model_adjuster()
 {
-    boltswivel();
+    adjuster_forViewing();
 }
 
-scale(ViewScale)
-{
-    forViewing();
-//    forPrinting();
-}
+//scale(ViewScale)
+//{
+//    forViewing();
+////    forPrinting();
+//}
 
 
