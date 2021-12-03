@@ -1,6 +1,7 @@
 include <model_steppergear.scad>
 include <model_projmount.scad>
 include <model_vexplate.scad>
+//include <model_bolt.scad>
 //include <setscrew_bearing.scad>
 include <vexmount.scad>
 
@@ -65,12 +66,12 @@ module frontStepperMount()
         rotate([0, 0, 90])
         linear_extrude(385)
         axleTab();
-        translate([1860/2+280, -730, 190])
+        *translate([1860/2+280, -730, 190])
         rotate([90, 180, 0])
         linear_extrude(200)
         captureTab();
 
-        translate([1400, 650, 0])
+        *translate([1400, 650, 0])
         rotate([0, 0, 180])
         linear_extrude(385)
         axleTab();
@@ -83,7 +84,8 @@ module rearStepperMount()
     difference()
     {
         square([1860, 1860], center=true);
-        square([1650, 1650], center=true);
+        square([1670, 1670], center=true);
+        //square([1650, 1650], center=true);
         square([2000, 50], center=true);
     }
 
@@ -153,9 +155,10 @@ module supportArm()
 
 module stepperMount()
 {
-//    translate([0, 0, 2250])
     rearStepperMount();
+    // mattd
     translate([0, 0, 1540])
+   // translate([0, 0, 340])
     frontStepperMount();
 }
 
@@ -204,6 +207,11 @@ module forViewing()
 //    rearStepperMount();
 }
 
+//module forViewing0()
+//{
+//    model_bolt();
+//}
+
 module testPrint1()
 {
     translate([-1000, 0, 0])
@@ -228,15 +236,15 @@ module testPrint1()
 
 module forPrinting()
 {
-    stepperMount();
+//    stepperMount();
 //    rearStepperMount();
 }
 
 scale(ViewScale)
 {
 //    scale([1, -1, 1])
-    forPrinting();
-//    forViewing();
+//    forPrinting();
+    forViewing();
 //    testPrint1();
 }
 

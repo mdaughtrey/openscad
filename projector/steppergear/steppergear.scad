@@ -90,7 +90,7 @@ module forViewing()
         circle(300, $fn=96);
         shaft2d(5);
     }
-    steppergear();
+    *steppergear();
 }
 
 
