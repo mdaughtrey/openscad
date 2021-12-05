@@ -5,6 +5,7 @@ include <model_vexplate.scad>
 //include <setscrew_bearing.scad>
 include <vexmount.scad>
 include <adjuster.scad>
+//include <steppergear.scad>
 
 ViewScale = [0.0254, 0.0254, 0.0254];
 
@@ -43,6 +44,17 @@ module axleTab()
     }
 }
 
+module adjusterCapture()
+{
+    linear_extrude(200)
+    difference()
+    {
+        square([1000, 650], center=true);
+        circle(180/2, $fn=96);
+        translate([-500, 0, 0])
+        square([1000, 180], center = true);
+    }
+}
 
 module frontStepperMount()
 {
@@ -65,8 +77,24 @@ module frontStepperMount()
         }
         translate([-1865/2+250, -1860/2-499, 0])
         rotate([0, 0, 90])
-        linear_extrude(385)
-        axleTab();
+        {
+            linear_extrude(385)
+            {
+                axleTab();
+                // extended arm
+                difference()
+                {
+                    translate([-1350, 0, 0])
+                    square([3000, 300], center = true);
+                    circle(180/2, $fn=96);
+                }
+
+            }
+            // Adjuster capture
+            translate([-2300, 150, 700])
+            rotate([90, 0, 0])
+            adjusterCapture();
+        }
         *translate([1860/2+280, -730, 190])
         rotate([90, 180, 0])
         linear_extrude(200)
@@ -156,6 +184,9 @@ module supportArm()
 
 module stepperMount()
 {
+    color("lightblue")
+    translate([-1650/2, -1650/2, -800])
+    model_steppergear();
     rearStepperMount();
     // mattd
     translate([0, 0, 1540])
@@ -212,10 +243,59 @@ module forViewing()
     model_adjuster();
 }
 
-//module forViewing0()
-//{
-//    model_bolt();
-//}
+module forViewing0()
+{
+    //steppergear();
+
+    *color("lightblue")
+    translate([-1650/2, -1650/2, 0])
+    model_steppergear();
+    *color("lightblue")
+    translate([-2850, -600, 1720])
+    model_projmount();
+    color("lightblue")
+    translate([430, -4000, 2250])
+    rotate([0, 90, 0])
+    model_vexplate(5, 10);
+
+    color("lightblue")
+    translate([2500, -1450, 3000])
+    rotate([0, 0, 90])
+    rotate([0, 90, 0])
+    model_vexplate(2, 8);
+
+    color("lightblue")
+    translate([0, -2500, 4000])
+    model_cog();
+
+    // Rear vexmount
+    translate([0, -2500, 1550])
+    vexmount2();
+    translate([0, 0, 1550+400])
+    supportArm();
+    translate([0, 0, 1155])
+    supportArm();
+
+    // Front vexmount
+    translate([0, -2500, 3450])
+    rotate([180, 0, 0])
+    vexmount();
+    translate([0, 0, 3000-345])
+    supportArm();
+
+    translate([0, 0, 740])
+    translate([-1865/2+250, -1860/2-499, 0])
+    rotate([0, 0, 120])
+    translate([1865/2-250, 1860/2+499, 0])
+    stepperMount();
+//    frontStepperMount();
+//    translate([0, 0, 740])
+//    rearStepperMount();
+
+    translate([1750, -1350, 3000])
+    rotate([-90, 0, 0])
+    model_adjuster();
+}
 
 module testPrint1()
 {
@@ -249,7 +329,8 @@ scale(ViewScale)
 {
 //    scale([1, -1, 1])
 //    forPrinting();
-    forViewing();
+    //forViewing();
+    forViewing0();
 //    testPrint1();
 }
 

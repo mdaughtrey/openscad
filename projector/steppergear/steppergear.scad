@@ -78,26 +78,26 @@ module steppergear()
     }
 }
 
-module forViewing()
-{
-    *color("lightblue")
-    linear_extrude(600)
-    shaft2d(0);
-
-    *linear_extrude(100)
-    difference()
-    {
-        circle(300, $fn=96);
-        shaft2d(5);
-    }
-    *steppergear();
-}
-
-
-scale(ViewScale)
-{
-    forViewing();
-//    steppergear();
-//    color("CornflowerBlue")
-//    square([762, 762], center=true);
-}
+//module forViewing()
+//{
+//    *color("lightblue")
+//    linear_extrude(600)
+//    shaft2d(0);
+//
+//    *linear_extrude(100)
+//    difference()
+//    {
+//        circle(300, $fn=96);
+//        shaft2d(5);
+//    }
+//    *steppergear();
+//}
+//
+//
+//scale(ViewScale)
+//{
+//    forViewing();
+////    steppergear();
+////    color("CornflowerBlue")
+////    square([762, 762], center=true);
+//}
