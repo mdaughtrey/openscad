@@ -56,11 +56,11 @@ module adj_boltswivel()
 {
     // base
     linear_extrude(50)
-    difference()
-    {
+//    difference()
+//    {
         square([500, 500], center=true);
-        circle(283/2, $fn=96);
-    }
+//        circle(283/2, $fn=96);
+//    }
 
     translate([0, 0, 49])
     linear_extrude(152)
@@ -68,25 +68,48 @@ module adj_boltswivel()
     {
         square([500, 500], center=true);
         square([130, 520], center=true);
-        circle(283/2, $fn=96);
-    }
-
-    // head
-    translate([0, 0, 200])
-    linear_extrude(170)
-    difference()
-    {
-        square([500, 500], center=true);
-        circle(283/2, $fn=96);
+//        circle(283/2, $fn=96);
     }
 
     // body
-    translate([0, 0, 369])
+    translate([0, 0, 200])
+    linear_extrude(830)
+    circle(500/2, $fn=96);
+
+    // bolt head insert
+    translate([0, 0, 1029])
+    linear_extrude(171)
+    difference()
+    {
+        circle(500/2, $fn=96);
+//        square([500, 500], center=true);
+        circle(283/2, $fn=96);
+        translate([0, 250, 0])
+        square([283, 500], center=true);
+    }
+
+    // bolt head capture
+    translate([0, 0, 1199])
+    linear_extrude(171)
+    difference()
+    {
+        circle(500/2, $fn=96);
+        //square([500, 500], center=true);
+        circle(283/2, $fn=96);
+        translate([0, 250, 0])
+        square([180, 500], center=true);
+    }
+
+    // body
+    translate([0, 0, 1369])
     linear_extrude(51)
     difference()
     {
-        square([500, 500], center=true);
+        circle(500/2, $fn=96);
+        //square([500, 500], center=true);
         circle(182/2, $fn=96);
+        translate([0, 250, 0])
+        square([180, 500], center=true);
     }
 
 
@@ -136,16 +159,19 @@ module adjuster_forViewing()
 {
     translate([0, 0, 220])
     {
-        color("lightblue")
-        translate([0, 0, 160])
-        model_bolt();
-        adj_boltswivel();
-        color("lightblue")
-        translate([0, 0, 70])
-        model_rod();
-        color("lightblue")
-        translate([0, 0, 1000])
-        model_nut();
+        rotate([0, -45, 0])
+        {
+            color("lightblue")
+            translate([0, 0, 1160])
+            model_bolt();
+            adj_boltswivel();
+            color("lightblue")
+            translate([0, 0, 70])
+            model_rod();
+*            color("lightblue")
+            translate([0, 0, 1000])
+            model_nut();
+        }
     }
     adj_vexmount();
 }
