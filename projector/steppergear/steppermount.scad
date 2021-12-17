@@ -60,14 +60,16 @@ module adjusterCapture()
 
             translate([450, -275, 0])
             square([100, 100], center = true);
-            translate([300, 125, 0])
-            circle(400/2, $fn=96);
+            //translate([300, 125, 0])
+            //circle(400/2, $fn=96);
+            translate([450, 275, 0])
+            square([100, 100], center = true);
         }
 //        square([1000, 650], center=true);
-        translate([0, 20, 0])
+        translate([100, 20, 0])
         circle(180/2, $fn=96);
         translate([-500, 20, 0])
-        square([1000, 180], center = true);
+        square([1200, 180], center = true);
     }
 }
 
@@ -106,11 +108,11 @@ module frontStepperMount()
 
             }
             // Adjuster capture
-            translate([-2300, 150, 700])
+            *translate([-2300, 150, 700])
             rotate([90, 0, 0])
             adjusterCapture();
         }
-        translate([-1865/2+250-150, -1860/2-499-2190, 385/2])
+        *translate([-1865/2+250-150, -1860/2-499-2190, 385/2])
         {
             rotate([0, 90, 0])
             linear_extrude(300)
@@ -136,6 +138,16 @@ module frontStepperMount()
         linear_extrude(385)
         axleTab();
     }
+
+    // Brace
+    translate([-600, -3250, 185])
+    brace();
+}
+
+module brace()
+{
+    linear_extrude(200)
+    polygon([[0, 0], [1500, 2400], [1200, 2400], [0, 350]]);
 }
 
 module rearStepperMount()
@@ -191,6 +203,39 @@ module rearStepperMount()
         linear_extrude(100)
         captureTab();
     }
+
+    translate([-1865/2+250, -1860/2-499, 0])
+    rotate([0, 0, 90])
+    {
+        linear_extrude(385)
+        {
+            axleTab();
+            // extended arm
+            difference()
+            {
+                translate([-850, 0, 0])
+                square([2000, 300], center = true);
+                circle(180/2, $fn=96);
+            }
+
+        }
+        // Adjuster capture
+        *translate([-2300, 150, 700])
+        rotate([90, 0, 0])
+        adjusterCapture();
+    }
+    // Adjuster capture
+    translate([-732, -3500, 700])
+    rotate([90, 0, 90])
+    adjusterCapture();
+
+    translate([-732, -3500, 1250])
+    rotate([90, 0, 90])
+    adjusterCapture();
+
+    // Brace
+    translate([-600, -3250, 0])
+    brace();
 }
 
 module supportArm()
@@ -225,7 +270,7 @@ module stepperMount()
     // mattd
     translate([0, 0, 1540])
     frontStepperMount();
-    *translate([0, 0, 3000])
+   *translate([0, 0, 3000])
     steppergear();
 }
 
@@ -287,6 +332,8 @@ module forViewing0()
     *color("lightblue")
     translate([-2850, -600, 1720])
     model_projmount();
+
+
     color("lightblue")
     translate([430, -4000, 2250])
     rotate([0, 90, 0])
@@ -322,6 +369,7 @@ module forViewing0()
     rotate([0, 0, 144])
     translate([1865/2-250, 1860/2+499, 0])
     stepperMount();
+
 //    frontStepperMount();
 //    translate([0, 0, 740])
 //    rearStepperMount();
@@ -341,7 +389,7 @@ scale(ViewScale)
 {
 //    scale([1, -1, 1])
     forPrinting();
-    //forViewing();
+//    forViewing();
 //    forViewing0();
 }
 

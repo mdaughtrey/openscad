@@ -52,59 +52,53 @@ module adj_rrect(w,h,r)
     }
 }
 
-module adj_boltswivel()
-{
-    // base
-    linear_extrude(50)
-//    difference()
-//    {
-        square([500, 500], center=true);
-//        circle(283/2, $fn=96);
-//    }
 
-    translate([0, 0, 49])
-    linear_extrude(152)
+module adj_boltswivelmodule()
+{
     difference()
     {
-        square([500, 500], center=true);
-        square([130, 520], center=true);
-//        circle(283/2, $fn=96);
+        linear_extrude(300)
+        square([500, 500], center = true);
+
+        translate([0, 300, 150])
+        rotate([90, 0, 0])
+        linear_extrude(600)
+        circle(180/2, $fn=96);
     }
 
-    // body
-    translate([0, 0, 200])
-    //linear_extrude(830)
-    linear_extrude(330)
-    circle(500/2, $fn=96);
+}
+module adj_boltswivel()
+{
+    // Body
+    for (ii=[0,299,599,899])
+    {
+        translate([0, 0, ii])
+        adj_boltswivelmodule();
+    }
 
     // bolt head insert
-    //translate([0, 0, 1029])
-    translate([0, 0, 529])
+    translate([0, 0, 1199])
     linear_extrude(171)
     difference()
     {
-        circle(500/2, $fn=96);
-//        square([500, 500], center=true);
+        square([500, 500], center=true);
         circle(283/2, $fn=96);
         translate([0, 250, 0])
         square([283, 500], center=true);
     }
 
     // bolt head capture
-    //translate([0, 0, 1199])
-    translate([0, 0, 699])
+    translate([0, 0, 1369])
     linear_extrude(171)
     difference()
     {
-        circle(500/2, $fn=96);
-        //square([500, 500], center=true);
+        square([500, 500], center=true);
         circle(283/2, $fn=96);
         translate([0, 250, 0])
         square([180, 500], center=true);
     }
 
     // body
-    //translate([0, 0, 1369])
     translate([0, 0, 869])
     linear_extrude(51)
     difference()
@@ -115,8 +109,6 @@ module adj_boltswivel()
         translate([0, 250, 0])
         square([180, 500], center=true);
     }
-
-
 }
 
 module adj_vexmount_side()
@@ -129,18 +121,19 @@ module adj_vexmount_side()
             translate([0, 370/2, 0])
             square([370, 170], center=true);
         }
-        circle(190/2, $fn=96);
+        circle(180/2, $fn=96);
     }
 }
 
 module adj_vexmount()
 {
-    for (ii = [-400,300])
+    translate([0, 450, 200])
+    rotate([90, 0, 0])
+    linear_extrude(900)
+    difference()
     {
-        translate([0, ii, 370/2+170])
-        rotate([-90, 0, 0])
-        linear_extrude(100)
-        adj_vexmount_side();
+        square([380, 380], center=true);
+        square([180, 180], center=true);
     }
     linear_extrude(100)
     {
@@ -161,7 +154,7 @@ module adj_vexmount()
 
 module adjuster_forViewing()
 {
-    translate([0, 0, 220])
+    *translate([0, 0, 220])
     {
         rotate([0, -45, 0])
         {
@@ -178,6 +171,7 @@ module adjuster_forViewing()
         }
     }
     adj_vexmount();
+    //adj_boltswivel();
 }
 
 module forPrinting()
@@ -190,10 +184,10 @@ module model_adjuster()
     adjuster_forViewing();
 }
 
-//scale(ViewScale)
-//{
-//    forViewing();
+scale(ViewScale)
+{
+    adjuster_forViewing();
 //    forPrinting();
-//}
+}
 
 

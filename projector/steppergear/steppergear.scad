@@ -1,5 +1,6 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 use <../../libs/MCAD/involute_gears.scad>
+include <herringbone_gear.scad>
 
 module shaft2d(pad)
 {
@@ -78,26 +79,46 @@ module steppergear()
     }
 }
 
-//module forViewing()
-//{
-//    *color("lightblue")
-//    linear_extrude(600)
-//    shaft2d(0);
-//
-//    *linear_extrude(100)
-//    difference()
-//    {
-//        circle(300, $fn=96);
-//        shaft2d(5);
-//    }
-//    *steppergear();
-//}
-//
-//
+module sg_forViewing()
+{
+    *color("lightblue")
+    linear_extrude(600)
+    shaft2d(0);
+
+    *linear_extrude(100)
+    difference()
+    {
+        circle(300, $fn=96);
+        shaft2d(5);
+    }
+    translate([0, 0, 300])
+    *steppergear();
+
+    // herringbone_gear(diam=20, number=10, h = 5, orient = 1) {
+    difference()
+    {
+        herringbone_gear( 800, 13, 300, -1);
+        translate([0, 0, -10])
+        linear_extrude(600)
+        shaft2d(5);
+    }
+
+    translate([0, 0, 299])
+    linear_extrude(200)
+    difference()
+    {
+        circle(500/2, $fn=96);
+        shaft2d(10);
+    }
+
+
+}
+
+
 //scale(ViewScale)
 //{
 //    forViewing();
-////    steppergear();
-////    color("CornflowerBlue")
-////    square([762, 762], center=true);
+//    steppergear();
+//    color("CornflowerBlue")
+//    square([762, 762], center=true);
 //}
