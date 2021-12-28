@@ -122,9 +122,9 @@ module layer1(x=0)
         }
     }
 
-    *if (x != 3)
+    if (x != 3)
     {
-        for (ii=[squareX/2-boardX/2-60, squareX/2+boardX/2+10])
+        for (ii=[squareX/2-boardX/2-65, squareX/2+boardX/2+5])
         {
             for (jj=[50, squareY-200])
             {

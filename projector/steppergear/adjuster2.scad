@@ -99,12 +99,12 @@ module adj_boltswivel()
     }
 
     // body
-    translate([0, 0, 869])
-    linear_extrude(51)
+    translate([0, 0, 1539])
+    linear_extrude(101)
     difference()
     {
-        circle(500/2, $fn=96);
-        //square([500, 500], center=true);
+        //circle(500/2, $fn=96);
+        square([500, 500], center=true);
         circle(182/2, $fn=96);
         translate([0, 250, 0])
         square([180, 500], center=true);
@@ -133,7 +133,7 @@ module adj_vexmount()
     difference()
     {
         square([380, 380], center=true);
-        square([180, 180], center=true);
+        square([130, 130], center=true);
     }
     linear_extrude(100)
     {
@@ -171,12 +171,13 @@ module adjuster_forViewing()
         }
     }
     adj_vexmount();
-    //adj_boltswivel();
+//    adj_boltswivel();
 }
 
 module forPrinting()
 {
-    adj_boltswivel();
+    //adj_boltswivel();
+    adj_vexmount();
 }
 
 module model_adjuster()
@@ -186,8 +187,8 @@ module model_adjuster()
 
 scale(ViewScale)
 {
-    adjuster_forViewing();
-//    forPrinting();
+//    adjuster_forViewing();
+    forPrinting();
 }
 
 
