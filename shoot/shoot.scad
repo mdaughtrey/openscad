@@ -11,15 +11,19 @@ module surround()
     linear_extrude(63)
     difference()
     {
-        square([2030, 3990], center=true);
-        square([1980, 3950], center=true);
+        square([2030, 3990+20], center=true);
+        square([1980, 3950+20], center=true);
+        translate([520, -2000, 60])
+        square([500, 200], center = true);
     }
     translate([0, 0, 62])
     linear_extrude(50)
     difference()
     {
-        square([2030, 3990], center=true);
-        square([1930, 3920], center=true);
+        square([2030, 3990+20], center=true);
+        square([1930, 3920+20], center=true);
+        translate([520, -2000, 60])
+        square([500, 200], center = true);
     }
 
     // Crossbar
@@ -34,27 +38,27 @@ module surround()
 
     // End bit
 //    color("red")
-    translate([0, 3460/2+115, 111])
+    translate([0, 3460/2+115+10, 111])
     linear_extrude(100, scale=0.95)
     square([2030, 300], center = true);
 
 }
 
-module body0()
-{
-    ty = 3460;
-    tx = 2030;
-    translate([0, -3430/2+ty/2-280, 112])
-    difference()
-    {
-        linear_extrude(200, scale=0.9)
-        square([tx, ty], center=true);
-
-        translate([0, 0, -50])
-        linear_extrude(200, scale=0.9)
-        square([tx, ty], center=true);
-    }
-}
+//module body0()
+//{
+//    ty = 3460;
+//    tx = 2030;
+//    translate([0, -3430/2+ty/2-280, 112])
+//    difference()
+//    {
+//        linear_extrude(200, scale=0.9)
+//        square([tx, ty], center=true);
+//
+//        translate([0, 0, -50])
+//        linear_extrude(200, scale=0.9)
+//        square([tx, ty], center=true);
+//    }
+//}
 
 module test2()
 {
@@ -125,9 +129,9 @@ module chipsurround14()
         square([1700, 500], center=true);
 
         translate([-435, 0, 0])
-        square([790, 410], center=true);
+        square([790, 420], center=true);
         translate([435, 0, 0])
-        square([790, 410], center=true);
+        square([790, 420], center=true);
     }
 }
 
@@ -138,16 +142,16 @@ module chipsurround14_cutout()
     linear_extrude(200)
     {
         translate([-435, 0, 0])
-        square([790, 410], center=true);
+        square([790, 420], center=true);
         translate([435, 0, 0])
-        square([790, 410], center=true);
+        square([790, 420], center=true);
     }
 }
 
 module chipsurround16()
 {
-    translate([0, 835, 63])
-    linear_extrude(250)
+    translate([0, 835, 63+100])
+    linear_extrude(250-100)
     difference()
     {
         translate([0, -5, 0])
@@ -246,14 +250,14 @@ module potsurround()
 
 module slideswitchsurround()
 {
-    translate([500, -740, 100])
+    translate([500, -760, 100])
     linear_extrude(150)
     difference()
     {
-        square([555, 189], center = true);
-        square([505, 139], center = true);
-        translate([0, -70, 0])
-        square([400, 100], center = true);
+        square([555, 210], center = true);
+        square([365, 155], center = true);
+//        translate([0, -70, 0])
+        square([300, 220], center = true);
     }
 }
 
@@ -264,7 +268,7 @@ module case()
     difference()
     {
         body0();
-        translate([0, 25-4, 0])
+        translate([0, 25-4-15, 0])
         chipsurround14_cutout();
         translate([0, -40, 0])
         chipsurround16_cutout();
@@ -273,7 +277,10 @@ module case()
         square([500, 200], center = true);
         button_cutout();
         pot_cutout();
-        translate([500, -740, 100])
+        translate([500, -760, 250])
+        linear_extrude(100)
+        square([170, 85], center = true);
+        *translate([500, -740, 100])
         model_slideswitch();
     }
     // Button actuator
@@ -303,7 +310,7 @@ module case()
 
     }
     
-    translate([0, 25-4, 0])
+    translate([0, 25-4-15, 0])
     chipsurround14();
     translate([0, -40, 0])
     chipsurround16();
@@ -313,10 +320,19 @@ module case()
     slideswitchsurround();
 }
 
+module onlySwitch()
+{
+    case();
+
+    translate([500, -760, 100])
+    model_slideswitch();
+}
+
+
 module forViewing()
 {
-    model_shoot();
-    *translate([520, -1515, 65])
+    *model_shoot();
+    translate([520, -1515, 65])
     rotate([0, 0, -90])
     model_charger("steelblue");
 
@@ -339,6 +355,7 @@ module forPrinting()
 
 scale(ViewScale)
 {
-    //forViewing();
+//    onlySwitch();
+//    forViewing();
     forPrinting();
 }
