@@ -58,9 +58,9 @@ module case()
         }
     }
 
-    translate([0, -900, 1010])
-    color("cyan")
-    //rotate([90, 0, 0])
+    translate([1000, 0, 250+350/2])
+//    color("cyan")
+    rotate([90, 0, 90])
     fanmount();
 }
 
@@ -68,7 +68,8 @@ module fanmount0(ofs)
 {
     for (ii = [-(1400-140)/2, (1400-140)/2])
     {
-        translate([ii, -(1400-140)/2, ofs])
+        //translate([ii, -(1400-140)/2, ofs])
+        translate([ii, 0, ofs])
         linear_extrude(100)
         difference()
         {
@@ -88,8 +89,8 @@ module fanmount()
 {
     fanmount0(0);
     fanmount0(540);
-    translate([0, -1570/2-200+25, 0])
-    linear_extrude(640)
+    translate([0, -200-350/2, -145])
+    linear_extrude(780)
     square([1620, 100], center=true);
 }
 
@@ -101,8 +102,9 @@ module forViewing()
     model_boostbuck();
     case();
 
-    //*translate([1570/2+250/2, 1570/2-250-250/2, 850])
-    translate([0, 0, 1000])
+    translate([1100, 0, 1000])
+    color("lightblue")
+    rotate([0, 90, 0])
     model_fan();
 }
 
