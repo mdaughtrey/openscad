@@ -115,10 +115,10 @@ module sg_forViewing()
 }
 
 
-//scale(ViewScale)
-//{
-//    forViewing();
+scale(ViewScale)
+{
+    sg_forViewing();
 //    steppergear();
 //    color("CornflowerBlue")
 //    square([762, 762], center=true);
-//}
+}
