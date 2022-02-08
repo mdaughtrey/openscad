@@ -9,11 +9,11 @@ motorShaftDiameter = 235;
 // Diameter of the rod
 threadedRodDiameter = 150;
 // Diameter of the screw thread
-screwDiameter = 113;
-screwHeadDiameter = 213;
-screwThreadLength = 500;
+screwDiameter = 120;
+screwHeadDiameter = 226;
+screwThreadLength = 240;
 // Width across flats of the nut (wrench size)
-nutWidth = 214;
+nutWidth = 235;
 nutThickness = 95;
 // Gap between the two halves
 halvesDistance = 20;
@@ -21,9 +21,11 @@ halvesDistance = 20;
 /* [Hidden] */
 // end of Customizer variables
 // Portion of the shaft inside the coupler
-shaftLen = couplerHeight/2;
+//shaftLen = couplerHeight/2;
+shaftLen = 550;
 // Portion of the rod inside the coupler
-rodLen = couplerHeight/2;
+//rodLen = couplerHeight/2;
+rodLen = couplerHeight - shaftLen;
 shaftScrewsDistance = motorShaftDiameter+screwDiameter+1;
 rodScrewsDistance = threadedRodDiameter+screwDiameter+1;
 
