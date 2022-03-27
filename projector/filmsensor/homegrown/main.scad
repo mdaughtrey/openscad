@@ -136,7 +136,7 @@ module frontmount()
     }
 
     translate([0, 0, 99])
-    linear_extrude(300)
+    linear_extrude(400)
     for (ii = [0:120:360])
     {
         rotate([0, 0, ii])
@@ -192,7 +192,7 @@ scale(ViewScale)
 
     if (model)
     {
-        translate([0, 0, 1000])
+        translate([0, 0, 750])
         color("cornflowerblue")
         encoder_enclosure();
     }
