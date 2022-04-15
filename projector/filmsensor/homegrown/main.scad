@@ -3,7 +3,7 @@ include <model_optosensor.scad>
 include <../../../models/veroboard.scad>
 include <../encoder_enclosure.scad>
 
-model = 1;
+model = 0;
 axleR = 50;
 
 module pie_slice(r=3.0,a=30)
@@ -29,7 +29,8 @@ module sensorwheel()
 			}
 			circle(200);
 		}
-		circle(axleR, $fn=96);
+        square([123, 123], center=true);
+//		circle(axleR, $fn=96);
 	}
 
 }
@@ -179,15 +180,15 @@ scale(ViewScale)
 	translate([0, 0, -50])
 	linear_extrude(100)
     sensorwheel();
-    translate([-300, -750, -600])
+    *translate([-300, -750, -600])
     rotate([90, 0, 0])
     veromount(6, 10);
-    translate([0, 0, 499])
+    *translate([0, 0, 499])
     frontmount();
 
-    translate([0, 0, -600])
+    *translate([0, 0, -600])
     rearmount();
-    translate([0, 0, -501])
+    *translate([0, 0, -501])
     support();
 
     if (model)
