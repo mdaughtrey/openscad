@@ -1,4 +1,4 @@
-use <MCAD/involute_gears.scad>
+use <../libs/MCAD/involute_gears.scad>
 
 module mainGear()
 {

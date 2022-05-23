@@ -1,9 +1,10 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 
+use <../libraries/OpenSCAD bottle threads/thread_profile.scad>
 include <model_encoder.scad>
 include <model_stepper.scad>
 include <maingear.scad>
-//include <innerscrew.scad>
+include <innerscrew.scad>
 
 model = 1;
 
@@ -13,23 +14,43 @@ module case()
 
 module mainShaft()
 {
-	linear_extrude(2000)
+    th = 100-10;
+    tw = 100-10;
+    straight_thread(
+        section_profile = [[0,0], [th, 0], [th, tw],  [0, tw]],
+        higbee_arc = 20,
+        r = 500/2,
+        turns = 5.5,
+        pitch = 200,
+        fn=96);
+	linear_extrude(1200)
 	difference() {
-		circle(500, $fn=96);
-		circle(100, $fn=96);
+		circle(502/2, $fn=96);
+		circle(100/2, $fn=96);
 	}
 }
 
 module traveler()
 {
-	translate([0, 0, 750])
-	linear_extrude(1000)
+    th = 130;
+    tw = 100;
+    straight_thread(
+        section_profile = [[0,0], [th, 0], [th, tw],  [0, tw]],
+        higbee_arc = 20,
+        r = 510/2,
+        turns = 2,
+        pitch = 200,
+        fn=96);
+
+
+	translate([0, 0, 0])
+	linear_extrude(500)
 	difference() {
 		union() {
-			circle(600, $fn=96);
+			circle(900/2, $fn=96);
 			square([2300, 200], center=true);
 		}
-		circle(520, $fn=96);
+		circle(720/2, $fn=96);
 	}
 }
 
@@ -83,6 +104,7 @@ module forViewing()
         model_encoder();
         model_stepper();
     }
+    color("green")
     translate([0, 0, 1307])
 	mainMount();
     translate([0, 0, 1500])
@@ -91,9 +113,11 @@ module forViewing()
     mainGear();
     translate([0, 0, 1700])
 	mainShaft();
-    translate([0, 0, 1200])
+    color("steelblue")
+    translate([0, 0, 1845])
 	rotate([0, 0, 90])
 	traveler();
+    color("green")
     translate([0, 0, 1307])
 	rotate([0, 0, 90])
 	travelTracks();
