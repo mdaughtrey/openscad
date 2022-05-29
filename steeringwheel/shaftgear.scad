@@ -24,9 +24,9 @@ module shaftGear()
             translate([0, 0, -1])
             linear_extrude(600)
             intersection() {
-                circle(188/2, $fn=96);
+                circle(198/2, $fn=96);
                 translate([20, 0, 0])
-                square([188, 188], center=true);
+                square([198, 198], center=true);
             }
     }
 }

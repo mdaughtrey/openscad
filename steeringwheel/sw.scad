@@ -58,9 +58,9 @@ module mainShaft()
             translate([0, 0, -1])
             linear_extrude(3000)
             intersection() {
-                circle(188/2, $fn=96);
+                circle(198/2, $fn=96);
                 translate([20, 0, 0])
-                square([188, 188], center=true);
+                square([198, 198], center=true);
             }
         }
     }
@@ -198,48 +198,110 @@ module shaftMount()
         circle(170/2, $fn=96);
         translate([x0, 0, 0])
         circle(170/2, $fn=96);
-	    translate([0, 470/2-100+1, 0])
-		square([200, 200], center=true);
+	    //translate([0, 470/2-100+1, 0])
+		//square([200, 200], center=true);
     }
 
-    // Vertical riser
-    translate([0, 0, 199])
-    linear_extrude(1801)
-    translate([0, -(1400/2)-450, 0])
-    difference() {
-    //    translate([0, -(1400/2)-450, 0])
+    //Vertical riser no cutout
+    translate([0, -(1400/2)-450, 199])
+    linear_extrude(300)
+    intersection() {
         square([850, 470], center=true);
-        translate([-x0, -(1400/2)-450, 0])
-        circle(470/2, $fn=96);
-        translate([x0, -(1400/2)-450, 0])
-        circle(470/2, $fn=96);
-	    translate([0, 470/2-100+1, 0])
-		square([200, 200], center=true);
+        translate([0, (1400/2)+450, 0])
+        circle(1400, $fn=96);
     }
 
-    // Traveler bridge top
-    translate([0, -(1400/2)-450, 1999])
+    // Vertical riser with cutout
+    translate([0, 0, 499])
+    linear_extrude(1261)
+    intersection() {
+        circle(1400, $fn=96);
+        union() {
+            translate([0, -(1400/2)-450, 0])
+            difference() {
+            //    translate([0, -(1400/2)-450, 0])
+                square([850, 470], center=true);
+                translate([-x0, -(1400/2)-450, 0])
+                circle(470/2, $fn=96);
+                translate([x0, -(1400/2)-450, 0])
+                circle(470/2, $fn=96);
+                translate([0, 470/2-100+1, 0])
+                square([200, 200], center=true);
+            }
+        }
+    }
+
+    *translate([0, 0, 1999])
     linear_extrude(200)
-    square([850, 470], center=true);
+    intersection() {
+        circle(1400, $fn=96);
+        union() {
+            // Traveler bridge top
+            translate([0, -(1400/2)-450, 0])
+            square([850, 470], center=true);
+        }
+    }
 
     // Bottom collar
-    translate([0, 0, 2199])
-    linear_extrude(470)
+    translate([0, 0, 1749])
+    bottomCollar();
+    
+    //    linear_extrude(471)
+    //    difference() {
+    //        circle(1400, $fn=96);
+    //        circle(1400-470, $fn=96);
+    //        translate([0, 1400, 0])
+    //        square([2800, 2800], center=true);
+    //    }
+    
+
+    // Cone between collars
+    translate([0, 0, 2219])
+    linear_extrude(1231, scale=1230/1400/2)
     difference() {
         circle(1400, $fn=96);
-        circle(1400-470, $fn=96);
+        circle(1200, $fn=96);
         translate([0, 1400, 0])
         square([2800, 2800], center=true);
     }
 
+
     // Top collar
-    translate([0, 0, 2750])
-    linear_extrude(1000)
+    translate([0, 0, 3450])
+    linear_extrude(500)
     difference() {
         circle(1230/2, $fn=96);
         circle(800/2, $fn=96);
         translate([0, 1230/2, 0])
         square([1230, 1230], center=true);
+    }
+}
+
+module bottomCollar()
+{
+//    translate([0, 0, 1999])
+    difference() {
+        linear_extrude(471)
+        difference() {
+            circle(1400, $fn=96);
+            circle(1400-470, $fn=96);
+            translate([0, 1400, 0])
+            square([2800, 2800], center=true);
+        }
+
+        for (ii=[-1,1]) {
+            translate([ii*(1400-410/2), -200, 470/2])
+            rotate([90, 0, 0])
+            linear_extrude(1000)
+            circle(410/2, $fn=96);
+        }
+
+        for (ii=[-1,1]) {
+            translate([ii*(1400-410/2), 200, 470/2])
+            rotate([90, 0, 0])
+            linear_extrude(1000)
+            circle(180/2, $fn=96);
+        }
     }
 }
 
@@ -252,7 +314,7 @@ module forViewing()
         model_encoder();
         model_stepper();
         #color("grey")
-        translate([0, 0, 5300+a])
+        translate([0, 0, 5500+a])
         rotate([180, 0, 0])
         model_steeringShaft();
     }
@@ -266,7 +328,7 @@ module forViewing()
     translate([0, 0, 1700+a])
 	mainShaft();
     color("steelblue")
-    translate([0, 0, 1845+a])
+    translate([0, 0, 1845+a+600])
 	rotate([0, 0, 90])
 	traveler();
 //    color("green")
@@ -278,13 +340,26 @@ module forViewing()
     shaftMount();
 }
 
+module topcollar()
+{
+    linear_extrude(500)
+    difference() {
+        circle(1230/2, $fn=96);
+        circle(800/2, $fn=96);
+        translate([0, 1230/2, 0])
+        square([1230, 1230], center=true);
+    }
+}
+
 module forPrinting()
 {
+    shaftMount();
+    //topcollar();
 	//mainMount(a);
-    shaftGear();
+//    shaftGear();
    //mainGear();
-   translate([0, 0, 200])
-   mainShaft();
+   //translate([0, 0, 200])
+   //mainShaft();
     //translate([0, 0, 100])
     //translate([0, 1200, 0])
 	//traveler();
