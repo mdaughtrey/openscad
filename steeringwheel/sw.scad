@@ -226,7 +226,7 @@ module shaftMount()
                 translate([x0, -(1400/2)-450, 0])
                 circle(470/2, $fn=96);
                 translate([0, 470/2-100+1, 0])
-                square([200, 200], center=true);
+                square([220, 200], center=true);
             }
         }
     }
@@ -367,6 +367,6 @@ module forPrinting()
 
 scale(ViewScale)
 {
-    forViewing();
-    //forPrinting();
+    //forViewing();
+    forPrinting();
 }
