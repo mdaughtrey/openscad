@@ -17,41 +17,51 @@ module case()
 
 module mainShaft()
 {
+    proto = 0;
     th = 100-10;
-    tw = 100-10;
+    tw = 200-10;
     straight_thread(
-        section_profile = [[0,0], [th, 0], [th, tw],  [0, tw]],
+        section_profile = [[0,0], [th, tw/2-10], [th, tw/2+10], [0, tw]], // ,  [0, tw]],
         higbee_arc = 20,
         r = 565/2,
-        turns = 5.5,
+        turns = 7,
         pitch = 200,
         fn=96);
     difference() {
-        linear_extrude(3000)
-//        difference() {
+        linear_extrude(proto ? 1800 : 3000)
+        difference() {
             circle(567/2, $fn=96);
+            intersection() {
+                circle(212/2, $fn=96);
+                translate([20, 0, 0])
+                square([212, 212], center=true);
+            }
 //            circle(100/2, $fn=96);
-//        }
+        }
 
         // End slot cutout
-        translate([0, 0, 2400])
-        rotate([0, -90, 0])
-        translate([0, 0, -500])
-        linear_extrude(1000)
-        hull() {
-            translate([180/2, 0, 0])
-            circle(180/2, $fn=96);
-            translate([800, 0, 0])
-            square([180, 180], center=true);
+        if (!proto) {
+            translate([0, 0, 2400])
+            rotate([0, -90, 0])
+            translate([0, 0, -500])
+            linear_extrude(1000)
+            hull() {
+                translate([180/2, 0, 0])
+                circle(180/2, $fn=96);
+                translate([800, 0, 0])
+                square([180, 180], center=true);
+            }
         }
         // Bolt Hole
         //translate([-1000, 0, 2500])
-        translate([0, 0, -1])
-        linear_extrude(3000)
-        #intersection() {
-            circle(198/2, $fn=96);
-            translate([20, 0, 0])
-            square([198, 198], center=true);
+        if (!proto) {
+            translate([0, 0, -1])
+            linear_extrude(3000)
+            intersection() {
+                circle(188/2, $fn=96);
+                translate([20, 0, 0])
+                square([188, 188], center=true);
+            }
         }
     }
 
@@ -59,25 +69,31 @@ module mainShaft()
 
 module traveler()
 {
-    th = 130;
-    tw = 100;
+    proto = 0;
+    th = 100-10;
+    tw = 200-10;
     straight_thread(
-        section_profile = [[0,0], [th, 0], [th, tw],  [0, tw]],
+        section_profile = [[0,0], [-th, tw/2-10], [-th, tw/2+10], [0, tw]], // ,  [0, tw]],
         higbee_arc = 20,
-        r = 510/2,
+        r = 785/2,
         turns = 2,
         pitch = 200,
         fn=96);
 
 
 	translate([0, 0, 0])
-	linear_extrude(500)
+	linear_extrude(600)
 	difference() {
-		union() {
-			circle(900/2, $fn=96);
-			square([2300, 200], center=true);
-		}
-		circle(720/2, $fn=96);
+        if (proto) {
+            circle(900/2, $fn=96);
+        }
+        else {
+            union() {
+                circle(900/2, $fn=96);
+                square([2300, 200], center=true);
+            }
+        }
+		circle(765/2, $fn=96);
 	}
 }
 
@@ -97,38 +113,45 @@ module travelTracks()
 
 module mainMount(thick)
 {
+    proto=0;
     x = 1660;
-    x0 = -(x/2)+190;
-    x1 = (x/2) - 190;
+    x0 = -610;
+    x1 = 610;
     
     y0 = -(1400/2)-450;
     y1 = (1400/2)+450;
 
 	linear_extrude(thick)
 	difference() {
-		translate([820, 0, 0])
-		square([3400+220, 2800], center=true);
-		circle(785/2+10, $fn=96);
-        translate([1700, 0, 0])
-		{
-		    circle(20+785/2, $fn=96);
-			for (ii = [0:120:360])
-			{
-				rotate([0, 0, ii])
-				translate([546, 0, 0])
-				circle(130/2, $fn=96);
-			}
-		}
+        if (proto) {
+		    square([1500, 1500], center=true);
+        } else {
+		    translate([820, 0, 0])
+    		square([3400+220, 2800], center=true);
+        }
+		circle(890/2, $fn=96);
+        if (!proto) {
+            translate([1700, 0, 0])
+            {
+                circle(20+785/2, $fn=96);
+                for (ii = [0:120:360])
+                {
+                    rotate([0, 0, ii])
+                    translate([546, 0, 0])
+                    circle(130/2, $fn=96);
+                }
+            }
+            for (ii = [x0, x1]) {
+                for (jj = [y0, y1]) {
+                    translate([ii, jj, 0])
+                    circle(170/2, $fn=96);
+                }
+            }
+        }
         for (ii = [x0, x1]) {
             for (jj = [x0, x1]) {
                 translate([ii, jj, 0])
                 circle(120/2, $fn=96);
-            }
-        }
-        for (ii = [x0, x1]) {
-            for (jj = [y0, y1]) {
-                translate([ii, jj, 0])
-                circle(170/2, $fn=96);
             }
         }
 	}
@@ -144,72 +167,80 @@ module mainMount(thick)
             }
         }
     }
-	rotate([0, 0, 90])
-	travelTracks();
+
+    //translate([-850/2, 2000-400, 2000])
+    //rotate([0, 90, 0])
+    //linear_extrude(850)
+    //difference() {
+    //    circle(3000, $fn=96);
+    //    circle(3000-470, $fn=96);
+   // }
 }
 
 module shaftMount()
 {
     x = 1660;
-    x0 = -(x/2)+190;
-    x1 = (x/2) - 190;
+    x0 = -610;
+    x1 = 610;
 
     // Fastener tabs
     linear_extrude(200)
-    for (ii = [[x0,1],[x1,-1]]) {
-        translate([ii[0], -(1400/2)-450, 0])
-        difference() {
-            union()
-            {
-                circle(470/2, $fn=96);
-                translate([ii[1]*190, 0, 0])
-                square([470, 470], center=true);
-            }
-            circle(170/2, $fn=96);
+    translate([0, -(1400/2)-450, 0])
+    difference()
+    {
+        hull() {
+            translate([-x0, 0, 0])
+            circle(470/2, $fn=96);
+            translate([x0, 0, 0])
+            circle(470/2, $fn=96);
         }
+        translate([-x0, 0, 0])
+        circle(170/2, $fn=96);
+        translate([x0, 0, 0])
+        circle(170/2, $fn=96);
+	    translate([0, 470/2-100+1, 0])
+		square([200, 200], center=true);
     }
 
-    // Traveler groove adjacent
+    // Vertical riser
     translate([0, 0, 199])
-    linear_extrude(1121)
-    for (ii = [[x0,1],[x1,-1]]) {
-        translate([ii[0], -(1400/2)-450, 0])
-        difference()
-        {
-            translate([ii[1]*190, 0, 0])
-            square([470, 470], center=true);
-            circle(490/2, $fn=96);
-        }
-    }
-
-    // Traveler groove over
-    translate([0, 0, 1199])
-    linear_extrude(201)
+    linear_extrude(1801)
     translate([0, -(1400/2)-450, 0])
     difference() {
-        square([1200, 470], center=true);
-        for (ii = [x0,x1]) {
-            translate([ii, 0, 0])
-            circle(490/2, $fn=96);
-        }
+    //    translate([0, -(1400/2)-450, 0])
+        square([850, 470], center=true);
+        translate([-x0, -(1400/2)-450, 0])
+        circle(470/2, $fn=96);
+        translate([x0, -(1400/2)-450, 0])
+        circle(470/2, $fn=96);
+	    translate([0, 470/2-100+1, 0])
+		square([200, 200], center=true);
     }
+
+    // Traveler bridge top
+    translate([0, -(1400/2)-450, 1999])
+    linear_extrude(200)
+    square([850, 470], center=true);
+
+    // Bottom collar
+    translate([0, 0, 2199])
+    linear_extrude(470)
+    difference() {
+        circle(1400, $fn=96);
+        circle(1400-470, $fn=96);
+        translate([0, 1400, 0])
+        square([2800, 2800], center=true);
+    }
+
     // Top collar
-    translate([0, 0, 3250])
-    linear_extrude(500)
+    translate([0, 0, 2750])
+    linear_extrude(1000)
     difference() {
         circle(1230/2, $fn=96);
         circle(800/2, $fn=96);
+        translate([0, 1230/2, 0])
+        square([1230, 1230], center=true);
     }
-
-//    for (ii = [x0, x1]) {
-//        translate([ii, -(1400/2)-450, 0])
-//        linear_extrude(100)
-//        difference() {
-//            circle(470/2, $fn=96);
-//            circle(170/2, $fn=96);
-//        }
-//    }
-
 }
 
 a = 200;        // Base thickness
@@ -249,7 +280,14 @@ module forViewing()
 
 module forPrinting()
 {
-	mainMount(a);
+	//mainMount(a);
+    shaftGear();
+   //mainGear();
+   translate([0, 0, 200])
+   mainShaft();
+    //translate([0, 0, 100])
+    //translate([0, 1200, 0])
+	//traveler();
 }
 
 scale(ViewScale)
