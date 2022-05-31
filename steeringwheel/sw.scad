@@ -1,4 +1,6 @@
-ViewScale = [0.0254, 0.0254, 0.0254];
+if (!include_sw_scad) {
+    ViewScale = [0.0254, 0.0254, 0.0254];
+}
 
 use <../libraries/OpenSCAD bottle threads/thread_profile.scad>
 include <model_encoder.scad>
@@ -126,8 +128,8 @@ module mainMount(thick)
         if (proto) {
 		    square([1500, 1500], center=true);
         } else {
-		    translate([820, 0, 0])
-    		square([3400+220, 2800], center=true);
+		    translate([620, 0, 0])
+    		square([5220, 3200], center=true);
         }
 		circle(890/2, $fn=96);
         if (!proto) {
@@ -306,7 +308,7 @@ module bottomCollar()
 }
 
 a = 200;        // Base thickness
-module forViewing()
+module swscad_forViewing()
 {
     a = 200;        // Base thickness
     if (model) {
@@ -331,10 +333,6 @@ module forViewing()
     translate([0, 0, 1845+a+600])
 	rotate([0, 0, 90])
 	traveler();
-//    color("green")
-//    translate([0, 0, 1307+a])
-//	rotate([0, 0, 90])
-//	travelTracks();
     color("red")
     translate([0, 0, 1307+a])
     shaftMount();
@@ -366,8 +364,10 @@ module forPrinting()
 	//traveler();
 }
 
-scale(ViewScale)
-{
-    //forViewing();
-    forPrinting();
+if (!include_sw_scad) {
+    scale(ViewScale)
+    {
+        swscad_forViewing();
+        //forPrinting();
+    }
 }
