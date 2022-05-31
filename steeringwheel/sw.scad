@@ -353,13 +353,14 @@ module topcollar()
 
 module forPrinting()
 {
-    shaftMount();
+    a = 200;        // Base thickness
+//    shaftMount();
     //topcollar();
-	//mainMount(a);
-//    shaftGear();
+//	mainMount(a);
+    shaftGear();
    //mainGear();
    //translate([0, 0, 200])
-   //mainShaft();
+   mainShaft();
     //translate([0, 0, 100])
     //translate([0, 1200, 0])
 	//traveler();
