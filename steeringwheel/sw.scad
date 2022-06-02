@@ -1,6 +1,7 @@
-if (!include_sw_scad) {
+//include_sw_scad=0;
+//if (!include_sw_scad) {
     ViewScale = [0.0254, 0.0254, 0.0254];
-}
+//}
 
 use <../libraries/OpenSCAD bottle threads/thread_profile.scad>
 include <model_encoder.scad>
@@ -11,7 +12,7 @@ include <shaftgear.scad>
 include <innerscrew.scad>
 
 
-model = 1;
+model = 0;
 
 module case()
 {
@@ -92,7 +93,7 @@ module traveler()
         else {
             union() {
                 circle(900/2, $fn=96);
-                square([2300, 200], center=true);
+                square([2150, 200], center=true);
             }
         }
 		circle(765/2, $fn=96);
@@ -111,6 +112,27 @@ module travelTracks()
 			square([200, 200], center=true);
 		}
 	}
+}
+
+module test()
+{
+    x = 1660;
+    x0 = -610;
+    x1 = 610;
+    
+    y0 = -(1400/2)-450;
+    y1 = (1400/2)+450;
+    linear_extrude(100)
+    difference() {
+        hull() {
+            circle(1090/2, $fn=96);
+            translate([1720, 0, 0])
+            circle(20+985/2, $fn=96);
+        }
+        circle(890/2, $fn=96);
+        translate([1720, 0, 0])
+        circle(20+785/2, $fn=96);
+    }
 }
 
 module mainMount(thick)
@@ -133,7 +155,7 @@ module mainMount(thick)
         }
 		circle(890/2, $fn=96);
         if (!proto) {
-            translate([1700, 0, 0])
+            translate([1720, 0, 0])
             {
                 circle(20+785/2, $fn=96);
                 for (ii = [0:120:360])
@@ -333,7 +355,7 @@ module swscad_forViewing()
     translate([0, 0, 1845+a+600])
 	rotate([0, 0, 90])
 	traveler();
-    color("red")
+    //color("red")
     translate([0, 0, 1307+a])
     shaftMount();
 }
@@ -354,20 +376,21 @@ module forPrinting()
     a = 200;        // Base thickness
 //    shaftMount();
     //topcollar();
+//    test();
 //	mainMount(a);
-    shaftGear();
+//    shaftGear();
    //mainGear();
    //translate([0, 0, 200])
-   mainShaft();
+//   mainShaft();
     //translate([0, 0, 100])
     //translate([0, 1200, 0])
-	//traveler();
+	traveler();
 }
 
-if (!include_sw_scad) {
+//if (!include_sw_scad) {
     scale(ViewScale)
     {
-        swscad_forViewing();
-        //forPrinting();
+    //    swscad_forViewing();
+        forPrinting();
     }
-}
+//}
