@@ -106,17 +106,35 @@ module shortphoneclip(taillen)
 
 module phonemount()
 {
-    linear_extrude(400)
+    linear_extrude(500)
     difference() {
         square([1970, 1970], center=true);
         square([1770, 1770], center=true);
     }
+    translate([0, 0, 500])
+    linear_extrude(100)
+    difference() {
+        square([1970, 1970], center=true);
+        circle(500/2, $fn=96);
+    }
+
 
     //translate([2910/2+(450/2)+433-(250/2), 6080/2-450-200, 750])
-    translate([2910/2+(450/2)+433-(250/2), 700, 750])
+    translate([30+2910/2+(450/2)+433-(250/2)+20, 700, 850])
     rotate([0, 90, -90])
     translate([0, 0, -250])
-    shortphoneclip(1000);
+    shortphoneclip(1200);
+
+    translate([-420+20, 600, 850])
+    rotate([0, 90, 90])
+    translate([0, 0, -250])
+    shortphoneclip(400);
+
+    translate([1000, -430, 850])
+    rotate([0, 90, -180])
+    translate([0, 0, -250])
+    shortphoneclip(400);
+
 }
 
 module forViewing()
@@ -125,7 +143,7 @@ module forViewing()
 //    translate([0, 0, 100])
     phonemount();
     color("cyan")
-    translate([2910/2-(450/2)-433, 6080/2-450-200, 750])
+    translate([2910/2-(450/2)-433+20, 6080/2-450-200, 850])
     rotate([90, 0, 0])
     translate([0, 0, -6080/2])
     model_phone();
@@ -134,13 +152,14 @@ module forViewing()
 
 module forPrinting()
 {
-    telescopemount();
-    translate([0, 200, 0])
-    shortphoneclip();
+    phonemount();
+//    telescopemount();
+//    translate([0, 200, 0])
+//    shortphoneclip();
 }
 
 scale(ViewScale)
 {
-    forViewing();
-    //forPrinting();
+//    forViewing();
+    forPrinting();
 }
