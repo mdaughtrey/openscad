@@ -2,7 +2,7 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 include_sw_scad=1;
 include <sw.scad>
 
-model = 1;
+//model = 0;
 swMountX = 5220;
 swMountY = 3200;
 swMountZ = 200;
@@ -16,29 +16,53 @@ module model_mainMount()
 
 module swMount()
 {
-    dimZ = swMountZ + wallThick * 2 + 30;
-    dimY = swMountY + wallThick * 2 + 30;
-    dimX = swMountX + wallThick * 2 + 30;
+    proto = 1;
+    dimZ = swMountZ + wallThick * 2 + 60;
+    dimY = swMountY + wallThick * 2 + 60;
+    dimX = swMountX + wallThick * 2 + 60;
 
-    // Base
-    linear_extrude(wallThick)
-    square([dimX, dimZ], center=true);
-    translate([0, 0, wallThick-1])
-    linear_extrude(wallThick + 1) {
-        difference() {
-            square([dimX, dimZ], center=true);
-            square([dimX - wallThick * 2, dimZ - wallThick * 2], center=true);
+    // Front
+    ff = proto ? 0: 030;
+    translate([0, 0, 180]) 
+    rotate([rr, 0, 0]) {
+        // Base
+        linear_extrude(wallThick)
+        square([dimX, dimZ], center=true);
+        translate([0, 0, wallThick-1])
+        linear_extrude(wallThick + 1) {
+            difference() {
+                square([dimX, dimZ], center=true);
+                square([dimX - wallThick * 2, dimZ - wallThick * 2], center=true);
+            }
+        }
+        // Sides
+        for (ii = [0, 180]) {
+            rotate([0, 0, ii])
+            translate([-dimX/2+dimZ/2, 0, wallThick * 2-1])
+            linear_extrude(proto ? 500 : dimY+1-wallThick*2)
+            difference() {
+                square([dimZ, dimZ], center=true);
+                translate([wallThick/2, 0, 0])
+                square([dimZ - wallThick, dimZ-wallThick*2], center=true);
+            }
         }
     }
-    // Sides
-    for (ii = [0, 180]) {
-        rotate([0, 0, ii])
-        translate([-dimX/2+dimZ/2, 0, wallThick * 2-1])
-        linear_extrude(dimY+1-wallThick*2)
+
+    if (!proto) {
+        // Base
+        translate([0, dimX/2, 0])
+        linear_extrude(wallThick*2)
         difference() {
-            square([dimZ, dimZ], center=true);
-            translate([wallThick/2, 0, 0])
-            square([dimZ - wallThick, dimZ-wallThick*2], center=true);
+        square([dimX, dimX], center=true);
+        square([dimX-wallThick*4, (dimX-wallThick*2)/2], center=true);
+        }
+
+        // Sides
+        for (ii = [dimX/2, -dimX/2+wallThick*2]) {
+            translate([ii, 60, 0])
+            rotate([0, -90, 0])
+            linear_extrude(wallThick * 2)
+            polygon([[0, 0], [2771, 1600], [0, 3200]]);
         }
     }
 }
@@ -47,22 +71,24 @@ module forViewing()
 {
     translate([0, 0, 100])
     rotate([-30, 0, 0]) {
-        swMount();
 
         if (model) {
-            translate([-600, 1400, swMountY/2 + wallThick])
+            translate([-630, 1400, swMountY/2 + wallThick])
             rotate([90, 0, 0])
             swscad_forViewing();
         }
     }
+        swMount();
 
 }
 
 module forPrinting()
 {
+    swMount();
 }
 
-scale(ViewScale)
-{
-    forViewing();
-}
+//scale(ViewScale)
+//{
+//    forViewing();
+////    forPrinting();
+//}

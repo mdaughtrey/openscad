@@ -8,7 +8,7 @@ module model_steeringShaft()
 //        }
 
         // End slot cutout
-        translate([0, 0, 2400-450])
+        translate([0, 0, 1950]) // orig 1950
         rotate([0, -90, 0])
         translate([0, 0, -500])
         linear_extrude(1000)

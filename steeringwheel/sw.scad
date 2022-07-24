@@ -1,7 +1,7 @@
-//include_sw_scad=0;
-//if (!include_sw_scad) {
+include_sw_scad=0;
+if (!include_sw_scad) {
     ViewScale = [0.0254, 0.0254, 0.0254];
-//}
+}
 
 use <../libraries/OpenSCAD bottle threads/thread_profile.scad>
 include <model_encoder.scad>
@@ -13,6 +13,7 @@ include <innerscrew.scad>
 
 
 model = 0;
+viewing = 1;
 
 module case()
 {
@@ -44,14 +45,15 @@ module mainShaft()
 
         // End slot cutout
         if (!proto) {
-            translate([0, 0, 2400])
+            translate([0, 0, 1600]) // originally 2400
             rotate([0, -90, 0])
             translate([0, 0, -500])
             linear_extrude(1000)
             hull() {
                 translate([180/2, 0, 0])
-                circle(180/2, $fn=96);
-                translate([800, 0, 0])
+                //circle(180/2, $fn=96);
+                square([180, 180], center=true);
+                translate([1800, 0, 0]) // orig 800
                 square([180, 180], center=true);
             }
         }
@@ -67,6 +69,11 @@ module mainShaft()
             }
         }
     }
+    // Limit pin
+    rotate([0, 0, 45])
+    translate([-660, 0, 100])
+    linear_extrude(180)
+    circle(300/2, $fn=96);
 
 }
 
@@ -329,6 +336,56 @@ module bottomCollar()
     }
 }
 
+
+module upperLimitPin()
+{
+    // Limit pin
+    rotate([0, 0, 45])
+    translate([-660, 0, 0]) {
+        linear_extrude(181)
+        circle(300/2, $fn=96);
+        translate([0, 0, 180])
+        linear_extrude(200)
+        intersection() {
+            circle(300/2, $fn=96);
+            translate([660, 0, 0])
+            difference() {
+                circle(1590/2, $fn=96);
+                circle(1220/2, $fn=96);
+            }
+        }
+    }
+}
+
+module upperLimiter()
+{
+    linear_extrude(200) {
+        difference() {
+            circle(1800/2, $fn=96);
+            difference() {
+                circle(1600/2, $fn=96);
+                circle(1210/2, $fn=96);
+                square([1800, 200], center=true);
+                square([200, 1800], center=true);
+            }
+            circle(810/2, $fn=96);
+        }
+        square([1800, 160], center=true);
+    }
+    linear_extrude(1000)
+    difference() {
+        intersection() {
+            square([567, 160], center=true);
+            circle(567/2, $fn=96);
+        }
+        circle(198/2, $fn=96);
+    }
+    if (viewing) {
+        translate([0, 0, -180])
+        upperLimitPin();
+    }
+}
+
 a = 200;        // Base thickness
 module swscad_forViewing()
 {
@@ -337,7 +394,7 @@ module swscad_forViewing()
         translate([1700, 0, 0])
         model_encoder();
         model_stepper();
-        #color("grey")
+        color("grey")
         translate([0, 0, 5500+a])
         rotate([180, 0, 0])
         model_steeringShaft();
@@ -358,6 +415,9 @@ module swscad_forViewing()
     //color("red")
     translate([0, 0, 1307+a])
     shaftMount();
+
+    translate([0, 0, 3500])
+    upperLimiter();
 }
 
 module topcollar()
@@ -371,26 +431,29 @@ module topcollar()
     }
 }
 
-module forPrinting()
+module swscad_forPrinting()
 {
-    a = 200;        // Base thickness
-//    shaftMount();
-    //topcollar();
-//    test();
-//	mainMount(a);
-//    shaftGear();
-   //mainGear();
-   //translate([0, 0, 200])
-//   mainShaft();
-    //translate([0, 0, 100])
-    //translate([0, 1200, 0])
-	traveler();
+//    a = 200;        // Base thickness
+////    shaftMount();
+//    //topcollar();
+////    test();
+////	mainMount(a);
+////    shaftGear();
+   mainGear();
+   translate([0, 0, 200])
+   mainShaft();
+//    //translate([0, 0, 100])
+//    //translate([0, 1200, 0])
+//	traveler();
 }
-
+//
 //if (!include_sw_scad) {
     scale(ViewScale)
     {
-    //    swscad_forViewing();
-        forPrinting();
+        if (viewing) {
+            swscad_forViewing();
+        } else {
+            swscad_forPrinting();
+        }
     }
 //}
