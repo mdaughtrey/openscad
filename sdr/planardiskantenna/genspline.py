@@ -15,17 +15,20 @@ waypoints = np.array([0, 5, 10, 11, 7, 12, 40, 39])
 #f2 = interp1d(x, y, kind='cubic')
 
 def genscadfile(waypoints, length, height, varname, filename):
-#    pdb.set_trace()
-    y0 = waypoints * (height/waypoints.max())
+    pdb.set_trace()
+    y0 = waypoints # * (height/waypoints.max())
     x0 = np.linspace(0, len(y0)-1, num=length, endpoint=True)
     interp = interp1d(range(len(y0)), y0, 'cubic')
+    y1 = interp(x0)
+    y1 = y1 * (height/y1.max())
 #    y0 = list(interp(x0)
 #    for x,y in enumerate(interp(x0)):
 #        print(f'[{round(x)},{int(round(y))}]')
     scadfile = open(filename, 'wb')
     scadfile.write(f'{varname} = ['.encode())
-    scadfile.write(','.join([f'[{round(x)},{int(round(y))}]' for x,y in enumerate(interp(x0))]).encode())
-    scadfile.write('];'.encode())
+    scadfile.write(','.join([f'[{round(x)},{int(round(y))}]' for x,y in enumerate(y1)]).encode())
+    #scadfile.write(','.join([f'[{round(x)},{int(round(y))}]' for x,y in enumerate(interp(x0))]).encode())
+    scadfile.write(f',[{len(x0)-1},0]];'.encode())
 
 genscadfile(waypoints, 1000, 1000, 'curve', 'curve.dat')
 

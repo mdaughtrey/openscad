@@ -4,9 +4,10 @@ include <curve.dat>
 
 scale(ViewScale)
 {
-    linear_extrude(100)
-    difference() {
-        square([1500, 1500]);
+    rotate_extrude(angle = 90, convexity=2, $fn=96)
+//    linear_extrude(100)
+//    difference() {
+//        square([1000, 1000]);
         polygon(points=curve);
-    }
+//    }
 }
