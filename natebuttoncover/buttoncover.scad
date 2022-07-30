@@ -13,27 +13,32 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 
 module cover()
 {
-    cutin=2730/2+420/2+1100;
+    coverx=2730; // Original cover width
+    // Side is 1100 from the right of the switch cutout
+    cutin=(coverx/2)-420/2-1100;
+    echo("cutin is ",cutin);
     linear_extrude(50)
     difference() {
-        //square([2730, 4480], center=true);
-        translate([-2730/2+cutin/2, 0, 0])
-        %square([cutin, 4480], center=true);
+        translate([-cutin/2, 0, 0])
+        square([coverx-cutin, 4480], center=true);
+        //translate([-2730/2+cutin/2, 0, 0])
+        //square([cutin, 4480], center=true);
+        // Switch cutout
         square([420, 953], center=true);
+        // Hole
         translate([0, 1260, 0])
         circle(160/2, $fn=96);
+        // Hole
         translate([0, -1260, 0])
         circle(160/2, $fn=96);
-
-        translate([2730/2+300-((2730/2)-1100), 0, 0])
-        square([600, 4490], center=true);
     }
     translate([0, 0, 49]) {
         linear_extrude(131)
         difference() {
-            square([2730, 4480], center=true);
-            square([2530, 4280], center=true);
-            translate([2730/2+300-((2730/2)-1100), 0, 0])
+            translate([-cutin/2, 0, 0])
+            square([2730-cutin, 4480], center=true);
+            square([2530-cutin, 4280], center=true);
+            *translate([2730/2+300-((2730/2)-1100), 0, 0])
             square([600, 4490], center=true);
         }
         linear_extrude(50) {
