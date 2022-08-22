@@ -9,7 +9,7 @@ module scFrontFace(insideW, insideH)
         square([95+20, 161+20], center=true);
     }
 
-    if(false == noModels)
+    if(models)
     {
         // Sensor Model
         translate([0, 0, 85])
@@ -27,16 +27,19 @@ module scFrontFace(insideW, insideH)
 module scOneStrut()
 {
     linear_extrude(240)
-    square([scWidth-110, 60], center=true);
+    //linear_extrude(140)
+    square([scWidth-110, 50], center=true);
     translate([0, 0, 236])
-    linear_extrude(264)
-    square([scWidth+110, 60], center=true);
+    //translate([0, 0, 136])
+//    linear_extrude(264)
+    linear_extrude(130)
+    square([scWidth+110, 50], center=true);
 }
 
 module sensorCarrier()
 {
-    scInsideW = scWidth + 10;
-    scInsideH = scHeight + 10;
+    scInsideW = scWidth;
+    scInsideH = scHeight;
     scFrontFace(scInsideW, scInsideH);
 
     translate([0, 0, 19])
@@ -53,38 +56,43 @@ module sensorCarrier()
     translate([0, +scHeight/2+25, 199])
     scOneStrut();
 
-    if(false == noModels)
+    if(models)
     {
-        translate([0, 0, 535])
-        rotate([0, 0, 0])
+        translate([0, 0, 570])
+        rotate([180, 0, 0])
         model_pushbutton_flat();
     }
 
+    // Crossbar for button push
+    translate([0, 0, 290])
+    linear_extrude(100)
+    square([100, 550], center=true);
+    
+
     // Button supports underneath
-    translate([0, -scHeight/2+29, 435])
+    *translate([0, -scHeight/2+29, 435])
     linear_extrude(100)
     square([scWidth+110, 50], center=true);
 
-    translate([0, scHeight/2-29, 435])
+    *translate([0, scHeight/2-29, 435])
     linear_extrude(100)
     square([scWidth+110, 50], center=true);
 
     // Button side guides
-    translate([scWidth/2+15, -scHeight/2+29, 535])
+    *translate([scWidth/2+15, -scHeight/2+29, 535])
     linear_extrude(100)
     square([80, 50], center=true);
 
-    translate([scWidth/2+15, scHeight/2-29, 535])
+    *ranslate([scWidth/2+15, scHeight/2-29, 535])
     linear_extrude(100)
     square([80, 50], center=true);
 
-    translate([-scWidth/2-15, -scHeight/2+29, 535])
+    *ranslate([-scWidth/2-15, -scHeight/2+29, 535])
     linear_extrude(100)
     square([80, 50], center=true);
 
-    translate([-scWidth/2-15, scHeight/2-29, 535])
+    *ranslate([-scWidth/2-15, scHeight/2-29, 535])
     linear_extrude(100)
     square([80, 50], center=true);
-
 
 }
