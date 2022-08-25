@@ -9,7 +9,7 @@ module scFrontFace(insideW, insideH)
         square([95+20, 161+20], center=true);
     }
 
-    if(false == noModels)
+    if (models)
     {
         // Sensor Model
         translate([0, 0, 85])
@@ -53,7 +53,7 @@ module sensorCarrier()
     translate([0, +scHeight/2+25, 199])
     scOneStrut();
 
-    if(false == noModels)
+    if (models)
     {
         translate([0, 0, 535])
         rotate([0, 0, 0])
