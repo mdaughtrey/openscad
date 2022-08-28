@@ -4,7 +4,7 @@ module scFrontFace(insideW, insideH)
     linear_extrude(20)
     difference() 
     {
-        square([insideW+100, insideH+100], center = true);
+        square([insideW+80, insideH+100], center = true);
         translate([0, insideH/2-163, 0])
         square([95+20, 161+20], center=true);
     }
@@ -29,8 +29,8 @@ module scOneStrut()
     linear_extrude(240)
     square([scWidth-110, 60], center=true);
     translate([0, 0, 236])
-    linear_extrude(264)
-    square([scWidth+110, 60], center=true);
+    linear_extrude(100)
+    square([scWidth+90, 60], center=true);
 }
 
 module sensorCarrier()
@@ -43,7 +43,7 @@ module sensorCarrier()
     linear_extrude(200)
     difference()
     {
-        square([scInsideW + 100, scInsideH + 100], center = true);
+        square([scInsideW + 80, scInsideH + 100], center = true);
         square([scInsideW, scInsideH], center = true);
     }
     // struts
@@ -55,36 +55,36 @@ module sensorCarrier()
 
     if (models)
     {
-        translate([0, 0, 535])
-        rotate([0, 0, 0])
+        translate([0, 0, 720])
+        rotate([180, 0, 0])
         model_pushbutton_flat();
     }
 
     // Button supports underneath
-    translate([0, -scHeight/2+29, 435])
+    *translate([0, -scHeight/2+29, 435])
     linear_extrude(100)
     square([scWidth+110, 50], center=true);
 
-    translate([0, scHeight/2-29, 435])
+    translate([0, 0, 435])
     linear_extrude(100)
-    square([scWidth+110, 50], center=true);
+    square([200, scWidth+10], center=true);
 
     // Button side guides
-    translate([scWidth/2+15, -scHeight/2+29, 535])
-    linear_extrude(100)
-    square([80, 50], center=true);
-
-    translate([scWidth/2+15, scHeight/2-29, 535])
-    linear_extrude(100)
-    square([80, 50], center=true);
-
-    translate([-scWidth/2-15, -scHeight/2+29, 535])
-    linear_extrude(100)
-    square([80, 50], center=true);
-
-    translate([-scWidth/2-15, scHeight/2-29, 535])
-    linear_extrude(100)
-    square([80, 50], center=true);
+//    translate([scWidth/2+15, -scHeight/2+29, 535])
+//    linear_extrude(100)
+//    square([80, 50], center=true);
+//
+//    translate([scWidth/2+15, scHeight/2-29, 535])
+//    linear_extrude(100)
+//    square([80, 50], center=true);
+//
+//    translate([-scWidth/2-15, -scHeight/2+29, 535])
+//    linear_extrude(100)
+//    square([80, 50], center=true);
+//
+//    translate([-scWidth/2-15, scHeight/2-29, 535])
+//    linear_extrude(100)
+//    square([80, 50], center=true);
 
 
 }

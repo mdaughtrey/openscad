@@ -151,8 +151,8 @@ module forViewing()
 //    rotate([0, 90, 0])
 //    rotate([0, 0, 90])
 //    {
-//        scEnclosure();
-//        sensorCarrier();
+        scEnclosure();
+        sensorCarrier();
 //    }
 //    translate([499, 0, 0])
 //    lidarEnclosure();
@@ -161,7 +161,7 @@ module forViewing()
 //    //translate([2000, 0, 0])
 //    rotate([0, 0, 90])
 //    esp8266Carrier();
-    terminals2();
+//    terminals2();
 }
 
 module forPrinting()

@@ -331,7 +331,7 @@ module onlySwitch()
 
 module forViewing()
 {
-    *model_shoot();
+    model_shoot();
     translate([520, -1515, 65])
     rotate([0, 0, -90])
     model_charger("steelblue");
@@ -356,6 +356,6 @@ module forPrinting()
 scale(ViewScale)
 {
 //    onlySwitch();
-//    forViewing();
-    forPrinting();
+    forViewing();
+//    forPrinting();
 }

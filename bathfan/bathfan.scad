@@ -55,6 +55,29 @@ module model_oldgrill()
 
 }
 
+module clipmount()
+{
+    linear_extrude(101)
+    square([500, 200], center=true);
+
+    translate([500, 0 , 49])
+    linear_extrude(51)
+    square([100, 200], center=true);
+
+    translate([150, 0 , 99])
+    linear_extrude(200)
+    square([800, 200], center=true);
+}
+
+module ruler(len)
+{
+    for(ii=[0:200:len]) {
+        color(ii % 1000 ? "blue":"cyan")
+        translate([ii, 0, 0])
+        square([100, 100], center=true);
+    }
+}
+
 module newgrill()
 {
     linear_extrude(100)
@@ -63,13 +86,13 @@ module newgrill()
         *translate([0, 0, 0])
         square([holeL, holeW], center=true);
         for(ii=[0:300:holeL-2700]) {
-            translate([-9500/2-800+ii, 2400, 0])
-            square([200, 4400], center=true);
+            translate([-9500/2-800+ii, 2900, 0])
+            square([200, 3400], center=true);
         }
 
         for(ii=[0:300:holeL-2700]) {
-            translate([-9500/2-800+ii, -2400, 0])
-            square([200, 4400], center=true);
+            translate([-9500/2-800+ii, -1900, 0])
+            square([200, 5400], center=true);
         }
     }
 
@@ -89,14 +112,38 @@ module newgrill()
         rectHull(400, holeL+1800, holeW+1800);
     }
 
+    // Clip mounts
+    //translate([oldgrilldim/2-1000, 0, 199])
+    translate([1200, 1000, 99])
+    clipmount();
 
+    translate([-5700, 1000, 99])
+    scale([-1.0, 1.0, 1.0])
+    clipmount();
 
+    *translate([-oldgrilldim/2+1000, 0, 199])
+    linear_extrude(500)
+    square([500, 200], center=true);
 
 }
 
+module deathstar()
+{
+    difference() {
+        circle(2000, $fn=96);
+        translate([-900, 900, 0])
+        circle(500, $fn=96);
+        square([6000, 200], center=true);
+        for (ii=[-2000:200:2000]) {
+            translate([1500, ii, 0])
+            square([2500, 100], center=true);
+        }
+    }
+}
 module forViewing()
 {
-    translate([0, 0, 400]) {
+    *deathstar();
+    *translate([0, 0, 400]) {
         color("lightgray")
         model_hole();
         translate([-7500/2+1500, 0, 0])
@@ -105,13 +152,26 @@ module forViewing()
     }
     color("cyan")
     newgrill();
+
+    translate([-9000, -6000, 0])
+    rotate([0, 0, 90])
+    ruler(12000);
+
+    translate([-9000, -7000, 0])
+    ruler(18000);
+
+    translate([-5600, -3700, 0])
+    square([5500, 9500], center=true);
 }
 
 module forPrinting()
 {
+    color("cyan")
+    newgrill();
 }
 
 scale(ViewScale)
 {
+//    forPrinting();
     forViewing();
 }
