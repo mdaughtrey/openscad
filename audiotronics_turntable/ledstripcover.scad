@@ -50,8 +50,8 @@ module forViewing()
 
 module forPrinting()
 {
-//    rotate([180, 0, 0])
-    ledstripcolor(6);
+    rotate([180, 0, 0])
+    ledstripcolor(14);
 }
 
 scale(ViewScale)
