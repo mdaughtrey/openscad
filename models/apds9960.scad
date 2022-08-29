@@ -35,7 +35,7 @@ module model_APDS9960()
 
     if (modelcolor) color("OrangeRed")
     // APDS9660 sensor
-    translate([0, scHeight/2-161, 63])
+    translate([0, scHeight/2-161/2-20, 63])
     linear_extrude(56)
     square([95, 161], center=true);
 }
