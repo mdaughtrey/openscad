@@ -6,7 +6,7 @@ module model_esp32_wroom_dual_row()
     triangle = function() [[0, 0], [100, 0], [100, 100]];
     pcb = model_esp32_wroom_dual_row_pcb();
     if (modelcolor) color("darkblue")
-    linear_extrude(50)
+    linear_extrude(40)
     difference() {
         square(pcb);
         translate([pcb[0]-100, 0, 0])
@@ -32,11 +32,11 @@ module model_esp32_wroom_dual_row()
     // ESP Module PCB
     translate([pcb[0]-1000, 265, 40])
     if (modelcolor) color("black")
-    linear_extrude(50)
+    linear_extrude(30)
     square([1000, 700]);
 
     // ESP Module
-    translate([pcb[0]-970, 310, 90])
+    translate([pcb[0]-970, 310, 70])
     if (modelcolor) color("silver")
     linear_extrude(100)
     square([690, 620]);

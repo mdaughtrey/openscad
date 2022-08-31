@@ -39,23 +39,30 @@ module ledstripcover(numleds = 1)
     }
 }
 
+module pylonmount()
+{
+    ledstripcover(1);
+    translate([410/2, 200, 40])
+    linear_extrude(100)
+    difference() {
+        circle(520/2, $fn=96);
+        circle(420/2, $fn=96);
+    }
+}
+
 module forViewing()
 {
     if (models) {
-        model_ws2812strip(2);
+        model_ws2812strip(1);
     }
-    translate([0, 0, 29])
-    ledstripcolor(2);
+    pylonmount();
 }
 
 module forPrinting()
 {
-    rotate([180, 0, 0])
-    ledstripcolor(14);
 }
 
 scale(ViewScale)
 {
-//    forViewing();
-    forPrinting();
+    forViewing();
 }
