@@ -9,7 +9,7 @@ include <steppergear.scad>
 
 ViewScale = [0.0254, 0.0254, 0.0254];
 
-model = 0;
+model = 1;
 
 module model_cog()
 {

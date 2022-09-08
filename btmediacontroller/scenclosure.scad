@@ -39,19 +39,25 @@ module scEnclosure()
     linear_extrude(100)
     square([100, insideH], center=true);
 
-    // Button side guides
-    translate([scWidth/2+30, -scHeight/2+260, 480])
-    linear_extrude(100)
-    square([100, 130], center=true);
-
-    translate([-scWidth/2-30, -scHeight/2+260, 480])
-    linear_extrude(100)
-    square([100, 130], center=true);
-
     // Button backstop
-    translate([0, 0, 579])
-    linear_extrude(100) {
-        square([insideW, 130], center=true);
-        square([400, 400], center=true);
-    }
+    *translate([0, 0, 730])
+    linear_extrude(100)
+    square([insideW, insideH/3], center=true);
+
+    // Button side guides
+//    translate([scWidth/2+15, -scHeight/2+29, 535])
+//    linear_extrude(100)
+//    square([80, 50], center=true);
+//
+//    translate([scWidth/2+15, scHeight/2-29, 535])
+//    linear_extrude(100)
+//    square([80, 50], center=true);
+//
+//    translate([-scWidth/2-15, -scHeight/2+29, 535])
+//    linear_extrude(100)
+//    square([80, 50], center=true);
+//
+//    translate([-scWidth/2-25, scHeight/2-29, 635])
+//    linear_extrude(100)
+//    square([80, 50], center=true);
 }
