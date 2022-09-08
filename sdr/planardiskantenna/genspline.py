@@ -17,7 +17,6 @@ def process(points, varname):
     w0 = points[:,0]
     w1 = points[:,1]
     oneinch=0.210
-    pdb.set_trace()
     w0 -= np.min(w0)
     w1 -= np.min(w1)
     w1 = np.max(w1)-w1
@@ -50,6 +49,7 @@ def genscadfile(waypoints, length, height, varname):
     print('{} max is {}, length is {}'.format(varname, np.max(y1), np.max(x0)))
 
 process(inner, 'inner')
+#outer = [[x,y] for x,y in zip(list(reversed([x[0] for x in outer])), [x[1] for x in outer])]
 process(outer, 'outer')
 
 
