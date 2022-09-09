@@ -12,15 +12,12 @@ module model_nut()
 
 module model_disk()
 {
-    getcol = function(arr, col) [for(ii=[0:len(arr)-1]) [arr[ii][col]]];
-//    rotate_extrude(angle = 15, convexity=2, $fn=96)
-//    revouter = [for(ii=[len(outer)-1:-1:0]) [outer[ii].x,outer[ii].y]];
-    echo ("last is ", outer[len(outer)-1][0]);
-    translate([13500/2-outer[len(outer)-1][0], 0, 0])
-    polygon(points=outer);
-    //scale([-1.0, 1.0, 1.0]) polygon(points=outer);
-    //polygon(points=concat(inner, outer));
-    //xshift = [for(ii=[len(inner)-1:-1:0]) [inner[ii].x-100,inner[ii].y+100]];
+    innershift = [for(ii=[len(inner)-1:-1:0]) [inner[ii].x,inner[ii].y+50]];
+    rotate_extrude(angle=360, convexity=2, $fn=96) {
+        polygon(points=concat(inner, innershift));
+        translate([6858, 700, 0])
+        circle(100/2, $fn=96);
+    }
 }
 
 module upper()
@@ -51,10 +48,9 @@ module upper()
     template(15); 
     template(-30);
     if (models) {
-        color("red")
-        translate([0, 0, -200])
-        linear_extrude(100)
-        circle(13500/2, $fn=96);
+        color("silver")
+        translate([-200, 0, -500])
+        model_disk();
     }
 
     // Lower circle
@@ -64,6 +60,7 @@ module upper()
         difference() {
             circle(13500/2+500, $fn=96);
             circle((13500/2)-500, $fn=96);
+            // tripod mount
             translate([13500/2, 0, 0])
             circle(280/2, $fn=96);
         }
@@ -89,17 +86,17 @@ module upper()
 
 module forViewing()
 {
-    upper();
+    *upper();
     rotate([0, 0, 180])
-    translate([-13550, 0, 0])
+    translate([-13500, 0, 0])
     upper();
 
     // Nut holder
     translate([13500/2, 0, -740])
     linear_extrude(270)
     difference() {
+        circle(900/2, $fn=6);
         circle(500/2, $fn=6);
-        circle(280/2, $fn=6);
     }
 
     *translate([13500/2-2000, -2500, -975])
@@ -121,6 +118,6 @@ module forPrinting()
 
 scale(ViewScale)
 {
-    model_disk();
-//    forViewing();
+//    model_disk();
+    forViewing();
 }

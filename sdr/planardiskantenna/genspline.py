@@ -13,15 +13,15 @@ inner = np.array([ [148,883], [198,882], [248,886], [298,885], [348,882], [398,8
 
 outer = np.array([ [287,546], [337,587], [387,629], [437,647], [487,660], [537,657], [587,655], [637,647], [687,640], [737,637], [787,634], [837,630], [887,629], [937,625], [987,625], [1037,625], [1087,624], [1137,622], [1187,620], [1237,619], [1287,618], [1337,620], [1387,619], [1437,620], [1487,618], [1537,619], [1587,619]],dtype=float) 
 
-def process(points, varname):
+def process(points, varname, oneinch):
     w0 = points[:,0]
     w1 = points[:,1]
-    oneinch=0.210
+#://www.google.com/maps/place/Jersey/@49.2247219,-2.1959661,12.37z/data=!4m5!3m4!1s0x480c52a48c927533:0x519c23a30a1a6cc3!8m2!3d49.2137711!4d-2.1357662    oneinch=0.210
     w0 -= np.min(w0)
     w1 -= np.min(w1)
     w1 = np.max(w1)-w1
-    w0 = np.floor(w0/oneinch)
-    w1 = np.floor(w1/oneinch)
+    w0 = np.floor(w0/oneinch * 1000)
+    w1 = np.floor(w1/oneinch * 1000)
     genscadfile(w1, np.max(w0)-np.min(w0), np.max(w1), varname)
 
 #waypoints[:,0] /= oneinch
@@ -45,12 +45,14 @@ def genscadfile(waypoints, length, height, varname):
     scadfile.write(','.join([f'[{round(x)},{int(round(y))}]' for x,y in enumerate(y1)]).encode())
     #scadfile.write(','.join([f'[{round(x)},{int(round(y))}]' for x,y in enumerate(interp(x0))]).encode())
     scadfile.write(f',[{len(x0)-1},0]];'.encode())
-    scadfile.write(b'];')
+#    scadfile.write(b'];')
     print('{} max is {}, length is {}'.format(varname, np.max(y1), np.max(x0)))
 
-process(inner, 'inner')
-#outer = [[x,y] for x,y in zip(list(reversed([x[0] for x in outer])), [x[1] for x in outer])]
-process(outer, 'outer')
+pdb.set_trace()
+process(inner, 'inner', 205)
+#outer0 = np.array([[x,y] for x,y in zip(list(reversed([x[0] for x in outer])), [x[1] for x in outer])], dtype=int)
+outer0 = np.array([[x,y] for x,y in zip([x[0] for x in outer], list(reversed([x[1] for x in outer])))], dtype=int)
+process(outer0, 'outer', 194)
 
 
 #xnew = np.linspace(0, 10, num=41, endpoint=True)
