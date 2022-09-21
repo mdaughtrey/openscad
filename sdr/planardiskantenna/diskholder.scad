@@ -10,6 +10,18 @@ module model_nut()
     circle(260, $fn=6);
 }
 
+module model_velcro_adhesive()
+{
+    linear_extrude(200)
+    square([1200, 1200]);
+}
+
+module model_tripodhead()
+{
+    linear_extrude(750)
+    circle(2260/2, $fn=96);
+}
+
 module model_disk()
 {
     innershift = [for(ii=[len(inner)-1:-1:0]) [inner[ii].x,inner[ii].y+50]];
@@ -18,6 +30,9 @@ module model_disk()
         translate([6858, 700, 0])
         circle(100/2, $fn=96);
     }
+    translate([2500, -600, -100])
+    model_velcro_adhesive();
+    
 }
 
 module upper()
@@ -30,8 +45,8 @@ module upper()
                 square([900, 500]);
                 translate([350, 150]) 
                 circle(250/2, $fn=96);
-                translate([225, -100, 0])
-                square([250, 250]);
+                translate([-25, -100, 0])
+                square([500, 250]);
             }
             // Spine
             translate([474, -475, 0])
@@ -53,71 +68,89 @@ module upper()
         model_disk();
     }
 
+    module lowercircle(x,y)
+    {
+        intersection() {
+            difference() {
+                circle(13350/2+500, $fn=96);
+                circle((13500/2)-500, $fn=96);
+                // tripod mount
+                translate([13500/2, 0, 0])
+                circle(x/2, $fn=y);
+            }
+            translate([13500/2-1500, -2500, 0])
+            square([2000, 5000]);
+
+        }
+    }
     // Lower circle
     translate([0, 0, -975])
-    linear_extrude(225)
-    intersection() {
-        difference() {
-            circle(13500/2+500, $fn=96);
-            circle((13500/2)-500, $fn=96);
-            // tripod mount
-            translate([13500/2, 0, 0])
-            circle(280/2, $fn=96);
-        }
-        translate([13500/2-1500, -2500, 0])
-        square([2000, 5000]);
+    linear_extrude(25)
+    lowercircle(280, 96);
 
-    }
+    translate([0, 0, -951])
+    linear_extrude(300)
+    lowercircle(500, 6);
 
     // Upper circle
-    translate([0, 0, 275])
+    *translate([0, 0, 275])
     linear_extrude(225)
     intersection() {
         difference() {
-            circle(13500/2+500, $fn=96);
+            circle(13350/2+500, $fn=96);
             circle((13500/2)-475, $fn=96);
         }
         translate([13500/2-1500, -2500, 0])
         square([2000, 5000]);
 
     }
+}
 
+module arm()
+{
+    rotate([0, 0, -15])
+    rotate_extrude(angle = 30, convexity=2, $fn=96)
+    translate([10350/2-3000, 0, 0])
+    square([4000, 400]);
+
+    translate([0, 0, 399])
+    rotate([0, 0, -15])
+    rotate_extrude(angle = 30, convexity=2, $fn=96)
+    translate([10350/2-1800, 0, 0])
+    square([2800, 101]);
 }
 
 module forViewing()
 {
-    *upper();
-    rotate([0, 0, 180])
-    translate([-13500, 0, 0])
     upper();
-
-    // Nut holder
-    translate([13500/2, 0, -740])
-    linear_extrude(270)
-    difference() {
-        circle(900/2, $fn=6);
-        circle(500/2, $fn=6);
+    *translate([0, 0, -1000])
+    color("lightblue")
+    arm();
+    
+    rotate([0, 0, 180])
+    translate([-13500, 0, 0]) {
+        upper();
+        *translate([0, 0, -1000])
+        color("lightblue")
+        arm();
     }
 
-    *translate([13500/2-2000, -2500, -975])
-    linear_extrude(500)
-    difference() {
-        square([4000, 5000]);
-        translate([500, 500, 0])
-        square([3000, 4000]);
+    if (models)
+    {
+        translate([13350/2, 0, -2000])
+        color("lightgreen")
+        model_tripodhead();
     }
-
-    *translate([13500/2-500, -2500, 200])
-    linear_extrude(300)
-    square([1000, 5000]);
 }
 
 module forPrinting()
 {
+    //arm();
 }
 
 scale(ViewScale)
 {
 //    model_disk();
     forViewing();
+    forPrinting();
 }
