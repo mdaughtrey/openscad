@@ -33,7 +33,7 @@ module contact()
     rotate_extrude(angle=15, convexity=2, $fn=96) 
     intersection() {
         polygon(points=outer);
-        translate([6050, 150, 0])
+        translate([6150, 150, 0])
         square([500, 500]);
     }
 //    innershift = [for(ii=[len(inner)-1:-1:0]) [inner[ii].x,inner[ii].y+50]];
@@ -52,13 +52,15 @@ module forViewing()
     }
     translate([160, 0, 0])
     contact();
-    translate([450, 0, 200])
+    translate([550, 0, 200])
     linear_extrude(200)
     springpart();
 }
 
 module springpart()
 {
+    translate([-50, -1000, 0])
+    rotate([0, 0, 10])
     intersection() {
         translate([6200, -500, 0])
         square([500, 1000]);
@@ -67,7 +69,7 @@ module springpart()
             circle(6450, $fn=96);
         }
     }
-    translate([6470, -100, 0])
+    *translate([6470, -100, 0])
     rotate([0, 0, 90])
     spring();
 }

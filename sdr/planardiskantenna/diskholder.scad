@@ -2,7 +2,7 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 include <inner.dat>
 include <outer.dat>
 
-models=1;
+models=0;
 
 module model_nut() 
 {
@@ -120,9 +120,37 @@ module arm()
     square([2800, 101]);
 }
 
+module diskcontact()
+{
+    translate([160, 0, 0]) {
+        rotate(-7.5)
+        rotate_extrude(angle=15, convexity=2, $fn=96) 
+        intersection() {
+            polygon(points=outer);
+            translate([6150, 150, 0])
+            square([500, 500]);
+        }
+    }
+    translate([550, 0, 200])
+    linear_extrude(200) {
+        translate([-50, -1000, 0])
+        rotate([0, 0, 10])
+        intersection() {
+            translate([6200, -500, 0])
+            square([500, 1000]);
+            difference() {
+                circle(6500, $fn=96);
+                circle(6450, $fn=96);
+            }
+        }
+    }
+}
+
 module forViewing()
 {
     upper();
+    *translate([-200, 0, -500])
+    diskcontact();
     *translate([0, 0, -1000])
     color("lightblue")
     arm();
@@ -130,6 +158,8 @@ module forViewing()
     rotate([0, 0, 180])
     translate([-13500, 0, 0]) {
         upper();
+        *translate([-200, 0, -500])
+        diskcontact();
         *translate([0, 0, -1000])
         color("lightblue")
         arm();
@@ -152,5 +182,5 @@ scale(ViewScale)
 {
 //    model_disk();
     forViewing();
-    forPrinting();
+//    forPrinting();
 }
