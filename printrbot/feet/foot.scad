@@ -1,6 +1,7 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 
 models=0;
+draft=0;
 
 module model_chassis(end=1)
 {
@@ -25,9 +26,20 @@ module model_chassis(end=1)
 module foot(end=1)
 {
     linear_extrude(200)
-    square([7990, 1475]);
+    if (draft) {
+        difference() {
+            square([7790, 1475]);
+            translate([300, 0, 0])
+            square([3500, 1000]);
+
+            translate([4300, 0, 0])
+            square([3300, 1000]);
+        }
+    } else {
+        square([7790, 1475]);
+    }
     translate([0, 0, 199]) 
-    linear_extrude(1000) {
+    linear_extrude(draft?200: 1000) {
         square([200, 1465]); // left end
         if (end) {
             translate([0, 1465-190, 0]) // back
@@ -38,12 +50,12 @@ module foot(end=1)
         translate([3940, 0, 0]) 
         square([200, 1465]); // left end
 
-        translate([7990-200, 0, 0]) 
-        square([200, 1475]); // left end
+        translate([7790-200, 0, 0]) 
+        square([200, 1475]); // right end
     }
     translate([4140, 1275, 199])
     linear_extrude(200)
-    square([3730, 200]);
+    square([3630, 200]);
 }
 
 module forViewing()
@@ -58,9 +70,11 @@ module forViewing()
 
 module forPrinting()
 {
+    foot();
 }
 
 scale(ViewScale)
 {
-    forViewing();
+    //forViewing();
+    forPrinting();
 }
