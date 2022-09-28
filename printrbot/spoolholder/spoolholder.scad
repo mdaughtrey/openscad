@@ -4,7 +4,8 @@ module model_handle()
 {
     bigcircle=22040;
     thickness=474;
-    linear_extrude(630)
+    //linear_extrude(630)
+    linear_extrude(20)
     intersection() {
     circle(3400, $fn=96);
     difference() {

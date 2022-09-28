@@ -28,7 +28,7 @@ module foot(end=1)
     linear_extrude(200)
     if (draft) {
         difference() {
-            square([7790, 1475]);
+            square([7840, 1475]);
             translate([300, 0, 0])
             square([3500, 1000]);
 
@@ -36,7 +36,7 @@ module foot(end=1)
             square([3300, 1000]);
         }
     } else {
-        square([7790, 1475]);
+        square([7840, 1475]);
     }
     translate([0, 0, 199]) 
     linear_extrude(draft?200: 1000) {
@@ -50,12 +50,16 @@ module foot(end=1)
         translate([3940, 0, 0]) 
         square([200, 1465]); // left end
 
-        translate([7790-200, 0, 0]) 
+        translate([7790-150, 0, 0]) 
         square([200, 1475]); // right end
     }
-    translate([4140, 1275, 199])
-    linear_extrude(200)
-    square([3630, 200]);
+    translate([0, 0, 199])
+    linear_extrude(draft?200:1000) {
+        translate([4140, 1275, 199])
+        square([1000, 200]);
+        translate([4140+3620-1000, 1275, 199])
+        square([1000, 200]);
+    }
 }
 
 module forViewing()
@@ -75,6 +79,6 @@ module forPrinting()
 
 scale(ViewScale)
 {
-    //forViewing();
+//    forViewing();
     forPrinting();
 }
