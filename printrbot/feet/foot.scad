@@ -62,13 +62,55 @@ module foot(end=1)
     }
 }
 
+module cap()
+{
+    outerD=2430;
+    innerD=1000;
+    module caplayer() {
+        intersection() {
+            difference() {
+                circle(outerD/2, $fn=96);
+                circle(innerD/2, $fn=96);
+            }
+            translate([-2000, 0, 0])
+            square([4000, 2000]);
+        }
+    }
+    leglength=1000;
+    linear_extrude(100) {
+        caplayer();
+        translate([innerD/2, -leglength, 0]) square([(outerD-innerD)/2, leglength]);
+        translate([-outerD/2, -leglength, 0]) square([(outerD-innerD)/2, leglength]);
+    }
+    translate([0, 0, 99])
+    linear_extrude(230) {
+        caplayer();
+        translate([(-innerD/2)-270, -leglength, 0])
+        square([270, leglength]);
+        translate([innerD/2, -leglength, 0])
+        square([270, leglength]);
+    }
+    translate([0, 0, 329])
+    linear_extrude(100) {
+        caplayer();
+        translate([innerD/2, -leglength, 0]) square([(outerD-innerD)/2, leglength]);
+        translate([-outerD/2, -leglength, 0]) square([(outerD-innerD)/2, leglength]);
+    }
+
+}
+
 module forViewing()
 {
+    color("green")
+    translate([5675+260, 1475+110, 1220])
+    rotate([90, 0, 0])
+    cap();
+
     if(models) translate([210, 0, 210]) color("cyan") model_chassis();
 //    translate([-210, 0, 0])
     foot();
-    translate([0, -1000, 0]) scale([1.0, -1.0, 1.0]) foot(0);
-    translate([0, -3000, 0]) scale([1.0, -1.0, 1.0]) foot();
+*    translate([0, -1000, 0]) scale([1.0, -1.0, 1.0]) foot(0);
+*    translate([0, -3000, 0]) scale([1.0, -1.0, 1.0]) foot();
 
 }
 
@@ -79,6 +121,6 @@ module forPrinting()
 
 scale(ViewScale)
 {
-//    forViewing();
-    forPrinting();
+    forViewing();
+//    forPrinting();
 }
