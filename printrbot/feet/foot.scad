@@ -151,8 +151,8 @@ module forViewing()
 module forPrinting()
 {
     //foot();
-//    scale([1.0, -1.0, 1.0]) foot(end=0, lift=400);
-cap();
+    scale([1.0, -1.0, 1.0]) foot(end=1, lift=1000);
+//cap();
 }
 
 scale(ViewScale)
