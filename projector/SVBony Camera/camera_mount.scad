@@ -186,6 +186,21 @@ module cameraclamp()
         square([2200, 1200], center=true);
     }
 
+    // Crossbolt hole
+    difference() {
+        linear_extrude(270)
+        difference() {
+            translate([0, 1200, 0])
+            square([500, 300], center=true);
+            circle(2168/2, $fn=96);
+        }
+        translate([-300, 1200, 135])
+        rotate([0, 90, 0])
+        linear_extrude(600)
+        circle(130/2, $fn=96);
+    }
+
+
     // Top ring
     translate([0, 0, 220])
     linear_extrude(50)
@@ -208,6 +223,8 @@ module cameraclamp()
     translate([0, 210, 106])
     rotate([90, 0, 0])
     bolttabs(2650);
+
+
 }
 
 module outerclamp()
