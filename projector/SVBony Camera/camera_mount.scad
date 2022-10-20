@@ -1,6 +1,7 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 
 modelcolor=1;
+models = 1;
 
 module model_svbony205()
 {
@@ -63,18 +64,19 @@ module model_usbplug()
     square([316, 412], center=true);
 }
 
+module onetab() {
+    difference() {
+        hull() {
+            circle(330/2, $fn=96);
+            translate([330/2, 0, 0])
+            square([330, 330], center=true);
+        }
+        circle(130/2, $fn=96);
+    }
+}
+
 module bolttabs(space)
 {
-    module onetab() {
-        difference() {
-            hull() {
-                circle(330/2, $fn=96);
-                translate([330/2, 0, 0])
-                square([330, 330], center=true);
-            }
-            circle(130/2, $fn=96);
-        }
-    }
     linear_extrude(200) {
         translate([-space/2, 0, 0])
         onetab();
@@ -187,7 +189,7 @@ module cameraclamp()
     }
 
     // Crossbolt hole
-    difference() {
+    *difference() {
         linear_extrude(270)
         difference() {
             translate([0, 1200, 0])
@@ -260,35 +262,93 @@ module outerclamp()
     ocsection(inner=2096);
 }
 
+module sideclamp0()
+{
+    translate([-1320, -220, 106])
+    scale([-1.0, 1.0, 1.0])
+    rotate([90, 0, 0])
+    linear_extrude(200) 
+    onetab();
+
+    // joiner
+    translate([-1571, -320, 106-330/2])
+    linear_extrude(330)
+    square([220, 200], center=true);
+
+    // vertical
+    translate([-1790, -320, 106-330/2])
+    linear_extrude(330+240+220)
+    square([220, 200], center=true);
+
+    // wraparound
+    translate([-1571, -320, 510])
+    linear_extrude(220)
+    square([220, 200], center=true);
+}
+
+module sideclamp()
+{
+    linear_extrude(200) {
+        rotate([0, 0, 180])
+        onetab();
+
+        translate([-470, -330/2+220/2, 0])
+        circle(220/2, $fn=96);
+
+        // vertical
+        translate([-580, -55, 0])
+        square([220, 570]);
+
+        translate([-470, 570-55, 0])
+        circle(220/2, $fn=96);
+
+        // joiner
+        translate([-340, 0, 0])
+        square([220, 330], center=true);
+
+        // wraparound
+        translate([-270-50, 525, 0])
+        square([320, 200], center=true);
+    }
+}
+
 
 module forViewing()
 {
-    translate([0, 0, 110]) {
-        model_svbony205();
-        translate([0, 0, 1140])
-        if (modelcolor) color("green")
-        model_mountto();
+    if (models) {
+        translate([0, 0, 110]) {
+            model_svbony205();
+            translate([0, 0, 1140])
+            if (modelcolor) color("green")
+            model_mountto();
+        }
     }
     cameramount();
     translate([0, 0, 979]) {
         cameraclamp();
-        outerclamp();
+
+        for (rr = [0, 180]) {
+            rotate([0, 0, rr])
+            for (yy = [-220, 420]) { 
+                translate([-1325, yy, 105])
+                rotate([90, 0, 0])
+                sideclamp();
+            }
+        }
     }
-    translate([0, -1700, 490+250/2])
-    rotate([-90, 0, 0])
-    model_usbplug();
+    if (models) {
+        translate([0, -1700, 490+250/2])
+        rotate([-90, 0, 0])
+        model_usbplug();
+    }
 
 }
 
 module forPrinting()
 {
-    linear_extrude(200)
-    difference() {
-    circle(2588/2, $fn=6);
-    circle(2188/2, $fn=6);
-//    circle(2400/2, $fn=6);
-//    circle(2000/2, $fn=6);
-    }
+//    sideclamp();
+//    cameraclamp();
+    cameramount();
 }
 
 scale(ViewScale)
