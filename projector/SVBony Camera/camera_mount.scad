@@ -71,7 +71,7 @@ module onetab() {
             translate([330/2, 0, 0])
             square([330, 330], center=true);
         }
-        circle(130/2, $fn=96);
+        circle(170/2, $fn=96);
     }
 }
 
@@ -297,7 +297,7 @@ module sideclamp()
 
         // vertical
         translate([-580, -55, 0])
-        square([220, 570]);
+        square([225, 570]);
 
         translate([-470, 570-55, 0])
         circle(220/2, $fn=96);
@@ -307,8 +307,8 @@ module sideclamp()
         square([220, 330], center=true);
 
         // wraparound
-        translate([-270-50, 525, 0])
-        square([320, 200], center=true);
+        translate([-270-50, 522, 0])
+        square([320, 206], center=true);
     }
 }
 
@@ -347,8 +347,8 @@ module forViewing()
 module forPrinting()
 {
 //    sideclamp();
-//    cameraclamp();
-    cameramount();
+    cameraclamp();
+//    cameramount();
 }
 
 scale(ViewScale)
