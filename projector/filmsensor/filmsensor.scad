@@ -2,6 +2,7 @@
 include <model_indexwheels.scad>
 include <model_bearing_4_11_4_flanged.scad>
 include <encoder_enclosure.scad>
+include <coupler.scad>
 
 ViewScale = [0.0254, 0.0254, 0.0254];
 
@@ -69,7 +70,7 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 module forViewing()
 {
     model_encoder();
-    translate([0, 0, 5950-800-300])
+    translate([0, 0, 4850+250])
     //translate([0, 0, 4550])
     rotate([180, 0, 0])
     model_indexwheels();
@@ -87,11 +88,28 @@ module forViewing()
 
     translate([0, 0, 1000])
     encoder_enclosure();
+
+    translate([0, 0, 1610]) {
+        couplehalf(outerradius=330, lowershafth=400, lowershaftr=245/2, uppershafth=400, uppershaftr=160/2,
+            boltheadr=150/2, boltshaftwr=80/2, boltshaftnr=50/2);
+        rotate([0, 0, 180])
+        couplehalf(outerradius=330, lowershafth=400, lowershaftr=245/2, uppershafth=400, uppershaftr=160/2,
+            boltheadr=150/2, boltshaftwr=80/2, boltshaftnr=50/2);
+    }
+//    coupler(upperlength = 400, lowerlength = 400, lowerradius=245, upperradius=160, outer_radius=330);
+}
+
+module forViewing0()
+{
+//    !couplehalf(radius=500, headr=100, wider=80, narrowr=60);
+    couplehalf(outerradius=330, lowershafth=400, lowershaftr=245/2, uppershafth=400, uppershaftr=160/2,
+        boltheadr=150/2, boltshaftwr=80/2, boltshaftnr=50/2);
 }
 
 module forPrinting()
 {
-    encoder_enclosure();
+    couplehalf(outerradius=330, lowershafth=400, lowershaftr=245/2, uppershafth=400, uppershaftr=160/2,
+        boltheadr=150/2, boltshaftwr=80/2, boltshaftnr=50/2);
 }
 
 scale(ViewScale)

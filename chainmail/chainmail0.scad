@@ -28,8 +28,8 @@ module full_link(width, depth, height, thick, gap)
 
 module links(x, y)
 {
-    //w=1000; d=1000; h=500; t=100; g=20;
-    w=600; d=600; h=500; t=100; g=20;
+    //w=600; d=600; h=500; t=100; g=20;
+    w=400; d=400; h=500; t=60; g=20;
 
     for (xx=[0:x-1]) {
         for (yy=[0:y-1]) {
