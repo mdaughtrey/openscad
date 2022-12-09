@@ -6,6 +6,7 @@ include <model_vexplate.scad>
 include <vexmount.scad>
 include <adjuster.scad>
 include <steppergear.scad>
+include <../../libs/MCAD/2Dshapes.scad>
 
 ViewScale = [0.0254, 0.0254, 0.0254];
 
@@ -81,7 +82,8 @@ module frontStepperMount()
         {
             difference()
             {
-                square([1860, 1860], center=true);
+                roundedSquare(pos=[2060, 2060],r=200);
+//                square([2060, 2060], center=true);
                 square([1560, 1560], center=true);
             }
             difference()
@@ -155,10 +157,11 @@ module rearStepperMount()
     linear_extrude(385)
     difference()
     {
-        square([1860, 1860], center=true);
+//        square([2060, 2060], center=true);
+        roundedSquare(pos=[2060, 2060],r=200);
         square([1670, 1670], center=true);
         //square([1650, 1650], center=true);
-        square([2000, 50], center=true);
+        square([2100, 50], center=true);
     }
 
     // Link between mounts
@@ -176,7 +179,8 @@ module rearStepperMount()
 
         difference()
         {
-            square([1860, 1860], center=true);
+            roundedSquare(pos=[2060, 2060],r=200);
+           // square([2060, 2060], center=true);
             square([1650, 1650], center=true);
 //            square([2000, 50], center=true);
         }
@@ -190,7 +194,7 @@ module rearStepperMount()
 
     for (ii=[-20,125])
     {
-        translate([-1860/2-250, ii, 385/2])
+        translate([-1860/2-350, ii, 385/2])
         rotate([90, 0, 0])
         linear_extrude(100)
         captureTab();
@@ -198,7 +202,7 @@ module rearStepperMount()
 
     for (ii=[-20,125])
     {
-        translate([1860/2+250, ii-100, 385/2])
+        translate([1860/2+350, ii-100, 385/2])
         rotate([90, 0, 180])
         linear_extrude(100)
         captureTab();
@@ -267,7 +271,6 @@ module stepperMount()
         model_steppergear();
     }
     rearStepperMount();
-    // mattd
     translate([0, 0, 1540])
     frontStepperMount();
    *translate([0, 0, 3000])
