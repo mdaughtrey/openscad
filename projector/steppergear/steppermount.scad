@@ -5,12 +5,14 @@ include <model_vexplate.scad>
 //include <setscrew_bearing.scad>
 include <vexmount.scad>
 include <adjuster.scad>
-include <steppergear.scad>
+//include <steppergear.scad>
 include <../../libs/MCAD/2Dshapes.scad>
 
 ViewScale = [0.0254, 0.0254, 0.0254];
 
-model = 1;
+//model = 1;
+model = 0;
+supports = 1;
 
 module model_cog()
 {
@@ -326,66 +328,28 @@ module forViewing()
     model_adjuster();
 }
 
-module forViewing0()
+module supports()
 {
+    for (ii=[-1860/2-550, 1860/2+150])
+    {
+        translate([ii, -150, 0])
+        linear_extrude(1530)
+        square([400, 300]);
+    }
 
-    *color("lightblue")
-    translate([-1650/2, -1650/2, 0])
-    model_steppergear();
-    *color("lightblue")
-    translate([-2850, -600, 1720])
-    model_projmount();
-
-
-    color("lightblue")
-    translate([430, -4000, 2250])
-    rotate([0, 90, 0])
-    model_vexplate(5, 10);
-
-    color("lightblue")
-    translate([2500, -1450, 3000])
-    rotate([0, 0, 90])
-    rotate([0, 90, 0])
-    model_vexplate(2, 8);
-
-    color("lightblue")
-    translate([0, -2500, 4000])
-    model_cog();
-
-    // Rear vexmount
-    translate([0, -2500, 1550])
-    vexmount2();
-    translate([0, 0, 1550+400])
-    supportArm();
-    translate([0, 0, 1155])
-    supportArm();
-
-    // Front vexmount
-    translate([0, -2500, 3450])
-    rotate([180, 0, 0])
-    vexmount();
-    translate([0, 0, 3000-345])
-    supportArm();
-
-    translate([0, 0, 740])
-    translate([-1865/2+250, -1860/2-499, 0])
-    rotate([0, 0, 144])
-    translate([1865/2-250, 1860/2+499, 0])
-    stepperMount();
-
-//    frontStepperMount();
-//    translate([0, 0, 740])
-//    rearStepperMount();
-
-    translate([2250, -1350, 3000])
-    rotate([-90, 0, 0])
-    model_adjuster();
+    translate([520, -4000, 0])
+    linear_extrude(330)
+    square([220, 700]);
 }
-
 
 module forPrinting()
 {
+    translate([0, 0, 1925])
+    rotate([0, 180, 0])
     stepperMount();
+    if (supports) {
+        supports();
+    }
 }
 
 scale(ViewScale)
@@ -393,7 +357,6 @@ scale(ViewScale)
 //    scale([1, -1, 1])
     forPrinting();
 //    forViewing();
-//    forViewing0();
 }
 
 
