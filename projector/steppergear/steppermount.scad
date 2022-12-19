@@ -161,8 +161,8 @@ module rearStepperMount()
     {
 //        square([2060, 2060], center=true);
         roundedSquare(pos=[2060, 2060],r=200);
-        square([1670, 1670], center=true);
-        //square([1650, 1650], center=true);
+        //square([1670, 1670], center=true);
+        square([1680, 1680], center=true);
         square([2100, 50], center=true);
     }
 
@@ -183,7 +183,7 @@ module rearStepperMount()
         {
             roundedSquare(pos=[2060, 2060],r=200);
            // square([2060, 2060], center=true);
-            square([1650, 1650], center=true);
+            square([1680, 1680], center=true);
 //            square([2000, 50], center=true);
         }
     }
