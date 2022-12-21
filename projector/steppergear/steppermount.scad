@@ -1,11 +1,8 @@
 include <model_steppergear.scad>
 include <model_projmount.scad>
 include <model_vexplate.scad>
-//include <model_bolt.scad>
-//include <setscrew_bearing.scad>
 include <vexmount.scad>
 include <adjuster.scad>
-//include <steppergear.scad>
 include <../../libs/MCAD/2Dshapes.scad>
 
 ViewScale = [0.0254, 0.0254, 0.0254];
@@ -36,7 +33,6 @@ module captureTab()
 
 module axleTab()
 {
-//    linear_extrude(385)
     difference()
     {
         union()
@@ -51,24 +47,11 @@ module axleTab()
 
 module adjusterCapture()
 {
-    linear_extrude(200)
+    linear_extrude(300)
     difference()
     {
-        hull()
-        {
-            translate([-450, -275, 0])
-            square([100, 100], center = true);
-            translate([-450, 275, 0])
-            square([100, 100], center = true);
-
-            translate([450, -275, 0])
-            square([100, 100], center = true);
-            //translate([300, 125, 0])
-            //circle(400/2, $fn=96);
-            translate([450, 275, 0])
-            square([100, 100], center = true);
-        }
-//        square([1000, 650], center=true);
+        translate([-200, 0, 0])
+        square([1200, 650], center=true);
         translate([100, 20, 0])
         circle(180/2, $fn=96);
         translate([-500, 20, 0])
@@ -78,14 +61,12 @@ module adjusterCapture()
 
 module frontStepperMount()
 {
-//    translate([0, 0, 3000])
     {
         linear_extrude(385)
         {
             difference()
             {
                 roundedSquare(pos=[2060, 2060],r=200);
-//                square([2060, 2060], center=true);
                 square([1560, 1560], center=true);
             }
             difference()
@@ -111,36 +92,7 @@ module frontStepperMount()
                 }
 
             }
-            // Adjuster capture
-            *translate([-2300, 150, 700])
-            rotate([90, 0, 0])
-            adjusterCapture();
         }
-        *translate([-1865/2+250-150, -1860/2-499-2190, 385/2])
-        {
-            rotate([0, 90, 0])
-            linear_extrude(300)
-            {
-                translate([0, 100, 0])
-                square([385, 700], center = true);
-                intersection()
-                {
-                    square([385, 2000], center = true);
-                    translate([-385/2, -418+385/2, 0])
-                    circle(385, $fn=96);
-                }
-            }
-        }
-
-        *translate([1860/2+280, -730, 190])
-        rotate([90, 180, 0])
-        linear_extrude(200)
-        captureTab();
-
-        *translate([1400, 650, 0])
-        rotate([0, 0, 180])
-        linear_extrude(385)
-        axleTab();
     }
 
     // Brace
@@ -159,9 +111,7 @@ module rearStepperMount()
     linear_extrude(385)
     difference()
     {
-//        square([2060, 2060], center=true);
         roundedSquare(pos=[2060, 2060],r=200);
-        //square([1670, 1670], center=true);
         square([1680, 1680], center=true);
         square([2100, 50], center=true);
     }
@@ -182,9 +132,7 @@ module rearStepperMount()
         difference()
         {
             roundedSquare(pos=[2060, 2060],r=200);
-           // square([2060, 2060], center=true);
             square([1680, 1680], center=true);
-//            square([2000, 50], center=true);
         }
     }
 
@@ -225,17 +173,13 @@ module rearStepperMount()
             }
 
         }
-        // Adjuster capture
-        *translate([-2300, 150, 700])
-        rotate([90, 0, 0])
-        adjusterCapture();
     }
     // Adjuster capture
-    translate([-732, -3500, 700])
+    translate([-832, -3200, 700])
     rotate([90, 0, 90])
     adjusterCapture();
 
-    translate([-732, -3500, 1250])
+    translate([-832, -3200, 1250])
     rotate([90, 0, 90])
     adjusterCapture();
 
@@ -246,7 +190,6 @@ module rearStepperMount()
 
 module supportArm()
 {
-//    translate([0, 0, 4500])
     linear_extrude(300)
     difference()
     {
@@ -275,8 +218,6 @@ module stepperMount()
     rearStepperMount();
     translate([0, 0, 1540])
     frontStepperMount();
-   *translate([0, 0, 3000])
-    steppergear();
 }
 
 module forViewing()
