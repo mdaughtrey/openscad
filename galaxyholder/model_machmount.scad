@@ -2,10 +2,13 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 include <../libs/MCAD/2Dshapes.scad>
 
 models=0;
-w=3140;
-h=4730;
-c=175;
-o=320;
+//w=3100; // model width
+w=3140; // model width
+h=4730; // model height 
+c=175;  // mounting hole diameter
+o=320;  // mounting hole center offset from edges
+cw=1410; // cutout width
+ch=2690; // cutout height
 
 module model_tabletmount()
 {
@@ -31,6 +34,34 @@ module model_tabletmount()
 }
 
 module mount()
+{
+    a=(w/2)-(cw/2)+180;
+    b=a-170;
+    linear_extrude(500) {
+        translate([0, 100, 0])
+        square([2000, 200], center=true);
+        for (ii=[1.0,-1.0]) {
+            scale([ii, 1.0])
+            translate([cw/2, 0, 0])
+            {
+                square([a, 200]);
+                translate([a-150, 199, 0])
+                square([150, 471]);
+                translate([a-150-471, 200, 0])
+                intersection() {
+                    translate([200, 0, 0])
+                    square([300, 500]);
+                    difference() {
+                        square([471, 471]);
+                        circle(471, $fn=96);
+                    }
+                }
+            }
+        }
+   }
+}
+
+module mount0()
 {
     linear_extrude(200)
     difference() {
@@ -58,7 +89,6 @@ module mount()
         }
     }
 
-
 }
 
 
@@ -69,21 +99,22 @@ module forViewing()
         translate([0, 0, 220])
         model_tabletmount();
     }
+    rotate([90, 0, 0])
     mount();
 }
 
 module forPrinting()
 {
-    difference() {
+    intersection() {
     mount();
-    translate([0, 2000, -1])
+    translate([0, 0, -1])
     linear_extrude(800)
-    square([4000, 4000], center=true);
+    square([4000, 500], center=true);
     }
 }
 
 scale(ViewScale)
 {
-    //forViewing();
-    forPrinting();
+    forViewing();
+//    forPrinting();
 }
