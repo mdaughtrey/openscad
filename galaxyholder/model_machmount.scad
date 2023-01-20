@@ -3,7 +3,7 @@ include <../libs/MCAD/2Dshapes.scad>
 
 models=0;
 //w=3100; // model width
-w=3140; // model width
+w=3150; // model width
 h=4730; // model height 
 c=175;  // mounting hole diameter
 o=320;  // mounting hole center offset from edges
@@ -33,32 +33,70 @@ module model_tabletmount()
     }
 }
 
-module mount()
+module mounthalf()
+{
+    a=(w/2)-(cw/2)+180;
+    b=a-170;
+    //r=471;
+    r=500;
+//    for (ii=[1.0,-1.0]) {
+//        scale([ii, 1.0])
+        translate([cw/2, 0, 0])
+        {
+            square([a, 350]);
+            translate([a-150, 349, 0])
+            square([150, r]);
+            translate([a-150-r, 350, 0])
+            intersection() {
+                translate([200, 0, 0])
+                square([300, 500]);
+                difference() {
+                    square([r, r]);
+                    circle(r, $fn=96);
+                }
+            }
+        }
+//    }
+}
+
+module mountbottomhalf()
+{
+    a=(w/2)-(cw/2)+180;
+    b=a-170;
+//    for (ii=[1.0,-1.0]) {
+//        scale([ii, 1.0])
+        translate([cw/2, 0, 0])
+        {
+            square([a, 350]);
+            translate([a-150, 349, 0])
+            square([150, 571]);
+            translate([a-450, 350+571-130, 0])
+            square([450, 200]);
+        }
+//    }
+}
+
+module crossmount()
 {
     a=(w/2)-(cw/2)+180;
     b=a-170;
     linear_extrude(500) {
-        translate([0, 100, 0])
-        square([2000, 200], center=true);
         for (ii=[1.0,-1.0]) {
             scale([ii, 1.0])
-            translate([cw/2, 0, 0])
-            {
-                square([a, 200]);
-                translate([a-150, 199, 0])
-                square([150, 471]);
-                translate([a-150-471, 200, 0])
-                intersection() {
-                    translate([200, 0, 0])
-                    square([300, 500]);
-                    difference() {
-                        square([471, 471]);
-                        circle(471, $fn=96);
-                    }
-                }
-            }
+            mounthalf();
         }
+        translate([0, 170, 0])
+        square([2000, 340], center=true);
    }
+}
+
+module lowermount()
+{
+    crossmount();
+    translate([250, 0, -600])
+    rotate([0, -90, 0])
+    linear_extrude(500)
+    mountbottomhalf();
 }
 
 module mount0()
@@ -96,21 +134,30 @@ module forViewing()
 {
     if (models) {
         color("cornflowerblue")
-        translate([0, 0, 220])
+        translate([0, 0, 370])
         model_tabletmount();
     }
-    rotate([90, 0, 0])
-    mount();
+    intersection() {
+        translate([-2500, -800, 17323])
+        rotate([0, 90, 0])
+        linear_extrude(5000)
+        circle(17323, $fn=96);
+        union() {
+            *translate([0, -1400, 0])
+            rotate([90, 0, 0])
+            lowermount();
+            translate([0, 600, 0])
+            rotate([90, 0, 0])
+            crossmount();
+        }
+    }
 }
+
 
 module forPrinting()
 {
-    intersection() {
-    mount();
-    translate([0, 0, -1])
-    linear_extrude(800)
-    square([4000, 500], center=true);
-    }
+    //crossmount();
+    lowermount();
 }
 
 scale(ViewScale)
