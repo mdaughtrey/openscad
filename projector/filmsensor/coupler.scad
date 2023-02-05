@@ -1,3 +1,9 @@
+couplermodel = 1;
+include <model_coupler_bolt.scad>
+//module model_coupler_bolt()
+//module model_coupler_nut()
+//module model_coupler_lockwasher()
+
 module coupler(upperlength, lowerlength, lowerradius, upperradius, outer_radius)
 {
     // Height of the coupler, half for the motor shaft and half for the rod
@@ -76,9 +82,60 @@ module coupler(upperlength, lowerlength, lowerradius, upperradius, outer_radius)
     
 }
 
-module couplehalf(outerradius, lowershafth, lowershaftr, uppershafth, uppershaftr, boltheadh, boltheadr, boltshaftwr, boltshaftnr)
+
+module couplequarter(shafth, outerradius, shaftr,  boltheadh, boltheadr, boltr, nuth, nutr)
 {
     difference() {
+        linear_extrude(shafth)
+        difference() {
+            circle(outerradius, $fn=96);
+            circle(shaftr, $fn=96);
+            translate([0, -outerradius+20, 0])
+            square([outerradius*2, outerradius*2], center=true);
+
+        }
+
+        translate([outerradius/1.5, outerradius+100, shafth/2])
+        rotate([90, 0, 0]) {
+            linear_extrude(outerradius)
+            circle(boltheadr, $fn=96);
+            translate([0, 0, outerradius-1]) {
+            linear_extrude(200)
+            circle(boltr, $fn=96);
+            }
+        }
+
+        translate([-outerradius/1.5, 400, shafth/2])
+
+        rotate([90, 0, 0]) {
+            linear_extrude(outerradius)
+            circle(nutr, $fn=6);
+            translate([0, 0, outerradius-1]) {
+            linear_extrude(200)
+            circle(boltr, $fn=96);
+            }
+        }
+    }
+    *if (couplermodel)
+    {
+        translate([outerradius/1.5, outerradius/1.5, shafth/2])
+        rotate([90, 0, 0]) {
+        color("green")
+        model_coupler_bolt();
+        color("seagreen")
+        translate([0, 0, 400])
+        model_coupler_lockwasher();
+        color("palegreen")
+        translate([0, 0, 600])
+        model_coupler_nut();
+        }
+    }
+}
+
+module couplehalf(outerradius, lowershafth, lowershaftr, uppershafth, uppershaftr, boltheadh, boltheadr, boltshaftwr, boltshaftnr, nutr)
+{
+    couplequarter(lowershafth, outerradius, lowershaftr, boltheadh, boltheadr, boltr, nuth, nutr)
+    *difference() {
         linear_extrude(lowershafth)
         difference() {
             circle(outerradius, $fn=96);
@@ -92,20 +149,40 @@ module couplehalf(outerradius, lowershafth, lowershaftr, uppershafth, uppershaft
         rotate([90, 0, 0]) {
             linear_extrude(outerradius)
             circle(boltheadr, $fn=96);
-            translate([0, 0, outerradius-1])
+            translate([0, 0, outerradius-1]) {
             linear_extrude(200)
             circle(boltshaftwr, $fn=96);
+            }
         }
 
         translate([-outerradius/1.5, 400, lowershafth/2])
+
         rotate([90, 0, 0]) {
-            linear_extrude(400)
+            linear_extrude(outerradius)
+            circle(nutr, $fn=6);
+            translate([0, 0, outerradius-1]) {
+            linear_extrude(200)
             circle(boltshaftnr, $fn=96);
+            }
+        }
+    }
+    *if (couplermodel)
+    {
+        translate([outerradius/1.5, outerradius/1.5, lowershafth/2])
+        rotate([90, 0, 0]) {
+        color("green")
+        model_coupler_bolt();
+        color("seagreen")
+        translate([0, 0, 400])
+        model_coupler_lockwasher();
+        color("palegreen")
+        translate([0, 0, 600])
+        model_coupler_nut();
         }
     }
 
 
-    difference() {
+    *difference() {
         translate([0, 0, lowershafth-1])
         linear_extrude(uppershafth+1)
         difference() {
@@ -124,7 +201,7 @@ module couplehalf(outerradius, lowershafth, lowershaftr, uppershafth, uppershaft
             circle(boltshaftwr, $fn=96);
         }
 
-        translate([-outerradius/1.5, 400, lowershafth + uppershafth/2-1])
+        *translate([-outerradius/1.5, 400, lowershafth + uppershafth/2-1])
         rotate([90, 0, 0]) {
             linear_extrude(400)
             circle(boltshaftnr, $fn=96);
@@ -133,8 +210,8 @@ module couplehalf(outerradius, lowershafth, lowershaftr, uppershafth, uppershaft
 }
 
 
-// ViewScale = [0.0254, 0.0254, 0.0254];
-// scale(ViewScale)
-// {
-//     coupler();
-// }
+//ViewScale = [0.0254, 0.0254, 0.0254];
+//scale(ViewScale)
+//{
+//    coupler();
+//}
