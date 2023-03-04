@@ -142,7 +142,7 @@ module vexmount()
                     circle(1380/2, $fn=96);
                 }
                 translate([1380/2, 1380/2, 0]) 
-                circle(250/2, $fn=96);
+                circle(320/2, $fn=96);
             }
         }
     }

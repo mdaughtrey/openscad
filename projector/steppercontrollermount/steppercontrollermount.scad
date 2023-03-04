@@ -59,18 +59,18 @@ module fanmount()
 {
     hsw = 927;
     hsh = 627;
-    linear_extrude(400)
+    linear_extrude(450)
     difference() {
         roundedSquare(pos=[1100,1100],r=150);
-        roundedSquare(pos=[1000,1000],r=110);
+        roundedSquare(pos=[1020,1020],r=110);
     }
 
     translate([-550, -(hsh+200)/2, -299])
-    linear_extrude(300)
+    linear_extrude(350)
     difference() {
         square([1100, hsh+200]);
-        translate([50, 100, 0])
-        square([1000, hsh]);
+        translate([(1100-hsw)/2-15, 100-15, 0])
+        square([hsw+30, hsh+30]);
         translate([150, -200, 0])
         square([800, 1200]);
     }

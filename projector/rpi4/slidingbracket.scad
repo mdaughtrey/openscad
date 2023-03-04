@@ -219,6 +219,44 @@ module test()
     bracket(1, 1);
 }
 
+module innerFrameBracket() 
+{
+    linear_extrude(100)
+    difference() {
+        hull() {
+            translate([-1500, 0, 0])
+            circle(370/2, $fn=96);
+            translate([1500, 0, 0])
+            circle(370/2, $fn=96);
+        }
+
+        for(ii = [-1500:500:1500]) {
+            translate([ii, 0, 0])
+            circle(170/2, $fn=96);
+        }
+//         circle(170/2, $fn=96);
+//         translate([500, 0, 0])
+//         circle(170/2, $fn=96);
+     }
+     for(ii = [-1200, 1200]) {
+        translate([ii, -400, 0]) 
+        linear_extrude(100)
+        square([300, 500], center=true);
+
+        translate([ii, 0, 335/2]) {
+            translate([0, 0, 0])
+            rotate([90, 0, 0])
+            translate([0, 0, 630])
+            linear_extrude(300)
+            difference() {
+                square([300, 335], center=true);
+                translate([0, 50, 0])
+                square([145, 145], center=true);
+            }
+        }
+     }
+}
+
 module frameBracket() 
 {
     linear_extrude(100)
@@ -264,36 +302,43 @@ module frameBrackets()
 }
 
 module pcbBrackets() {
-    translate([440, 3230, 500]) rotate([0, 180, 90]) frameBracket();
-    translate([3640, 3230, 500]) rotate([0, 180, -90]) scale([-1, 1, 1]) frameBracket();
+    translate([440, 3230, 500]) rotate([0, 180, 90]) innerFrameBracket();
+    translate([3640, 3230, 500]) rotate([0, 180, -90]) scale([-1, 1, 1]) innerFrameBracket();
 
 }
 
 module forViewing()
 {
-    color("cornflowerblue")
-    translate([-50, 120, 500])
-    pcb_replacement();
-    model_bracket();
-    translate([3600-400, 0, 0])
-    model_bracket();
-    color("SpringGreen")
-    frameBrackets();
-
-    color("BurlyWood")
-    pcbBrackets();
-
-    translate([2000-50, 2950+120, 750])
-    rotate([0, 0, 0])
-    color("SandyBrown")
-    aspheric_mount2();
-    translate([2000, 0, 0])
-    *color("BurlyWood")
-    frameBracket();
-
-
+//    color("cornflowerblue")
+//    translate([-50, 120, 500])
+//    pcb_replacement();
+//    model_bracket();
+//    translate([3600-400, 0, 0])
+//    model_bracket();
+//    color("SpringGreen")
+//    frameBrackets();
+//
+//    color("BurlyWood")
+//    pcbBrackets();
+//
+//    translate([2000-50, 2950+120, 750])
+//    rotate([0, 0, 0])
+//    color("SandyBrown")
+//    aspheric_mount2();
+//    translate([2000, 0, 0])
+//    *color("BurlyWood")
+//    frameBracket();
 }
 
+module testthing()
+{
+            linear_extrude(300)
+            difference() {
+                square([300, 335], center=true);
+                translate([0, 50, 0])
+                square([145, 145], center=true);
+            }
+        }
 module forPrinting()
 {
 //    bracket();
@@ -302,12 +347,15 @@ module forPrinting()
 //    bracket();
 //    frameBracket();
 //    pcb_replacement();
-    aspheric_mount2();
+//    aspheric_mount2();
+    innerFrameBracket();
 }
 
 scale(ViewScale)
 {
+//    innerFrameBracket();
 //    bracket();
 //    forViewing();
     forPrinting();
+//testthing();
 }

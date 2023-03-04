@@ -1,4 +1,5 @@
-couplermodel = 1;
+//couplermodel = 1;
+couplermodel = 0;
 include <model_coupler_bolt.scad>
 //module model_coupler_bolt()
 //module model_coupler_nut()
@@ -83,7 +84,7 @@ module coupler(upperlength, lowerlength, lowerradius, upperradius, outer_radius)
 }
 
 
-module couplequarter(shafth, outerradius, shaftr,  boltheadh, boltheadr, boltr, nuth, nutr)
+module couplequarter(shafth, outerradius, shaftr,  boltheadh, boltheadr, boltshaftr, nuth, nutr)
 {
     difference() {
         linear_extrude(shafth)
@@ -97,116 +98,51 @@ module couplequarter(shafth, outerradius, shaftr,  boltheadh, boltheadr, boltr, 
 
         translate([outerradius/1.5, outerradius+100, shafth/2])
         rotate([90, 0, 0]) {
+            translate([-30, 0, -30]) 
             linear_extrude(outerradius)
             circle(boltheadr, $fn=96);
-            translate([0, 0, outerradius-1]) {
-            linear_extrude(200)
-            circle(boltr, $fn=96);
+            translate([-30, 0, outerradius-1-30]) {
+            linear_extrude(300)
+            circle(boltshaftr, $fn=96);
             }
         }
 
         translate([-outerradius/1.5, 400, shafth/2])
-
         rotate([90, 0, 0]) {
+            translate([30, 0, -30]) 
             linear_extrude(outerradius)
             circle(nutr, $fn=6);
-            translate([0, 0, outerradius-1]) {
+            translate([30, 0, outerradius-1-30]) {
             linear_extrude(200)
-            circle(boltr, $fn=96);
+            circle(boltshaftr, $fn=96);
             }
         }
     }
-    *if (couplermodel)
+    if (couplermodel)
     {
         translate([outerradius/1.5, outerradius/1.5, shafth/2])
         rotate([90, 0, 0]) {
+        translate([-30, 0, -30])
         color("green")
         model_coupler_bolt();
-        color("seagreen")
-        translate([0, 0, 400])
+        *color("seagreen")
+        translate([0, 0, 350])
         model_coupler_lockwasher();
         color("palegreen")
-        translate([0, 0, 600])
+        translate([-30, 0, 350])
         model_coupler_nut();
         }
     }
 }
 
-module couplehalf(outerradius, lowershafth, lowershaftr, uppershafth, uppershaftr, boltheadh, boltheadr, boltshaftwr, boltshaftnr, nutr)
+module couplehalf(outerradius, lowershafth, lowershaftr, uppershafth, uppershaftr, boltheadh, boltheadr, boltshaftwr, boltshaftnr, nutr, nuth)
 {
-    couplequarter(lowershafth, outerradius, lowershaftr, boltheadh, boltheadr, boltr, nuth, nutr)
-    *difference() {
-        linear_extrude(lowershafth)
-        difference() {
-            circle(outerradius, $fn=96);
-            circle(lowershaftr, $fn=96);
-            translate([0, -outerradius+20, 0])
-            square([outerradius*2, outerradius*2], center=true);
+    couplequarter(shafth=lowershafth, outerradius=outerradius, shaftr=lowershaftr,  boltheadh=boltheadh,
+        boltheadr=boltheadr, boltshaftr=boltshaftwr, nuth=nuth, nutr=nutr);
 
-        }
-
-        translate([outerradius/1.5, outerradius+100, lowershafth/2])
-        rotate([90, 0, 0]) {
-            linear_extrude(outerradius)
-            circle(boltheadr, $fn=96);
-            translate([0, 0, outerradius-1]) {
-            linear_extrude(200)
-            circle(boltshaftwr, $fn=96);
-            }
-        }
-
-        translate([-outerradius/1.5, 400, lowershafth/2])
-
-        rotate([90, 0, 0]) {
-            linear_extrude(outerradius)
-            circle(nutr, $fn=6);
-            translate([0, 0, outerradius-1]) {
-            linear_extrude(200)
-            circle(boltshaftnr, $fn=96);
-            }
-        }
-    }
-    *if (couplermodel)
-    {
-        translate([outerradius/1.5, outerradius/1.5, lowershafth/2])
-        rotate([90, 0, 0]) {
-        color("green")
-        model_coupler_bolt();
-        color("seagreen")
-        translate([0, 0, 400])
-        model_coupler_lockwasher();
-        color("palegreen")
-        translate([0, 0, 600])
-        model_coupler_nut();
-        }
-    }
-
-
-    *difference() {
-        translate([0, 0, lowershafth-1])
-        linear_extrude(uppershafth+1)
-        difference() {
-            circle(outerradius, $fn=96);
-            circle(uppershaftr, $fn=96);
-            translate([0, -outerradius+20, 0])
-            square([outerradius*2, outerradius*2], center=true);
-
-        }
-        translate([outerradius/1.5, outerradius+100, lowershafth + uppershafth/2-1])
-        rotate([90, 0, 0]) {
-            linear_extrude(outerradius)
-            circle(boltheadr, $fn=96);
-            translate([0, 0, outerradius-1])
-            linear_extrude(200)
-            circle(boltshaftwr, $fn=96);
-        }
-
-        *translate([-outerradius/1.5, 400, lowershafth + uppershafth/2-1])
-        rotate([90, 0, 0]) {
-            linear_extrude(400)
-            circle(boltshaftnr, $fn=96);
-        }
-    }
+    translate([0, 0, lowershafth-1])
+    couplequarter(shafth=uppershafth, outerradius=outerradius, shaftr=uppershaftr,  boltheadh=boltheadh,
+        boltheadr=boltheadr, boltshaftr=boltshaftwr, nuth=nuth, nutr=nutr);
 }
 
 

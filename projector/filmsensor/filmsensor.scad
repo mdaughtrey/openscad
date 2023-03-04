@@ -69,32 +69,32 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 
 module forViewing()
 {
-//    model_encoder();
-//    translate([0, 0, 4850+250])
-//    //translate([0, 0, 4550])
-//    rotate([180, 0, 0])
-//    model_indexwheels();
-//
-//    color("dodgerblue")
-//    //translate([0, 0, 3600])
-//    translate([0, 0, 4800-800])
-//    rotate([180, 0, 0])
-//    model_bearing_4_11_4_flanged();
-//
-//    color("dodgerblue")
-//    translate([0, 0, 2710])
-//    rotate([180, 0, 0])
-//    model_bearing_4_11_4_flanged();
-//
-//    translate([0, 0, 1000])
-//    encoder_enclosure();
+    model_encoder();
+    translate([0, 0, 4850+250])
+    //translate([0, 0, 4550])
+    rotate([180, 0, 0])
+    model_indexwheels();
+
+    color("dodgerblue")
+    //translate([0, 0, 3600])
+    translate([0, 0, 4800-800])
+    rotate([180, 0, 0])
+    model_bearing_4_11_4_flanged();
+
+    color("dodgerblue")
+    translate([0, 0, 2710])
+    rotate([180, 0, 0])
+    model_bearing_4_11_4_flanged();
+
+    translate([0, 0, 1000])
+    encoder_enclosure();
 
     translate([0, 0, 1610]) {
-        *couplehalf(outerradius=330, lowershafth=400, lowershaftr=245/2, uppershafth=400, uppershaftr=160/2,
-            boltheadr=190/2, boltshaftwr=120/2, boltshaftnr=120/2, nutr=220/2);
+        couplehalf(outerradius=330, lowershafth=400, lowershaftr=245/2, uppershafth=400, uppershaftr=160/2,
+            boltheadr=235/2, boltheadh=115, boltshaftwr=138/2, boltshaftnr=138/2, nutr=265/2, nuth=94);
         rotate([0, 0, 180])
         couplehalf(outerradius=330, lowershafth=400, lowershaftr=245/2, uppershafth=400, uppershaftr=160/2,
-            boltheadr=190/2, boltshaftwr=120/2, boltshaftnr=120/2, nutr=220/2);
+            boltheadr=235/2, boltheadh=115, boltshaftwr=138/2, boltshaftnr=138/2, nutr=265/2, nuth=94);
     }
 
 //    coupler(upperlength = 400, lowerlength = 400, lowerradius=245, upperradius=160, outer_radius=330);
@@ -110,11 +110,11 @@ module forViewing0()
 module forPrinting()
 {
     couplehalf(outerradius=330, lowershafth=400, lowershaftr=245/2, uppershafth=400, uppershaftr=160/2,
-        boltheadr=150/2, boltshaftwr=80/2, boltshaftnr=50/2);
+        boltheadr=235/2, boltheadh=115, boltshaftwr=138/2, boltshaftnr=138/2, nutr=265/2, nuth=94);
 }
 
 scale(ViewScale)
 {
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 }
