@@ -42,15 +42,40 @@ module oneclip()
     square([ro*2, PSUW+(wallthick*2) + 40]);
 }
 
+module endclip()
+{
+    w = PSUW+wallthick*2+40;
+    h = PSUH+wallthick*2+40;
+    rotate([0, -90, 0]) {
+        linear_extrude(100)
+        difference() {
+            square([h, w]);
+            translate([h/2, 1200,, 0])
+            circle(750/2, $fn=96);
+            translate([h/3, 2500, 0])
+            square([500, 1000]);
+        }
+        translate([0, 0, -999])
+        linear_extrude(1000)
+        difference() {
+            square([h,w]);
+            translate([wallthick/2, wallthick/2])
+            square([h-wallthick, w-wallthick]);
+        }
+    }
+    translate([200, -ro, 0])
+    oneclip();
+}
+
 module forViewing()
 {
     translate([0, wallthick+20+ro, 220])
     color("cornflowerblue")
     model_psu();
-    translate([1000, 0, 0])
-    oneclip();
-    translate([6000, 0, 0])
-    oneclip();
+    translate([-1000, ro, 0])
+    endclip();
+    *translate([6000, 0, 0])
+    *oneclip();
 }
 
 module forPrinting()
@@ -60,6 +85,6 @@ module forPrinting()
 
 scale(ViewScale)
 {
-    forPrinting();
-//    forViewing();
+//    forPrinting();
+    forViewing();
 }
