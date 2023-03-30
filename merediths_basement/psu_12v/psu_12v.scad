@@ -10,8 +10,24 @@ ri=100;
 
 module model_psu()
 {
+    color("cornflowerblue")
     linear_extrude(PSUH)
     square([PSUL, PSUW]);
+
+    translate([0, 0, PSUH])
+    color("lightblue")
+    linear_extrude(100)
+    {
+        translate([1200, 650, 0])
+        square([1270, 1000]);
+        translate([1200, 2850, 0])
+        square([1270, 1000]);
+        translate([5330+1200, 3000, 0])
+        circle(2250/2, $fn=96);
+
+        translate([0, 0, 0])
+        square([660, PSUW]);
+    }
 }
 
 module oneclip()
@@ -45,22 +61,55 @@ module oneclip()
 module endclip()
 {
     w = PSUW+wallthick*2+40;
-    h = PSUH+wallthick*2+40;
+    h = PSUH+200+wallthick+60;
     rotate([0, -90, 0]) {
         linear_extrude(100)
         difference() {
             square([h, w]);
             translate([h/2, 1200,, 0])
             circle(750/2, $fn=96);
-            translate([h/3, 2500, 0])
-            square([500, 1000]);
+            translate([h/2, 3000, 0])
+            circle(300/2, $fn=96);
         }
-        translate([0, 0, -999])
-        linear_extrude(1000)
+        translate([0, 0, -1999])
+        linear_extrude(2000)
         difference() {
             square([h,w]);
-            translate([wallthick/2, wallthick/2])
-            square([h-wallthick, w-wallthick]);
+            translate([wallthick, wallthick])
+            square([h-wallthick*2, w-wallthick*2]);
+        }
+        translate([0, 0, -2099])
+        linear_extrude(100)
+        difference() {
+            square([h,w]);
+            translate([wallthick*2, wallthick*2])
+            square([h-wallthick*4, w-wallthick*4]);
+        }
+        translate([0, 0, -2899])
+        linear_extrude(800)
+        difference() {
+            square([h,w]);
+            translate([wallthick, wallthick])
+            square([h-wallthick*2, w-wallthick*2]);
+
+            translate([500, -10, 0])
+            square([h-1000, w+100]);
+
+            translate([-200, 500, 0])
+            square([h+100, w-1000]);
+        }
+        translate([0, 0, -3699])
+        linear_extrude(800)
+        difference() {
+            square([h,w]);
+            translate([wallthick, wallthick])
+            square([h-wallthick*2, w-wallthick*2]);
+
+            translate([500, -10, 0])
+            square([h-1000, w+100]);
+
+            translate([-10, 500, 0])
+            square([h+100, w-1000]);
         }
     }
     translate([200, -ro, 0])
@@ -70,9 +119,8 @@ module endclip()
 module forViewing()
 {
     translate([0, wallthick+20+ro, 220])
-    color("cornflowerblue")
     model_psu();
-    translate([-1000, ro, 0])
+    translate([-2200, ro, 0])
     endclip();
     *translate([6000, 0, 0])
     *oneclip();
@@ -80,11 +128,12 @@ module forViewing()
 
 module forPrinting()
 {
-    oneclip();
+    //oneclip();
+    endclip();
 }
 
 scale(ViewScale)
 {
-//    forPrinting();
-    forViewing();
+    forPrinting();
+//    forViewing();
 }
