@@ -67,7 +67,7 @@ module endclip()
         difference() {
             square([h, w]);
             translate([h/2, 1200,, 0])
-            circle(750/2, $fn=96);
+            circle(820/2, $fn=96);
             translate([h/2, 3000, 0])
             circle(300/2, $fn=96);
         }
