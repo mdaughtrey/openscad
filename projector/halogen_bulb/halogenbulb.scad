@@ -7,14 +7,13 @@ include <../../libraries/parabolic_reflector.scad>
 
 $fn=96;
 
-module project()
+module xparabola()
 {
     pX=1000;
     pY=pX;
     focus=1000;
     translate([0, -850, 0])
     rotate([-90, 0, 0]) {
-        mount();
         translate([0, 0, 850+focus])
         rotate([180, 0, 0])
         translate([-pX/2, -pY/2, 0])
@@ -24,15 +23,29 @@ module project()
             thickness   = 200
         );
     }
+}
+
+module project()
+{
+
+    translate([0, -850, 0])
+    rotate([-90, 0, 0]) 
+    mount();
+
+    *color("green") {
+        xparabola();
+    }
+
     t0=-1040;
     xa=153;
     xb=200;
-    xc=150;
+    xc=190;
+    xd=60;
 
     translate([0, 0, t0])
     linear_extrude(xa)
     difference() {
-        circle(970/2);
+        circle(770/2);
         circle(560/2);
     }
 
@@ -41,6 +54,7 @@ module project()
     difference() {
         circle(870/2);
         circle(660/2);
+        square([1300, 500],center=true);
     }
 
     translate([0, 0, t0+xa+xb-3])
@@ -48,14 +62,37 @@ module project()
     difference() {
         circle(1060/2);
         circle(760/2);
-        translate([0, -300, 0])
-        square([1100, 600],center=true);
+        square([300, 1300],center=true);
     }
 
-    *translate([0, 0, 440])
-    linear_extrude(xc)
+    translate([0, 0, t0+xa+xb+xc-3])
+    linear_extrude(xd)
     difference() {
-        circle(1060/2);
+        circle(1260/2);
+        circle(760/2);
+        translate([0, -300, 0])
+        square([1300, 800],center=true);
+        translate([0, 550, 0])
+        square([1300, 600],center=true);
+        square([600, 1100],center=true);
+    }
+    // Upper circles
+    translate([0, 0, 451])
+    linear_extrude(60)
+    difference() {
+        circle(1260/2);
+        circle(760/2);
+        translate([0, -300, 0])
+        square([1300, 800],center=true);
+        translate([0, 550, 0])
+        square([1300, 600],center=true);
+        square([600, 1100],center=true);
+    }
+
+    translate([0, 0, 510])
+    linear_extrude(100)
+    difference() {
+        circle(1260/2);
         circle(860/2);
     }
 }
@@ -77,11 +114,12 @@ module forViewing()
 
 module forPrinting()
 {
-    project();
+//    project();
+    xparabola();
 }
 
 scale(ViewScale)
 {
-//    forPrinting();
-    forViewing();
+    forPrinting();
+//    forViewing();
 }
