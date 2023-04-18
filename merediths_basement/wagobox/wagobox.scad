@@ -66,8 +66,8 @@ module wagobox(cells)
         }
         translate([squareX/2, 910/2, 151])
         rotate([180, 0, 0])
-        linear_extrude(height=120, slices=10, scale=0.5)
-        circle(320/2);
+        linear_extrude(height=130, slices=10, scale=0.5)
+        circle(330/2);
 
     }
 
