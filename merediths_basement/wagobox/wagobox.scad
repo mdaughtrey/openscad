@@ -1,6 +1,8 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 $fn=96;
 
+models=0;
+
 module wagoX(n)
 {
     w=235;
@@ -27,55 +29,75 @@ module wagoX(n)
     square([47,710]);
 }
 
-module wagobox()
+module screw_No8_5_8()
 {
-    // Base
-    linear_extrude(100)
+    linear_extrude(height=100, slices=10, scale=0.5)
+    circle(300/2);
+    translate([0, 0, 99])
+    linear_extrude(500)
+    circle(150/2);
+}
+
+
+module wagobox(cells)
+{
+    basethick=150;
+    wallthick=100;
+
+    function cumsum(v) = [for (a=0, ii=0; ii<len(v); a=a+v[ii], ii=ii+1) a];
+    function sum(v) = [for(p=v) 1]*v;
+    numcells=cumsum(cells);
+    echo("numcells ",numcells);
+
+    if (models) {
+        for (ii=[0:len(numcells)-1]) {
+            color("cornflowerblue")
+            translate([wallthick+235*numcells[ii]+ii*50, wallthick, basethick])
+            wagoX(cells[ii]);
+        }
+    }
+    squareX = (wallthick*2)+(sum(cells)*235)+(len(cells)*47);
     difference() {
-    hull() {
-        square([4278, 910]);
-        translate([-500, 910/2, 0])
-        circle(910/2);
-        translate([4278, 910/2, 0])
-        circle(910/2);
+        linear_extrude(basethick)
+        difference() {
+            square([squareX, 910]);
+            translate([squareX/2, 910/2, 0])
+            circle(180/2);
+        }
+        translate([squareX/2, 910/2, 151])
+        rotate([180, 0, 0])
+        linear_extrude(height=120, slices=10, scale=0.5)
+        circle(320/2);
+
     }
 
-    translate([-500, 910/2, 0])
-    circle(200/2);
-    translate([4278, 910/2, 0])
-    circle(200/2);
+    translate([0, 0, basethick-1])
+    linear_extrude(31)
+    difference() {
+        square([squareX, 910]);
+        translate([wallthick, wallthick-20, 0])
+        square([squareX-wallthick*2, 910-wallthick*2+20]);
     }
 
-    translate([0, 0, 99]) {
-        // Left
-        linear_extrude(436)
-        square([100, 910]);
-        // Right
-        translate([3622, 0, 0])
-        linear_extrude(436)
-        square([100, 910]);
-
-        // Front rise
-        translate([0, 0, 0])
-        linear_extrude(30)
-        square([3722, 90]);
-        // Rear rise
-        translate([0, 910-80, 0])
-        linear_extrude(336)
-        square([3722, 90]);
-        // Top
-        translate([0, 910-230, 336])
-        linear_extrude(100)
-        square([3722, 240]);
+    translate([0, 0, basethick+29])
+    linear_extrude(326-20)
+    difference() {
+        square([squareX, 910]);
+        translate([wallthick, -wallthick, 0])
+        square([squareX-wallthick*2, 910]);
     }
 
+    translate([0, 910-300, basethick+29+326-20])
+    linear_extrude(100)
+    square([squareX, 300]);
 }
     
 module forViewing()
 {
-    translate([0, 0, 100])
+//    screw_No8_5_8();
+    *translate([0, 0, 100])
     // Gnd
-    color("cornflowerblue") {
+    *color("cornflowerblue") {
     wagoX(5);
     // 12v
     translate([1250, 0, 0])
@@ -88,14 +110,16 @@ module forViewing()
     wagoX(3);
     }
     translate([-100, -100, 0])
-    wagobox();
+    wagobox([3]);
 }
 
 module forPrinting()
 {
+    wagobox();
 }
 
 scale(ViewScale)
 {
     forViewing();
+    //forPrinting();
 }
