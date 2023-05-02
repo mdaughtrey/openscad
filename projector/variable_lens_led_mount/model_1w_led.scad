@@ -3,12 +3,12 @@ module model_1w_led()
     // Base
     linear_extrude(50)
     difference() {
-        circle(820/2, $fn=6);
+        circle(900/2, $fn=6);
         for (ii=[0:60:360])
         {
             rotate([0, 0, ii])
-            translate([760/2, 0, 0])
-            circle(160/2, $fn=8);
+            translate([780/2, 0, 0])
+            circle(160/2, $fn=96);
         }
     }
 

@@ -28,8 +28,8 @@ module model_variable_lens()
         linear_extrude(320)
         circle(160/2, $fn=16);
 
-        translate([0, -400, 0])
+        translate([-400, 0, 0])
         linear_extrude(100)
-        square([980, 300], center=true);
+        square([300, 980], center=true);
     }
 }
