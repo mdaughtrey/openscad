@@ -24,7 +24,8 @@ module tabbed()
         intersection() {
             difference() {
                 circle(1600/2, $fn=96);
-                circle(1460/2, $fn=96);
+                circle(1180/2, $fn=96);
+                // circle(1460/2, $fn=96);
             }
             rotate([0, 0, 45]) 
             translate([0, 700, 0])
@@ -141,7 +142,7 @@ module fanmount()
     linear_extrude(200)
     difference() {
         square([1140, 1140], center=true);
-        square([1030, 1040], center=true);
+        square([1010, 1040], center=true);
         translate([-300, 550, 0])
         square([200, 100], center=true);
     }
@@ -149,7 +150,7 @@ module fanmount()
     linear_extrude(200)
     difference() {
         square([1140, 1140], center=true);
-        square([1030, 1040], center=true);
+        square([1010, 1040], center=true);
     }
     translate([0, 0, 400])
     linear_extrude(300){
@@ -282,6 +283,6 @@ module forPrinting()
 
 scale(ViewScale)
 {
-//    forViewing();
-    forPrinting();
+    forViewing();
+//    forPrinting();
 }
