@@ -3,6 +3,8 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 include <model_1w_led.scad>
 include <model_variable_lens.scad>
 include <model_small_heatsink.scad>
+include <model_laser_case.scad>
+include <model_polarizer.scad>
 
 model=1;
 
@@ -256,13 +258,99 @@ module mount()
     fanmount();
 }
 
+module lasermount()
+{
+    linear_extrude(20)
+    difference() {
+        circle(545/2, $fn=96);
+        circle(400/2, $fn=96); // inner
+    }
+
+    translate([0, 0, 19])
+    linear_extrude(451)
+    difference() {
+        circle(545/2, $fn=96);
+        circle(482/2, $fn=96); // inner
+    }
+
+    translate([0, 0, 469])
+    linear_extrude(31)
+    difference() {
+        circle(810/2, $fn=96);
+        circle(482/2, $fn=96); // inner
+    }
+
+    translate([0, 0, 499])
+    linear_extrude(100)
+    difference() {
+        circle(810/2, $fn=96);
+        circle(780/2, $fn=96); // inner
+    }
+}
+
+
+module lensmount()
+{
+    linear_extrude(100)
+    difference() {
+        circle(870/2, $fn=96);
+        circle(825/2, $fn=96); // inner
+    }
+
+    translate([0, 0, 99])
+    linear_extrude(101)
+    difference() {
+        circle(870/2, $fn=96);
+        circle(720/2, $fn=96); // inner
+    }
+
+    translate([0, 0, 199])
+    linear_extrude(101)
+    difference() {
+        circle(810/2, $fn=96);
+        circle(780/2, $fn=96); // inner
+    }
+
+    *translate([0, 0, 499])
+    linear_extrude(100)
+    difference() {
+        circle(810/2, $fn=96);
+        circle(780/2, $fn=96); // inner
+    }
+}
+
+module polarizermount()
+{
+    linear_extrude(270)
+    difference() {
+        circle(1215/2, $fn=96);
+        circle(1110/2, $fn=96);
+        translate([0, 500, 0])
+        square([210, 500], center=true);
+        rotate([0, 0, 120])
+        translate([0, 500, 0])
+        square([210, 500], center=true);
+        rotate([0, 0, 240])
+        translate([0, 500, 0])
+        square([210, 500], center=true);
+    }
+    translate([0, 0, 269])
+    linear_extrude(231)
+    difference() {
+        circle(1260/2, $fn=96);
+        circle(1200/2, $fn=96);
+    }
+}
 
 module forViewing()
 {
     if (model) {
-    color("gray") {
+        *translate([0, 0, 170])
+        color("cornflowerblue") 
+        model_laser_case_small();
+        color("gray") {
         model_1w_led();
-        translate([0, 0, 300])
+        *translate([0, 0, 300])
         model_variable_lens();
     }
     }
@@ -274,11 +362,25 @@ module forViewing()
     translate([0, 0, -80])
     color("sienna")
     ledpcb();
+
+    color("tan")
+    translate([0, 0, 100])
+    lasermount();
+
+    translate([0, 0, 1450]) {
+    color("aliceblue")
+    model_polarizer();
+    polarizermount();
+    }
 }
 
 module forPrinting()
 {
-    mount();
+    polarizermount();
+    *lasermount();
+    //translate([0, 0, 540])
+//    lensmount();
+//    mount();
 }
 
 scale(ViewScale)
