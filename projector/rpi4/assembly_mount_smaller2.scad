@@ -21,6 +21,24 @@ module outer()
     }
 }
 
+module outer_hood()
+{
+    translate([0, 0, -599])
+    linear_extrude(600)
+    difference(){
+        circle(1375/2, $fn=96);
+        circle(1325/2, $fn=96);
+        square([2000, 430], center=true);
+        square([430, 2000], center=true);
+    }
+    linear_extrude(600)
+    difference(){
+        circle(1375/2, $fn=96);
+        circle(1325/2, $fn=96);
+    }
+
+}
+
 module inner()
 {
     union() {

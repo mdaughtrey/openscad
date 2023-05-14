@@ -348,7 +348,9 @@ module forPrinting()
 //    frameBracket();
 //    pcb_replacement();
 //    aspheric_mount2();
-    innerFrameBracket();
+    //#translate([0, 0, 1400])
+    outer_hood();
+//    innerFrameBracket();
 }
 
 scale(ViewScale)
