@@ -91,22 +91,24 @@ module tabs()
 
 }
 
-module case()
+module xpe2_holder()
 {
     // front
     linear_extrude(20)
     difference() {
         circle(1461/2, $fn=96);
-        circle(740/2, $fn=96);
+        //circle(740/2, $fn=96);
+        // Wide mouth
+        circle(880/2, $fn=96);
     }
 
     // Inner ring
     translate([0, 0, 19])
     linear_extrude(100)
     difference() {
+        circle(980/2, $fn=96);
         circle(880/2, $fn=96);
-        circle(780/2, $fn=96);
-        translate([400, 0, 0])
+        *translate([400, 0, 0])
         square(150, center=true);
     }
     // Outer
@@ -133,8 +135,19 @@ module case()
         square([120, 100], center=true);
     }
     tabs();
-    translate([0, 0, 480])
-    linear_extrude(250)
+    translate([0, 0, 479])
+    linear_extrude(201)
+    difference() {
+        circle(1600/2, $fn=96);
+        circle(1400/2, $fn=96);
+        for(ii=[0:20:360]) {
+            rotate([0, 0, ii])
+            translate([-600, 0, 0])
+            square([500, 100], center=true);
+        }
+    }
+    translate([0, 0, 679])
+    linear_extrude(50)
     difference() {
         circle(1600/2, $fn=96);
         circle(1400/2, $fn=96);
@@ -166,9 +179,12 @@ module fanmount()
     module ledframe1()
     {
         difference() {
+            intersection() {
             square([1140, 1140], center=true);
+            circle(1461/2, $fn=96);
+            }
             square([900, 900], center=true);
-            rotcutouts();
+           // rotcutouts();
         }
     }
 
@@ -195,13 +211,13 @@ module fanmount()
 
 module lid()
 {
-    linear_extrude(250)
+    linear_extrude(150)
     difference() {
         circle(1461/2, $fn=96);
         circle(1361/2, $fn=96);
     }
-    translate([0, 0, 249])
-    linear_extrude(101)
+    translate([0, 0, 149])
+    linear_extrude(51)
     difference() {
         circle(1461/2, $fn=96);
         intersection() {
@@ -212,13 +228,13 @@ module lid()
     }
 
     tabs();
-    translate([0, 0, 349])
+    translate([0, 0, 199])
     fanmount();
 }
 
 module forViewing()
 {
-    case();
+    xpe2_holder();
     translate([0, 0, 480])
     color("tan")
     rotate([180, 0, 0])
@@ -234,11 +250,12 @@ module forViewing()
 
 module forPrinting()
 {
-    case();
+    xpe2_holder();
+//    lid();
 }
 
 scale(ViewScale)
 {
-    forViewing();
-    //forPrinting();
+//    forViewing();
+    forPrinting();
 }
