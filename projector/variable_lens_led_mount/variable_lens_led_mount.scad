@@ -298,13 +298,13 @@ module lensmount()
     }
 
     translate([0, 0, 99])
-    linear_extrude(101)
+    linear_extrude(501)
     difference() {
         circle(870/2, $fn=96);
         circle(720/2, $fn=96); // inner
     }
 
-    translate([0, 0, 199])
+    translate([0, 0, 599])
     linear_extrude(101)
     difference() {
         circle(810/2, $fn=96);
@@ -376,15 +376,15 @@ module forViewing()
 
 module forPrinting()
 {
-    polarizermount();
+//    polarizermount();
     *lasermount();
     //translate([0, 0, 540])
-//    lensmount();
+    lensmount();
 //    mount();
 }
 
 scale(ViewScale)
 {
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 }

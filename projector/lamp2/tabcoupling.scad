@@ -253,6 +253,31 @@ module tabcoupling()
     tabs();
 }
 
+module slidingtabcoupling()
+{
+    translate([0, 0, 0])
+    linear_extrude(150)
+    cutouts();
+
+    translate([0, 0, 150])
+    linear_extrude(150)
+    cutouts2();
+
+    translate([0, 0, 300])
+    linear_extrude(200)
+    body1();
+
+    translate([0, 0, 500])
+    linear_extrude(1700)
+    difference() {
+        circle(1460/2, $fn=96);
+        circle(1400/2, $fn=96);
+    }
+
+    translate([0, 0, 2070])
+    tabs();
+}
+
 //module tabbedlensmount() 
 //{
 //    // base
@@ -314,7 +339,7 @@ module tabcoupling()
 //    mirrormountgrooves();
 //}
 
-// scale(ViewScale)
-// {
-//     tabcoupling();
-// }
+scale(ViewScale)
+{
+    slidingtabcoupling();
+}

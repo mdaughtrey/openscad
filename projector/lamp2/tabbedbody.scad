@@ -161,7 +161,7 @@ scale(ViewScale)
 {
 //    ledmount();
     //linear_extrude(170)
-    //support();
- //   translate([0, 1300, 0])
+//    support();
+    translate([0, 1300, 0])
     lensmount();
 }

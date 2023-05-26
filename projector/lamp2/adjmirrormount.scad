@@ -389,9 +389,9 @@ module adjvexmount()
 scale(ViewScale)
 {
     //translate([-2000, 0, 0])
-    adjmirrormount();
+    *adjmirrormount();
     *adjvexmount();
     //translate([0, 0, 300])
     //rotate([180, 0, 45])
-    *tabbedlensmount();
+    tabbedlensmount();
 }

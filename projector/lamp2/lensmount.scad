@@ -104,25 +104,25 @@ module support()
 
 module ledmount()
 {
-    linear_extrude(200)
+    #linear_extrude(200)
     difference() {
         square([1140, 1140], center=true);
         square([1040, 1040], center=true);
         translate([-300, 550, 0])
         square([200, 100], center=true);
     }
-    translate([0, 0, 200])
+    #translate([0, 0, 200])
     linear_extrude(200)
     difference() {
         square([1140, 1140], center=true);
         square([1040, 1040], center=true);
     }
-    translate([0, 0, 400])
+    #translate([0, 0, 400])
     linear_extrude(400){
         ledframe1();
     }
 
-    translate([0, 0, 800])
+    #translate([0, 0, 800])
     linear_extrude(200)
     ledframe2();
 

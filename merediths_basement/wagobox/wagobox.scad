@@ -2,7 +2,7 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 $fn=96;
 
 cells = [3,5,3];
-models=1;
+models=0;
 basethick=150;
 wallthick=100;
 
@@ -149,12 +149,12 @@ module forViewing()
 
 module forPrinting()
 {
-//    wagobox(cells);
-    lid(cells);
+    wagobox(cells);
+//    lid(cells);
 }
 
 scale(ViewScale)
 {
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 }
