@@ -35,17 +35,35 @@ module base()
     }
 }
 
-module onecatch() 
+// module onecatch() 
+// {
+//     cuboid([800,50,50],anchor=LEFT)
+//     position(RIGHT+BACK+TOP)
+//     yrot(90) wedge([50,250,300], orient=FRONT);
+// }
+
+module sliderhalf()
 {
-    cuboid([800,50,50])
-    position(RIGHT+BACK+TOP)
-    yrot(90) wedge([50,150,150], orient=FRONT);
+    diff("cutout")  
+    cuboid([800,390,50], anchor=BACK)
+    position(RIGHT+BACK)
+    tag("cutout") back(1) right(1)cuboid([600,300,51],anchor=RIGHT+BACK,rounding=40,edges=FRONT+LEFT); 
+
+    position(LEFT)
+    cuboid([800,50,50],anchor=LEFT);
+//    position(RIGHT+BACK+TOP)
+//    yrot(90) wedge([50,250,300], orient=FRONT);
 }
 
 module slider()
 {
+    sliderhalf();
+    //diff("cutout")
     //cuboid([800,780,50]);
-    onecatch();
+    //right(1) position(RIGHT) tag("cutout") cuboid([600,600,51],anchor=RIGHT,rounding=40,edges=[FRONT+LEFT,BACK+LEFT]);
+    //onecatch();
+    //#right(10) fwd(250) onecatch();
+    //right(10) back(250) yflip()  onecatch();
 }
 
 module forViewing()
@@ -57,22 +75,13 @@ module forViewing()
 
 module forPrinting()
 {
+    base();
+    right(1500)
+    slider();
 }
 
 scale(ViewScale)
 {
-    forViewing();
 //    forViewing();
-//    square([1000, 1000], anchor=BACK,spin=30)
-//    position(FRONT+RIGHT)
-//    circle(d=200, $fn=96, spin=0,anchor=FRONT)
-//    show_anchors();
-//    rect([1000,4000], chamfer=100);
-//    hexagon(id=500, realign=true, rounding=80);
-//    teardrop2d(r=200);
-//xcopies(10*sqrt(2),n=3)
-//    glued_circles(d=10,spread=10*sqrt(2),tangent=40);
-//    cuboid([100,80,60],rounding=20,edges=TOP);
-//    grid_copies(100,n=6) circle(20);
-
+    forPrinting();
 }
