@@ -47,6 +47,16 @@ module model_batteryclip()
         circle(275/2, $fn=96);
         cutouts();
     }
+    // Platform
+    stexy([0,(-1734/2)-500,-200],200,[1866,1000]);
+    // 45 deg slop
+    translate([1866/2,(-1734/2)-1000,-200])
+    rotate([90,0,0])
+    rotate([0,-90,0])
+    linear_extrude(1866)
+    polygon([[0,0],[200,0],[0,200],[0,0]]);
+
+
 }
 
 module model_aviation_connector_3pin()
@@ -108,21 +118,39 @@ module model_pcbtabs()
 
 module clip()
 {
+    module tabsurrounds()
+    {
+        for (ii=[0,423,-423]) {
+            translate([ii, (-1734/2)+700, 0])
+            difference() {
+                square([175, 350], center=true);
+                translate([0,50,0])
+                square([85, 350], center=true);
+            }
+        }
+
+        *translate([423, (-1734/2)+230-1, 0])
+        square([85, 750], center=true);
+        *translate([-423, (-1734/2)+230-1, 0])
+        square([85, 750], center=true);
+    }
     translate([0, 0, 20])
     linear_extrude(150)
     {
         difference() {
             difference() {
-            translate([0, -100, 0])
-            square([2066, 1934], center=true);
-            translate([0, 0, 0])
-            square([1616, 1754], center=true);
+            translate([0, -775, 0])
+            square([2066, 3184], center=true);
+            translate([0, -750, 0])
+            square([1616, 3254], center=true);
             translate([0, (-1734/2)-125+250+1300, 0])
             square([1896, 280], center=true);
-            translate([0, -200, 0])
+            *translate([0, -200, 0])
             cutouts();
             }
         }
+        *translate([0,-900,0])
+        tabsurrounds();
     }
 
     translate([0, 0, 169])
@@ -130,23 +158,38 @@ module clip()
     {
         difference() {
             difference() {
-            translate([0, -100, 0])
-            square([2066, 1934], center=true);
-            translate([0, 0, 0])
-            square([1896, 1754], center=true);
+            translate([0, -775, 0])
+            square([2066, 3184], center=true);
+            translate([0, -750, 0])
+            square([1896, 3254], center=true);
             translate([0, (-1734/2)-125+250+1300, 0])
             square([1896, 280], center=true);
-            translate([0, -200, 0])
+            *translate([0, -200, 0])
             cutouts();
             }
         }
+        translate([0,-900,0])
+        tabsurrounds();
     }
     translate([0, -100, 469])
     linear_extrude(50)
     difference() {
-        square([2066, 1934], center=true);
+            translate([0, -675, 0])
+            square([2066, 3184], center=true);
+//        square([2066, 1264], center=true);
         translate([0, (-1734/2)+1250, 0]) 
         circle(675/2, $fn=96);
+    }
+    // Connector face
+    translate([0, -2300, 70])
+    rotate([90,0,0])
+    linear_extrude(100)
+    difference() {
+        square([2066, 900],center=true);
+        intersection() {
+            circle(478/2, $fn=96);
+            square([443, 1000],center=true);
+        }
     }
 
 
@@ -154,14 +197,15 @@ module clip()
 
 module forViewing()
 {
-    color("royalblue") {
+    *color("royalblue") {
         model_batteryclip();
     }
-    *translate([0, 0, 1000])
     color("oldlace")
+    translate([0, -1850, 50])
+    rotate([90,0,0])
     model_aviation_connector_3pin();
     clip();
-    color("burlywood")
+    *color("burlywood")
     translate([0,-200,0])
     model_pcbtabs();
 }
@@ -174,6 +218,6 @@ module forPrinting()
 scale(ViewScale)
 {
 //    model_boost_buck_converter();
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 }
