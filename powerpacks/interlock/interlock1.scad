@@ -44,41 +44,33 @@ module base()
 
 module sliderhalf()
 {
-    diff() 
-    cuboid([1000,390,50], anchor=BACK)
-        tag("remove")
-        position(RIGHT+BACK)
-        back(1) right(1)cuboid([700,300,51],anchor=RIGHT+BACK,rounding=40,edges=FRONT+LEFT)
-        tag("keep")
-        position(LEFT+FRONT)
-        back(80)
-        cuboid([800,50,50],anchor=LEFT)
-        position(RIGHT+BACK+TOP)
-        yrot(90) wedge([50,250,300], orient=FRONT);
+//    intersect()  
+//    cyl(r=1000,h=100)
+//    tag("intersect") position(BACK) cuboid([1000,300,100],anchor=BACK)
+//    tag("keep") position(FRONT) cuboid([1200,100,100], anchor=BACK);
+    intersect()
+    shell2d(thickness=5) circle(100)
+    #tag("intersect") square([200,200],anchor=LEFT);
+    
+//    ycopies(n=3,200)
+//    cuboid([1000,100,100], anchor=FRONT);
+//    position(RIGHT)
+//    right_half() circle(r=300);
+//    left_half() cyl(r=300,h=100);
+//    cuboid([1000,500,100], anchor=FRONT);
 
-//    position(LEFT)
-//    cuboid([800,50,50],anchor=LEFT);
-//    position(RIGHT+BACK+TOP)
-//    yrot(90) wedge([50,250,300], orient=FRONT);
 }
 
 module slider()
 {
     sliderhalf();
-    yflip() sliderhalf();
-    //diff("cutout")
-    //cuboid([800,780,50]);
-    //right(1) position(RIGHT) tag("cutout") cuboid([600,600,51],anchor=RIGHT,rounding=40,edges=[FRONT+LEFT,BACK+LEFT]);
-    //onecatch();
-    //#right(10) fwd(250) onecatch();
-    //right(10) back(250) yflip()  onecatch();
 }
 
 module forViewing()
 {
-    base();
-    color("cornflowerblue")
-    up(60) left(100) slider();
+//    base();
+//    color("cornflowerblue")
+    slider();
 }
 
 module forPrinting()
