@@ -69,10 +69,13 @@ module sliderhalf()
 
 module slider()
 {
-    cuboid([200,1000,100], anchor=RIGHT) {
-    position(RIGHT) back(400) sliderhalf();
-    position(RIGHT) fwd(400) yflip() sliderhalf();
-    }
+//    cuboid([200,1000,100], anchor=RIGHT) {
+//    position(RIGHT) back(400) sliderhalf();
+//    position(RIGHT) fwd(400) yflip() sliderhalf();
+//    }
+    sliderhalf();
+    fwd(700)
+    yflip() sliderhalf();
 }
 
 module forViewing()
