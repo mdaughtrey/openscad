@@ -49,8 +49,8 @@ module sliderhalf()
     position(RIGHT+BACK)
     tag("cutout") back(1) right(1)cuboid([600,300,51],anchor=RIGHT+BACK,rounding=40,edges=FRONT+LEFT); 
 
-    position(LEFT)
-    cuboid([800,50,50],anchor=LEFT);
+//    position(LEFT)
+//    cuboid([800,50,50],anchor=LEFT);
 //    position(RIGHT+BACK+TOP)
 //    yrot(90) wedge([50,250,300], orient=FRONT);
 }
@@ -75,8 +75,8 @@ module forViewing()
 
 module forPrinting()
 {
-    base();
-    right(1500)
+    //base();
+    //*right(1500)
     slider();
 }
 
