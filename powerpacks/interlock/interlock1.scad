@@ -42,13 +42,13 @@ module base()
 //     yrot(90) wedge([50,250,300], orient=FRONT);
 // }
 
-module sliderhalf()
+module sliderhalf0()
 {
     cuboid([1200,100,100], anchor=FRONT) {
         back(300)
         intersect()  
-        cyl(r=1000,h=100,$fn=96,anchor=BACK, rounding=20)
-        tag("intersect") position(BACK) cuboid([1000,300,100],anchor=BACK);
+        cyl(r=2000,h=100,$fn=96,anchor=BACK, rounding=20)
+        tag("intersect") position(BACK) cuboid([1000,200,100],anchor=BACK);
         left(400) back(5)
         intersect()  {
             tube(ir=50,or=150,h=100, anchor=RIGHT+BACK)
@@ -67,6 +67,64 @@ module sliderhalf()
     }
 }
 
+module sliderhalf()
+{
+    module hook()
+    {
+    cuboid([1000,50,100])
+    position(RIGHT+FRONT)
+    intersect()   
+    tube(ir=100,or=150,h=100, anchor=FRONT)
+    tag("intersect") cuboid([200, 400,100], anchor=LEFT);
+    }
+    hook();
+    back(250) xflip() hook();
+    back(500) right(50) cuboid([1100,50,100]);
+    back(550) cuboid([1000,50,100]);
+    back(625) intersect()
+    cyl(r=2000,h=100,$fn=96,anchor=BACK, rounding=20)
+    tag("intersect") position(BACK) cuboid([1000,100,100],anchor=BACK);
+
+
+//    ycopies(200,n=3) cuboid([1000,100,100]);
+//    position(RIGHT) hook();
+//    intersect()  {
+//    tube(ir=50,or=150,h=100, anchor=FRONT)
+//    tag("intersect") cuboid([200, 400,100], anchor=LEFT);
+//    }
+
+//    attachable(BACK+RIGHT) { hook(); children();}
+//    #hook();
+//    back(200) xflip()
+//    attachable(LEFT) { hook(); children(); }
+//    position(BACK) hook();
+
+
+//    tag("keep") cuboid([1000,100,100], anchor=RIGHT);
+
+//    cuboid([1200,100,100], anchor=FRONT) {
+//        back(300)
+//        intersect()  
+//        cyl(r=2000,h=100,$fn=96,anchor=BACK, rounding=20)
+//        tag("intersect") position(BACK) cuboid([1000,200,100],anchor=BACK);
+//        left(400) back(5)
+//        intersect()  {
+//            tube(ir=50,or=150,h=100, anchor=RIGHT+BACK)
+//            tag("intersect") cuboid([200, 400,100], anchor=RIGHT);
+//        }
+//        fwd(200) left(10)
+//        cuboid([1000,100,100]) {
+//            position(RIGHT)
+//            left(150) fwd(100)
+//            intersect()  {
+//                tube(ir=50,or=150,h=100, anchor=LEFT)
+//                tag("intersect") cuboid([201, 401,100], anchor=LEFT);
+//                tag("keep") left(450) fwd(100) cuboid([1200,100,100]); 
+//            }
+//        }
+//    }
+}
+
 module slider()
 {
 //    cuboid([200,1000,100], anchor=RIGHT) {
@@ -74,8 +132,8 @@ module slider()
 //    position(RIGHT) fwd(400) yflip() sliderhalf();
 //    }
     sliderhalf();
-    fwd(700)
-    yflip() sliderhalf();
+//    fwd(700)
+//    yflip() sliderhalf();
 }
 
 module forViewing()
