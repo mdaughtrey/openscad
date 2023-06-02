@@ -35,21 +35,23 @@ module base0()
     }
 }
 
-module cutout(d=0)
+module cutout(a=LEFT,d=0)
 {
     conv_hull() 
-        cuboid([1000+d,200+d,101],anchor=LEFT)
-        position(RIGHT+FRONT)
-        cyl(r=50+d/2,100,$fn=96,anchor=LEFT+FRONT);
+        cuboid([1000+d,200+d,101],anchor=a)
+        position(RIGHT) fwd(50+d/2)
+        cyl(r=50+d/2,100,$fn=96,anchor=LEFT);
 }
 
 module base()
 {
 //    difference() {
         cuboid([2000,1800,100], rounding=100, edges="Z",anchor=BOT) {
-            position(TOP+LEFT+BACK) up(50) fwd(80) right(200) cutout(-20);
-            position(TOP+LEFT+FRONT) up(50) back(80) right(200) yflip() cutout(-20);
-            position(TOP) up(100)
+            attach(TOP+LEFT+BACK,norot=1) right(200) cutout(a=BOT+LEFT+BACK,d=-20); 
+            attach(TOP+LEFT+BACK,norot=1) up(20) right(200) cutout(a=BOT+LEFT+BACK,d=-20); 
+            attach(TOP+LEFT+FRONT,norot=1) right(200) yflip() cutout(a=BACK+LEFT+BOT,d=-20);
+            attach(TOP+LEFT+FRONT,norot=1) up(20) right(200) yflip() cutout(a=BACK+LEFT+BOT,d=-20);
+            *position(TOP) up(100)
             difference() {
                 cuboid([2000,1800,100], rounding=100, edges="Z",anchor=BOT); 
                 tag("remove") cuboid([2100,1480,100],anchor=BOT);
