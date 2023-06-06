@@ -1,4 +1,5 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
+include <../../BOSL2-master/std.scad>
 
 
 // Circle translate, extrude, diameter, fh
@@ -6,91 +7,91 @@ module cted(t,e,d,f=96) { translate(t) linear_extrude(e) circle(d/2, $fn=f); }
 // Square translate, extrude, x, y
 module stexy(t,e,xy) { translate(t) linear_extrude(e) square(xy, center=true); }
 
-module cutouts()
-{
-    translate([0, (-1734/2)+230-1, 0])
-    square([77, 460], center=true);
-    translate([423, (-1734/2)+230-1, 0])
-    square([77, 460], center=true);
-    translate([-423, (-1734/2)+230-1, 0])
-    square([77, 460], center=true);
-}
+// module cutouts()
+// {
+//     translate([0, (-1734/2)+230-1, 0])
+//     square([77, 460], center=true);
+//     translate([423, (-1734/2)+230-1, 0])
+//     square([77, 460], center=true);
+//     translate([-423, (-1734/2)+230-1, 0])
+//     square([77, 460], center=true);
+// }
+// 
+// module model_batteryclip0()
+// {
+//     linear_extrude(190)
+//     {
+//         translate([0, (-1734/2)-125+250+1300, 0])
+//         square([1866, 250], center=true);
+//         difference() {
+//             square([1566, 1734], center=true);
+//             cutouts();
+//         }
+//     }
+//     translate([0, 0, 189])
+//     linear_extrude(251) {
+//         translate([0, (-1734/2)-125+250+1300, 0])
+//         square([1866, 250], center=true);
+//         difference() {
+//             translate([0, -434/2, 0])
+//             square([1866, 1300], center=true);
+//             cutouts();
+//             translate([0, (-1734/2)+1150, 0]) 
+//             circle(275/2, $fn=96);
+//         }
+//     }
+//     translate([0, 0, 189+251-90])
+//     linear_extrude(90)
+//     difference() {
+//         square([1866, 1734], center=true);
+//         translate([0, (-1734/2)+1150, 0]) 
+//         circle(275/2, $fn=96);
+//         cutouts();
+//     }
+//     // Platform
+//     stexy([0,(-1734/2)-500,-200],200,[1866,1000]);
+//     // 45 deg slop
+//     translate([1866/2,(-1734/2)-1000,-200])
+//     rotate([90,0,0])
+//     rotate([0,-90,0])
+//     linear_extrude(1866)
+//     polygon([[0,0],[200,0],[0,200],[0,0]]);
+// }
 
-module model_batteryclip()
+module model_battery_clip()
 {
-    linear_extrude(190)
-    {
-        translate([0, (-1734/2)-125+250+1300, 0])
-        square([1866, 250], center=true);
-        difference() {
-            square([1566, 1734], center=true);
-            cutouts();
+    cuboid([3040,2950,600],chamfer=300,edges=TOP,except_edges=LEFT) {
+        position(TOP+LEFT) cuboid([184,1880-170,350],anchor=BOT+LEFT)
+        position(RIGHT+BOT) cuboid([277,1880,350],anchor=BOT+LEFT);
+        diff() {
+            position(TOP+LEFT) cuboid([1760,1565,449],anchor=BOT+LEFT) {
+                position(TOP+LEFT) cuboid([1760,1880,85],anchor=TOP+LEFT);
+                position(TOP+RIGHT) cuboid([1300,1880,250],anchor=TOP+RIGHT);
+                tag("remove") position(RIGHT+BOT) cuboid([460,77,800],anchor=BOT+RIGHT);
+                tag("remove") back(420) position(RIGHT+BOT) cuboid([460,77,800],anchor=BOT+RIGHT);
+                tag("remove") fwd(420) position(RIGHT+BOT) cuboid([460,77,800],anchor=BOT+RIGHT);
+                tag("remove") position(LEFT+TOP) right(560) cyl(r=130,h=100,$fn=96);
+            }
         }
     }
-    translate([0, 0, 189])
-    linear_extrude(251) {
-        translate([0, (-1734/2)-125+250+1300, 0])
-        square([1866, 250], center=true);
-        difference() {
-            translate([0, -434/2, 0])
-            square([1866, 1300], center=true);
-            cutouts();
-            translate([0, (-1734/2)+1150, 0]) 
-            circle(275/2, $fn=96);
-        }
-    }
-    translate([0, 0, 189+251-90])
-    linear_extrude(90)
-    difference() {
-        square([1866, 1734], center=true);
-        translate([0, (-1734/2)+1150, 0]) 
-        circle(275/2, $fn=96);
-        cutouts();
-    }
-    // Platform
-    stexy([0,(-1734/2)-500,-200],200,[1866,1000]);
-    // 45 deg slop
-    translate([1866/2,(-1734/2)-1000,-200])
-    rotate([90,0,0])
-    rotate([0,-90,0])
-    linear_extrude(1866)
-    polygon([[0,0],[200,0],[0,200],[0,0]]);
-
-
 }
 
 module model_aviation_connector_3pin()
 {
-    // Legs
-    linear_extrude(186)
-    for(ii=[0:120:360]) {
-        rotate([0, 0, ii])
-        translate([75, 0, 0])
-        circle(60/2, $fn=96);
+    module base(h=357) {
+        intersection() {
+            cyl(r=458/2,h,$fn=96);
+            cuboid([423,1000,h]);
+        }
     }
-
-    translate([0, 0, 185])
-    linear_extrude(357)
-    intersection() {
-        circle(458/2, $fn=96);
-        square([423, 1000],center=true);
+    union() {
+        base(357);
+        rot_copies(n=3) down(186) xmove(75) cyl(r=30,h=186,$fn=96,anchor=TOP);
+        up(357/2+71/2) cyl(r=583/2,h=71,$fn=96) {
+            attach(TOP) base(197);
+            position(BOT) cyl(r=663/2,h=137,$fn=6,anchor=TOP);
+        }
     }
-
-    translate([0, 0, 540])
-    linear_extrude(71)
-    circle(583/2, $fn=96);
-
-    translate([0, 0, 610])
-    linear_extrude(197)
-    intersection() {
-        circle(458/2, $fn=96);
-        square([423, 1000],center=true);
-    }
-
-    // Nut
-    translate([0, 0, 540-127])
-    linear_extrude(137)
-    circle(663/2, $fn=6);
 }
 
 module model_boost_buck_converter()
@@ -116,7 +117,7 @@ module model_pcbtabs()
     }
 }
 
-module clip()
+module clip0()
 {
     module tabsurrounds()
     {
@@ -192,22 +193,31 @@ module clip()
         }
     }
 
+}
 
+
+module clip()
+{
+    color("red")
+    cuboid([1760,1880,185]);
 }
 
 module forViewing()
 {
-    *color("royalblue") {
-        model_batteryclip();
-    }
-    color("oldlace")
-    translate([0, -1850, 50])
-    rotate([90,0,0])
-    model_aviation_connector_3pin();
-    clip();
-    *color("burlywood")
-    translate([0,-200,0])
-    model_pcbtabs();
+//    color("royalblue")
+    model_battery_clip(); 
+    up(400) left(640) clip();
+
+//    color("oldlace")
+//    translate([0, -1850, 50])
+//    rotate([90,0,0])
+//    model_aviation_connector_3pin();
+//    clip();
+//    translate([2500,0,0])
+//    clip0();
+//    *color("burlywood")
+//    translate([0,-200,0])
+//    model_pcbtabs();
 }
 
 module forPrinting()
@@ -218,6 +228,6 @@ module forPrinting()
 scale(ViewScale)
 {
 //    model_boost_buck_converter();
-//    forViewing();
-    forPrinting();
+    forViewing();
+//    forPrinting();
 }
