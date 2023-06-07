@@ -43,6 +43,14 @@ module model_pcbtabs()
     }
 }
 
+module clip_connector()
+{
+//    diff() {
+    tag("") cuboid([950,2080,569],anchor=BOT+LEFT)
+    tag("remove") attach(LEFT+BOT,norot=1) cuboid([950,1880,469],anchor=LEFT+BOT);
+//    }
+}
+
 module clip()
 {
 //    color("red")
@@ -53,34 +61,19 @@ module clip()
         tag("remove") position(RIGHT+BOT) cuboid([277+30,1880+30,469],anchor=BOT+LEFT)
         tag("remove") position(RIGHT+BOT)  cuboid([1299,1565+30,469],anchor=BOT+LEFT) 
         tag("remove") position(RIGHT+BOT) up(145) cuboid([1300+500,1910,469-145],anchor=BOT+RIGHT);
-//        tag("remove") position(RIGHT+BOT) cuboid([460,77,800],anchor=BOT+RIGHT);
-//        tag("remove") back(420) position(RIGHT+BOT) cuboid([460,77,800],anchor=BOT+RIGHT);
-//        tag("remove") fwd(420) position(RIGHT+BOT) cuboid([460,77,800],anchor=BOT+RIGHT);
-//        tag("keep") position(RIGHT+BOT) cuboid([900,1000,100],anchor=LEFT+BOT);
+        tag("keep") position(RIGHT+BOT) #clip_connector();
         }
     }
     // Top and battery charger hole
     up(469) diff()
-//    { 
-        cuboid([1860+500,2080,100],anchor=BOT+LEFT)  {
+    cuboid([1860-90,2080,100],anchor=BOT+LEFT)  {
         // PCB tab holder surrounds
         attach(BOT+LEFT,norot=1) ycopies(420,n=3) right(1595+200) {
             cuboid([400,150,430],anchor=TOP+LEFT)
-            tag("remove") position(LEFT+TOP) #cuboid([300,60,430],anchor=TOP+LEFT);
+            tag("remove") position(LEFT+TOP) cuboid([300,60,430],anchor=TOP+LEFT);
         }
-            tag("remove") position(LEFT) right(540) cyl(r=620/2,h=110,$fn=96);
-        }
-//        tag("remove") position(BOT+LEFT) #cuboid([300,60,430],anchor=LEFT);
-//        tag("keep") position(BOT+LEFT) right(1595+200) back(420) cuboid([400,150,430],anchor=TOP+LEFT);
-//        tag("keep") position(BOT+LEFT) right(1595+200) fwd(420) cuboid([400,150,430],anchor=TOP+LEFT);
-        // PCB tab holder cutouts
-//        tag("remove") position(BOT+LEFT) right(1595+200)  #cuboid([300,60,430],anchor=TOP+LEFT);
-//        tag("remove") position(BOT+LEFT) right(1595+200) back(420) cuboid([300,60,430],anchor=TOP+LEFT);
-//        tag("remove") position(BOT+LEFT) right(1595+200) fwd(420) cuboid([300,60,430],anchor=TOP+LEFT);
-        //tag("remove") position(LEFT) down(0) right(540) cyl(r=620/2,h=110,$fn=96);
-//        }
-//    }
-//        tag("keep") position(BOT) diff() { cuboid([400,150,430]) position(LEFT) tag("remove") cuboid([300,70,430]); }
+        tag("remove") position(LEFT) right(540) cyl(r=620/2,h=110,$fn=96);
+    }
 }
 
 module model_battery_clip()
@@ -117,20 +110,12 @@ module forViewing()
     model_battery_clip();
     color("royalblue") 
     model_battery_clip0();
-   // recolor("white")
+    recolor("white")
     clip();
 
-//    translate([0, -1850, 50])
-//    rotate([90,0,0])
-    color("oldlace")
-    right(3200) up(200) yrot(90)
-    model_aviation_connector_3pin();
-//    clip();
-//    translate([2500,0,0])
-//    clip0();
-//    *color("burlywood")
-//    translate([0,-200,0])
-//    model_pcbtabs();
+//    color("oldlace")
+//    right(3200) up(150) fwd(300) xrot(-90)
+//    model_aviation_connector_3pin();
 }
 
 module forPrinting()
