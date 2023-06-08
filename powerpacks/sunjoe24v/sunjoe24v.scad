@@ -49,9 +49,9 @@ module housing_3pin()
     tag("") cuboid([1000,2080,559],anchor=BOT+LEFT) {
         tag("remove") attach(LEFT+BOT,norot=1)
             cuboid([850,1880,459],anchor=LEFT+BOT)
-        attach(RIGHT+BOT+FRONT,norot=1) back(200) 
-            cuboid([100,900,459],anchor=FRONT+BOT+LEFT);
-        attach(RIGHT+TOP+FRONT,norot=1) back(200) recolor("green")
+        #attach(RIGHT+BOT+FRONT,norot=1) back(200) 
+            cuboid([150,900,459],anchor=FRONT+BOT+LEFT);
+        attach(RIGHT+TOP+FRONT,norot=1) back(200) 
             cuboid([1000,1100,559+300],anchor=LEFT+FRONT+TOP)
         {
             // Insides
@@ -75,6 +75,7 @@ module housing_3pin()
     }
 }
 
+TODO battery surrounds need to be shorter
 module clip()
 {
 //    color("red")
@@ -150,6 +151,6 @@ module forPrinting()
 scale(ViewScale)
 {
 //    model_boost_buck_converter();
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 }
