@@ -78,10 +78,10 @@ module slider()
 module forViewing()
 {
     base();
-//    color("cornflowerblue")
-//    up(150)
-//    left(100)
-//    slider();
+    color("cornflowerblue")
+    up(150)
+    left(100)
+    slider();
 }
 
 module forPrinting()
