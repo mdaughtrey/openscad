@@ -1,6 +1,7 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 include <../../BOSL2-master/std.scad>
 
+model=1;
 
 module model_aviation_connector_3pin()
 {
@@ -43,12 +44,35 @@ module model_pcbtabs()
     }
 }
 
-module clip_connector()
+module housing_3pin()
 {
-//    diff() {
-    tag("") cuboid([950,2080,569],anchor=BOT+LEFT)
-    tag("remove") attach(LEFT+BOT,norot=1) cuboid([950,1880,469],anchor=LEFT+BOT);
-//    }
+    tag("") cuboid([1000,2080,559],anchor=BOT+LEFT) {
+        tag("remove") attach(LEFT+BOT,norot=1)
+            cuboid([850,1880,459],anchor=LEFT+BOT)
+        attach(RIGHT+BOT+FRONT,norot=1) back(200) 
+            cuboid([100,900,459],anchor=FRONT+BOT+LEFT);
+        attach(RIGHT+TOP+FRONT,norot=1) back(200) recolor("green")
+            cuboid([1000,1100,559+300],anchor=LEFT+FRONT+TOP)
+        {
+            // Insides
+            tag("remove") attach(LEFT+TOP,norot=1) down(100)
+                cuboid([900,900,559+200],anchor=LEFT+TOP)
+                // 45 deg cut
+                attach(BOT+LEFT,norot=1) down(265) yrot(45)
+                    cuboid([800,1500,800]);
+
+            // Connector Hole
+            tag("remove") attach(BACK,norot=1) fwd(50) xrot(90) intersection() {
+                cyl(r=488/2,200,$fn=96);
+                cuboid([453,1000,200]);
+
+            }
+            if (model) {
+                recolor("oldlace") tag("keep") attach(BACK,norot=1) fwd(200) xrot(-90)
+                    model_aviation_connector_3pin();
+            }
+        }
+    }
 }
 
 module clip()
@@ -61,7 +85,7 @@ module clip()
         tag("remove") position(RIGHT+BOT) cuboid([277+30,1880+30,469],anchor=BOT+LEFT)
         tag("remove") position(RIGHT+BOT)  cuboid([1299,1565+30,469],anchor=BOT+LEFT) 
         tag("remove") position(RIGHT+BOT) up(145) cuboid([1300+500,1910,469-145],anchor=BOT+RIGHT);
-        tag("keep") position(RIGHT+BOT) #clip_connector();
+        tag("keep") position(RIGHT+BOT) housing_3pin();
         }
     }
     // Top and battery charger hole
@@ -115,7 +139,7 @@ module forViewing()
 
 //    color("oldlace")
 //    right(3200) up(150) fwd(300) xrot(-90)
-//    model_aviation_connector_3pin();
+    //model_aviation_connector_3pin();
 }
 
 module forPrinting()
