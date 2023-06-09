@@ -1,35 +1,8 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 include <../../BOSL2-master/std.scad>
+include <model_aviation_connector_3pin.scad>
 
-model=1;
-
-module model_aviation_connector_3pin()
-{
-    module base(h=357) {
-        intersection() {
-            cyl(r=458/2,h,$fn=96);
-            cuboid([423,1000,h]);
-        }
-    }
-    union() {
-        base(357);
-        rot_copies(n=3) down(186) xmove(75) cyl(r=30,h=186,$fn=96,anchor=TOP);
-        up(357/2+71/2) cyl(r=583/2,h=71,$fn=96) {
-            attach(TOP) base(197);
-            position(BOT) cyl(r=663/2,h=137,$fn=6,anchor=TOP);
-        }
-    }
-}
-
-module model_boost_buck_converter()
-{
-    stexy([0,0,0],731,[2800,1530]);    // Components
-    stexy([0,0,730],880,[2800,1530]);        // Body
-    stexy([0,0,1609],81,[3100,1660]);         // Lip
-    cted([(2800/2)-600,0,1699],535,544);   // Knob
-    stexy([(-2800/2)-(65/2),0,1150],443,[65,470]); // Side tab
-    stexy([(2800/2),0,1150],443,[65,470]); // Side tab
-}
+model=0;
 
 module model_pcbtabs()
 {
@@ -46,60 +19,152 @@ module model_pcbtabs()
 
 module housing_3pin()
 {
-    tag("") cuboid([1000,2080,559],anchor=BOT+LEFT) {
-        tag("remove") attach(LEFT+BOT,norot=1)
-            cuboid([850,1880,459],anchor=LEFT+BOT)
-        #attach(RIGHT+BOT+FRONT,norot=1) back(200) 
-            cuboid([150,900,459],anchor=FRONT+BOT+LEFT);
+    tag("") cuboid([1000,2080,559],anchor=BOT+LEFT,rounding=100,edges=[RIGHT+FRONT,RIGHT+BACK]) {
+        tag("remove") down(1) attach(LEFT+BOT,norot=1)
+            cuboid([850,1880,459+1],anchor=LEFT+BOT)
+        left(1) attach(RIGHT+BOT+FRONT,norot=1) back(200) 
+            cuboid([150+2,900,459],anchor=FRONT+BOT+LEFT);
         attach(RIGHT+TOP+FRONT,norot=1) back(200) 
-            cuboid([1000,1100,559+300],anchor=LEFT+FRONT+TOP)
+            cuboid([1000,1100,559+300],anchor=LEFT+FRONT+TOP,rounding=100,edges=[RIGHT+FRONT,RIGHT+BACK,TOP+RIGHT,TOP+FRONT,TOP+BACK])
         {
             // Insides
-            tag("remove") attach(LEFT+TOP,norot=1) down(100)
-                cuboid([900,900,559+200],anchor=LEFT+TOP)
+            tag("remove") down(1) attach(LEFT+TOP,norot=1) down(100)
+                cuboid([900,900,559+200+1],anchor=LEFT+TOP)
                 // 45 deg cut
                 attach(BOT+LEFT,norot=1) down(265) yrot(45)
                     cuboid([800,1500,800]);
 
             // Connector Hole
-            tag("remove") attach(BACK,norot=1) fwd(50) xrot(90) intersection() {
+            tag("remove") attach(BACK,norot=1) down(50) fwd(50) xrot(90) intersection() {
                 cyl(r=488/2,200,$fn=96);
                 cuboid([453,1000,200]);
 
             }
             if (model) {
-                recolor("oldlace") tag("keep") attach(BACK,norot=1) fwd(200) xrot(-90)
+                recolor("oldlace") tag("keep") down(50) attach(BACK,norot=1) fwd(200) xrot(-90)
                     model_aviation_connector_3pin();
             }
         }
     }
 }
 
-TODO battery surrounds need to be shorter
+module cutout(a=LEFT,d=0,l=0)
+{
+    conv_hull() 
+        cuboid([1000+l+d,100+d,101],anchor=a)
+        position(RIGHT) fwd(50+d/2)
+        cyl(r=25+d/2,100,$fn=96,anchor=LEFT);
+}
+
+module upper_clip()
+{
+    difference() {
+        cuboid([2600,1800,100], rounding=100, edges="Z") {
+            // front edges
+            attach(TOP+LEFT+BACK,norot=1) right(190) cutout(a=BOT+LEFT+BACK,d=-20,l=-40); 
+            attach(TOP+LEFT+BACK,norot=1) up(20) right(190) cutout(a=BOT+LEFT+BACK,d=-20,l=-40); 
+            attach(TOP+LEFT+FRONT,norot=1) right(190) yflip() cutout(a=BACK+LEFT+BOT,d=-20,l=-40);
+            attach(TOP+LEFT+FRONT,norot=1) up(20) right(190) yflip() cutout(a=BACK+LEFT+BOT,d=-20,l=-40);
+            attach(TOP+RIGHT,norot=1)
+            // Bump at the end
+            diff() {
+                cuboid([1000,1800,120], rounding=100, edges="Z",anchor=RIGHT+BOT)
+                tag("remove") attach(RIGHT+BOT,norot=1) left(180) cuboid([1000,1620,121],rounding=100,edges="Z",anchor=RIGHT+BOT);
+                tag("keep") attach(CENTER) left(120) zrot(90) pie_slice(r=180,l=120,ang=180,$fn=96,anchor=BOT);
+            }
+            // Upper layer
+            position(TOP) up(120) diff() {
+                cuboid([2600,1800,101],rounding=100,edges="Z",anchor=BOT);
+                tag("remove") left(200) cuboid([2600,1500,101],rounding=100,edges="Z",anchor=BOT);
+            }
+            *position(TOP) up(100)
+            difference() {
+                cuboid([2000,1800,101], rounding=100, edges="Z",anchor=BOT); 
+                tag("remove") cuboid([2100,1480,101],anchor=BOT);
+            }
+        }
+        tag("remove") cuboid([1600,1100,101], rounding=100, edges="Z");
+        tag("remove") back(1000) right(70) up(120) cyl(r=300,h=341,$fn=96); // finger cutouts
+        tag("remove") fwd(1000) right(70) up(120) cyl(r=300,h=341,$fn=96); // finger cutouts
+    }
+}
+
 module clip()
 {
-//    color("red")
+    module cutout(a=LEFT,d=0,l=0)
+    {
+        conv_hull() 
+            cuboid([1000+l+d,100+d,101],anchor=a)
+            position(RIGHT) fwd(50+d/2)
+            cyl(r=25+d/2,100,$fn=96,anchor=LEFT);
+    }
     up(10) 
     diff() {
-        cuboid([1860-90,2080,469],anchor=BOT+LEFT)  {
-        tag("remove") position(LEFT+BOT)  cuboid([184-15,1880-140,469],anchor=BOT+LEFT) 
-        tag("remove") position(RIGHT+BOT) cuboid([277+30,1880+30,469],anchor=BOT+LEFT)
-        tag("remove") position(RIGHT+BOT)  cuboid([1299,1565+30,469],anchor=BOT+LEFT) 
-        tag("remove") position(RIGHT+BOT) up(145) cuboid([1300+500,1910,469-145],anchor=BOT+RIGHT);
-        tag("keep") position(RIGHT+BOT) housing_3pin();
+        cuboid([1860-90,2080,469],anchor=BOT+LEFT,rounding=100,edges=[LEFT+FRONT,LEFT+BACK])  {
+        tag("remove") down(1) left(1) position(LEFT+BOT)  cuboid([184-13,1880-140,469+2],anchor=BOT+LEFT) 
+        tag("remove") left(1) position(RIGHT+BOT) cuboid([277+31,1880+30,469],anchor=BOT+LEFT)
+        tag("remove") left(1 )position(RIGHT+BOT)  cuboid([1299+1,1565+30,469],anchor=BOT+LEFT) 
+        tag("remove") position(RIGHT+BOT) up(145) cuboid([1300+500,1910,469-143],anchor=BOT+RIGHT);
+        *tag("keep") position(RIGHT+BOT) housing_3pin();
         }
     }
     // Top and battery charger hole
     up(469) diff()
-    cuboid([1860-90,2080,100],anchor=BOT+LEFT)  {
+    cuboid([1860-90,2080,100],anchor=BOT+LEFT,rounding=100,edges=[LEFT+FRONT,LEFT+BACK])  {
         // PCB tab holder surrounds
-        attach(BOT+LEFT,norot=1) ycopies(420,n=3) right(1595+200) {
-            cuboid([400,150,430],anchor=TOP+LEFT)
-            tag("remove") position(LEFT+TOP) cuboid([300,60,430],anchor=TOP+LEFT);
+        right(1595+200) attach(BOT+LEFT,norot=1) ycopies(420,n=3) {
+            tag("") cuboid([400,150,430-100],anchor=TOP+LEFT)
+            tag("remove") up(10) left(1) position(LEFT+TOP) cuboid([300,62,433],anchor=TOP+LEFT);
         }
-        tag("remove") position(LEFT) right(540) cyl(r=620/2,h=110,$fn=96);
+        // Upper clips
+        attach(TOP+RIGHT+FRONT,norot=1) left(200) zrot(180) cutout(a=BOT+RIGHT+BACK,d=-20,l=-40); 
+        attach(TOP+RIGHT+FRONT,norot=1) left(200) up(20) zrot(180) cutout(a=BOT+RIGHT+BACK,d=-20,l=-40); 
+
+        attach(TOP+RIGHT+BACK,norot=1) left(200) zrot(180) yflip() cutout(a=BOT+RIGHT+BACK,d=-20,l=-40); 
+        attach(TOP+RIGHT+BACK,norot=1) left(200) up(20) zrot(180) yflip() cutout(a=BOT+RIGHT+BACK,d=-20,l=-40); 
+
+        // Bump at the end
+        attach(LEFT+TOP,norot=1) cuboid([1000,2080,120], rounding=100, edges="Z",anchor=LEFT+BOT) {
+            tag("remove") down(1) attach(LEFT+BOT,norot=1) right(180) cuboid([1000,1620+280,122],rounding=100,edges="Z",anchor=LEFT+BOT) 
+                tag("keep") attach(LEFT+BOT,norot=1) left(1) down(1) zrot(-90) pie_slice(r=180,l=121,ang=180,$fn=96,anchor=BOT);
+            attach(LEFT+TOP,norot=1) cuboid([2700,2080,101],rounding=100,edges="Z",anchor=BOT+LEFT)
+                tag("remove") down(1) attach(LEFT+BOT,norot=1) right(200) cuboid([2600,1780,104],rounding=100,edges="Z",anchor=BOT+LEFT);
+        }
+        // Hole for charger
+        tag("remove") down(10) position(LEFT) right(540+75) cyl(r=620/2,h=130,$fn=96);
+
     }
+
 }
+
+module upper_clip()
+{
+    intersection() {
+        diff()  {
+            cuboid([1800,2050,100],rounding=100,edges="Z")
+            {
+                tag("remove") right(200) back(650) position(LEFT) cuboid([1800,250,101],rounding=50,edges="Z",anchor=LEFT);
+                tag("remove") right(200) fwd(650) position(LEFT) cuboid([1800,250,101],rounding=50,edges="Z",anchor=LEFT);
+                tag("remove") right(200) back(1) position(BACK+LEFT) cutout(d=-20,a=BACK+LEFT);
+                tag("remove") right(200) fwd(1) position(FRONT+LEFT) yflip() cutout(d=-20,a=BACK+LEFT);
+                tag("remove") left(500) down(1) position(BOT) cyl(r=100,h=102,$fn=96,anchor=BOT);
+                tag("remove") right(500) down(1) position(BOT) cyl(r=100,h=102,$fn=96,anchor=BOT);
+            }
+        }
+        cyl(r=1100,h=100,$fn=96) cuboid([1100,2000,100], anchor=RIGHT);
+    }
+    up(50) left(500) tube(ir=100,or=200,h=100,$fn=96,anchor=BOT);
+    up(50) right(500) tube(ir=100,or=200,h=100,$fn=96,anchor=BOT);
+    diff() {
+        right(300) cuboid([2400,1580+270,100],rounding=100,edges="Z")
+        tag("remove") left(50) position(RIGHT) cuboid([400,800,101],rounding=100,edges="Z");
+        tag("remove") right(100) cyl(r=1150,h=101,$fn=96) cuboid([1100,2000,101], anchor=RIGHT);
+        tag("keep") right(1450) fwd(170) cuboid([75,600,101]); // tab for the bump
+    }
+    right(800) cuboid([450, 1250,100],anchor=LEFT);
+
+}
+
 
 module model_battery_clip()
 {
@@ -131,12 +196,13 @@ module model_battery_clip0()
 
 module forViewing()
 {
-    color("royalblue") 
+    *color("royalblue") 
     model_battery_clip();
-    color("royalblue") 
+    *color("royalblue") 
     model_battery_clip0();
-    recolor("white")
+    //recolor("white")
     clip();
+    up(630) right(1850) color("green") zrot(180) upper_clip();
 
 //    color("oldlace")
 //    right(3200) up(150) fwd(300) xrot(-90)
@@ -145,7 +211,7 @@ module forViewing()
 
 module forPrinting()
 {
-    clip();
+    upper_clip();
 }
 
 scale(ViewScale)
