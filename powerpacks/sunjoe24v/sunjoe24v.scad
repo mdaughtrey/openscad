@@ -56,38 +56,38 @@ module cutout(a=LEFT,d=0,l=0)
         cyl(r=25+d/2,100,$fn=96,anchor=LEFT);
 }
 
-module upper_clip()
-{
-    difference() {
-        cuboid([2600,1800,100], rounding=100, edges="Z") {
-            // front edges
-            attach(TOP+LEFT+BACK,norot=1) right(190) cutout(a=BOT+LEFT+BACK,d=-20,l=-40); 
-            attach(TOP+LEFT+BACK,norot=1) up(20) right(190) cutout(a=BOT+LEFT+BACK,d=-20,l=-40); 
-            attach(TOP+LEFT+FRONT,norot=1) right(190) yflip() cutout(a=BACK+LEFT+BOT,d=-20,l=-40);
-            attach(TOP+LEFT+FRONT,norot=1) up(20) right(190) yflip() cutout(a=BACK+LEFT+BOT,d=-20,l=-40);
-            attach(TOP+RIGHT,norot=1)
-            // Bump at the end
-            diff() {
-                cuboid([1000,1800,120], rounding=100, edges="Z",anchor=RIGHT+BOT)
-                tag("remove") attach(RIGHT+BOT,norot=1) left(180) cuboid([1000,1620,121],rounding=100,edges="Z",anchor=RIGHT+BOT);
-                tag("keep") attach(CENTER) left(120) zrot(90) pie_slice(r=180,l=120,ang=180,$fn=96,anchor=BOT);
-            }
-            // Upper layer
-            position(TOP) up(120) diff() {
-                cuboid([2600,1800,101],rounding=100,edges="Z",anchor=BOT);
-                tag("remove") left(200) cuboid([2600,1500,101],rounding=100,edges="Z",anchor=BOT);
-            }
-            *position(TOP) up(100)
-            difference() {
-                cuboid([2000,1800,101], rounding=100, edges="Z",anchor=BOT); 
-                tag("remove") cuboid([2100,1480,101],anchor=BOT);
-            }
-        }
-        tag("remove") cuboid([1600,1100,101], rounding=100, edges="Z");
-        tag("remove") back(1000) right(70) up(120) cyl(r=300,h=341,$fn=96); // finger cutouts
-        tag("remove") fwd(1000) right(70) up(120) cyl(r=300,h=341,$fn=96); // finger cutouts
-    }
-}
+//module upper_clip()
+//{
+//    difference() {
+//        cuboid([2600,1800,100], rounding=100, edges="Z") {
+//            // front edges
+//            attach(TOP+LEFT+BACK,norot=1) right(190) cutout(a=BOT+LEFT+BACK,d=-20,l=-40); 
+//            attach(TOP+LEFT+BACK,norot=1) up(20) right(190) cutout(a=BOT+LEFT+BACK,d=-20,l=-40); 
+//            attach(TOP+LEFT+FRONT,norot=1) right(190) yflip() cutout(a=BACK+LEFT+BOT,d=-20,l=-40);
+//            attach(TOP+LEFT+FRONT,norot=1) up(20) right(190) yflip() cutout(a=BACK+LEFT+BOT,d=-20,l=-40);
+//            attach(TOP+RIGHT,norot=1)
+//            // Bump at the end
+//            diff() {
+//                cuboid([1000,1800,120], rounding=100, edges="Z",anchor=RIGHT+BOT)
+//                tag("remove") attach(RIGHT+BOT,norot=1) left(180) cuboid([1000,1620,121],rounding=100,edges="Z",anchor=RIGHT+BOT);
+//                tag("keep") attach(CENTER) left(120) zrot(90) pie_slice(r=180,l=120,ang=180,$fn=96,anchor=BOT);
+//            }
+//            // Upper layer
+//            position(TOP) up(120) diff() {
+//                cuboid([2600,1800,101],rounding=100,edges="Z",anchor=BOT);
+//                tag("remove") left(200) cuboid([2600,1500,101],rounding=100,edges="Z",anchor=BOT);
+//            }
+//            *position(TOP) up(100)
+//            difference() {
+//                cuboid([2000,1800,101], rounding=100, edges="Z",anchor=BOT); 
+//                tag("remove") cuboid([2100,1480,101],anchor=BOT);
+//            }
+//        }
+//        tag("remove") cuboid([1600,1100,101], rounding=100, edges="Z");
+//        tag("remove") back(1000) right(70) up(120) cyl(r=300,h=341,$fn=96); // finger cutouts
+//        tag("remove") fwd(1000) right(70) up(120) cyl(r=300,h=341,$fn=96); // finger cutouts
+//    }
+//}
 
 module clip()
 {
@@ -105,12 +105,12 @@ module clip()
         tag("remove") left(1) position(RIGHT+BOT) cuboid([277+31,1880+30,469],anchor=BOT+LEFT)
         tag("remove") left(1 )position(RIGHT+BOT)  cuboid([1299+1,1565+30,469],anchor=BOT+LEFT) 
         tag("remove") position(RIGHT+BOT) up(145) cuboid([1300+500,1910,469-143],anchor=BOT+RIGHT);
-        *tag("keep") position(RIGHT+BOT) housing_3pin();
+        tag("keep") position(RIGHT+BOT) housing_3pin();
         }
     }
     // Top and battery charger hole
     up(469) diff()
-    cuboid([1860-90,2080,100],anchor=BOT+LEFT,rounding=100,edges=[LEFT+FRONT,LEFT+BACK])  {
+    #cuboid([1860-90,2080,100],anchor=BOT+LEFT,rounding=100,edges=[LEFT+FRONT,LEFT+BACK])  {
         // PCB tab holder surrounds
         right(1595+200) attach(BOT+LEFT,norot=1) ycopies(420,n=3) {
             tag("") cuboid([400,150,430-100],anchor=TOP+LEFT)
@@ -202,7 +202,7 @@ module forViewing()
     model_battery_clip0();
     //recolor("white")
     clip();
-    up(630) right(1850) color("green") zrot(180) upper_clip();
+//    up(630) right(1850) color("green") zrot(180) upper_clip();
 
 //    color("oldlace")
 //    right(3200) up(150) fwd(300) xrot(-90)
@@ -211,12 +211,12 @@ module forViewing()
 
 module forPrinting()
 {
-    upper_clip();
+   upper_clip();
 }
 
 scale(ViewScale)
 {
 //    model_boost_buck_converter();
-//    forViewing();
-    forPrinting();
+    forViewing();
+//    forPrinting();
 }
