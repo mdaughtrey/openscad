@@ -1,21 +1,8 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 include <../../BOSL2-master/std.scad>
-include <model_aviation_connector_3pin.scad>
+include <../../models/model_aviation_connector_3pin.scad>
 
 model=0;
-
-module model_pcbtabs()
-{
-    linear_extrude(450)
-    {
-        translate([0, (-1734/2)+230-1, 0])
-        square([65, 750], center=true);
-        translate([423, (-1734/2)+230-1, 0])
-        square([65, 750], center=true);
-        translate([-423, (-1734/2)+230-1, 0])
-        square([65, 750], center=true);
-    }
-}
 
 module housing_3pin()
 {
@@ -56,38 +43,6 @@ module cutout(a=LEFT,d=0,l=0)
         cyl(r=25+d/2,100,$fn=96,anchor=LEFT);
 }
 
-//module upper_clip()
-//{
-//    difference() {
-//        cuboid([2600,1800,100], rounding=100, edges="Z") {
-//            // front edges
-//            attach(TOP+LEFT+BACK,norot=1) right(190) cutout(a=BOT+LEFT+BACK,d=-20,l=-40); 
-//            attach(TOP+LEFT+BACK,norot=1) up(20) right(190) cutout(a=BOT+LEFT+BACK,d=-20,l=-40); 
-//            attach(TOP+LEFT+FRONT,norot=1) right(190) yflip() cutout(a=BACK+LEFT+BOT,d=-20,l=-40);
-//            attach(TOP+LEFT+FRONT,norot=1) up(20) right(190) yflip() cutout(a=BACK+LEFT+BOT,d=-20,l=-40);
-//            attach(TOP+RIGHT,norot=1)
-//            // Bump at the end
-//            diff() {
-//                cuboid([1000,1800,120], rounding=100, edges="Z",anchor=RIGHT+BOT)
-//                tag("remove") attach(RIGHT+BOT,norot=1) left(180) cuboid([1000,1620,121],rounding=100,edges="Z",anchor=RIGHT+BOT);
-//                tag("keep") attach(CENTER) left(120) zrot(90) pie_slice(r=180,l=120,ang=180,$fn=96,anchor=BOT);
-//            }
-//            // Upper layer
-//            position(TOP) up(120) diff() {
-//                cuboid([2600,1800,101],rounding=100,edges="Z",anchor=BOT);
-//                tag("remove") left(200) cuboid([2600,1500,101],rounding=100,edges="Z",anchor=BOT);
-//            }
-//            *position(TOP) up(100)
-//            difference() {
-//                cuboid([2000,1800,101], rounding=100, edges="Z",anchor=BOT); 
-//                tag("remove") cuboid([2100,1480,101],anchor=BOT);
-//            }
-//        }
-//        tag("remove") cuboid([1600,1100,101], rounding=100, edges="Z");
-//        tag("remove") back(1000) right(70) up(120) cyl(r=300,h=341,$fn=96); // finger cutouts
-//        tag("remove") fwd(1000) right(70) up(120) cyl(r=300,h=341,$fn=96); // finger cutouts
-//    }
-//}
 
 module clip()
 {
@@ -110,7 +65,7 @@ module clip()
     }
     // Top and battery charger hole
     up(469) diff()
-    #cuboid([1860-90,2080,100],anchor=BOT+LEFT,rounding=100,edges=[LEFT+FRONT,LEFT+BACK])  {
+    cuboid([1860-90,2080,100],anchor=BOT+LEFT,rounding=100,edges=[LEFT+FRONT,LEFT+BACK])  {
         // PCB tab holder surrounds
         right(1595+200) attach(BOT+LEFT,norot=1) ycopies(420,n=3) {
             tag("") cuboid([400,150,430-100],anchor=TOP+LEFT)
@@ -153,7 +108,7 @@ module upper_clip()
         }
         cyl(r=1100,h=100,$fn=96) cuboid([1100,2000,100], anchor=RIGHT);
     }
-    up(50) left(500) tube(ir=100,or=200,h=100,$fn=96,anchor=BOT);
+    up(50) left(500) tube(ir=100,or=210,h=100,$fn=96,anchor=BOT);
     up(50) right(500) tube(ir=100,or=200,h=100,$fn=96,anchor=BOT);
     diff() {
         right(300) cuboid([2400,1580+270,100],rounding=100,edges="Z")
@@ -217,6 +172,6 @@ module forPrinting()
 scale(ViewScale)
 {
 //    model_boost_buck_converter();
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 }
