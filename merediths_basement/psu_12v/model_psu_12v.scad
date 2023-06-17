@@ -1,6 +1,7 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 include <../../BOSL2-master/std.scad>
 
+model_psu12v_dim=[8740,4475,1960];
 
 module model_psu12v()
 {
@@ -14,7 +15,7 @@ module model_psu12v()
         }
     }
     recolor("cornflowerblue")
-    diff() { cuboid([8740,4475,1960]) {
+    diff() { cuboid(model_psu12v_dim) {
         tag("remove") {
         // Terminals
         position(TOP+RIGHT) up(1) right(1) cuboid([670,4400,1650],anchor=TOP+RIGHT);
