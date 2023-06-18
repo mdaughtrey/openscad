@@ -8,11 +8,10 @@ model=1;
 
 module mount0()
 {
-//    module box() {
     diff() { cuboid([2000,4675,2160],anchor=LEFT) {
         tag("remove") {
             // Inside
-            position(RIGHT) left(100) cuboid([1901,4515,2000],anchor=RIGHT);
+            position(RIGHT) left(100) cuboid([2001,4515,2000],anchor=RIGHT);
             // Front vents
             position(LEFT+FRONT) right(150) fwd(1) cuboid([810,201,980],rounding=60,edges="Y",anchor=LEFT);
             // Rear vents
@@ -26,24 +25,39 @@ module mount0()
             // Inner inset
             position(RIGHT+BOT) up(80) cuboid([930,4675,100],anchor=RIGHT+BOT);
             // Front foot
-            position(FRONT+BOT) cuboid([500,300,200],anchor=BACK+BOT) 
+            position(FRONT+BOT+RIGHT) cuboid([500,300,200],anchor=BACK+BOT+RIGHT) 
             attach(FRONT) up(75) xrot(90) tube(id=150,od=500,h=200);
             // Back foot
-            position(BACK+BOT) cuboid([500,300,200],anchor=FRONT+BOT) 
+            position(BACK+BOT+RIGHT) cuboid([500,300,200],anchor=FRONT+BOT+RIGHT) 
             attach(BACK) up(75) xrot(90) tube(id=150,od=500,h=200);
 
         }
+    }}
+}
 
-    }}// } // box
+module mount1()
+{
+    diff() { cuboid([500,4675,2160],anchor=LEFT) {
+        tag("remove") {
+            position(LEFT) right(100) cuboid([501,4515,2000],anchor=LEFT);
+            position(CENTER) cuboid([600,3500,1700]);
+        }
+        tag("keep") {
+            // Front foot
+            position(FRONT+BOT+RIGHT) cuboid([500,300,200],anchor=BACK+BOT+RIGHT) 
+            attach(FRONT) up(75) xrot(90) tube(id=150,od=500,h=200);
+            // Back foot
+            position(BACK+BOT+RIGHT) cuboid([500,300,200],anchor=FRONT+BOT+RIGHT) 
+            attach(BACK) up(75) xrot(90) tube(id=150,od=500,h=200);
 
-//        }
-
+        }}}
 }
 
 module forViewing()
 {
   model_psu12v();
-    recolor("yellow") right(3300) mount0();
+  recolor("yellow") right(3300) mount0();
+  recolor("yellow") left(5000) mount1();
 //union() {
 //    diff() {
 //        cuboid([1000,1000,1000]) {
