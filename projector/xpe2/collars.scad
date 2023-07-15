@@ -91,12 +91,18 @@ module tabs()
 
 module tabbed_accept_collar()
 {
-    linear_extrude(151)
-    cutouts2();
-
-    translate([0, 0, 149])
-    linear_extrude(151)
-    cutouts();
+    $fn=96;
+    diff()
+    tube(od=1600,id=1490,h=300) {
+    tag("remove") zrot_copies(n=3) up(1) left(120)  position(RIGHT+TOP) cube([200,200,152],anchor=LEFT+TOP);
+    tag("remove") zrot_copies(n=3) back(100) left(120) down(1) position(RIGHT+BOT) cube([200,400,151],anchor=LEFT+BOT);
+    }
+//    linear_extrude(151)
+//    cutouts2();
+//
+//    translate([0, 0, 149])
+//    linear_extrude(151)
+//    cutouts();
 }
 
 module tabbed_insert_collar()

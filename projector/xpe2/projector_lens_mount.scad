@@ -1,7 +1,26 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 include <collars.scad>
+include <../../BOSL2-master/std.scad>
 
-model=1;
+model=0;
+
+module b2tabs()
+{
+    $fn=96;
+    tube(od=1460,wall=50,h=300)
+    zrot_copies(n=3) position(RIGHT+BOTTOM) cube([100,180,120],anchor=LEFT+BOTTOM);
+}
+
+module b2insert()
+{
+    $fn=96;
+    diff()
+    tube(od=1600,id=1490,h=300) {
+    tag("remove") zrot_copies(n=3) up(1) left(120)  position(RIGHT+TOP) cube([200,200,152],anchor=LEFT+TOP);
+    tag("remove") zrot_copies(n=3) back(100) left(120) down(1) position(RIGHT+BOT) cube([200,400,151],anchor=LEFT+BOT);
+    }
+}
+
 
 module model_projector_lens()
 {
@@ -21,6 +40,7 @@ module projector_lens_mount()
 {
     // Insert collar
     tabbed_insert_collar();
+    //b2tabs();
     linear_extrude(520)
     difference() {
         circle(1470/2, $fn=96);
@@ -54,7 +74,7 @@ module projector_lens_mount()
     }
 
 
-    translate([0, 0, 2090])
+    translate([0, 0, 2250])
     tabbed_accept_collar();
 
 
@@ -62,11 +82,14 @@ module projector_lens_mount()
 
 module forViewing()
 {
-    if (model) {
+    *if (model) {
         color("tan")
         model_projector_lens();
     }
     projector_lens_mount();
+
+//    up(2260) recolor("cyan") zrot(15) b2tabs();
+//    up(2960) recolor("cyan") zrot(15) b2insert();
 }
 
 module forPrinting()
@@ -79,6 +102,6 @@ module forPrinting()
 
 scale(ViewScale)
 {
-//    forViewing();
-    forPrinting();
+    forViewing();
+//    forPrinting();
 }
