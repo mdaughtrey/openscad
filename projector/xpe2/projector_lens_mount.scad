@@ -4,10 +4,10 @@ include <../../BOSL2-master/std.scad>
 
 model=0;
 
-module b2tabs()
+module b2tabs(id=1360,h=300,anchor=CENTER)
 {
     $fn=96;
-    tube(od=1460,wall=50,h=300)
+    tube(od=1460,id=id,h=h,anchor=anchor)
     zrot_copies(n=3) position(RIGHT+BOTTOM) cube([100,180,120],anchor=LEFT+BOTTOM);
 }
 
@@ -38,10 +38,12 @@ module model_projector_lens()
 
 module projector_lens_mount()
 {
+    //b2tabs(id=1340,h=520,anchor=BOT);
+    tabbed_collar(id=1340,h=520,anchor=BOT);
     // Insert collar
-    tabbed_insert_collar();
+    //tabbed_insert_collar();
     //b2tabs();
-    linear_extrude(520)
+    *#linear_extrude(520)
     difference() {
         circle(1470/2, $fn=96);
         circle(1340/2, $fn=96);
