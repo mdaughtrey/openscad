@@ -54,9 +54,14 @@ module forViewing()
 
 module forPrinting()
 {
+    diff() {
+        cuboid([4930,4930,100],rounding=300,edges="Z")   
+        tag("remove") down(1) position(BOT) cuboid([4730,4730,102],rounding=250,edges="Z",anchor=BOT);
+        }
 }
 
 scale(ViewScale)
 {
-    forViewing();
+//    forViewing();
+    forPrinting();
 }
