@@ -105,7 +105,7 @@ module fanmount()
         ledframe1();
     }
 
-    translate([0, 0, 199])
+    #translate([0, 0, 199])
     linear_extrude(201)
     difference() {
         square([1140, 1140], center=true);
@@ -312,15 +312,15 @@ module forViewing()
 //    model_heatsink();
 //    color("green")
 //    translate([0, 0, 750])
-//    lid();
+    lid();
 //    if (models) { 
 //        color("grey")
 //        translate([0, 0, 300])
 //        model_enlarger_lens(); 
 //    }
-//    backend_tilt2();
-//    translate([0, 0, 950])
-//    frontend();
+//    *backend_tilt2();
+//    *translate([0, 0, 950])
+//    *frontend();
 //    little_lensmount();
 
 }

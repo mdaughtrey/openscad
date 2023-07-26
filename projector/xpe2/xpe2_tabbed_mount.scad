@@ -191,6 +191,13 @@ module fanmount()
     linear_extrude(200){
         ledframe1();
     }
+    translate([0,0, 199])
+    linear_extrude(40)
+    difference() {
+        square([1140, 1140], center=true);
+        square([1200, 900], center=true);
+        square([900, 1200], center=true);
+    }
 
     translate([0, 0, 199])
     linear_extrude(201)
@@ -250,8 +257,8 @@ module forViewing()
 
 module forPrinting()
 {
-    xpe2_holder();
-//    lid();
+//    xpe2_holder();
+    lid();
 }
 
 scale(ViewScale)
