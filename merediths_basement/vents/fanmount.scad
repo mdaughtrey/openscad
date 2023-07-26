@@ -46,10 +46,30 @@ module case()
 //    }
 }
 
+module pipemount()
+{
+    screwdia=300;
+    tabthick=500;
+
+    diff()  {
+        cyl(d=4160,h=2000,$fn=96,anchor=BOT) {
+            position(RIGHT+BOT) conv_hull("remove")
+                cyl(d=1000,h=tabthick,$fn=96,anchor=BOT) position(RIGHT) tube(od=1000,id=500,h=tabthick,$fn=96)
+                tag("remove") position(BOT) down(1) cyl(d=screwdia,h=tabthick+2,$fn=96,anchor=BOT); 
+            position(LEFT+BOT) conv_hull("remove")
+                cyl(d=1000,h=tabthick,$fn=96,anchor=BOT) position(LEFT) tube(od=1000,id=500,h=tabthick,$fn=96)
+                tag("remove") position(BOT) down(1) cyl(d=screwdia,h=tabthick+2,$fn=96,anchor=BOT); 
+        }
+        tag("remove") down(1) cyl(d=3960,h=2002,$fn=96,anchor=BOT);
+        tag("keep") up(1000) tube(od=4000,id=3800,h=200,$fn=96);
+    }
+}
+
 module forViewing()
 {
-    recolor("cyan") model_fan_120mm();
-    case();
+    pipemount();
+//    recolor("cyan") model_fan_120mm();
+//    case();
 }
 
 module forPrinting()
@@ -62,6 +82,6 @@ module forPrinting()
 
 scale(ViewScale)
 {
-//    forViewing();
-    forPrinting();
+    forViewing();
+//    forPrinting();
 }
