@@ -1,5 +1,6 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 include <../../BOSL2-master/std.scad>
+include <../../BOSL2-master/walls.scad>
 
 //3200 across 
 //3000 up
@@ -63,7 +64,7 @@ module filmguides(anchor=CENTER,spin=0,orient=UP,width=1000)
                 attach(TOP) tube(od=300,id=180,h=130,anchor=BOT);
 //                attach(TOP) recolor("silver")  tube(od=867,id=315,h=275,anchor=BOT);
             }
-            tag("keep") attach(TOP) cuboid([width,200,500],anchor=TOP);
+//            tag("keep") attach(TOP) cuboid([width,200,500],anchor=TOP);
         }
     }
 
@@ -110,6 +111,31 @@ module led_tube_body_support(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
+module stabilizer()
+{
+    module _tab(anchor=CENTER,spin=0,orient=UP)
+    {
+        down(50)
+        attachable(anchor,spin,orient,size=[500,1900,200])
+        {
+            diff() cuboid([400,1900,100],rounding=180,edges=[RIGHT+FRONT,RIGHT+BACK])
+            {
+                tag("keep") ycopies(l=1500,n=2) attach(TOP,norot=1) cuboid([180,180,100],anchor=BOT);
+                tag("remove") attach(TOP,norot=1) up(1) cyl(d=180,h=202,anchor=TOP,orient=UP);
+            }
+            children();
+        }
+    }
+    sparse_wall(h=1900,l=2800,thick=100,strut=200,maxang=45,max_bridge=1500) 
+    {
+        attach(BACK) _tab(orient=LEFT,anchor=LEFT);
+        attach(FRONT) _tab(orient=RIGHT,anchor=LEFT,spin=180);
+    }
+//    ruler(3200,anchor=CENTER,spin=90,alpha=0.3);
+//    ruler(3200,anchor=CENTER,orient=FRONT,spin=90,alpha=0.3);
+
+}
+
 
 module forViewing()
 {
@@ -120,15 +146,18 @@ module forViewing()
         attach(TOP,overlap=1) zflip() collar_inserter(anchor=TOP);
     }
 
-    led_tube_body_support();
+ //   led_tube_body_support();
 //    ruler(3000,500);
+    stabilizer();
 }
 
 module forPrinting()
 {
+    stabilizer();
 }
 
 scale(ViewScale)
 {
-    forViewing();
+//    forViewing();
+    forPrinting();
 }
