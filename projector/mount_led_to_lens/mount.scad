@@ -27,7 +27,30 @@ module collar_acceptor(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
-module foot()
+module hood(anchor=CENTER,spin=0,orient=UP)
+{
+    $fn=96;
+    diff()
+    cuboid([3900,4400,200],rounding=175,edges="Z") {
+        tag("remove") down(1) attach(BOT,norot=1) {
+            back(1990) left(750) cyl(d=175,h=204,anchor=BOT);
+            back(1990) right(750) cyl(d=175,h=204,anchor=BOT);
+
+            fwd(1990) left(891) cyl(d=175,h=204,anchor=BOT);
+            fwd(1990) right(891) cyl(d=175,h=204,anchor=BOT);
+
+            right(3500/2) ycopies(500,8) cyl(d=175,h=204,anchor=BOT);
+            left(3500/2) ycopies(500,8) cyl(d=175,h=204,anchor=BOT);
+             fwd(150) down(1) cuboid([2400,2400,202],rounding=180,edges="Z",anchor=BOT);
+        }
+        tag("keep")
+        attach(TOP) fwd(150) rect_tube(h=3250,size=[2500,2500],isize=[2400,2400],
+            size2=[1500,1500],isize2=[1350,1350],rounding=50)
+        attach(TOP) rect_tube(h=500,size=1500,isize=1400,rounding=50,anchor=BOT);
+    }
+}
+
+module foot0()
 {
     $fn=96;
     diff() 
@@ -139,7 +162,8 @@ module stabilizer()
 
 module forViewing()
 {
-    *foot();
+    hood();
+//    footmount();
     *filmguides(width=1100) {
         attach(LEFT,overlap=1) collar_acceptor(anchor=BOT);
         attach(RIGHT,overlap=1) rect_tube(h=100,size=[1500,1500],isize=[500,400],rounding=50)
@@ -148,12 +172,13 @@ module forViewing()
 
  //   led_tube_body_support();
 //    ruler(3000,500);
-    stabilizer();
+//    stabilizer();
 }
 
 module forPrinting()
 {
-    stabilizer();
+    hood();
+//    stabilizer();
 }
 
 scale(ViewScale)
