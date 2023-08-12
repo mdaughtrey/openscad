@@ -149,20 +149,34 @@ module stabilizer()
             children();
         }
     }
-    sparse_wall(h=1900,l=2800,thick=100,strut=200,maxang=45,max_bridge=1500) 
+    sparse_wall(h=1900,l=3100,thick=100,strut=200,maxang=45,max_bridge=1500) 
     {
         attach(BACK) _tab(orient=LEFT,anchor=LEFT);
         attach(FRONT) _tab(orient=RIGHT,anchor=LEFT,spin=180);
     }
-//    ruler(3200,anchor=CENTER,spin=90,alpha=0.3);
+//    ruler(3500,anchor=CENTER,spin=90,alpha=0.3);
 //    ruler(3200,anchor=CENTER,orient=FRONT,spin=90,alpha=0.3);
 
+}
+
+module simple_extender(anchor=CENTER,spin=0,orient=UP,length=2000)
+{
+    attachable(anchor,spin,orient,size=[1500,1500,length])
+    {
+        down(length/2)
+        collar_inserter(anchor=BOT)
+        attach(TOP,overlap=1) rect_tube(h=length-1100,size=1500,isize=1280,rounding=50,anchor=BOT)
+        attach(TOP,overlap=1) rect_tube(h=500,size=1500,isize=1400,rounding=50);
+        children();
+    }
+//    ruler(3200,orient=FRONT,spin=90,alpha=0.3);
 }
 
 
 module forViewing()
 {
-    hood();
+    simple_extender(length=2000);
+//    hood();
 //    footmount();
     *filmguides(width=1100) {
         attach(LEFT,overlap=1) collar_acceptor(anchor=BOT);
@@ -177,12 +191,12 @@ module forViewing()
 
 module forPrinting()
 {
-    hood();
-//    stabilizer();
+//    hood();
+    stabilizer();
 }
 
 scale(ViewScale)
 {
-//    forViewing();
-    forPrinting();
+    forViewing();
+//    forPrinting();
 }
