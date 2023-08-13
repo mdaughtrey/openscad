@@ -65,9 +65,39 @@ module pipemount()
     }
 }
 
+module outervent()
+{
+//    rounding_edge_mask(l=100, r=25, orient=UP, anchor=BOTTOM);
+    $fn=96;
+    angle=10;
+    height = adj_ang_to_opp(adj=5000,ang=10);
+    diff()
+    // Against the wall
+    wedge([5000,5000,height],orient=DOWN,center=true) 
+    {
+        // tube holder
+        attach(BOT,overlap=1) cuboid([5000,5000,500],anchor=BOT) {
+            // frame for duct
+           attach(TOP) up(1) cuboid([5000,5000,1000],anchor=BOT) {
+                tag("remove") cuboid([4600,4600,1010]);
+                // duct cover
+                attach(TOP) wedge([5000,5000,2000],spin=180,anchor=BOT) {
+                    tag("remove") attach(BOT,norot=1) fwd(200) wedge([4600,4800,1900],anchor=BOT);
+                    attach(FRONT) cuboid([5000,2000,200],anchor=BOT)
+                    tag("remove") grid_copies(300, n=[14,6], size=[5000,2000]) cuboid([200,200,220]);
+                }
+            }
+        }
+        tag("remove") cyl(d=3960,3000);
+    }
+
+}
+
+
 module forViewing()
 {
-    pipemount();
+    outervent();
+//    pipemount();
 //    recolor("cyan") model_fan_120mm();
 //    case();
 }
