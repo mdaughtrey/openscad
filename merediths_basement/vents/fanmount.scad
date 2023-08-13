@@ -16,8 +16,9 @@ module model_fan_120mm(anchor=CENTER)
     }
 }
 
-module case()
+module fanmount()
 {
+    //tube(h=2000,od=holedia-50,wall=100)
     diff() {
         cuboid([4930,4930,1000],rounding=300,edges="Z")   {
         {
@@ -28,30 +29,20 @@ module case()
                 tag("remove") down(1) right(ofs) fwd(ofs) position(LEFT+BACK) cyl(d=200, h=1003);
                 tag("remove") down(1) left(ofs) back(ofs) position(RIGHT+FRONT) cyl(d=200, h=1003);
                 tag("remove") down(1) right(ofs) back(ofs) position(LEFT+FRONT) cyl(d=200, h=1003);
-                position(TOP) down(1) tube(ir=4570/2,or=4770/2, h=1000,ir2=3840/2,or2=3940/2,anchor=BOT)
-                position(TOP) down(1) tube(ir=3840/2,or=3940/2,h=3000,anchor=BOT);
+                //position(TOP) down(1) tube(ir=4570/2,or=4770/2, h=1000,ir2=3840/2,or2=3940/2,anchor=BOT)
+                position(TOP) down(1) tube(id1=4570,id2=holedia-20,wall=100,h=1000,anchor=BOT)
+                position(TOP) down(1) tube(id=holedia-20,wall=100,h=1000,anchor=BOT);
                 tag("remove" ) position(BOT) cylinder(h=201,d=4570,anchor=BOT);
             }
         }
         tag("remove") down(1) position(BOT) cuboid([4730,4730,1002],rounding=250,edges="Z",anchor=BOT);
         }
     }
-//    tube(ir=4030/2,wall=100,h=1000);
-//
-//
-//        {
-//        }
-
-//    rect([4000,4000],rounding=400)
-//    rect([3800,3800],rounding=385);
-//    }
 }
 
 module pipemount()
 {
     $fn=96;
-    screwdia=300;
-    tabthick=500;
 
     diff()  {
         conv_hull("remove") {
@@ -62,34 +53,6 @@ module pipemount()
         }
         up(99) tube(h=1000,od=holedia-50,wall=100,anchor=BOT);
         down(99) tube(h=1000,od=holedia-50,wall=100,anchor=TOP);
-//        tag("remove") #cyl(d=80,h=200);
-    }
-//        tag("remove") xcopies(n=2,l=holedia+800) cyl(d=200,h=300);
-
-//        tube(h=1000,od=holedia-50,wall=100)  
-//        attach(TOP, overlap=1)
-//        attach(TOP,overlap=1) tube(h=1000,od=holedia-50,wall=100,anchor=BOT);
-//    }
-
-    *diff()
-    tube(h=1000,od=holedia-50,wall=100)  {
-        attach(TOP,overlap=1) tube(h=200,od=holedia+1500,id=holedia-450,anchor=BOT) {
-            tag("remove") xcopies(n=2,l=holedia+800) cyl(d=200,h=300);
-            attach(TOP,overlap=1) tube(h=1000,od=holedia-50,wall=100,anchor=BOT);
-        }
-    }
-
-    *diff()  {
-        cyl(d=4160,h=2000,$fn=96,anchor=BOT) {
-            position(RIGHT+BOT) conv_hull("remove")
-                cyl(d=1000,h=tabthick,$fn=96,anchor=BOT) position(RIGHT) tube(od=1000,id=500,h=tabthick,$fn=96)
-                tag("remove") position(BOT) down(1) cyl(d=screwdia,h=tabthick+2,$fn=96,anchor=BOT); 
-            position(LEFT+BOT) conv_hull("remove")
-                cyl(d=1000,h=tabthick,$fn=96,anchor=BOT) position(LEFT) tube(od=1000,id=500,h=tabthick,$fn=96)
-                tag("remove") position(BOT) down(1) cyl(d=screwdia,h=tabthick+2,$fn=96,anchor=BOT); 
-        }
-        tag("remove") down(1) cyl(d=3960,h=2002,$fn=96,anchor=BOT);
-        tag("keep") up(1000) tube(od=4000,id=3800,h=200,$fn=96);
     }
 }
 
@@ -140,25 +103,59 @@ module masktest()
     rounding_edge_mask(l=1000,r=100);
 }
 
+module fan_and_pipe_mount()
+{
+    diff() {
+        cuboid([4930,4930,1000],rounding=300,edges="Z")   {
+        {
+            position(TOP) cuboid([4930,4930,200],rounding=300,edges="Z",anchor=BOT)
+            {
+                ofs=365;
+                tag("remove") down(1) left(ofs) fwd(ofs) position(RIGHT+BACK) cyl(d=200, h=1003);
+                tag("remove") down(1) right(ofs) fwd(ofs) position(LEFT+BACK) cyl(d=200, h=1003);
+                tag("remove") down(1) left(ofs) back(ofs) position(RIGHT+FRONT) cyl(d=200, h=1003);
+                tag("remove") down(1) right(ofs) back(ofs) position(LEFT+FRONT) cyl(d=200, h=1003);
+                //position(TOP) down(1) tube(ir=4570/2,or=4770/2, h=1000,ir2=3840/2,or2=3940/2,anchor=BOT)
+                position(TOP) down(1) tube(id1=4570,od=4870,id2=holedia-400,od2=holedia+200,h=1000,anchor=BOT)
+//                position(TOP) down(1) tube(id=holedia-20,wall=100,h=1000,anchor=BOT)
+                attach(TOP) {
+                    conv_hull("remove") {
+                        cyl(h=200,d=holedia+200,anchor=BOT) {
+                        xcopies(n=2,l=holedia+1800) cyl(d=600,h=200);
+                        tag("remove") attach(CENTER) xcopies(n=2,l=holedia+1800)
+                        cyl(d=200,h=300,anchor=CENTER);
+                        tag("remove") cyl(h=205,d=holedia-400);
+                        }
+                    }
+                    up(99) tube(h=1000,od=holedia-50,wall=100,anchor=BOT);
+                }
+                tag("remove" ) position(BOT) cylinder(h=201,d=4570,anchor=BOT);
+            }
+        }
+        tag("remove") down(1) position(BOT) cuboid([4730,4730,1002],rounding=250,edges="Z",anchor=BOT);
+        }
+    }
+}
+
 module forViewing()
 {
+    fan_and_pipe_mount();
+//    fanmount();
+//    up(4000) pipemount();
+//    up(6500) outervent();
 //    masktest();
+//    up(3000)
 //    outervent();
-    pipemount();
 //    recolor("cyan") model_fan_120mm();
-//    case();
 }
 
 module forPrinting()
 {
-    diff() {
-        cuboid([4930,4930,100],rounding=300,edges="Z")   
-        tag("remove") down(1) position(BOT) cuboid([4730,4730,102],rounding=250,edges="Z",anchor=BOT);
-        }
+    outervent();
 }
 
 scale(ViewScale)
 {
-    forViewing();
+   forViewing();
 //    forPrinting();
 }
