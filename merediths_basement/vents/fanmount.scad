@@ -56,7 +56,7 @@ module pipemount()
     }
 }
 
-module outervent()
+module outervent_0()
 {
     $fn=96;
     angle=5;
@@ -70,13 +70,14 @@ module outervent()
         edge_mask(["Z"]) rounding_edge_mask(l=height,r=rounding);
         // tube holder
         attach(BOT,overlap=1) cuboid([5000,5000,500],anchor=BOT) {
+            tag("remove") attach(TOP) zrot(45) xcopies(n=2,l=5000) cyl(h=1000,d=180,anchor=TOP);
             edge_mask(["Z"]) rounding_edge_mask(l=500,r=rounding);
             // frame for duct
            attach(TOP) up(1) cuboid([5000,5000,1000],anchor=BOT) {
             edge_mask(["Z"]) rounding_edge_mask(l=1000,r=rounding);
                 tag("remove") cuboid([4600,4600,1010]);
                 // duct cover
-                attach(TOP) wedge([5000,5000,2000],spin=180,anchor=BOT) {
+                *attach(TOP) wedge([5000,5000,2000],spin=180,anchor=BOT) {
                     edge_mask(["Z"],except=[FRONT]) rounding_edge_mask(l=2000,r=rounding);
                     xrot(-21.8) down(1000)
                     edge_mask([TOP+LEFT,TOP+RIGHT]) rounding_edge_mask(l=5800,r=rounding);
@@ -93,6 +94,29 @@ module outervent()
         tag("remove") cyl(d=holedia-300,3000);
     }
 
+}
+
+module outervent_1()
+{
+    $fn=96;
+    angle=5;
+    rounding=200;
+    rect_tube(isize=5040,size=5440,l=1000,rounding=rounding,irounding=rounding)
+    attach(TOP, overlap=1) diff() {
+        rect_tube(isize=4640,size=5440,l=100,rounding=rounding,irounding=rounding,anchor=BOT)
+        attach(TOP) wedge([5440,5440,2000],anchor=BOT) {
+            edge_mask(["Z"],except=[FRONT]) rounding_edge_mask(l=2000,r=rounding);
+            xrot(-20.18) down(999)
+            edge_mask([TOP+LEFT,TOP+RIGHT]) rounding_edge_mask(l=5800,r=rounding);
+            tag("remove") attach(BOT,norot=1) fwd(200)
+            wedge([5040,5240,1900],anchor=BOT);
+            *attach(FRONT) fwd(50) cuboid([5440,2100,200],anchor=BOT) {
+//                edge_mask([TOP]) rounding_edge_mask(l=5000,r=rounding);
+                tag("remove") grid_copies(300, n=[16,5], size=[5440,2000])
+                    cuboid([200,200,220]);
+            }
+        }
+    }
 }
 
 module masktest()
@@ -139,13 +163,15 @@ module fan_and_pipe_mount()
 
 module forViewing()
 {
-    fan_and_pipe_mount();
+//    fan_and_pipe_mount();
 //    fanmount();
 //    up(4000) pipemount();
 //    up(6500) outervent();
 //    masktest();
-//    up(3000)
-//    outervent();
+//    up(4500)
+//    outervent_0();
+//    up(2400)
+    outervent_1();
 //    recolor("cyan") model_fan_120mm();
 }
 
