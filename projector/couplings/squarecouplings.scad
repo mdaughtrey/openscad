@@ -16,13 +16,13 @@ module collar_inserter(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
-module collar_acceptor(anchor=CENTER,spin=0,orient=UP)
+module collar_acceptor(anchor=CENTER,spin=0,orient=UP,extend=0)
 {
-    attachable(anchor,spin,orient,size=[1500,1500,550]) {
-    down(550/2)
+    attachable(anchor,spin,orient,size=[1500,1500,550+extend]) {
+    down((550+extend)/2)
     rect_tube(h=50,size=1500,isize=1300,rounding=50)
     attach(TOP) 
-    rect_tube(h=500,size=1500,isize=1400,rounding=50,anchor=BOT);
+    rect_tube(h=500+extend,size=1500,isize=1400,rounding=50,anchor=BOT);
     children();
     }
 }
@@ -134,20 +134,76 @@ module hexled_mount(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
+module sheet_holder(anchor=CENTER)
+{
+    collar_inserter(anchor=anchor)
+    attach(TOP,overlap=1) collar_acceptor(anchor=BOT,extend=100);
+}
+
+module sheet_holder_insert()
+{
+    rect_tube(h=50,size=1380,isize=1180,rounding=50);
+}
+
+module support_0(anchor=CENTER,spin=0,orient=UP)
+{
+   module support_0_(anchor,spin,orient)
+   {
+        rect_tube(h=400,size=1600,isize=1520,rounding=50) {
+            attach(RIGHT+BOT+BACK,norot=1) left(50) cuboid([1400,100,400],anchor=LEFT+BOT+BACK);
+            attach(RIGHT+BOT+FRONT,norot=1) left(50) cuboid([1400,100,400],anchor=LEFT+BOT+FRONT)
+            attach(RIGHT+BOT+FRONT,norot=1) left(50) rect_tube(h=400,size=1600,isize=1520,rounding=50,anchor=LEFT+BOT+FRONT);
+        }
+    }
+    attachable(anchor,spin,orient,size=[1500,1500,600]) {
+        down(200) left(810+700) support_0_(anchor,spin,orient);
+        children();
+    }
+}
+
+module support_1()
+{
+    diff()
+    cuboid([520,1700,600])
+    {
+    attach(RIGHT+BOT+BACK,norot=1) left(40) cuboid([2000,100,600],anchor=LEFT+BOT+BACK);
+    attach(RIGHT+BOT+FRONT,norot=1) left(40) cuboid([2000,100,600],anchor=LEFT+BOT+FRONT)
+    attach(RIGHT+BOT+FRONT,norot=1) left(40) rect_tube(h=600,isize=1620,size=1700,anchor=LEFT+BOT+FRONT);
+    tag("remove") cuboid([420,1620,600]);
+    }
+//    right(2200) ruler(4000,anchor=CENTER+BACK);
+    
+}
+
 module forViewing()
 {
 //    hexled_mount();
-     simplelength(l=2000)
-    attach(TOP) 
-    recolor("cyan") down(350) elbow90(anchor=BOT)
-    attach(BOT,norot=1) zflip() up(1500) hexled_mount();
+//     simplelength(l=2000)
+//    attach(TOP) 
+//    recolor("cyan") down(350) elbow90(anchor=BOT)
+//    attach(BOT,norot=1) zflip() up(1500) hexled_mount();
+
+//    left(1000) sheet_holder(anchor=BOT);
+//    right(1000) sheet_holder_insert();
+//    right(2500) sheet_holder_insert();
+//    attach(TOP) sheet_holder_outer(anchor=BOT);
+//    left(1000) sheet_holder_inner();
+//    right(1000) sheet_holder_outer();
+   yrot(90) support_0();
+   left(1000) support_1();
 }
 
 module forPrinting()
 {
+//    elbow90();
+//hexled_mount();
+//     simplelength(l=2000);
+    back(1000) support_0();
+    left(1700) fwd(1000) support_1();
 }
 
 scale(ViewScale)
 {
-    forViewing();
+//    forViewing();
+    forPrinting();
 }
