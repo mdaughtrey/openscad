@@ -175,7 +175,7 @@ module simple_extender(anchor=CENTER,spin=0,orient=UP,length=2000)
 
 module forViewing()
 {
-    simple_extender(length=2000);
+    simple_extender(length=3500);
 //    hood();
 //    footmount();
     *filmguides(width=1100) {
