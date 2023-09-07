@@ -1,5 +1,6 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 include <../../BOSL2-master/std.scad>
+include <../../BOSL2-master/walls.scad>
 
 //    attachable(anchor,spin,orient,size=[1500,1500,600]) {
 
@@ -149,29 +150,43 @@ module support_0(anchor=CENTER,spin=0,orient=UP)
 {
    module support_0_(anchor,spin,orient)
    {
-        rect_tube(h=400,size=1600,isize=1520,rounding=50) {
-            attach(RIGHT+BOT+BACK,norot=1) left(50) cuboid([1400,100,400],anchor=LEFT+BOT+BACK);
-            attach(RIGHT+BOT+FRONT,norot=1) left(50) cuboid([1400,100,400],anchor=LEFT+BOT+FRONT)
-            attach(RIGHT+BOT+FRONT,norot=1) left(50) rect_tube(h=400,size=1600,isize=1520,rounding=50,anchor=LEFT+BOT+FRONT);
+        rect_tube(h=400,size=1700,isize=1520,rounding=50)
+        {
+//            attach(BOT+LEFT,norot=1) right(1520+90) ruler(5000,anchor=TOP+LEFT);
+            attach(RIGHT+BOT+BACK,norot=1)
+            left(90) yrot(-90) 
+            sparse_wall(h=1400,l=1700,thick=400,strut=100,maxang=45,max_bridge=1500,
+                anchor=LEFT+BACK+TOP) ;
         }
+        right(1700-90+1400-90) rect_tube(h=400,size=1700,isize=1520,rounding=50);
     }
     attachable(anchor,spin,orient,size=[1500,1500,600]) {
-        down(200) left(810+700) support_0_(anchor,spin,orient);
+        down(200) left(810+700) support_0_();
         children();
     }
 }
 
-module support_1()
+module support_1(anchor=CENTER,spin=0,orient=UP)
 {
-    diff()
-    cuboid([520,1700,600])
+    module support_1_(anchor,spin_orient)
     {
-    attach(RIGHT+BOT+BACK,norot=1) left(40) cuboid([2000,100,600],anchor=LEFT+BOT+BACK);
-    attach(RIGHT+BOT+FRONT,norot=1) left(40) cuboid([2000,100,600],anchor=LEFT+BOT+FRONT)
-    attach(RIGHT+BOT+FRONT,norot=1) left(40) rect_tube(h=600,isize=1620,size=1700,anchor=LEFT+BOT+FRONT);
-    tag("remove") cuboid([420,1620,600]);
+        diff()
+        cuboid([600,1900,800],rounding=50,edges="Z")
+        {
+            attach(RIGHT+BOT+BACK,norot=1) left(90) yrot(-90) 
+                sparse_wall(h=2000,l=1900,thick=800,strut=100,maxang=45,max_bridge=1500,
+                    anchor=LEFT+BACK+TOP);
+            attach(RIGHT+BOT,norot=1) right(2000-180) 
+                rect_tube(h=800,isize=1520,size=1700,anchor=LEFT+BOT,rounding=50);
+        tag("remove") cuboid([420,1720,800]);
+        }
     }
 //    right(2200) ruler(4000,anchor=CENTER+BACK);
+    attachable(anchor,spin,orient,size=[3020,1900,600])
+    {
+        left(3020/2-300) support_1_();
+        children();
+    }
     
 }
 
@@ -189,17 +204,17 @@ module forViewing()
 //    attach(TOP) sheet_holder_outer(anchor=BOT);
 //    left(1000) sheet_holder_inner();
 //    right(1000) sheet_holder_outer();
-   yrot(90) support_0();
-   left(1000) support_1();
+//    yrot(90) support_0();
+   support_1();
 }
 
 module forPrinting()
 {
 //    elbow90();
-//hexled_mount();
+hexled_mount();
 //     simplelength(l=2000);
-    back(1000) support_0();
-    left(1700) fwd(1000) support_1();
+//   support_0();
+//   support_1();
 }
 
 scale(ViewScale)
