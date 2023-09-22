@@ -89,6 +89,20 @@ module simplelength(anchor=CENTER,spin=0,orient=UP,l)
     }
 }
 
+module cap(anchor=CENTER,spin=0,orient=UP)
+{
+    module _simplelength(length)
+    {
+        collar_inserter()
+        attach(TOP,overlap=1) cuboid([1500,1500,100],rounding=50,edges="Z",anchor=BOT);
+    }
+
+    attachable(anchor,spin,orient,size=[1500,1500,1150]) {
+        _simplelength(1000);
+        children();
+    }
+}
+
 include <../../models/model_fan_caizhu_1inch.scad>
 
 module model_hexled_and_heatsink()
@@ -198,14 +212,15 @@ module forViewing()
 //    recolor("cyan") down(350) elbow90(anchor=BOT)
 //    attach(BOT,norot=1) zflip() up(1500) hexled_mount();
 
-//    left(1000) sheet_holder(anchor=BOT);
+    cap();
+ //   left(1000) sheet_holder(anchor=BOT);
 //    right(1000) sheet_holder_insert();
 //    right(2500) sheet_holder_insert();
 //    attach(TOP) sheet_holder_outer(anchor=BOT);
 //    left(1000) sheet_holder_inner();
 //    right(1000) sheet_holder_outer();
 //    yrot(90) support_0();
-   support_1();
+//   support_1();
 }
 
 module forPrinting()
@@ -219,6 +234,6 @@ hexled_mount();
 
 scale(ViewScale)
 {
-//    forViewing();
-    forPrinting();
+    forViewing();
+//    forPrinting();
 }
