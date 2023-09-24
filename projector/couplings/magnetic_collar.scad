@@ -60,27 +60,31 @@ module magnetic_collar_v1()
     }
 }
 
-module magnetic_collar_v2()
+module magnetholder(anchor=CENTER,spin=0,orient=UP) 
 {
-
-    module magnetholder(anchor=CENTER,spin=0,orient=UP) 
-    {
-        attachable(anchor,spin,orient,size=[magnetd+100,magnetd+100,magneth+30]) {
-            diff() {
-                cuboid([magnetd+100,magnetd+100,magneth+30],rounding=50,edges="Z")
-                {
-                    tag("remove") attach(TOP) cyl(h=magneth,d=magnetd+20,anchor=TOP);
-                }
+    attachable(anchor,spin,orient,size=[magnetd+100,magnetd+100,magneth/2+30]) {
+        diff() {
+            cuboid([magnetd+100,magnetd+100,magneth/2+30],rounding=50,edges="Z")
+            {
+                tag("remove") attach(TOP) cyl(h=magneth/2,d=magnetd+20,anchor=TOP);
             }
-            children();
         }
+        children();
     }
-    rect_tube(h=200,isize=1520,size=1620,irounding=50,rounding=100)
+}
+
+module magnetic_collar_v2(anchor=CENTER,spin=0,orient=UP)
+{
+    attachable(anchor,spin,orient,size=[1620,1620,200])
     {
-        attach(FRONT+BOT,norot=1) magnetholder(anchor=BACK+BOT);
-        attach(BACK+BOT,norot=1) magnetholder(anchor=FRONT+BOT);
-        attach(LEFT+BOT,norot=1) magnetholder(anchor=RIGHT+BOT);
-        attach(RIGHT+BOT,norot=1) magnetholder(anchor=LEFT+BOT);
+        rect_tube(h=200,isize=1520,size=1620,irounding=50,rounding=100)
+        {
+            attach(FRONT+BOT,norot=1) magnetholder(anchor=BACK+BOT);
+            attach(BACK+BOT,norot=1) magnetholder(anchor=FRONT+BOT);
+            attach(LEFT+BOT,norot=1) magnetholder(anchor=RIGHT+BOT);
+            attach(RIGHT+BOT,norot=1) magnetholder(anchor=LEFT+BOT);
+        }
+        children();
     }
 }
 
@@ -93,15 +97,28 @@ module forViewing()
         }
     }
     recolor("cyan")
-    magnetic_collar_v2();
+    magnetic_collar_v2()
+    {
+        recolor("palegreen") {
+            attach(FRONT+TOP,norot=1) xrot(180) magnetholder(anchor=FRONT+TOP);
+            attach(BACK+TOP,norot=1) xrot(180) magnetholder(anchor=BACK+TOP);
+            attach(LEFT+TOP,norot=1) xrot(180) magnetholder(anchor=RIGHT+TOP);
+            attach(RIGHT+TOP,norot=1) xrot(180) magnetholder(anchor=LEFT+TOP);
+        }
+    }
 }
 
 module forPrinting()
 {
+    magnetic_collar_v2();
+    back(400) right(400) magnetholder(anchor=BOT);
+    back(400) left(400) magnetholder(anchor=BOT);
+    fwd(400) right(400) magnetholder(anchor=BOT);
+    fwd(400) left(400) magnetholder(anchor=BOT);
 }
 
 scale(ViewScale)
 {
-    forViewing();
-    // forPrinting();
+    //forViewing();
+    forPrinting();
 }
