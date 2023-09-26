@@ -178,7 +178,7 @@ module forViewing()
 //    simple_extender(length=3500);
 //    hood();
 //    footmount();
-    filmguides(width=900);
+//    filmguides(width=900);
     *filmguides(width=1100) {
         attach(LEFT,overlap=1) collar_acceptor(anchor=BOT);
         attach(RIGHT,overlap=1) rect_tube(h=100,size=[1500,1500],isize=[500,400],rounding=50)
@@ -192,12 +192,12 @@ module forViewing()
 
 module forPrinting()
 {
-//    hood();
-    stabilizer();
+    hood();
+//    stabilizer();
 }
 
 scale(ViewScale)
 {
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 }
