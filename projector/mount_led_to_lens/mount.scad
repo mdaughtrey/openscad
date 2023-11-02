@@ -175,10 +175,10 @@ module simple_extender(anchor=CENTER,spin=0,orient=UP,length=2000)
 
 module forViewing()
 {
-    simple_extender(length=3500);
+//    simple_extender(length=3500);
 //    hood();
 //    footmount();
-    *filmguides(width=1100) {
+    filmguides(width=1100) {
         attach(LEFT,overlap=1) collar_acceptor(anchor=BOT);
         attach(RIGHT,overlap=1) rect_tube(h=100,size=[1500,1500],isize=[500,400],rounding=50)
         attach(TOP,overlap=1) zflip() collar_inserter(anchor=TOP);

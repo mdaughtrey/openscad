@@ -68,9 +68,10 @@ module outervent_0()
     wedge([5000,5000,height],orient=DOWN,center=true) 
     {
         edge_mask(["Z"]) rounding_edge_mask(l=height,r=rounding);
+        tag("remove") attach(TOP) zrot(-45) xcopies(n=2,l=5000) cyl(h=600,d=180,anchor=TOP);
         // tube holder
         attach(BOT,overlap=1) cuboid([5000,5000,500],anchor=BOT) {
-            tag("remove") attach(TOP) zrot(45) xcopies(n=2,l=5000) cyl(h=1000,d=180,anchor=TOP);
+            tag("remove") attach(TOP) zrot(45) xcopies(n=2,l=5000) cyl(h=400,d=500,anchor=TOP);
             edge_mask(["Z"]) rounding_edge_mask(l=500,r=rounding);
             // frame for duct
            attach(TOP) up(1) cuboid([5000,5000,1000],anchor=BOT) {
@@ -110,8 +111,8 @@ module outervent_1()
             edge_mask([TOP+LEFT,TOP+RIGHT]) rounding_edge_mask(l=5800,r=rounding);
             tag("remove") attach(BOT,norot=1) fwd(200)
             wedge([5040,5240,1900],anchor=BOT);
-            *attach(FRONT) fwd(50) cuboid([5440,2100,200],anchor=BOT) {
-//                edge_mask([TOP]) rounding_edge_mask(l=5000,r=rounding);
+            attach(FRONT, overlap=1) fwd(50) cuboid([5440,2100,200],anchor=BOT) {
+                edge_mask([TOP]) rounding_edge_mask(l=5700,r=rounding);
                 tag("remove") grid_copies(300, n=[16,5], size=[5440,2000])
                     cuboid([200,200,220]);
             }
@@ -171,13 +172,15 @@ module forViewing()
 //    up(4500)
 //    outervent_0();
 //    up(2400)
-    outervent_1();
+    outervent_0();
 //    recolor("cyan") model_fan_120mm();
 }
 
 module forPrinting()
 {
-    outervent();
+    outervent_0();
+//    fan_and_pipe_mount();
+//    outervent_0();
 }
 
 scale(ViewScale)

@@ -57,6 +57,11 @@ module hood(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
+module coupling()
+{
+    tube(id=1750,od=2150,h=3000);
+}
+
 module forViewing()
 {
     if (model) {
@@ -65,10 +70,11 @@ module forViewing()
     }
 //    *recolor("cornflowerblue")
 //    drillmount();
-front_half(s=20000)
-    hood(anchor=BOT);
+//front_half(s=20000)
+//    hood(anchor=BOT);
 //    halfcyl(anchor=BOT);
 //    model_hose();
+    coupling();
 }
 
 module forPrinting()

@@ -21,18 +21,24 @@ module tab_cutout(radius, anchor=CENTER,spin=0,orient=UP)
     }
 }
 
-module tabsin(od=1460,id=1360,numtabs=4)
+module tabsin(od=1460,id=1360,numtabs=4,anchor=CENTER,spin=0,orient=UP)
 {
     $fn=96;
-    tube(od=od,id=id,h=200) {
-        attach(TOP) down(100) tube(od=id+5,id=id-95,h=50,anchor=TOP);
-        attach(TOP,BOT,overlap=1)
-        zrot(-8.5)
+    attachable(anchor,spin,orient,d=od,l=200) {
+        union() {
+            tube(od=od,id=id,h=200) {
+                attach(TOP) down(100) tube(od=id+5,id=id-95,h=50,anchor=TOP);
+                attach(TOP,BOT,overlap=1)
+                zrot(-8.5)
 
-        difference() {
-            tube(od=od,id=id,h=300,anchor=BOT);
-            tag("remove") zrot_copies(n=numtabs) tab_cutout(200+od/2,anchor=BOT);
+                diff() {
+                    tube(od=od,id=id,h=300,anchor=BOT);
+                    tag("remove") zrot_copies(n=numtabs) tab_cutout(200+od/2,anchor=BOT);
+                    tag("keep") tube(od=od,id=od-20,h=300);
+                }
+            }
         }
+        children();
     }
 }
 
@@ -49,40 +55,48 @@ module tabsin0(od=1460,id=1360,numtabs=4)
 //    up(110) difference() { tube(od=od,id=id,h=30); zrot_copies(n=numtabs) pie_slice(h=81,ang=11,r=200+od/2,anchor=CENTER); }
 }
 
-module tabsout(od=1340,id=1240,numtabs=4)
+module tabsout(od=1340,id=1240,numtabs=4,spin=0,anchor=CENTER,orient=UP)
 {
     $fn=96;
-    // Springy bits
-    springh=200;
-    tube(od=od,id=id,h=50)
-    attach(TOP,BOT) zrot_copies(n=numtabs)
-    intersect("mask") {
-        yrot(15)  tube(od=od,id=id,h=30);
-        tag("mask") fwd(200) cuboid([600,od,springh]);
-    }
-    up(springh-100) {
-        tube(od=od,id=id,h=300,anchor=BOT);
-        intersect("mask") {
-            zrot_copies(n=numtabs) pie_slice(h=200,ang=10,r=100+od/2);
-            tag("mask") tube(od=100+od,id=id,h=200,anchor=BOT);
+    attachable(anchor,spin,orient,d=od,l=800) {
+        union() {
+            // Springy bits
+            springh=200;
+            tube(od=od,id=id,h=50)
+            attach(TOP,BOT) zrot_copies(n=numtabs)
+            intersect("mask") {
+                yrot(15)  tube(od=od,id=id,h=30);
+                tag("mask") fwd(200) cuboid([600,od,springh]);
+            }
+            up(springh-100) {
+                tube(od=od,id=id,h=300,anchor=BOT);
+                intersect("mask") {
+                    zrot_copies(n=numtabs) pie_slice(h=200,ang=10,r=90+od/2);
+                    tag("mask") tube(od=90+od,id=id,h=200,anchor=BOT);
+                }
+            }
         }
+        children();
     }
 }
 
 
-module forViewing()
-{
-//    right(1500) tabsin();
-    tabsin();
-    recolor("cyan") up(50) tabsout();
-//tab_cutout(11,200,1000);
-}
-
-module forPrinting()
-{
-}
-
-scale(ViewScale)
-{
-    forViewing();
-}
+//module forViewing()
+//{
+////    right(1500) tabsin();
+//    tabsin();
+//    recolor("cyan") up(150) tabsout();
+////tab_cutout(11,200,1000);
+//}
+//
+//module forPrinting()
+//{
+//    left(800) tabsin();
+//    right(800) tabsout();
+//}
+//
+//scale(ViewScale)
+//{
+//    forViewing();
+////    forPrinting();
+//}

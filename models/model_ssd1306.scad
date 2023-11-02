@@ -1,4 +1,4 @@
-ViewScale = [0.0254, 0.0254, 0.0254];
+//ViewScale = [0.0254, 0.0254, 0.0254];
 include <../BOSL2-master/std.scad>
 
 ssd1306_128_64_width=1086;

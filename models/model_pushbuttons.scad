@@ -1,4 +1,4 @@
-ViewScale = [0.0254, 0.0254, 0.0254];
+//ViewScale = [0.0254, 0.0254, 0.0254];
 include <../BOSL2-master/std.scad>
 
 ups_width=1660;
@@ -54,18 +54,18 @@ module model_pushbutton_base(anchor=CENTER,spin=0,orient=UP,shaftl=285)
     }
 }
 
-module forViewing()
-{
-//        model_buttontop();
-    model_pushbutton_base(shaftl=200);
-//    attach(TOP) recolor("green") model_buttontop();
-}
-
-module forPrinting()
-{
-}
-
-scale(ViewScale)
-{
-   forViewing();
-}
+// module forViewing()
+// {
+// //        model_buttontop();
+//     model_pushbutton_base(shaftl=200);
+// //    attach(TOP) recolor("green") model_buttontop();
+// }
+// 
+// module forPrinting()
+// {
+// }
+// 
+// scale(ViewScale)
+// {
+//    forViewing();
+// }

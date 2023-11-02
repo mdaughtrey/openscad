@@ -17,7 +17,7 @@ module mount0()
             // Rear vents
             position(LEFT+BACK) right(150) back(1) cuboid([810,201,980],rounding=60,edges="Y",anchor=LEFT);
             // BX Cutout
-            position(RIGHT+BACK) left(1) fwd(1000) up(300) yrot(90) cyl(r=500,h=200,$fn=96);
+            position(RIGHT+BACK) left(1) fwd(1000) up(300) yrot(90) cyl(r=800/2,h=200,$fn=96);
             // Grid cutout
             position(RIGHT+FRONT) back(1500) yrot(90) grid_copies(300,n=[5,8]) cyl(r=75,h=201);
         }
@@ -79,6 +79,6 @@ module forPrinting()
 
 scale(ViewScale)
 {
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 }

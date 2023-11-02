@@ -55,16 +55,16 @@ module outer()
 
 module forViewing()
 {
-    //inner();
+    inner();
     //%rotate([0, 0, -180])
-    outer();
+    //outer();
 }
 
 module forPrinting()
 {
-    inner();
+    //inner();
     //translate([2000, 0, 0])
-    //outer();
+    outer();
 }
 
 scale(ViewScale)

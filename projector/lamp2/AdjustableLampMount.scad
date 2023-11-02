@@ -214,12 +214,12 @@ module forViewing()
 
 module forPrinting()
 {
-    *linear_extrude(200)
-    {
-        vexmount();
+//    linear_extrude(200)
+//    {
+//        vexmount();
         translate([2500, 0, 0])
         bodymount();
-    }
+//    }
     standoff();
 }
 

@@ -309,25 +309,25 @@ module pcbBrackets() {
 
 module forViewing()
 {
-//    color("cornflowerblue")
-//    translate([-50, 120, 500])
-//    pcb_replacement();
-//    model_bracket();
-//    translate([3600-400, 0, 0])
-//    model_bracket();
-//    color("SpringGreen")
-//    frameBrackets();
-//
-//    color("BurlyWood")
-//    pcbBrackets();
-//
-//    translate([2000-50, 2950+120, 750])
-//    rotate([0, 0, 0])
-//    color("SandyBrown")
-//    aspheric_mount2();
-//    translate([2000, 0, 0])
-//    *color("BurlyWood")
-//    frameBracket();
+    color("cornflowerblue")
+    translate([-50, 120, 500])
+    pcb_replacement();
+    *model_bracket();
+    translate([3600-400, 0, 0])
+   * model_bracket();
+    *color("SpringGreen")
+    frameBrackets();
+
+    *color("BurlyWood")
+    pcbBrackets();
+
+    *translate([2000-50, 2950+120, 750])
+    rotate([0, 0, 0])
+    color("SandyBrown")
+    aspheric_mount2();
+    translate([2000, 0, 0])
+    *color("BurlyWood")
+    frameBracket();
 }
 
 module testthing()
@@ -357,7 +357,7 @@ scale(ViewScale)
 {
 //    innerFrameBracket();
 //    bracket();
-//    forViewing();
-    forPrinting();
+    forViewing();
+//    forPrinting();
 //testthing();
 }

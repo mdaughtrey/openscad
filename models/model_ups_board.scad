@@ -1,10 +1,10 @@
-ViewScale = [0.0254, 0.0254, 0.0254];
+//ViewScale = [0.0254, 0.0254, 0.0254];
 include <../BOSL2-master/std.scad>
 
 ups_width=1660;
 ups_length=3490;
 
-module model_ups()
+module model_ups_board()
 {
     hole_indent=140;
     recolor("green")

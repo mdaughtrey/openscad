@@ -149,8 +149,8 @@ module forViewing()
 
 module forPrinting()
 {
-    wagobox(cells);
-//    lid(cells);
+//    wagobox(cells);
+    lid(cells);
 }
 
 scale(ViewScale)
