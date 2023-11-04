@@ -7,6 +7,7 @@ include <../models/model_fan_caizhu_1inch.scad>
 include <../models/model_ssd1306.scad>
 include <../models/model_slideswitch.scad>
 include <../models/model_pushbuttons.scad>
+include <../models/veroboard.scad>
 
 model=1;
 
@@ -51,6 +52,30 @@ module panel_power_hdmi_audio()
     }
 }
 
+module panel_fan_powerswitch_reset()
+{
+    $fn=96;
+    recolor("dimgray")
+    model_fan_caizhu_1inch() {
+        attach(LEFT,norot=1) left(300) zrot(90) model_slideswitch(anchor=RIGHT);
+        attach(RIGHT,norot=1) right(400)  model_pushbutton_base(shaftl=100,anchor=LEFT) {
+            attach(TOP) up(150) recolor("red") model_buttontop();
+            attach(CENTER) down(100) model_veroboard(holesX=5,holesY=5);
+        }
+    }
+
+    *diff()
+    cuboid([1100,1100,510], rounding=100,edges="Z") {
+        tag("remove") {
+            attach(BOT) cuboid([1020,1020,410], rounding=100,edges="Z")
+            attach(TOP) cylinder(d=940,h=150);
+        }
+        tag("keep") {
+            attach(TOP) cylinder(d=640,h=100,anchor=TOP);
+        }
+     }
+}
+
 module case()
 {
 }
@@ -71,11 +96,12 @@ module forViewing0()
 
 module forViewing()
 {
-    right(1700) up(300) back(130) panel_usb_ethernet();
-    left(290) up(80)  fwd(1100) panel_power_hdmi_audio();
-    if (model) {
-        model_rpi3();
-    }
+    panel_fan_powerswitch_reset();
+//    right(1700) up(300) back(130) panel_usb_ethernet();
+//    left(290) up(80)  fwd(1100) panel_power_hdmi_audio();
+//    if (model) {
+//        model_rpi3();
+//    }
 //    attach(BACK+TOP,norot=1)  model_ups_board(anchor=BACK+BOT);
 //    attach(TOP+FRONT+RIGHT,norot=1) model_ups_board(anchor=RIGHT+BACK+TOP);
 }
