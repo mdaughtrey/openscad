@@ -64,7 +64,7 @@ module panel_fan_powerswitch_reset()
         }
     }
 
-    *diff()
+    diff()
     cuboid([1100,1100,510], rounding=100,edges="Z") {
         tag("remove") {
             attach(BOT) cuboid([1020,1020,410], rounding=100,edges="Z")
