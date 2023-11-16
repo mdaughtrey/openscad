@@ -36,6 +36,9 @@ module panel_usb_ethernet(anchor=CENTER,spin=0,orient=UP)
             attach(TOP+LEFT,norot=1) down(200) cuboid([250,ups_width+200,165],rounding=50,edges="X",anchor=TOP+RIGHT)
                 tag("remove") attach(LEFT,norot=1) cuboid([251,ups_width+30,85],anchor=LEFT)
                     attach(RIGHT,norot=1) cuboid([226+40,300+180,170],anchor=RIGHT);
+             // Skirt
+             attach(LEFT,norot=1) cuboid([3000,1500,500],rounding=200,edges="Z",orient=RIGHT,spin=90,anchor=TOP)
+                tag("remove") attach(CENTER,norot=1) cuboid([2800,1300,500]);
         }
     }
     attachable(anchor,spin,orient,size=[100,3000,1500])
@@ -180,42 +183,48 @@ module powerswitch(anchor=CENTER,spin=0,orient=UP)
 }
 
 
-module panel_fan_powerswitch_reset()
+module panel_fan_powerswitch_reset(anchor=CENTER,spin=0,orient=UP)
 {
     $fn=96;
-    diff() 
-    cuboid([3000,1500,100],rounding=200,edges="Z") {
-        tag("remove") cuboid([1020,1020,410], rounding=100,edges="Z");
-        attach(TOP,norot=1)
-        cuboid([1100,1100,510], rounding=100,edges="Z",anchor=BOT) {
-            tag("remove") {
-                attach(BOT,norot=1) cuboid([1020,1020,410], rounding=100,edges="Z",anchor=BOT)
-                attach(TOP,norot=1,overlap=1) cylinder(d=940,h=150);
-            }
-            tag("keep") {
-                attach(TOP,norot=1) cylinder(d=640,h=100,anchor=TOP);
-                attach(TOP) zrot_copies(n=3,d=790) cuboid([200,80,100],anchor=TOP);
-            }
-         }
-         // Cutout for power switch
-         tag("remove") attach(TOP+RIGHT,norot=1) left(400) cuboid([75,160,50],anchor=TOP)
-            attach(BOT,norot=1) cuboid([157,375,100], anchor=TOP);
+    module panel_fan_powerswitch_reset_()
+    {
+        diff() 
+        cuboid([3000,1500,100],rounding=200,edges="Z") {
+            tag("remove") cuboid([1020,1020,410], rounding=100,edges="Z");
+            attach(TOP,norot=1)
+            cuboid([1100,1100,510], rounding=100,edges="Z",anchor=BOT) {
+                tag("remove") {
+                    attach(BOT,norot=1) cuboid([1020,1020,410], rounding=100,edges="Z",anchor=BOT)
+                    attach(TOP,norot=1,overlap=1) cylinder(d=940,h=150);
+                }
+                tag("keep") {
+                    attach(TOP,norot=1) cylinder(d=640,h=100,anchor=TOP);
+                    attach(TOP) zrot_copies(n=3,d=790) cuboid([200,80,100],anchor=TOP);
+                }
+             }
+             // Cutout for power switch
+             tag("remove") attach(TOP+RIGHT,norot=1) left(400) cuboid([75,160,50],anchor=TOP)
+                attach(BOT,norot=1) cuboid([157,375,100], anchor=TOP);
+             attach(BOT+RIGHT,norot=1) left(400) cuboid([237,455,50], anchor=TOP);
+             attach(TOP+RIGHT,norot=1) left(400) rect_tube(h=100,isize=[237,455],wall=50,anchor=BOT);
 
-//          attach(RIGHT,norot=1) left(300) cuboid([237,455,100],anchor=RIGHT)
-//          attach(TOP,norot=1) #cuboid([237,455,150],anchor=TOP) {
-//              tag("remove") {
-//                 attach(BOT,norot=1) cuboid([157,375,100], anchor=BOT)
-//                 attach(TOP,norot=1) cuboid([75,160,51],anchor=BOT);
-//              }
-//          }
+             // Reset Button
+             tag("remove") attach(TOP+LEFT,norot=1) right(450)
+                cuboid([270,270,101],anchor=TOP);
+             tag("keep") attach(TOP+LEFT,norot=1) right(450) tube(id=380,wall=50,h=450,anchor=BOT);
+             attach(BOT+LEFT,norot=1) right(450) cuboid([700,700,100],anchor=TOP,rounding=50,edges="Z")
+                tag("remove") cuboid([520,520,100]);
+
+             // Skirt
+             attach(BOT,norot=1) cuboid([3000,1500,500],rounding=200,edges="Z",anchor=TOP)
+                tag("remove") attach(CENTER,norot=1) cuboid([2800,1300,500]);
+        }
     }
-
-
-    *fanmount() {
-        attach(LEFT+BOT,norot=1) powerswitch(spin=90,anchor=FRONT+BOT);
-        attach(RIGHT+BOT,norot=1) reset_button(anchor=LEFT);
+    attachable(anchor,spin,orient,size=[3000,1500,1110])
+    {
+        panel_fan_powerswitch_reset_();
+        children();
     }
-    
 }
 
 module panel_oled_display()
@@ -238,12 +247,12 @@ module case()
 
 module forViewing0()
 {
-    *model_ups_board() {
+    model_ups_board() {
         attach(LEFT,norot=1) down(280) panel_usb_ethernet(anchor=TOP+LEFT,orient=DOWN)
         attach(BOT+LEFT, norot=1) up(350) model_rpi3(anchor=RIGHT);
-        attach(RIGHT,norot=1) down(280) cuboid([100,3000,1500],rounding=200,edges="X",anchor=BOT+LEFT);
+        attach(RIGHT,norot=1) down(280) left(500) panel_fan_powerswitch_reset(anchor=BOT+BACK,spin=-90,orient=RIGHT);
     }
-    panel_fan_powerswitch_reset();
+//    panel_fan_powerswitch_reset();
 //        panel_usb_ethernet();
 
 //        up(900) xrot(180) model_rpi3();
