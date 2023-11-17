@@ -30,15 +30,15 @@ module panel_usb_ethernet(anchor=CENTER,spin=0,orient=UP)
                         back(190-slop*2)
                         cuboid([680,520+slop*2,630+slop*2],anchor=BOT+FRONT+RIGHT);
                 // Mini USB
-                attach(TOP,norot=1) down(200) cuboid([100,300+180,90+160],rounding=50,edges="X",anchor=TOP);
+                attach(TOP,norot=1) left(1) down(200) cuboid([105,300+180,90+160],rounding=50,edges="X",anchor=TOP);
             }
+            // Skirt
+            attach(LEFT,norot=1) rect_tube(h=500,size=[3000,1500],wall=100,orient=RIGHT,spin=90,rounding=200,anchor=TOP);
             // UPS Board support
-            attach(TOP+LEFT,norot=1) down(200) cuboid([250,ups_width+200,165],rounding=50,edges="X",anchor=TOP+RIGHT)
-                tag("remove") attach(LEFT,norot=1) cuboid([251,ups_width+30,85],anchor=LEFT)
+            attach(LEFT+TOP,norot=1) down(200) 
+                cuboid([250,ups_width+200,165],rounding=50,edges="X",anchor=RIGHT+TOP)
+                tag("remove") attach(LEFT,norot=1) left(2) cuboid([252,ups_width+30,85],anchor=LEFT)
                     attach(RIGHT,norot=1) cuboid([226+40,300+180,170],anchor=RIGHT);
-             // Skirt
-             attach(LEFT,norot=1) cuboid([3000,1500,500],rounding=200,edges="Z",orient=RIGHT,spin=90,anchor=TOP)
-                tag("remove") attach(CENTER,norot=1) cuboid([2800,1300,500]);
         }
     }
     attachable(anchor,spin,orient,size=[100,3000,1500])
@@ -212,12 +212,17 @@ module panel_fan_powerswitch_reset(anchor=CENTER,spin=0,orient=UP)
              tag("remove") attach(TOP+LEFT,norot=1) right(450)
                 cuboid([270,270,101],anchor=TOP);
              tag("keep") attach(TOP+LEFT,norot=1) right(450) tube(id=380,wall=50,h=450,anchor=BOT);
-             attach(BOT+LEFT,norot=1) right(450) cuboid([700,700,100],anchor=TOP,rounding=50,edges="Z")
+             attach(BOT+LEFT,norot=1) right(450) rect_tube(h=100,isize=[520,520],wall=100,anchor=TOP);
+             *attach(BOT+LEFT,norot=1) right(450) #cuboid([700,700,100],anchor=TOP,rounding=50,edges="Z")
                 tag("remove") cuboid([520,520,100]);
 
-             // Skirt
-             attach(BOT,norot=1) cuboid([3000,1500,500],rounding=200,edges="Z",anchor=TOP)
-                tag("remove") attach(CENTER,norot=1) cuboid([2800,1300,500]);
+            // Skirt
+            attach(BOT,norot=1) rect_tube(h=500,size=[3000,1500],wall=100,rounding=200,anchor=TOP);
+            // UPS Board support
+            attach(BOT,norot=1)  back(470)
+                cuboid([ups_width+200,250,165],rounding=50,edges="Z",anchor=TOP)
+                 tag("remove") attach(CENTER,norot=1) left(2) cuboid([ups_width+30,85,252])
+                   attach(CENTER,norot=1) cuboid([1200,266,170]);
         }
     }
     attachable(anchor,spin,orient,size=[3000,1500,1110])
