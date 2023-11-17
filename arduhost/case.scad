@@ -218,11 +218,18 @@ module panel_fan_powerswitch_reset(anchor=CENTER,spin=0,orient=UP)
 
             // Skirt
             attach(BOT,norot=1) rect_tube(h=500,size=[3000,1500],wall=100,rounding=200,anchor=TOP);
+
             // UPS Board support
             attach(BOT,norot=1)  back(470)
                 cuboid([ups_width+200,250,165],rounding=50,edges="Z",anchor=TOP)
                  tag("remove") attach(CENTER,norot=1) left(2) cuboid([ups_width+30,85,252])
                    attach(CENTER,norot=1) cuboid([1200,266,170]);
+
+            // RPI Board support
+            attach(BOT,norot=1)  fwd(400)
+                cuboid([rpi3_width+200,250,350],rounding=50,edges="Z",anchor=TOP)
+                 tag("remove") attach(CENTER,norot=1) down(200) left(2) cuboid([rpi3_width+30,85,452])
+                   attach(CENTER,norot=1) cuboid([1700,266,370]);
         }
     }
     attachable(anchor,spin,orient,size=[3000,1500,1110])
@@ -245,6 +252,23 @@ module panel_oled_display()
 //    model_ssd1306_128_64();
 }
 
+module case_body(anchor=CENTER,spin=0,orient=UP)
+{
+    caselength=3500;
+    module case_body_()
+    {
+        diff()
+         rect_tube(h=caselength,size=[2760,1260],wall=100,rounding=200)
+         tag("remove") attach(RIGHT,norot=1,overlap=1) cuboid([200,1060,caselength+5],anchor=RIGHT);
+    }
+    attachable(anchor,spin,orient,size=[2760,1260,caselength])
+    {
+        down(caselength/2)
+        case_body_();
+        children();
+    }
+}
+
 
 module case()
 {
@@ -255,8 +279,10 @@ module forViewing0()
     model_ups_board() {
         attach(LEFT,norot=1) down(280) panel_usb_ethernet(anchor=TOP+LEFT,orient=DOWN)
         attach(BOT+LEFT, norot=1) up(350) model_rpi3(anchor=RIGHT);
-        attach(RIGHT,norot=1) down(280) left(500) panel_fan_powerswitch_reset(anchor=BOT+BACK,spin=-90,orient=RIGHT);
+        attach(RIGHT,norot=1) down(280) left(500) panel_fan_powerswitch_reset(anchor=BOT+BACK,spin=-90,orient=RIGHT)
+            attach(RIGHT,norot=1) recolor("cornflowerblue") left(120+2760/2) case_body(anchor=TOP);
     }
+//    case_body();
 //    panel_fan_powerswitch_reset();
 //        panel_usb_ethernet();
 
