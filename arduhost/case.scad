@@ -66,6 +66,12 @@ module panel_usb_ethernet(anchor=CENTER,spin=0,orient=UP)
                      attach(LEFT,norot=1)
                      cuboid([60,casebodytabxy[1],100],anchor=LEFT+TOP);
              }
+             // Body indent barriers
+             tag("keep") attach(LEFT+FRONT,norot=1) back(190) up(340)
+             cuboid([endcap_depth-100,100,230],anchor=RIGHT+FRONT);
+
+             tag("keep") attach(LEFT+FRONT,norot=1) back(190) down(200) 
+             cuboid([endcap_depth-100,100,430],anchor=RIGHT+FRONT);
         }
         // UPS Board Support
         recolor("Cornsilk")
@@ -277,31 +283,9 @@ module panel_fan_powerswitch_reset(anchor=CENTER,spin=0,orient=UP)
                 cuboid([270,270,101],anchor=TOP);
              tag("keep") attach(TOP+LEFT,norot=1) right(450) tube(id=380,wall=50,h=450,anchor=BOT);
              attach(BOT+LEFT,norot=1) right(450) rect_tube(h=100,isize=[370,520],wall=30,anchor=TOP);
-             *attach(BOT+LEFT,norot=1) right(450) cuboid([700,700,100],anchor=TOP,rounding=50,edges="Z")
-                tag("remove") cuboid([520,520,100]);
 
             // Skirt
             attach(BOT,norot=1) rect_tube(h=endcap_depth-100,size=skirtxy,wall=100,rounding=200,anchor=TOP);
-
-            // UPS Board support
-            *attach(BOT,norot=1)  back(530) 
-                cuboid([ups_width+200,250,265],rounding=50,edges="Z",anchor=TOP)
-                 tag("remove") attach(CENTER,norot=1) left(2) down(100) cuboid([ups_width+30,85,252])
-                   attach(CENTER,norot=1) cuboid([1200,266,270]);
-
-//                cuboid([ups_width+support_wall*2+20,85+support_wall*2+20,100],rounding=50,edges="Z")
-//                attach(TOP)
-//                rect_tube(h=200,isize=[ups_width+20,85+20],wall=support_wall,rounding=50,anchor=BOT)
-//                tag("remove")
-//                cuboid([ups_width-400,85+20+support_wall*2,200]);
- //               pcb_support(ups_width,85,anchor=BOT);
-                //pcb_support(ups_width,85,lift=100,anchor=BOT);
-
-            // RPI Board support
-            *attach(BOT,norot=1)  fwd(400)
-                cuboid([rpi3_width+200,250,350-100],rounding=50,edges="Z",anchor=TOP)
-                 tag("remove") attach(CENTER,norot=1) down(200) left(2) cuboid([rpi3_width+30,85,452-100])
-                   attach(CENTER,norot=1) up(100) cuboid([1700,266,370]);
 
             // Inner
             attach(BOT,norot=1)
@@ -317,14 +301,20 @@ module panel_fan_powerswitch_reset(anchor=CENTER,spin=0,orient=UP)
                      attach(LEFT,norot=1)
                      cuboid([60,casebodytabxy[1],100],anchor=LEFT+TOP);
              }
+             // Body indent barriers
+             tag("keep") attach(RIGHT+BOT,norot=1) left(190) back(340)
+             cuboid([100,230,endcap_depth-200],anchor=RIGHT+TOP);
+
+             tag("keep") attach(RIGHT+BOT,norot=1) left(190) fwd(200) 
+             cuboid([100,480,endcap_depth-200],anchor=RIGHT+TOP);
         }
         // UPS Board Support
         back(575) down(50) zflip() recolor("Cornsilk")
         pcb_support(ups_width,65,anchor=BOT);
 
         // RPI Board support
-        fwd(390) down(100) zflip() recolor("Cornsilk")
-        pcb_support(rpi3_width,85,lift=board_diff_len,tabH=100,anchor=BOT);
+        fwd(390) down(49) zflip() recolor("Cornsilk")
+        pcb_support(rpi3_width,85,lift=board_diff_len-50,tabH=100,anchor=BOT);
     }
     attachable(anchor,spin,orient,size=[endcap_width,endcap_height,endcap_depth+510])
     {
@@ -379,21 +369,21 @@ module case_body(anchor=CENTER,spin=0,orient=UP)
 module body_indent(anchor=CENTER,spin=0,orient=UP)
 {
     slop=20;
-    depth=220;
+    depth=220+70;
     module body_indent_() {
         diff()
         cuboid([case_length,1040,depth]) {
             tag("remove") {
-            attach(TOP+BACK+RIGHT,norot=1) fwd(70) up(1) left(300)
+            attach(TOP+BACK+RIGHT,norot=1) fwd(70) up(1) left(300-85)
             cuboid([2400,600,depth-50],rounding=100,edges="Z",anchor=TOP+BACK+RIGHT);
-            attach(BOT+BACK+RIGHT,norot=1) down(1) right(1) back(1)
+            attach(BOT+BACK+RIGHT,norot=1) down(1) right(1+50) back(1)
             cuboid([250,600,depth-50],anchor=BOT+BACK+RIGHT);
             attach(BOT+FRONT,norot=1) back(50) down(1)
             cuboid([case_length+400,250,depth-50],anchor=BOT+FRONT);
             attach(BOT+BACK+LEFT,norot=1) fwd(70) down(1) left(50)
             cuboid([700,500,depth-50],anchor=BOT+BACK+LEFT);
             // Connector cutouts
-            attach(BACK+RIGHT,norot=1) left(700+35) fwd(140) down(50)
+            attach(BACK+RIGHT,norot=1) left(700+35-85) fwd(140) down(50)
             zrot(180)
             cuboid([300+slop,100+slop,220],anchor=RIGHT+FRONT)
                 // HDMI
@@ -416,32 +406,15 @@ module body_indent(anchor=CENTER,spin=0,orient=UP)
 
 module viewAll()
 {
-     //left(board_diff_len) model_rpi3(orient=FRONT,anchor=RIGHT);
-     //model_ups_board(orient=FRONT,anchor=RIGHT);
      panel_usb_ethernet()
      {
-          attach(BOT,norot=1)  right(85) up(510) model_rpi3(anchor=RIGHT);
-          attach(BOT) left(50) down(1475)  model_ups_board(anchor=LEFT);
+          *attach(BOT,norot=1)  right(85) up(510) model_rpi3(anchor=RIGHT);
+          *attach(BOT) left(50) down(1475)  model_ups_board(anchor=LEFT);
           case_body(orient=RIGHT,anchor=TOP,spin=-90)
           attach(BOT) down(50+endcap_depth-100) zrot(180) panel_fan_powerswitch_reset(anchor=BOT);
           attach(FRONT)
           down(100) zrot(180) body_indent(anchor=LEFT+TOP);
      }
-
-     *panel_fan_powerswitch_reset() 
-     {
-          attach(BOT,norot=1) fwd(570) yflip() down(rpi3_length+board_diff_len-300) yrot(90) model_rpi3(orient=FRONT,anchor=RIGHT);
-          attach(BOT,norot=1) back(570) up(450) zflip() yrot(90) model_ups_board(orient=FRONT,anchor=RIGHT);
-     }
-*    model_ups_board() {
-        attach(LEFT,norot=1) down(330) panel_usb_ethernet(anchor=TOP+LEFT,orient=DOWN)
-        attach(BOT+LEFT, norot=1) up(500) model_rpi3(anchor=RIGHT);
-        attach(RIGHT,norot=1) down(330) left(500) panel_fan_powerswitch_reset(anchor=BOT+BACK,spin=-90,orient=RIGHT)
-        attach(BOT,norot=1) up(500) recolor("cornflowerblue") case_body(anchor=TOP);
-//        attach(RIGHT,norot=1) left(180) xrot(180) yrot(90) recolor("cyan") body_indent();
-    }
-    *recolor("cornflowerblue") case_body()
-    attach(RIGHT,norot=1) left(70) xrot(180) yrot(90) recolor("cyan") body_indent();
 }
 
 module forViewing()
@@ -460,7 +433,7 @@ module forViewing()
 
 module forPrinting()
 {
-    panel_fan_powerswitch_reset();
+//    panel_fan_powerswitch_reset();
 //      panel_usb_ethernet();
 //    case_body();
 //body_indent();
@@ -468,6 +441,6 @@ module forPrinting()
 
 scale(ViewScale)
 {
-//    forViewing();
-    forPrinting();
+    forViewing();
+//    forPrinting();
 }
