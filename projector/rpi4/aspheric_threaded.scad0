@@ -1,0 +1,15 @@
+ViewScale = [0.0254, 0.0254, 0.0254];
+
+// https://dkprojects.net/openscad-threads/
+
+use <threads.scad>
+
+module case()
+{
+    english_thread(1, 10, 1, square=true, thread_size=2);
+}
+
+scale(ViewScale)
+{
+    case();
+}
