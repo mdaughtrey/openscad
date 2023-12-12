@@ -22,42 +22,45 @@ module model_slideswitch0()
     square([225, 60], center = true);
 }
 
-module model_slideswitch()
+module model_slideswitch(anchor=CENTER,spin=0,orient=UP)
 {
-    color("darkslategray")
-    linear_extrude(123)
-    square([355, 137], center = true);
-
-    color("dimgray")
-    translate([0, 0, 122])
-    linear_extrude(11)
-    difference()
-    {
+    module model_slideswitch_() {
+        color("darkslategray")
+        linear_extrude(123)
         square([355, 137], center = true);
-        square([150, 65], center = true);
-    }
 
-    // switch
-    color("black")
-    translate([0, 0, 122])
-    linear_extrude(100)
-    square([58, 58], center = true);
-
-    // Pins
-    color("silver")
-    for (ii = [-100, 0, 100])
-    {
-        for (jj = [-137/2, 137/2])
+        color("dimgray")
+        translate([0, 0, 122])
+        linear_extrude(11)
+        difference()
         {
-            translate([ii, jj, -80])
-            linear_extrude(100)
-            square([25, 25], center = true);
+            square([355, 137], center = true);
+            square([150, 65], center = true);
+        }
+
+        // switch
+        color("black")
+        translate([0, 0, 122])
+        linear_extrude(100)
+        square([58, 58], center = true);
+
+        // Pins
+        color("silver")
+        for (ii = [-100, 0, 100])
+        {
+            for (jj = [-137/2, 137/2])
+            {
+                translate([ii, jj, -80])
+                linear_extrude(100)
+                square([25, 25], center = true);
+            }
         }
     }
+    attachable(anchor,spin,orient,size=[355,137,223])
+    {
+        model_slideswitch_();
+        children();
+    }
 
-    *color("dimgray")
-    translate([0, 139/2-40, 144])
-    linear_extrude(80)
-    square([225, 60], center = true);
 }
 

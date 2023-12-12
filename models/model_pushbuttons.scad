@@ -45,10 +45,10 @@ module model_pushbutton_base(anchor=CENTER,spin=0,orient=UP,shaftl=285)
 {
     $fn=96;
     recolor("dimgray")
-    attachable(anchor,spin,orient=orient,size=[237,237,120+shaftl]) {
+    attachable(anchor,spin,orient=orient,size=[237,237,120+shaftl+170]) {
         cuboid([237,237,120]) {
             attach(TOP) cyl(d1=136,d2=121,h=shaftl,anchor=BOT);
-            attach(BOT, norot=1) grid_copies([176,250]) recolor("silver") cyl(d=25,h=170,anchor=TOP);
+            attach(BOT, norot=1) grid_copies([200,200]) recolor("silver") cyl(d=25,h=170,anchor=TOP);
         }
         children();
     }

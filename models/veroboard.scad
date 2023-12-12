@@ -1,17 +1,16 @@
-module model_Veroboard(holesX, holesY)
+module model_veroboard(anchor=CENTER,spin=0,orient=UP, holesX=10, holesY=10)
 {
-    color("darkgoldenrod")
-    linear_extrude(50)
-    difference()
+    module model_veroboard_() {
+        color("darkgoldenrod")
+        diff()
+        cuboid([100*holesX,100*holesY,50])
+        tag("remove") 
+        grid_copies(n=[holesX,holesY],spacing=100)
+        cyl(d=30,h=55);
+    }
+    attachable(anchor,spin,orient,size=[100*holesX,100*holesY,50])
     {
-        square([100 * holesX, 100 * holesY]);
-        for (xx = [0:1:holesX-1])
-        {
-            for (yy = [0:1:holesY-1])
-            {
-                translate([xx * 100+50, yy * 100+50, 0])
-                circle(15, $fn=96);
-            }
-        }
+        model_veroboard_();
+        children();
     }
 }
