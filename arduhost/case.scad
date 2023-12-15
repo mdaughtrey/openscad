@@ -40,7 +40,7 @@ module panel_usb_ethernet(anchor=CENTER,spin=0,orient=UP)
             }
 
             tag("remove") {
-                down(100) back(150)
+                down(100) back(130+slop)
                 // Ethernet
                 attach(FRONT,norot=1) back(680-slop) cuboid([838,626+slop*2,536+slop*2])
                     // USB 
@@ -324,14 +324,22 @@ module panel_fan_powerswitch_reset(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
-module panel_oled_display()
+module panel_oled_display(anchor=CENTER,spin=0,orient=UP)
 {
-    diff()
-    cuboid([ssd1306_128_64_length+100,ssd1306_128_64_width+100,150])  {
-        tag("remove") {
-            attach(BOT,norot=1) cuboid([ssd1306_128_64_length+30,ssd1306_128_64_width+30,101],anchor=BOT);
-            attach(FRONT+TOP,norot=1) back(220) up(1) cuboid([1050+30,757+30,62], anchor=TOP+FRONT);
+    module panel_oled_display_() {
+        diff()
+        cuboid([ssd1306_128_64_length+100,ssd1306_128_64_width+100,150])  {
+            tag("remove") {
+                attach(BOT,norot=1) cuboid([ssd1306_128_64_length+30,ssd1306_128_64_width+30,101],anchor=BOT);
+                attach(FRONT+TOP,norot=1) back(220) up(1) cuboid([1050+30,757+30,62], anchor=TOP+FRONT);
+            }
+            attach(TOP,norot=1)
+            rect_tube(h=50,isize=[ssd1306_128_64_length,ssd1306_128_64_width],wall=150,rounding=100,anchor=TOP);
         }
+    }
+    attachable(anchor,spin,orient,size=[ssd1306_128_64_length+150,ssd1306_128_64_width+150,150]) {
+        panel_oled_display_();
+        children();
     }
 }
 
@@ -344,10 +352,11 @@ module case_body(anchor=CENTER,spin=0,orient=UP)
          rect_tube(h=case_length,size=casebodyxy,wall=100,rounding=100)  {
          tag("remove") {
              attach(RIGHT,norot=1,overlap=1) cuboid([200,1060,case_length+5],anchor=RIGHT);
-             attach(BACK) cuboid([ssd1306_128_64_length+20,ssd1306_128_64_width+20,100], anchor=TOP);
+             *attach(BACK) cuboid([ssd1306_128_64_length+20,ssd1306_128_64_width+20,100], anchor=TOP);
+            attach(BACK) cuboid([ssd1306_128_64_length+170,ssd1306_128_64_width+180,100],anchor=TOP);
          }
          // Display mount
-         attach(BACK) cuboid([ssd1306_128_64_length+100,ssd1306_128_64_width+100,150], rounding=100,edges="Z",anchor=BOT)
+         *attach(BACK) cuboid([ssd1306_128_64_length+100,ssd1306_128_64_width+100,150], rounding=100,edges="Z",anchor=BOT)
              tag("remove") {
                 attach(BOT,norot=1) cuboid([ssd1306_128_64_length+30,ssd1306_128_64_width+30,101],anchor=BOT);
                 attach(FRONT+TOP,norot=1) back(220) up(1) cuboid([1050+30,757+30,62], anchor=TOP+FRONT);
@@ -383,7 +392,7 @@ module body_indent(anchor=CENTER,spin=0,orient=UP)
             attach(BOT+BACK+LEFT,norot=1) fwd(70) down(1) left(50)
             cuboid([700,500,depth-50],anchor=BOT+BACK+LEFT);
             // Connector cutouts
-            attach(BACK+RIGHT,norot=1) left(700+35-85) fwd(140) down(50)
+            attach(BACK+RIGHT,norot=1) left(700+35-10) fwd(140) down(50)
             zrot(180)
             cuboid([300+slop,100+slop,220],anchor=RIGHT+FRONT)
                 // HDMI
@@ -394,6 +403,10 @@ module body_indent(anchor=CENTER,spin=0,orient=UP)
                     attach(FRONT+BOT,norot=1) 
                     right(700-275+590/2+275/2) 
                     cuboid([275+slop,230+slop,580], anchor=BOT+FRONT);
+            // Vents
+            attach(TOP+FRONT,norot=1) back(150)
+            xcopies(l=case_length-400,n=8) cyl(h=100,d=100,anchor=TOP);
+
             }
         }
     }
@@ -408,10 +421,12 @@ module viewAll()
 {
      panel_usb_ethernet()
      {
-          *attach(BOT,norot=1)  right(85) up(510) model_rpi3(anchor=RIGHT);
-          *attach(BOT) left(50) down(1475)  model_ups_board(anchor=LEFT);
-          case_body(orient=RIGHT,anchor=TOP,spin=-90)
-          attach(BOT) down(50+endcap_depth-100) zrot(180) panel_fan_powerswitch_reset(anchor=BOT);
+          attach(BOT,norot=1)  right(85) up(540) model_rpi3(anchor=RIGHT);
+          attach(BOT) left(50) down(1475)  model_ups_board(anchor=LEFT);
+          case_body(orient=RIGHT,anchor=TOP,spin=-90) {
+              *attach(BOT) down(50+endcap_depth-100) zrot(180) panel_fan_powerswitch_reset(anchor=BOT);
+              *attach(BACK) panel_oled_display(anchor=TOP);
+          }
           attach(FRONT)
           down(100) zrot(180) body_indent(anchor=LEFT+TOP);
      }
@@ -420,23 +435,18 @@ module viewAll()
 module forViewing()
 {
     viewAll();
-//    body_indent();
-//    case_body();
-//    panel_usb_ethernet();
-//      panel_fan_powerswitch_reset();
-    //pcb_support(boardW=2000,boardT=95,lift=100);
-//    pcb_support(boardW=2000,boardT=95,lift=100);
-      *attach(BOT,norot=1)
-      up(500) recolor("cyan")
-      case_body(anchor=TOP);
+//    panel_oled_display();
+//    case_body()
+//    attach(BACK) up(200) panel_oled_display(anchor=BOT);
 }
 
 module forPrinting()
 {
 //    panel_fan_powerswitch_reset();
 //      panel_usb_ethernet();
-//    case_body();
-//body_indent();
+   case_body();
+// body_indent();
+//    panel_oled_display();
 }
 
 scale(ViewScale)
