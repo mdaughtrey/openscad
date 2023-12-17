@@ -8,6 +8,7 @@ include <../models/model_ssd1306.scad>
 include <../models/model_slideswitch.scad>
 include <../models/model_pushbuttons.scad>
 include <../models/veroboard.scad>
+include <../models/model_latching_pushbutton.scad>
 
 $fn=96;
 
@@ -281,7 +282,7 @@ module panel_fan_powerswitch_reset(anchor=CENTER,spin=0,orient=UP)
              // Reset Button
              tag("remove") attach(TOP+LEFT,norot=1) right(450)
                 cuboid([270,270,101],anchor=TOP);
-             tag("keep") attach(TOP+LEFT,norot=1) right(450) tube(id=380,wall=50,h=450,anchor=BOT);
+             tag("keep") attach(TOP+LEFT,norot=1) right(450) tube(id=380,wall=50,h=350,anchor=BOT);
              attach(BOT+LEFT,norot=1) right(450) rect_tube(h=100,isize=[370,520],wall=30,anchor=TOP);
 
             // Skirt
@@ -434,7 +435,8 @@ module viewAll()
 
 module forViewing()
 {
-    viewAll();
+    panel_fan_powerswitch_reset();
+//    viewAll();
 //    panel_oled_display();
 //    case_body()
 //    attach(BACK) up(200) panel_oled_display(anchor=BOT);
