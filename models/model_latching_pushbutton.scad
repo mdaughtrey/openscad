@@ -1,4 +1,4 @@
-ViewScale = [0.0254, 0.0254, 0.0254];
+//ViewScale = [0.0254, 0.0254, 0.0254];
 include <../BOSL2-master/std.scad>
 
 $fn=96;
@@ -38,16 +38,16 @@ module model_latching_pushbutton(anchor=CENTER,spin=0,orient=UP,bentpins=false)
     }
 }
 
-// module forViewing()
-// {
-//     model_latching_pushbutton(bentpins=false);
-// }
-// 
-// module forPrinting()
-// {
-// }
-// 
-// scale(ViewScale)
-// {
-//     forViewing();
-// }
+//module forViewing()
+//{
+//    model_latching_pushbutton(bentpins=false);
+//}
+//
+//module forPrinting()
+//{
+//}
+//
+//scale(ViewScale)
+//{
+//    forViewing();
+//}
