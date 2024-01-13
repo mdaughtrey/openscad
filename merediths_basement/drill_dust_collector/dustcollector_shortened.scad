@@ -47,7 +47,7 @@ module hood(anchor=CENTER,spin=0,orient=UP)
         diff() 
         rotate_sweep(angle=180,spin=90,shape=rect([3000,2600],anchor=LEFT))  {
             attach(BOT+CENTER+FRONT,norot=1) tube(id=2400,od=2600,h=3800-delta,anchor=TOP);
-            attach(LEFT+FRONT,norot=1) cuboid([6000,1300,2600],anchor=LEFT+BACK);
+            attach(LEFT+FRONT,norot=1) cuboid([6000,800,2600],anchor=LEFT+BACK);
             tag("remove") attach(CENTER) cyl(d=5600,h=2200) attach(FRONT,norot=1) cuboid([5600,3000,2200],anchor=FRONT);
             tag("remove") attach(FRONT+CENTER+BOT,norot=1) down(1) cyl(d=2400,h=202,anchor=BOT);
             tag("remove") attach(RIGHT+BACK,overlap=200) cyl(d=1600,h=500); // hose cutout
