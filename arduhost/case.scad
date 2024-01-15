@@ -12,7 +12,7 @@ include <../models/model_latching_pushbutton.scad>
 
 $fn=96;
 
-model=1;
+model=0;
 endcap_height = 1800;
 endcap_width = 3000;
 endcap_depth = 350;
@@ -149,20 +149,23 @@ module fanmount(anchor=CENTER,spin=0,orient=UP)
      }
 }
 
-module reset_button_backstop(anchor=CENTER,spin=0,orient=UP)
+module reset_button_backstop()
 {
-    attachable(anchor,spin,orient,size=[750,620,170]) {
-        diff()
-        cuboid([740,620,170]) {
-            tag("remove") attach(BACK+BOT,norot=1)
-                 fwd(90) down(1) cuboid([350,350,103],anchor=BOT+BACK)
-                 attach(TOP+BACK,norot=1) cuboid([540,540,70],anchor=BOT+BACK);
-//             tag("remove") attach(BACK+BOT,norot=1) cuboid([540,540,70],anchor=BOT+BACK);
-//            attach(BOT,norot=1) cuboid([740,620,100],anchor=TOP)
-//                tag("remove") attach(BOT+BACK,norot=1) fwd(90) down(1) cuboid([350,350,103],anchor=BOT+BACK);
-        }
-        children();
+    diff()
+    conv_hull("remove")
+    {
+        fwd(300) cyl(d=220,h=100) tag("remove") 
+            attach(BOT,norot=1) cyl(l=65,d1=150,d2=80,anchor=BOT)
+            attach(TOP,norot=1) cyl(h=35,d=80,anchor=BOT);
+        back(300) cyl(d=220,h=100) tag("remove") 
+            attach(BOT,norot=1) cyl(l=65,d1=150,d2=80,anchor=BOT)
+            attach(TOP,norot=1) cyl(h=35,d=80,anchor=BOT);
     }
+    *up(100) fwd(300) tube(h=100,id=180,od=220);
+    *up(100) back(300) tube(h=100,id=180,od=220);
+    //right(300) cuboid([300,200,100],rounding=100,edges=[FRONT+RIGHT,BACK+RIGHT]);
+    right(100) cyl(h=100,d=300);
+    //right(300) tube(h=100,id=400,od=500);
 }
 
 module reset_button(anchor=CENTER,spin=0,orient=UP)
@@ -179,7 +182,7 @@ module reset_button(anchor=CENTER,spin=0,orient=UP)
                 tag("keep") {
                     attach(TOP+BACK,norot=1) down(50) fwd(230/2+20) model_pushbutton_base(shaftl=100,anchor=BACK)  {
                      attach(TOP,norot=1) up(150) recolor("red") model_buttontop();
-                    attach(CENTER,norot=1) down(85) model_veroboard(holesX=5,holesY=5);
+                    attach(CENTER,norot=1) down(85) model_veroboard(holesX=4,holesY=3);
                     }
                 }
             }
@@ -285,8 +288,26 @@ module reset_button_surround(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
-module panel_fan_powerswitch_reset(anchor=CENTER,spin=0,orient=UP)
+module powerswitch_backstop()
 {
+    diff()
+    conv_hull("remove")
+    {
+        fwd(250) cyl(d=220,h=100) tag("remove") 
+            attach(BOT,norot=1) cyl(l=65,d1=150,d2=80,anchor=BOT)
+            attach(TOP,norot=1) cyl(h=35,d=80,anchor=BOT);
+        back(250) cyl(d=220,h=100) tag("remove") 
+            attach(BOT,norot=1) cyl(l=65,d1=150,d2=80,anchor=BOT)
+            attach(TOP,norot=1) cyl(h=35,d=80,anchor=BOT);
+    }
+    *up(100) fwd(250) tube(h=100,id=180,od=220);
+    *up(100) back(250) tube(h=100,id=180,od=220);
+    //right(300) cuboid([300,200,100],rounding=100,edges=[FRONT+RIGHT,BACK+RIGHT]);
+    cyl(h=100,d=350);
+    //right(300) tube(h=100,id=400,od=500);
+}
+
+module panel_fan_powerswitch_reset(anchor=CENTER,spin=0,orient=UP) {
     $fn=96;
     module panel_fan_powerswitch_reset_()
     {
@@ -304,12 +325,35 @@ module panel_fan_powerswitch_reset(anchor=CENTER,spin=0,orient=UP)
                  attach(BOT) cyl(d=80,l=100);
              }
              // Cutout for power switch
-             right(800) 
-                tag("remove") attach(TOP,norot=1) cyl(d=282,h=100,anchor=TOP);
+             back(100) right(800) {
+                tag("remove") {
+                    attach(TOP,norot=1) cyl(d=282,h=100,anchor=TOP); 
+                    intersect()
+                    attach(BOT,norot=1) cyl(d=482,h=50,anchor=BOT) {
+                        tag("intersect") cuboid([482,325,50]);
+                    }
+                 }
+                 // Power switch backstop screw mounts
+                 tag("keep") {
+                     attach(BOT) fwd(250) tube(h=105,id=60,od=160,anchor=BOT);
+                     attach(BOT) back(250) tube(h=105,id=60,od=160,anchor=BOT);
+                 }
+             }
 
              // Reset Button
-             tag("remove") attach(TOP+LEFT,norot=1) right(450)
-                cuboid([270,270,101],anchor=TOP);
+             tag("remove") attach(TOP+LEFT,norot=1) right(550) back(200)
+             cuboid([270,270,101],anchor=TOP) {
+                 attach(BACK+LEFT,norot=1) cuboid([50,50,101],anchor=RIGHT+BACK);
+                 attach(BACK+RIGHT,norot=1) cuboid([50,50,101],anchor=LEFT+BACK);
+                 attach(FRONT+LEFT,norot=1) cuboid([50,50,101],anchor=RIGHT+FRONT);
+                 attach(FRONT+RIGHT,norot=1) cuboid([50,50,101],anchor=LEFT+FRONT);
+                 // Reset button screw mounts
+                 tag("keep") {
+                    attach(BOT,norot=1) left(100) fwd(300) tube(h=70,id=60,od=160,anchor=TOP);
+                    attach(BOT,norot=1) left(100) back(300) tube(h=70,id=60,od=160,anchor=TOP);
+                }
+             }
+
                 // Reset button surround
 //                tag("remove") attach(TOP+LEFT,norot=1) right(45) cyl(d=420,h=100,anchor=TOP);
 //             tag("keep") attach(TOP+LEFT,norot=1) reset_button_surround(anchor=BOT);
@@ -340,11 +384,11 @@ module panel_fan_powerswitch_reset(anchor=CENTER,spin=0,orient=UP)
              tag("keep") attach(RIGHT+BOT,norot=1) left(190) fwd(200) 
              cuboid([100,480,endcap_depth-200],anchor=RIGHT+TOP);
              // Screw mounts for reset button backstop
-             tag("keep") attach(BOT,norot=1) left(650) fwd(100) tube(h=200,id=60,od=150,anchor=TOP)
+             *tag("keep") attach(BOT,norot=1) left(650) fwd(100) tube(h=200,id=60,od=150,anchor=TOP)
                 left(400) back(450) tube(h=200,id=60,od=150);
              // Screw mounts for power switch backstop
-             tag("keep") attach(BOT,norot=1) right(1100) fwd(150) tube(h=200,id=60,od=150,anchor=TOP)
-                left(450) back(400) tube(h=200,id=60,od=150);
+             *tag("keep") attach(BOT,norot=1) right(1100) back(200) tube(h=200,id=60,od=150,anchor=TOP)
+                left(350) back(100) tube(h=200,id=60,od=150);
         }
         // UPS Board Support
         back(575) down(50) zflip() recolor("Cornsilk")
@@ -455,6 +499,23 @@ module body_indent(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
+module intra_board_support()
+{
+    // UPS Board Support
+    back(575) // down(50) zflip()
+    pcb_support(ups_width,65,tabH=300,anchor=BOT);
+
+    // RPI Board support
+    fwd(390) // down(49) zflip()
+    pcb_support(rpi3_width,65,tabH=300,anchor=BOT);
+
+    left(rpi3_width/2-100) back(110) zrot(-15)
+    cuboid([50,900,300],rounding=25,edges="Z",anchor=BOT+LEFT);
+
+    right(rpi3_width/2-150) back(110) zrot(15)
+    cuboid([50,900,300],rounding=25,edges="Z",anchor=BOT+LEFT);
+}
+
 module viewAll()
 {
      panel_usb_ethernet()
@@ -462,7 +523,7 @@ module viewAll()
           attach(BOT,norot=1)  right(85) up(540) model_rpi3(anchor=RIGHT);
           attach(BOT) left(50) down(1475)  model_ups_board(anchor=LEFT);
           case_body(orient=RIGHT,anchor=TOP,spin=-90) {
-              *attach(BOT) down(50+endcap_depth-100) zrot(180) panel_fan_powerswitch_reset(anchor=BOT);
+              attach(BOT) down(50+endcap_depth-100) zrot(180) panel_fan_powerswitch_reset(anchor=BOT);
               *attach(BACK) panel_oled_display(anchor=TOP);
           }
           attach(FRONT)
@@ -472,14 +533,22 @@ module viewAll()
 
 module forViewing()
 {
+    intra_board_support();
 //    reset_button_surround();
 //    fan_housing();
-    panel_fan_powerswitch_reset();
-    left(1050) fwd(60) down(250)
-    reset_button();
-    right(800) down(200)
-    model_latching_pushbutton();
+//    panel_fan_powerswitch_reset();
+    // Reset button backstop
+    *left(1050) down(400) back(200)
+    reset_button_backstop();
+    
+    // Power button backstop
+    *right(800) down(400) back(100)
+    powerswitch_backstop();
 
+    *left(1050-100) fwd(60-210) down(250)
+    reset_button();
+    *right(800) down(170) back(100)
+    model_latching_pushbutton();
 //    viewAll();
 //    panel_oled_display();
 //    case_body()
@@ -490,9 +559,11 @@ module forPrinting()
 {
 //    panel_fan_powerswitch_reset();
 //      panel_usb_ethernet();
-   case_body();
+//   case_body();
 // body_indent();
 //    panel_oled_display();
+    powerswitch_backstop();
+//    reset_button_backstop();
 }
 
 scale(ViewScale)

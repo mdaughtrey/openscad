@@ -1,6 +1,7 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 include <../../BOSL2-master/std.scad>
 include <../../BOSL2-master/walls.scad>
+include <magnetic_collar_lib.scad>
 
 //    attachable(anchor,spin,orient,size=[1500,1500,600]) {
 
@@ -81,6 +82,37 @@ module simplelength(anchor=CENTER,spin=0,orient=UP,l)
         collar_inserter()
         attach(TOP,overlap=1) rect_tube(size=1500,isize=1400,h=l-1150,anchor=BOT,rounding=50)
         attach(TOP) collar_acceptor(anchor=BOT);
+    }
+
+    attachable(anchor,spin,orient,size=[1500,1500,l+1150]) {
+        _simplelength(l);
+        children();
+    }
+}
+
+module collared_length(anchor=CENTER,spin=0,orient=UP,l)
+{
+//        rect_tube(h=thick,isize=1520,size=1620,irounding=50,rounding=100)
+    assert(l>1150,"simple length must be >= 1150");
+    module _simplelength(length)
+    {
+        collar_inserter() {
+            attach(TOP) up(100) rect_tube(h=200,isize=[1450,1450],size=[1620,1620],rounding=50,anchor=TOP) {
+                attach(BOT+BACK,norot=1) magnetholder(anchor=FRONT+BOT);
+                attach(BOT+FRONT,norot=1) magnetholder(anchor=BACK+BOT);
+                attach(BOT+LEFT,norot=1) magnetholder(anchor=RIGHT+BOT);
+                attach(BOT+RIGHT,norot=1) magnetholder(anchor=LEFT+BOT);
+            }
+
+            attach(TOP,overlap=1) rect_tube(size=1500,isize=1400,h=l-1150,anchor=BOT,rounding=50)
+            attach(TOP) collar_acceptor(anchor=BOT) 
+            attach(TOP) rect_tube(h=200,isize=[1450,1450],size=[1620,1620],rounding=50,anchor=TOP) {
+                attach(TOP+BACK,norot=1) magnetholder(anchor=FRONT+BOT,orient=DOWN);
+                attach(TOP+FRONT,norot=1) magnetholder(anchor=BACK+BOT,orient=DOWN);
+                attach(TOP+LEFT,norot=1) magnetholder(anchor=LEFT+BOT,orient=DOWN);
+                attach(TOP+RIGHT,norot=1) magnetholder(anchor=RIGHT+BOT,orient=DOWN);
+            }
+        }
     }
 
     attachable(anchor,spin,orient,size=[1500,1500,l+1150]) {
@@ -207,12 +239,12 @@ module support_1(anchor=CENTER,spin=0,orient=UP)
 module forViewing()
 {
 //    hexled_mount();
-//     simplelength(l=2000)
+     collared_length(l=2000);
 //    attach(TOP) 
 //    recolor("cyan") down(350) elbow90(anchor=BOT)
 //    attach(BOT,norot=1) zflip() up(1500) hexled_mount();
 
-    cap();
+//    cap();
  //   left(1000) sheet_holder(anchor=BOT);
 //    right(1000) sheet_holder_insert();
 //    right(2500) sheet_holder_insert();
@@ -225,8 +257,9 @@ module forViewing()
 
 module forPrinting()
 {
+    magnetholder();
 //    elbow90();
-hexled_mount();
+//hexled_mount();
 //     simplelength(l=2000);
 //   support_0();
 //   support_1();
@@ -234,6 +267,6 @@ hexled_mount();
 
 scale(ViewScale)
 {
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 }

@@ -71,10 +71,10 @@ module forViewing()
 //    *recolor("cornflowerblue")
 //    drillmount();
 //front_half(s=20000)
-//    hood(anchor=BOT);
+    hood(anchor=BOT);
 //    halfcyl(anchor=BOT);
 //    model_hose();
-    coupling();
+//    coupling();
 }
 
 module forPrinting()
