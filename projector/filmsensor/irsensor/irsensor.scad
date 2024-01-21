@@ -42,21 +42,92 @@ module ir_sensor_mount(anchor=CENTER,spin=0,orient=UP)
 }
 
 
-module bearing_cap(anchor=CENTER,spin=0,orient=UP) 
+module bearing_cap608(anchor=CENTER,spin=0,orient=UP,offset=0) 
 {
     $fn=96;
-    module bearing_cap_()
+    module bearing_cap608_()
     {
         diff()
         cyl(d=discd,h=100) {
-            tag("remove") attach(BOT,norot=1) cyl(d=200,h=300,anchor=BOT);
+            tag("remove") right(offset) attach(BOT,norot=1) cyl(d=200,h=300,anchor=BOT);
             attach(TOP,norot=1) cyl(d=500,h=mm(0.7),anchor=BOT)
             attach(TOP,norot=1) cyl(d=mm(7.5),h=mm(3),anchor=BOT);
         }
     }
     attachable(anchor,spin,orient,d=discd,l=100+mm(3.7))
     {
-        bearing_cap_();
+        bearing_cap608_();
+        children();
+    }
+}
+
+module bearing_cap6001(anchor=CENTER,spin=0,orient=UP) 
+{
+    $fn=96;
+    module bearing_cap6001_()
+    {
+        diff()
+        cyl(d=discd+200,h=100) {
+            tag("remove") attach(BOT,norot=1) cyl(d=200,h=300,anchor=BOT);
+            attach(TOP,norot=1) cyl(d=650,h=mm(0.7),anchor=BOT)
+            attach(TOP,norot=1) cyl(d=mm(7.5),h=mm(3),anchor=BOT);
+        }
+    }
+    attachable(anchor,spin,orient,d=discd,l=100+mm(3.7))
+    {
+        bearing_cap6001_();
+        children();
+    }
+}
+
+module onebearing608(anchor=CENTER,spin=0,orient=UP,lift=1,offset=0)
+{
+    $fn=96;
+    discd = discd -50;
+    module onebearing_()
+    {
+        diff()
+        cyl(d=discd,h=100) {
+            tag("remove") right(offset) attach(BOT,norot=1) cyl(d=200,h=300+lift,anchor=BOT);
+            attach(TOP,norot=1) cyl(d=discd,h=lift,anchor=BOT)
+            attach(TOP,norot=1) cyl(d=500,h=mm(0.7),anchor=BOT) {
+                if (model)
+                {
+                    recolor("dimgray")
+                    attach(TOP,norot=1) scale([1/25.4,1/25.4,1/25.4]*1000) ball_bearing("608ZZ",anchor=BOT);
+                }
+                attach(TOP,norot=1) cyl(d=mm(7.5),h=mm(3),anchor=BOT);
+            }
+        }
+    }
+    attachable(anchor,spin,orient,r=discd,h=100+lift+mm(0.7)+mm(3))
+    {
+        down((100+lift+mm(0.7)+mm(3))/2-50)
+        onebearing_();
+        children();
+    }
+}
+
+module onebearing6001(anchor=CENTER,spin=0,orient=UP,lift=1,discd=1100)
+{
+    $fn=96;
+    module onebearing_()
+    {
+        diff()
+        cyl(d=discd,h=100) {
+            tag("remove") attach(BOT,norot=1) cyl(d=200,h=300+lift,anchor=BOT);
+            attach(TOP,norot=1) cyl(d=discd,h=lift,anchor=BOT)
+            attach(TOP,norot=1) cyl(d=650,h=mm(0.7),anchor=BOT) {
+                if (model)
+                    attach(TOP,norot=1) scale([1/25.4,1/25.4,1/25.4]*1000) ball_bearing("6001",anchor=BOT);
+                attach(TOP,norot=1) cyl(d=mm(11),h=mm(3),anchor=BOT);
+            }
+        }
+    }
+    attachable(anchor,spin,orient,r=discd,h=100+lift+mm(0.7)+mm(3))
+    {
+        down((100+lift+mm(0.7)+mm(3))/2-50)
+        onebearing_();
         children();
     }
 }
@@ -64,66 +135,35 @@ module bearing_cap(anchor=CENTER,spin=0,orient=UP)
 module filmguides(anchor=CENTER,spin=0,orient=UP,span=2000,lift=1)
 {
     $fn=96;
-    module filmguides_()
-    {
-        diff()
-        cyl(d=discd,h=100) {
-            tag("remove") attach(BOT,norot=1) cyl(d=200,h=300+lift,anchor=BOT);
-            attach(BOT,norot=1) cuboid([span,500,100],anchor=BOT+LEFT)
-            attach(RIGHT,norot=1) cyl(d=discd,h=100) {
-                tag("remove") attach(BOT,norot=1) cyl(d=200,h=300+lift,anchor=BOT);
-                attach(TOP,norot=1) cyl(d=discd,h=lift,anchor=BOT)
-                attach(TOP,norot=1) cyl(d=500,h=mm(0.7),anchor=BOT)
-                {
-                    if (model)
-                    {
-                        attach(TOP,norot=1) scale([1/25.4,1/25.4,1/25.4]*1000) ball_bearing("608ZZ",anchor=BOT);
-                    }
-                    attach(TOP,norot=1) cyl(d=mm(7.5),h=mm(3),anchor=BOT);
-                }
-            }
-
-            attach(TOP,norot=1) cyl(d=discd,h=lift,anchor=BOT)
-            attach(TOP,norot=1) cyl(d=500,h=mm(0.7),anchor=BOT) {
+    //onebearing608(lift=lift)
+    diff()
+    cyl(d=discd,h=100) {
+        tag("remove") attach(BOT,norot=1) cyl(d=200,h=100,anchor=BOT);
+        if (model)
+        {
+            recolor("cornflowerblue")
+            attach(TOP,norot=1) left(50) onebearing608(lift=100,offset=50,anchor=BOT)
+            attach(TOP,norot=1) left(50) up(360) recolor("yellowgreen") onebearing608(offset=50,orient=DOWN,anchor=BOT);
+            //attach(TOP,norot=1) left(50) up(360) recolor("yellowgreen") bearing_cap608(offset=50,orient=DOWN,anchor=BOT);
+        }
+        attach(BOT,norot=1) cuboid([span,500,100],anchor=BOT+LEFT) {
+            tag("remove") attach(LEFT+BOT,norot=1) cyl(d=200,h=301+lift,anchor=BOT);
+            tag("remove") attach(RIGHT+BOT,norot=1) cyl(d=200,h=301+lift,anchor=BOT);
+            attach(RIGHT+BOT,norot=1) cyl(d=discd,h=100,anchor=BOT) {
                 if (model)
                 {
-                    attach(TOP,norot=1) scale([1/25.4,1/25.4,1/25.4]*1000) ball_bearing("608ZZ",anchor=BOT);
+                    recolor("cornflowerblue")
+                    attach(TOP,norot=1) left(50) onebearing608(lift=100,offset=50,anchor=BOT)
+                    attach(TOP,norot=1) left(50) up(360) recolor("yellowgreen") bearing_cap608(offset=50,orient=DOWN,anchor=BOT);
                 }
-                attach(TOP,norot=1) cyl(d=mm(7.5),h=mm(3),anchor=BOT);
+                attach(BOT,norot=1) zrot(-45) cuboid([discd+300,500,100],anchor=BOT+LEFT) 
+                {
+                    tag("remove") attach(LEFT+BOT,norot=1) cyl(d=200,h=301+lift,anchor=BOT);
+                    tag("remove") attach(RIGHT+BOT,norot=1) cyl(d=200,h=301+lift,anchor=BOT);
+                    attach(RIGHT+BOT,norot=1) onebearing6001(lift=lift-10,discd=discd+200,anchor=BOT);
+                }
             }
         }
-    }
-    attachable(anchor,spin,orient,size=[span+discd,discd,100+lift+mm(0.7)+mm(3)])
-    {
-        left(span/2)
-        down((100+lift+mm(3.7))/2-50)
-        filmguides_();
-        children();
-    }
-}
-
-
-module filmguides0(anchor=CENTER,spin=0,orient=UP,width=1000)
-{
-    module _filmguides() {
-        $fn=96;
-        diff()
-        cuboid([width,2300,100],rounding=450,edges="Z") {
-            tag("remove") attach(TOP+BACK,norot=1) fwd(500) up(1) cyl(d=180,h=104,anchor=TOP);
-            tag("remove") attach(TOP+FRONT,norot=1) back(500) up(1) cyl(d=180,h=104,anchor=TOP);
-            tag("keep") attach(TOP+BACK,norot=1) fwd(500) tube(od=400,id=180,h=25,anchor=BOT) {
-                attach(TOP) tube(od=300,id=180,h=130,anchor=BOT);
-            }
-            tag("keep") attach(TOP+FRONT,norot=1) back(500) tube(od=400,id=180,h=25,anchor=BOT) {
-                attach(TOP) tube(od=300,id=180,h=130,anchor=BOT);
-            }
-        }
-    }
-
-    attachable(anchor,spin,orient,size=[width,2300,200+25+130])
-    {
-        down(50+25+275/2) _filmguides();
-        children();
     }
 }
 
@@ -222,40 +262,18 @@ module forPrinting()
 {
 //    sensorholder();
 //    filmguides(span=1800,lift=200);
-//    bearing_cap();
-    vexmount1(span=1800);
+//    bearing_cap6001();
+    onebearing608(offset=45);
+//    vexmount1(span=1800);
 //    vexmount0();
     
 }
 
 module forViewing()
 {
-    *test();
-    *vexmount1(span=1800);
-    vexmount0()
-    attach(RIGHT)  down(100)
-    zrot(10) vexmount1(orient=DOWN,spin=90,span=1800);
-    *sensorholder();
-    *filmguides();
-    *sensorholder()
-    attach(RIGHT,norot=1) left(445)
-    filmguides(anchor=TOP,spin=90,orient=LEFT,span=1800,lift=200)
-    {
-//        attach(TOP) up(200) right(1000) bearing_cap(orient=DOWN);
-    }
-
-//    bearing_support();
-    *ir_sensor_mount() {
-        attach(BACK,norot=1) right(260) up(100) bearing_support(anchor=RIGHT,spin=-90,orient=LEFT);
-        attach(FRONT,norot=1) left(50) ir_sensor_mount(anchor=BACK)
-        attach(FRONT,norot=1) right(310) up(100) bearing_support(anchor=RIGHT,spin=90,orient=LEFT);
-        if (model)
-        right(50) up(520) recolor("red") xflip() model_film_super8(frames=5);
-    }
-    *if (model) {
-        recolor("dimgray") up(100)
-        model_ir_reflective_sensor();
-    }
+    filmguides(span=1800,lift=200);
+    right(800) up(800) sensorholder(orient=BACK,spin=90);
+    //bearing_cap608(lift=100,offset=50);
 }
 
 scale(ViewScale)
