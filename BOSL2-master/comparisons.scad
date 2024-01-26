@@ -241,7 +241,7 @@ function are_ends_equal(list, eps=EPSILON) =
 // Usage:
 //    bool = is_increasing(list, [strict]);
 // Description:
-//   Returns true if the list is (non-strictly) increasing, or strictly increasing if strict is set to true.
+//   Returns true if the list is (non-strictly) increasing, or strictly increasing if `strict=true`.
 //   The list can be a list of any items that OpenSCAD can compare, or it can be a string which will be
 //   evaluated character by character.
 // Arguments:
@@ -266,7 +266,7 @@ function is_increasing(list,strict=false) =
 // Usage:
 //   bool = is_decreasing(list, [strict]);
 // Description:
-//   Returns true if the list is (non-strictly) decreasing, or strictly decreasing if strict is set to true.
+//   Returns true if the list is (non-strictly) decreasing, or strictly decreasing if `strict=true`.
 //   The list can be a list of any items that OpenSCAD can compare, or it can be a string which will be
 //   evaluated character by character.  
 // Arguments:
@@ -532,7 +532,7 @@ function close_path(list,eps=EPSILON) =
   list_wrap(list,eps);
 
 // Function: list_unwrap()
-// Synopsis: Removes the last item of a list if it's first and last values are equal.
+// Synopsis: Removes the last item of a list if its first and last values are equal.
 // Topics: List Handling, Paths
 // See Also: list_wrap(), deduplicate()
 // Usage:
@@ -897,10 +897,10 @@ function group_sort(list, idx) =
 // Description:
 //   Given a list of integer group numbers, and an equal-length list of values,
 //   returns a list of groups with the values sorted into the corresponding groups.
-//   Ie: if you have a groups index list of [2,3,2] and values of ["A","B","C"], then
-//   the values "A" and "C" will be put in group 2, and "B" will be in group 3.
+//   Ie: if you have a groups index list of `[2,3,2]` and values of `["A","B","C"]`, then
+//   the values `"A"` and `"C"` will be put in group 2, and `"B"` will be in group 3.
 //   Groups that have no values grouped into them will be an empty list.  So the
-//   above would return [[], [], ["A","C"], ["B"]]
+//   above would return `[[], [], ["A","C"], ["B"]]`
 // Arguments:
 //   groups = A list of integer group index numbers.
 //   values = A list of values to sort into groups.

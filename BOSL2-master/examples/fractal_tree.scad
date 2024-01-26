@@ -1,6 +1,6 @@
-include <../std.scad>
-module tree(l=15, sc=0.7, depth=10)
-    color("lightgray")
+include <BOSL2/std.scad>
+module tree(l=1500, sc=0.7, depth=10)
+    recolor("lightgray")
     cylinder(l=l, d1=l/5, d2=l/5*sc)
         attach(TOP)
             if (depth>0)

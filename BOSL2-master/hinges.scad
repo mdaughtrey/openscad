@@ -15,6 +15,7 @@ include <screws.scad>
 
 // Module: knuckle_hinge()
 // Synopsis: Creates a knuckle-hinge shape.
+// SynTags: Geom
 // Topics: Hinges, Parts
 // See Also: living_hinge_mask(), snap_lock(), snap_socket()
 // Usage:
@@ -346,6 +347,7 @@ module _knuckle_hinge_profile(offset, arm_height, arm_angle=45, knuckle_diam=4, 
 
 // Module: living_hinge_mask()
 // Synopsis: Creates a mask to make a folding "living" hinge.
+// SynTags: Geom
 // Topics: Hinges, Parts
 // See Also: knuckle_hinge(), living_hinge_mask(), snap_lock(), snap_socket(), apply_folding_hinges_and_snaps()
 // Usage:
@@ -391,6 +393,7 @@ module folding_hinge_mask(l, thick, layerheight=0.2, foldangle=90, hingegap=unde
 
 // Module: apply_folding_hinges_and_snaps()
 // Synopsis: Adds snap shapes and removes living hinges from a child shape.
+// SynTags: Geom
 // Topics: Hinges, Parts
 // See Also: knuckle_hinge(), living_hinge_mask(), snap_lock(), snap_socket()
 // Usage:
@@ -412,7 +415,7 @@ module folding_hinge_mask(l, thick, layerheight=0.2, foldangle=90, hingegap=unde
 // Example(Med):
 //   size=100;
 //   apply_folding_hinges_and_snaps(
-//       thick=3, foldangle=54.74,
+//       thick=3, foldangle=acos(1/3),
 //       hinges=[
 //           for (a=[0,120,240], b=[-size/2,size/4]) each [
 //               [200, polar_to_xy(b,a), a+90]
@@ -476,6 +479,7 @@ module apply_folding_hinges_and_snaps(thick, foldangle=90, hinges=[], snaps=[], 
 
 // Module: snap_lock()
 // Synopsis: Creates a snap-lock shape.
+// SynTags: Geom
 // Topics: Hinges, Parts
 // See Also: knuckle_hinge(), living_hinge_mask(), snap_lock(), snap_socket()
 // Usage:
@@ -504,8 +508,8 @@ module snap_lock(thick, snaplen=5, snapdiam=5, layerheight=0.2, foldangle=90, hi
     attachable(anchor,spin,orient, size=size) {
         back(snap_x) {
             cube([snaplen, snapdiam, snapdiam/2+thick], anchor=BOT) {
-                attach(TOP) xcyl(l=snaplen, d=snapdiam, $fn=16);
-                attach(TOP) xcopies(snaplen-snapdiam/4/3) xscale(0.333) sphere(d=snapdiam*0.8, $fn=12);
+                attach(TOP) xcyl(l=snaplen, d=snapdiam, $fn = max(16,quant(segs(snapdiam/2),4)));
+                attach(TOP) xcopies(snaplen-snapdiam/4/3) xscale(0.333) sphere(d=snapdiam*0.8, $fn = max(12,quant(segs(snapdiam/2),4)));
             }
         }
         children();
@@ -515,6 +519,7 @@ module snap_lock(thick, snaplen=5, snapdiam=5, layerheight=0.2, foldangle=90, hi
 
 // Module: snap_socket()
 // Synopsis: Creates a snap-lock socket shape.
+// SynTags: Geom
 // Topics: Hinges, Parts
 // See Also: knuckle_hinge(), living_hinge_mask(), snap_lock(), snap_socket()
 // Usage:
@@ -545,8 +550,8 @@ module snap_socket(thick, snaplen=5, snapdiam=5, layerheight=0.2, foldangle=90, 
             zrot_copies([0,180], r=snaplen+get_slop()) {
                 diff("divot")
                 cube([snaplen, snapdiam, snapdiam/2+thick], anchor=BOT) {
-                    attach(TOP) xcyl(l=snaplen, d=snapdiam, $fn=16);
-                    tag("divot") attach(TOP) left((snaplen+snapdiam/4/3)/2) xscale(0.333) sphere(d=snapdiam*0.8, $fn=12);
+                    attach(TOP) xcyl(l=snaplen, d=snapdiam, $fn=max(16,quant(segs(snapdiam/2),4)));
+                    tag("divot") attach(TOP) left((snaplen+snapdiam/4/3)/2) xscale(0.333) sphere(d=snapdiam*0.8, $fn = max(12,quant(segs(snapdiam/2),4)));
                 }
             }
         }

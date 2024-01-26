@@ -139,7 +139,8 @@
 //   threaded_rod(d, l|length, pitch, [internal=], ...) [ATTACHMENTS];
 // Description:
 //   Constructs a standard ISO (metric) or UTS (English) threaded rod.  These threads are close to triangular,
-//   with a 60 degree thread angle.  You can give the outer diameter and get the "basic form" or you can
+//   with a 60 degree thread angle.  You can give diameter value which specifies the outer diameter and will produce
+//   the "basic form" or you can
 //   set d to a triplet [d_min, d_pitch, d_major] where are parameters determined by the ISO and UTS specifications
 //   that define clearance sizing for the threading.  See screws.scad for how to make screws
 //   using the specification parameters.  
@@ -169,6 +170,7 @@
 //   lead_in_ang1 = Specify angular length in degrees of the lead in section of the threading at the bottom with blunt start threads
 //   lead_in_ang2 = Specify angular length in degrees of the lead in section of the threading at the top with blunt start threads
 //   lead_in_shape = Specify the shape of the thread lead in by giving a text string or function.  Default: "default"
+//   teardrop = If true, adds a teardrop profile to the back (Y+) side of the threaded rod, to help with making a threaded hole mask. Default: false
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
 //   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
@@ -181,6 +183,16 @@
 //   threaded_rod(d=10, l=20, pitch=1.25, left_handed=true, $fa=1, $fs=1);
 //   threaded_rod(d=25, l=20, pitch=2, $fa=1, $fs=1, end_len=1.5, bevel=true);
 //   threaded_rod(d=25, l=20, pitch=2, $fa=1, $fs=1, blunt_start=false);
+// Example(Med;VPR=[100,0,5];VPD=220): Masking a Horizontal Threaded Hole
+//   difference() {
+//     cuboid(50);
+//     threaded_rod(
+//         d=25, l=51, pitch=4, $fn=36,
+//         internal=true, bevel=true,
+//         blunt_start=false,
+//         teardrop=true, orient=FWD
+//     );
+//   }
 // Example(Big,NoAxes): Diamond threading where both left-handed and right-handed nuts travel (in the same direction) on the threaded rod:
 //   $fn=32;
 //   $slop = 0.075;
@@ -206,6 +218,7 @@ function threaded_rod(
     lead_in_ang, lead_in_ang1, lead_in_ang2,
     end_len, end_len1, end_len2,
     lead_in_shape="default",
+    teardrop=false,
     anchor, spin, orient
 ) = no_function("threaded_rod");
 
@@ -220,6 +233,7 @@ module threaded_rod(
     lead_in_ang, lead_in_ang1, lead_in_ang2,
     end_len, end_len1, end_len2,
     lead_in_shape="default",
+    teardrop=false,
     anchor, spin, orient
 ) {
     dummy1=
@@ -262,6 +276,7 @@ module threaded_rod(
         lead_in=lead_in, lead_in1=lead_in1, lead_in2=lead_in2, lead_in_shape=lead_in_shape,
         lead_in_ang=lead_in_ang, lead_in_ang1=lead_in_ang1, lead_in_ang2=lead_in_ang2,
         end_len=end_len, end_len1=end_len1, end_len2=end_len2,
+        teardrop=teardrop,
         anchor=anchor,
         spin=spin,
         orient=orient
@@ -278,10 +293,11 @@ module threaded_rod(
 // Usage:
 //   threaded_nut(nutwidth, id, h|height|thickness, pitch,...) [ATTACHMENTS];
 // Description:
-//   Constructs a hex nut or square nut for an ISO (metric) or UTS (English) threaded rod. 
+//   Constructs a hex nut or square nut for an ISO (metric) or UTS (English) threaded rod.
+//   The inner diameter is measured from the bottom of the threads.  
 // Arguments:
 //   nutwidth = flat to flat width of nut
-//   id = diameter of threaded rod to screw onto.
+//   id = inner diameter of threaded hole, measured from bottom of threads
 //   h / height / l / length / thickness = height/thickness of nut.
 //   pitch = Distance between threads, or zero for no threads. 
 //   ---
@@ -451,7 +467,6 @@ module threaded_nut(
 //       right(14)back(19)text("flank",size=4,halign="center");
 //       right(14)back(14)text("angle",size=4,halign="center");
 //      }
-
 // Arguments:
 //   d = Outer diameter of threaded rod.
 //   l / length / h / height = Length of threaded rod.
@@ -481,6 +496,7 @@ module threaded_nut(
 //   lead_in_ang1 = Specify angular length in degrees of the lead in section of the threading at the bottom with blunt start threads
 //   lead_in_ang2 = Specify angular length in degrees of the lead in section of the threading at the top with blunt start threads
 //   lead_in_shape = Specify the shape of the thread lead in by giving a text string or function.  Default: "default"
+//   teardrop = If true, adds a teardrop profile to the back (Y+) side of the threaded rod, to help with making a threaded hole mask. Default: false
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
 //   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
@@ -507,6 +523,17 @@ module threaded_nut(
 //       cube(50, center=true);
 //       trapezoidal_threaded_rod(d=40, l=51, pitch=5, thread_angle=30, internal=true, bevel=true, orient=RIGHT, $fn=36);
 //   }
+// Example(Med;VPR=[100,0,5];VPD=220): Masking a Horizontal Threaded Hole
+//   difference() {
+//     cuboid(50);
+//     trapezoidal_threaded_rod(
+//         d=25, l=51, pitch=4, $fn=36,
+//         thread_angle=30,
+//         internal=true, bevel=true,
+//         blunt_start=false,
+//         teardrop=true, orient=FWD
+//     );
+//   }
 function trapezoidal_threaded_rod(
     d, l, pitch,
     thread_angle,
@@ -522,6 +549,7 @@ function trapezoidal_threaded_rod(
     lead_in_ang, lead_in_ang1, lead_in_ang2,
     end_len, end_len1, end_len2,
     lead_in_shape="default",
+    teardrop=false,
     anchor, spin, orient
 ) = no_function("trapezoidal_threaded_rod");
 module trapezoidal_threaded_rod(
@@ -539,6 +567,7 @@ module trapezoidal_threaded_rod(
     lead_in_ang, lead_in_ang1, lead_in_ang2,
     end_len, end_len1, end_len2,
     lead_in_shape="default",
+    teardrop=false,
     anchor, spin, orient
 ) {
     dummy0 = assert(num_defined([thread_angle,flank_angle])<=1, "Cannot define both flank angle and thread angle");
@@ -566,7 +595,7 @@ module trapezoidal_threaded_rod(
                          lead_in=lead_in, lead_in1=lead_in1, lead_in2=lead_in2, lead_in_shape=lead_in_shape,
                          lead_in_ang=lead_in_ang, lead_in_ang1=lead_in_ang1, lead_in_ang2=lead_in_ang2,
                          end_len=end_len, end_len1=end_len1, end_len2=end_len2,
-                         anchor=anchor,spin=spin,orient=orient)
+                         teardrop=teardrop, anchor=anchor,spin=spin,orient=orient)
       children();
 }
 
@@ -585,7 +614,7 @@ module trapezoidal_threaded_rod(
 //   acme_threaded_nut().
 // Arguments:
 //   nutwidth = flat to flat width of nut
-//   id = diameter of threaded rod to screw onto.
+//   id = inner diameter of threaded hole, measured from bottom of threads
 //   h / height / l / length / thickness = height/thickness of nut.
 //   pitch = Thread spacing.
 //   ---
@@ -736,6 +765,7 @@ module trapezoidal_threaded_nut(
 //   lead_in_ang1 = Specify angular length in degrees of the lead in section of the threading at the bottom with blunt start threads
 //   lead_in_ang2 = Specify angular length in degrees of the lead in section of the threading at the top with blunt start threads
 //   lead_in_shape = Specify the shape of the thread lead in by giving a text string or function.  Default: "default"
+//   teardrop = If true, adds a teardrop profile to the back (Y+) side of the threaded rod, to help with making a threaded hole mask. Default: false
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
 //   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
@@ -746,6 +776,16 @@ module trapezoidal_threaded_nut(
 // Examples(Med):
 //   acme_threaded_rod(d=3/8*INCH, l=20, pitch=1/8*INCH, $fn=32);
 //   acme_threaded_rod(d=10, l=30, pitch=2, starts=3, $fa=1, $fs=1);
+// Example(Med;VPR=[100,0,5];VPD=220): Masking a Horizontal Threaded Hole
+//   difference() {
+//     cuboid(50);
+//     acme_threaded_rod(
+//         d=25, l=51, pitch=4, $fn=36,
+//         internal=true, bevel=true,
+//         blunt_start=false,
+//         teardrop=true, orient=FWD
+//     );
+//   }
 function acme_threaded_rod(
     d, l, tpi, pitch,
     starts=1,
@@ -758,6 +798,7 @@ function acme_threaded_rod(
     lead_in_ang, lead_in_ang1, lead_in_ang2,
     end_len, end_len1, end_len2,
     lead_in_shape="default",
+    teardrop=false,
     anchor, spin, orient
 ) = no_function("acme_threaded_rod");
 module acme_threaded_rod(
@@ -772,6 +813,7 @@ module acme_threaded_rod(
     lead_in_ang, lead_in_ang1, lead_in_ang2,
     end_len, end_len1, end_len2,
     lead_in_shape="default",
+    teardrop=false,
     anchor, spin, orient
 ) {
     dummy = assert(num_defined([pitch,tpi])==1,"Must give exactly one of pitch and tpi");
@@ -788,6 +830,7 @@ module acme_threaded_rod(
         lead_in=lead_in, lead_in1=lead_in1, lead_in2=lead_in2, lead_in_shape=lead_in_shape,
         lead_in_ang=lead_in_ang, lead_in_ang1=lead_in_ang1, lead_in_ang2=lead_in_ang2,
         end_len=end_len, end_len1=end_len1, end_len2=end_len2,
+        teardrop=teardrop,
         anchor=anchor,
         spin=spin,
         orient=orient
@@ -806,8 +849,8 @@ module acme_threaded_rod(
 // Description:
 //   Constructs a hexagonal or square nut for an ACME threaded screw rod. 
 // Arguments:
-//   nutwidth = flat to flat width of nut. 
-//   id = diameter of threaded rod to screw onto.
+//   nutwidth = flat to flat width of nut.
+//   id = inner diameter of threaded hole, measured from bottom of threads
 //   h / height / l / length / thickness = height/thickness of nut.
 //   tpi = threads per inch
 //   ---
@@ -1059,6 +1102,7 @@ module npt_threaded_rod(
 //   lead_in_ang1 = Specify angular length in degrees of the lead in section of the threading at the bottom with blunt start threads
 //   lead_in_ang2 = Specify angular length in degrees of the lead in section of the threading at the top with blunt start threads
 //   lead_in_shape = Specify the shape of the thread lead in by giving a text string or function.  Default: "default"
+//   teardrop = If true, adds a teardrop profile to the back (Y+) side of the threaded rod, to help with making a threaded hole mask. Default: false
 //   d1 = Bottom outside diameter of threads.
 //   d2 = Top outside diameter of threads.
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
@@ -1071,6 +1115,16 @@ module npt_threaded_rod(
 // Examples(Med):
 //   buttress_threaded_rod(d=25, l=20, pitch=2, $fa=1, $fs=1,end_len=0);
 //   buttress_threaded_rod(d=10, l=20, pitch=1.25, left_handed=true, $fa=1, $fs=1);
+// Example(Med;VPR=[100,0,5];VPD=220): Masking a Horizontal Threaded Hole
+//   difference() {
+//     cuboid(50);
+//     buttress_threaded_rod(
+//         d=25, l=51, pitch=4, $fn=36,
+//         internal=true, bevel=true,
+//         blunt_start=false,
+//         teardrop=true, orient=FWD
+//     );
+//   }
 function buttress_threaded_rod(
     d, l, pitch,
     left_handed=false, starts=1,
@@ -1082,6 +1136,7 @@ function buttress_threaded_rod(
     lead_in_ang, lead_in_ang1, lead_in_ang2,
     end_len, end_len1, end_len2,
     lead_in_shape="default",
+    teardrop=false,
     anchor, spin, orient
 ) = no_function("buttress_threaded_rod");
 module buttress_threaded_rod(
@@ -1095,6 +1150,7 @@ module buttress_threaded_rod(
     lead_in_ang, lead_in_ang1, lead_in_ang2,
     end_len, end_len1, end_len2,
     lead_in_shape="default",
+    teardrop=false,
     anchor, spin, orient
 ) {
     depth = pitch * 3/4;
@@ -1117,6 +1173,7 @@ module buttress_threaded_rod(
         lead_in_ang=lead_in_ang, lead_in_ang1=lead_in_ang1, lead_in_ang2=lead_in_ang2,
         end_len=end_len, end_len1=end_len1, end_len2=end_len2,
         d1=d1,d2=d2,
+        teardrop=teardrop,
         anchor=anchor,
         spin=spin,starts=starts,
         orient=orient
@@ -1136,7 +1193,7 @@ module buttress_threaded_rod(
 //   Constructs a hexagonal or square nut for a simple buttress threaded screw rod.  
 // Arguments:
 //   nutwidth = diameter of the nut.
-//   id = diameter of threaded rod to screw onto.
+//   id = inner diameter of threaded hole, measured from bottom of threads
 //   h / height / l / length / thickness = height/thickness of nut.
 //   pitch = Thread spacing. 
 //   ---
@@ -1248,7 +1305,6 @@ module buttress_threaded_nut(
 //   bevel1 = if true bevel the bottom end.
 //   bevel2 = if true bevel the top end. 
 //   internal = If true, this is a mask for making internal threads.
-
 //   blunt_start = If true apply truncated blunt start threads at both ends.  Default: true
 //   blunt_start1 = If true apply truncated blunt start threads bottom end.
 //   blunt_start2 = If true apply truncated blunt start threads top end.
@@ -1262,6 +1318,7 @@ module buttress_threaded_nut(
 //   lead_in_ang1 = Specify angular length in degrees of the lead in section of the threading at the bottom with blunt start threads
 //   lead_in_ang2 = Specify angular length in degrees of the lead in section of the threading at the top with blunt start threads
 //   lead_in_shape = Specify the shape of the thread lead in by giving a text string or function.  Default: "default"
+//   teardrop = If true, adds a teardrop profile to the back (Y+) side of the threaded rod, to help with making a threaded hole mask. Default: false
 //   d1 = Bottom outside diameter of threads.
 //   d2 = Top outside diameter of threads.
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
@@ -1273,6 +1330,16 @@ module buttress_threaded_nut(
 //       square_threaded_rod(d=10, l=15, pitch=2, orient=BACK);
 // Examples(Med):
 //   square_threaded_rod(d=10, l=20, pitch=2, starts=2, $fn=32);
+// Example(Med;VPR=[100,0,5];VPD=220): Masking a Horizontal Threaded Hole
+//   difference() {
+//     cuboid(50);
+//     square_threaded_rod(
+//         d=25, l=51, pitch=4, $fn=36,
+//         internal=true, bevel=true,
+//         blunt_start=false,
+//         teardrop=true, orient=FWD
+//     );
+//   }
 function square_threaded_rod(
     d, l, pitch,
     left_handed=false,
@@ -1285,6 +1352,7 @@ function square_threaded_rod(
     lead_in_ang, lead_in_ang1, lead_in_ang2,
     end_len, end_len1, end_len2,
     lead_in_shape="default",
+    teardrop=false,
     anchor, spin, orient
 ) = no_function("square_threaded_rod");
 module square_threaded_rod(
@@ -1299,6 +1367,7 @@ module square_threaded_rod(
     lead_in_ang, lead_in_ang1, lead_in_ang2,
     end_len, end_len1, end_len2,
     lead_in_shape="default",
+    teardrop=false,
     anchor, spin, orient
 ) {
     trapezoidal_threaded_rod(
@@ -1312,8 +1381,8 @@ module square_threaded_rod(
         lead_in=lead_in, lead_in1=lead_in1, lead_in2=lead_in2, lead_in_shape=lead_in_shape,
         lead_in_ang=lead_in_ang, lead_in_ang1=lead_in_ang1, lead_in_ang2=lead_in_ang2,
         end_len=end_len, end_len1=end_len1, end_len2=end_len2,
-        d1=d1,
-        d2=d2,
+        teardrop=teardrop,
+        d1=d1, d2=d2,
         anchor=anchor,
         spin=spin,
         orient=orient
@@ -1333,7 +1402,7 @@ module square_threaded_rod(
 //   Constructs a hexagonal or square nut for a square profile threaded screw rod.  
 // Arguments:
 //   nutwidth = diameter of the nut.
-//   id = diameter of threaded rod to screw onto.
+//   id = inner diameter of threaded hole, measured from bottom of threads
 //   h / height / l / length / thickness = height/thickness of nut.
 //   pitch = Length between threads.
 //   ---
@@ -1583,6 +1652,7 @@ module ball_screw_rod(
 //   lead_in_ang1 = Specify angular length in degrees of the lead in section of the threading at the bottom with blunt start threads
 //   lead_in_ang2 = Specify angular length in degrees of the lead in section of the threading at the top with blunt start threads
 //   lead_in_shape = Specify the shape of the thread lead in by giving a text string or function.  Default: "default"
+//   teardrop = If true, adds a teardrop profile to the back (Y+) side of the threaded rod, to help with making a threaded hole mask. Default: false
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
 //   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
@@ -1623,6 +1693,7 @@ function generic_threaded_rod(
     lead_in_ang, lead_in_ang1, lead_in_ang2,
     end_len, end_len1, end_len2,
     lead_in_shape="default",
+    teardrop=false,
     anchor, spin, orient
 ) = no_function("generic_threaded_rod");
 module generic_threaded_rod(
@@ -1636,6 +1707,7 @@ module generic_threaded_rod(
     lead_in_ang, lead_in_ang1, lead_in_ang2,
     end_len, end_len1, end_len2,
     lead_in_shape="default",
+    teardrop=false,
     anchor, spin, orient
 ) {
     len = one_defined([l,length,h,height],"l,length,h,height");
@@ -1848,6 +1920,12 @@ module generic_threaded_rod(
               down(len/2+.001)cyl(l=-clip_bev1, r2=r1adj+profmin, r1=r1adj+profmin+slope*clip_bev1-clip_bev1,anchor=BOTTOM);
           if (clip_bev2<0) 
               up(len/2+.001)cyl(l=-clip_bev2, r1=r2adj+profmin, r2=r2adj+profmin+slope*clip_bev1-clip_bev2,anchor=TOP);
+
+          // Add teardrop profile
+          if (teardrop) {
+              ang = min(45,opp_hyp_to_ang(rmax+profmin, rmax+pmax));
+              xrot(-90) teardrop(l=l, r1=r1adj+profmin, r2=r2adj+profmin, ang=ang, cap_h1=r1adj+pmax, cap_h2=r2adj+pmax);
+          }
         }
         children();
     }
@@ -1866,8 +1944,8 @@ module generic_threaded_rod(
 //   Constructs a hexagonal or square nut for an generic threaded rod using a user-supplied thread profile.
 //   See {{generic_threaded_rod()}} for details on the profile specification.  
 // Arguments:
-//   nutwidth = outer dimension of nut from flat to flat. 
-//   id = diameter of threaded rod to screw onto.
+//   nutwidth = outer dimension of nut from flat to flat.
+//   id = inner diameter of threaded hole, measured from bottom of threads
 //   h / height / thickness = height/thickness of nut.
 //   pitch = Thread spacing.
 //   profile = Thread profile.
@@ -2011,7 +2089,8 @@ module _nutshape(nutwidth, h, shape, bevel1, bevel2)
 // Topics: Threading, Screws
 // See Also: generic_threaded_rod()
 // Usage:
-//   thread_helix(d, pitch, [thread_depth], [flank_angle], [turns], [profile=], [left_handed=], [higbee=], [internal=]);
+//     thread_helix(d, pitch, turns=, [thread_depth=], [thread_angle=|flank_angle=], [profile=], [starts=], [internal=], ...) {ATTACHMENTS};
+//     thread_helix(d1=,d2=, pitch=, turns=, [thread_depth=], [thread_angle=|flank_angle=], [profile=], [starts=], [internal=], ...) {ATTACHMENTS};
 // Description:
 //   Creates a right-handed helical thread with optional end tapering.  Unlike
 //   {{generic_threaded_rod()}, this module just generates the thread, and you specify the total
@@ -2036,35 +2115,12 @@ module _nutshape(nutwidth, h, shape, bevel1, bevel2)
 //   unlike the threaded_rod modules, thread_helix does not adjust the diameter for faceting, nor does it
 //   subtract any $slop for clearance.  
 //   .
-//   The taper options specify tapering at of the threads at each end, and is given as the linear distance
-//   over which to taper.  If taper is positive the threads are lengthened by the specified distance; if taper
-//   is negative, the taper is included in the thread length specified by `turns`.  Tapering works on both internal and external threads.  
-// Arguments:
-//   d = Inside base diameter of threads.  Default: 10
-//   pitch = Distance between threads.  Default: 2
-//   ---
-//   thread_depth = Depth of threads from top to bottom.
-//   flank_angle = Angle of thread faces to plane perpendicular to screw.  Default: 15 degrees.
-//   turns = Number of revolutions to rotate thread around.
-//   thread_angle = Angle between two thread faces.  
-//   profile = If an asymmetrical thread profile is needed, it can be specified here.
-//   starts = The number of thread starts.  Default: 1
-//   left_handed = If true, thread has a left-handed winding.
-//   internal = if true make internal threads.  The only effect this has is to change how the threads taper if tapering is selected. When true, threads taper towards the outside; when false, they taper towards the inside.  Default: false
-//   d1 = Bottom inside base diameter of threads.
-//   d2 = Top inside base diameter of threads.
-//   thread_angle = Angle between 
-//   lead_in = Specify linear length of the lead in section of the threading with blunt start threads
-//   lead_in1 = Specify linear length of the lead in section of the threading at the bottom with blunt start threads
-//   lead_in2 = Specify linear length of the lead in section of the threading at the top with blunt start threads
-//   lead_in_ang = Specify angular length in degrees of the lead in section of the threading with blunt start threads
-//   lead_in_ang1 = Specify angular length in degrees of the lead in section of the threading at the bottom with blunt start threads
-//   lead_in_ang2 = Specify angular length in degrees of the lead in section of the threading at the top with blunt start threads
-//   lead_in_shape = Specify the shape of the thread lead in by giving a text string or function.  Default: "default"
-//   lead_in_sample = Factor to increase sample rate in the lead-in section.  Default: 10
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   The lead_in options specify a lead-in section where the ends of the threads scale down to avoid a sharp face at the thread ends.
+//   You can specify the length of this scaling directly with the lead_in parameters or as an angle using the lead_in_ang parameters.
+//   If you give a positive value, the extrusion is lengthenend by the specified distance or angle; if you give a negative
+//   value then the scaled end is included in the extrusion length specified by `turns`.  If the value is zero then no scaled ends
+//   are produced.  The shape of the scaled ends can be controlled with the lead_in_shape parameter.  Supported options are "sqrt", "linear"
+//   "smooth" and "cut".  Lead-in works on both internal and external threads.
 // Figure(2D,Med,NoAxes):
 //   pa_delta = tan(15)/4;
 //      rr1 = -1/2;
@@ -2113,6 +2169,31 @@ module _nutshape(nutwidth, h, shape, bevel1, bevel2)
 //    back(10)text("thread",size=4,halign="center");
 //    back(3)text("angle",size=4,halign="center");
 //   }
+// Arguments:
+//   d = Base diameter of threads.  Default: 10
+//   pitch = Distance between threads.  Default: 2
+//   ---
+//   turns = Number of revolutions to rotate thread around.
+//   thread_depth = Depth of threads from top to bottom.
+//   flank_angle = Angle of thread faces to plane perpendicular to screw.  Default: 15 degrees.
+//   thread_angle = Angle between two thread faces.  
+//   profile = If an asymmetrical thread profile is needed, it can be specified here.
+//   starts = The number of thread starts.  Default: 1
+//   left_handed = If true, thread has a left-handed winding.
+//   internal = if true make internal threads.  The only effect this has is to change how the thread lead_in is constructed. When true, the lead-in section tapers towards the outside; when false, it tapers towards the inside.  Default: false
+//   d1 = Bottom inside base diameter of threads.
+//   d2 = Top inside base diameter of threads.
+//   lead_in = Specify linear length of the lead in section of the threading with blunt start threads
+//   lead_in1 = Specify linear length of the lead in section of the threading at the bottom with blunt start threads
+//   lead_in2 = Specify linear length of the lead in section of the threading at the top with blunt start threads
+//   lead_in_ang = Specify angular length in degrees of the lead in section of the threading with blunt start threads
+//   lead_in_ang1 = Specify angular length in degrees of the lead in section of the threading at the bottom with blunt start threads
+//   lead_in_ang2 = Specify angular length in degrees of the lead in section of the threading at the top with blunt start threads
+//   lead_in_shape = Specify the shape of the thread lead in by giving a text string or function.  Default: "sqrt"
+//   lead_in_sample = Factor to increase sample rate in the lead-in section.  Default: 10
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Example(2DMed): Typical Tooth Profile
 //   pitch = 2;
 //   depth = pitch * cos(30) * 5/8;

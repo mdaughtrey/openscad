@@ -19,7 +19,7 @@ use <builtins.scad>
 
 // Function&Module: cube()
 // Synopsis: Creates a cube with anchors for attaching children.
-// SynTags: Geom, VNF
+// SynTags: Geom, VNF, Ext
 // Topics: Shapes (3D), Attachable, VNF Generators
 // See Also: cuboid(), prismoid()
 // Usage: As Module (as in native OpenSCAD)
@@ -67,7 +67,10 @@ module cube(size=1, center, anchor, spin=0, orient=UP)
 
 function cube(size=1, center, anchor, spin=0, orient=UP) =
     let(
-        siz = scalar_vec3(size),
+        siz = scalar_vec3(size)
+    )
+    assert(all_positive(siz), "All size components must be positive.")
+    let(
         anchor = get_anchor(anchor, center, -[1,1,1], -[1,1,1]),
         unscaled = [
             [-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],
@@ -90,7 +93,7 @@ function cube(size=1, center, anchor, spin=0, orient=UP) =
 
 // Module: cuboid()
 // Synopsis: Creates a cube with chamfering and roundovers.
-// SynTags: Geom, VNF
+// SynTags: Geom
 // Topics: Shapes (3D), Attachable, VNF Generators
 // See Also: prismoid(), rounded_prism()
 // Usage: Standard Cubes
@@ -332,7 +335,7 @@ module cuboid(
     rounding = approx(rounding,0) ? undef : rounding;
     checks =
         assert(is_vector(size,3))
-        assert(all_positive(size))
+        assert(all_nonnegative(size), "All components of size= must be >=0")
         assert(is_undef(chamfer) || is_finite(chamfer),"chamfer must be a finite value")
         assert(is_undef(rounding) || is_finite(rounding),"rounding must be a finite value")
         assert(is_undef(rounding) || is_undef(chamfer), "Cannot specify nonzero value for both chamfer and rounding")
@@ -571,7 +574,7 @@ function cuboid(
 // Synopsis: Creates a rectangular prismoid shape with optional roundovers and chamfering.
 // SynTags: Geom, VNF
 // Topics: Shapes (3D), Attachable, VNF Generators
-// See Also: cuboid(), rounded_prism(), trapezoid()
+// See Also: cuboid(), rounded_prism(), trapezoid(), edge_profile()
 // Usage: 
 //   prismoid(size1, size2, [h|l|height|length], [shift], [xang=], [yang=], ...) [ATTACHMENTS];
 // Usage: Chamfered and/or Rounded Prismoids
@@ -656,6 +659,13 @@ function cuboid(
 //       chamfer1=[0,5,0,10], chamfer2=[5,0,10,0],
 //       rounding1=[5,0,10,0], rounding2=[0,5,0,10]
 //   );
+// Example: How to Round a Top or Bottom Edge
+//   diff()
+//   prismoid([50,30], [30,20], shift=[3,6], h=15, rounding=[5,0,5,0]) {
+//       edge_profile([TOP+RIGHT, BOT+FRONT], excess=10, convexity=20) {
+//           mask2d_roundover(h=5,mask_angle=$edge_angle);
+//       }
+//   }
 // Example(Spin,VPD=160,VPT=[0,0,10]): Standard Connectors
 //   prismoid(size1=[50,30], size2=[20,20], h=20, shift=[15,5])
 //       show_anchors();
@@ -816,7 +826,7 @@ function octahedron(size=1, anchor=CENTER, spin=0, orient=UP) =
 
 // Module: rect_tube()
 // Synopsis: Creates a rectangular tube.
-// SynTags: Geom, VNF
+// SynTags: Geom
 // Topics: Shapes (3D), Attachable, VNF Generators
 // See Also: tube()
 // Usage: Typical Rectangular Tubes
@@ -1174,7 +1184,7 @@ function wedge(size=[1,1,1], center, anchor, spin=0, orient=UP) =
 
 // Function&Module: cylinder()
 // Synopsis: Creates an attachable cylinder.
-// SynTags: Geom, VNF
+// SynTags: Geom, VNF, Ext
 // Topics: Shapes (3D), Attachable, VNF Generators
 // See Also: cyl()
 // Usage: As Module (as in native OpenSCAD)
@@ -1282,9 +1292,9 @@ function cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP) =
 //   cyl(l|h|length|height, r|d, rounding1=, rounding2=, ...);
 //
 // Usage: Textured Cylinders
-//   cyl(l|h|length|height, r|d, texture=, [tex_size=]|[tex_counts=], [tex_scale=], [tex_rot=], [tex_samples=], [tex_style=], [tex_taper=], [tex_inset=], ...);
-//   cyl(l|h|length|height, r1=, r2=, texture=, [tex_size=]|[tex_counts=], [tex_scale=], [tex_rot=], [tex_samples=], [tex_style=], [tex_taper=], [tex_inset=], ...);
-//   cyl(l|h|length|height, d1=, d2=, texture=, [tex_size=]|[tex_counts=], [tex_scale=], [tex_rot=], [tex_samples=], [tex_style=], [tex_taper=], [tex_inset=], ...);
+//   cyl(l|h|length|height, r|d, texture=, [tex_size=]|[tex_reps=], [tex_depth=], [tex_rot=], [tex_samples=], [style=], [tex_taper=], [tex_inset=], ...);
+//   cyl(l|h|length|height, r1=, r2=, texture=, [tex_size=]|[tex_reps=], [tex_depth=], [tex_rot=], [tex_samples=], [style=], [tex_taper=], [tex_inset=], ...);
+//   cyl(l|h|length|height, d1=, d2=, texture=, [tex_size=]|[tex_reps=], [tex_depth=], [tex_rot=], [tex_samples=], [style=], [tex_taper=], [tex_inset=], ...);
 //
 // Usage: Caled as a function to get a VNF
 //   vnf = cyl(...);
@@ -1353,13 +1363,13 @@ function cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP) =
 //   teardrop = If given as a number, rounding around the bottom edge of the cylinder won't exceed this many degrees from vertical.  If true, the limit angle is 45 degrees.  Default: `false`
 //   texture = A texture name string, or a rectangular array of scalar height values (0.0 to 1.0), or a VNF tile that defines the texture to apply to vertical surfaces.  See {{texture()}} for what named textures are supported.
 //   tex_size = An optional 2D target size for the textures.  Actual texture sizes will be scaled somewhat to evenly fit the available surface. Default: `[5,5]`
-//   tex_counts = If given instead of tex_size, gives the tile repetition counts for textures over the surface length and height.
-//   tex_inset = If numeric, lowers the texture into the surface by that amount, before the tex_scale multiplier is applied.  If `true`, insets by exactly `1`.  Default: `false`
-//   tex_rot = If true, rotates the texture 90º.
-//   tex_scale = Scaling multiplier for the texture depth.
+//   tex_reps = If given instead of tex_size, a 2-vector giving the number of texture tile repetitions in the horizontal and vertical directions.
+//   tex_inset = If numeric, lowers the texture into the surface by the specified proportion, e.g. 0.5 would lower it half way into the surface.  If `true`, insets by exactly its full depth.  Default: `false`
+//   tex_rot = Rotate texture by specified angle, which must be a multiple of 90 degrees.  Default: 0
+//   tex_depth = Specify texture depth; if negative, invert the texture.  Default: 1.  
 //   tex_samples = Minimum number of "bend points" to have in VNF texture tiles.  Default: 8
-//   tex_style = {{vnf_vertex_array()}} style used to triangulate heightfield textures.  Default: "min_edge"
 //   tex_taper = If given as a number, tapers the texture height to zero over the first and last given percentage of the path.  If given as a lookup table with indices between 0 and 100, uses the percentage lookup table to ramp the texture heights.  Default: `undef` (no taper)
+//   style = {{vnf_vertex_array()}} style used to triangulate heightfield textures.  Default: "min_edge"
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
 //   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
@@ -1424,12 +1434,12 @@ function cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP) =
 // Example: Texturing with heightfield pyramids
 //   cyl(h=40, r1=20, r2=15,
 //       texture="pyramids", tex_size=[5,5],
-//       tex_style="convex");
+//       style="convex");
 //
 // Example: Texturing with heightfield truncated pyramids
 //   cyl(h=40, r1=20, r2=15, chamfer=5,
 //       texture="trunc_pyramids",
-//       tex_size=[5,5], tex_style="convex");
+//       tex_size=[5,5], style="convex");
 //
 // Example: Texturing with VNF tile "dots"
 //   cyl(h=40, r1=20, r2=15, rounding=9,
@@ -1439,7 +1449,7 @@ function cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP) =
 // Example: Texturing with VNF tile "bricks_vnf"
 //   cyl(h=50, r1=25, r2=20, shift=[0,10], rounding1=-10,
 //       texture="bricks_vnf", tex_size=[10,10],
-//       tex_scale=0.5, tex_style="concave");
+//       tex_depth=0.5, style="concave");
 //
 // Example: No Texture Taper
 //   cyl(d1=25, d2=20, h=30, rounding=5,
@@ -1477,8 +1487,8 @@ function cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP) =
 //   ];
 //   diff()
 //   cyl(d=20*10/PI, h=10, chamfer=0,
-//       texture=tex, tex_counts=[20,1], tex_scale=-1,
-//       tex_taper=undef, tex_style="concave") {
+//       texture=tex, tex_reps=[20,1], tex_depth=-1,
+//       tex_taper=undef, style="concave") {
 //           attach([TOP,BOT]) {
 //               cyl(d1=20*10/PI, d2=30, h=5, anchor=BOT)
 //                   attach(TOP) {
@@ -1498,13 +1508,22 @@ function cyl(
     circum=false, realign=false, shift=[0,0],
     teardrop=false,
     from_end, from_end1, from_end2,
-    texture, tex_size=[5,5], tex_counts,
-    tex_inset=false, tex_rot=false,
-    tex_scale=1, tex_samples, length, height, 
-    tex_taper, tex_style="min_edge", 
+    texture, tex_size=[5,5], tex_reps, tex_counts,
+    tex_inset=false, tex_rot=0,
+    tex_scale, tex_depth, tex_samples, length, height, 
+    tex_taper, style, tex_style,
     anchor, spin=0, orient=UP
 ) =
+    assert(num_defined([style,tex_style])<2, "In cyl() the 'tex_style' parameters has been replaced by 'style'.  You cannot give both.")
+    assert(num_defined([tex_reps,tex_counts])<2, "In cyl() the 'tex_counts' parameters has been replaced by 'tex_reps'.  You cannot give both.")    
+    assert(num_defined([tex_scale,tex_depth])<2, "In linear_sweep() the 'tex_scale' parameter has been replaced by 'tex_depth'.  You cannot give both.")
     let(
+        style = is_def(tex_style)? echo("In cyl() the 'tex_style' parameter is deprecated and has been replaced by 'style'")tex_style
+              : default(style,"min_edge"),
+        tex_reps = is_def(tex_counts)? echo("In cyl() the 'tex_counts' parameter is deprecated and has been replaced by 'tex_reps'")tex_counts
+                 : tex_reps,
+        tex_depth = is_def(tex_scale)? echo("In rotate_sweep() the 'tex_scale' parameter is deprecated and has been replaced by 'tex_depth'")tex_scale
+                  : default(tex_depth,1),
         l = one_defined([l, h, length, height],"l,h,length,height",dflt=1),
         _r1 = get_radius(r1=r1, r=r, d1=d1, d=d, dflt=1),
         _r2 = get_radius(r1=r2, r=r, d1=d2, d=d, dflt=1),
@@ -1590,7 +1609,7 @@ function cyl(
                             [r1, -l/2] + polar_to_xy(chamf1l,90+vang),
                         ]
                     else if (!approx(round1,0) && td_ang < 90)
-                        each _teardrop_corner(r=abs(round1), corner=[[max(0,r1-2*roundlen1),-l/2],[r1,-l/2],[r2,l/2]], ang=td_ang)
+                        each _teardrop_corner(r=round1, corner=[[max(0,r1-2*roundlen1),-l/2],[r1,-l/2],[r2,l/2]], ang=td_ang)
                     else if (!approx(round1,0) && td_ang >= 90)
                         each arc(r=abs(round1), corner=[[max(0,r1-2*roundlen1),-l/2],[r1,-l/2],[r2,l/2]])
                     else [r1,-l/2],
@@ -1607,10 +1626,10 @@ function cyl(
                     if (texture==undef) [0,l/2],
                 ]
             ) rotate_sweep(path,
-                texture=texture, tex_counts=tex_counts, tex_size=tex_size,
+                texture=texture, tex_reps=tex_reps, tex_size=tex_size,
                 tex_inset=tex_inset, tex_rot=tex_rot,
-                tex_scale=tex_scale, tex_samples=tex_samples,
-                tex_taper=tex_taper, style=tex_style, closed=false
+                tex_depth=tex_depth, tex_samples=tex_samples,
+                tex_taper=tex_taper, style=style, closed=false
             ),
         skmat = down(l/2) *
             skew(sxz=shift.x/l, syz=shift.y/l) *
@@ -1623,16 +1642,18 @@ function cyl(
 
 function _teardrop_corner(r, corner, ang=45) =
     let(
-        check = assert(len(corner)==3) assert(is_finite(r)) assert(is_finite(ang)),
-        cp = circle_2tangents(r, corner)[0],
-        path1 = arc(r=r, corner=corner),
+        check = assert(len(corner)==3)
+            assert(is_finite(r))
+            assert(is_finite(ang)),
+        cp = circle_2tangents(abs(r), corner)[0],
+        path1 = arc(r=abs(r), corner=corner),
         path2 = [
             for (p = select(path1,0,-2))
-                if (v_theta(p-cp) >= -ang) p,
+                if (abs(modang(v_theta(p-cp)-90)) <= 180-ang) p,
             last(path1)
         ],
         path = [
-            line_intersection([corner[0],corner[1]],[path2[0],path2[0]+polar_to_xy(1,-90-ang)]),
+            line_intersection([corner[0],corner[1]],[path2[0],path2[0]+polar_to_xy(1,-90-ang*sign(r))]),
             each path2
         ]
     ) path;
@@ -1648,12 +1669,22 @@ module cyl(
     circum=false, realign=false, shift=[0,0],
     teardrop=false,
     from_end, from_end1, from_end2,
-    texture, tex_size=[5,5], tex_counts,
-    tex_inset=false, tex_rot=false,
-    tex_scale=1, tex_samples, length, height, 
-    tex_taper, tex_style="min_edge",
+    texture, tex_size=[5,5], tex_reps, tex_counts,
+    tex_inset=false, tex_rot=0,
+    tex_scale, tex_depth, tex_samples, length, height, 
+    tex_taper, style, tex_style,
     anchor, spin=0, orient=UP
 ) {
+    dummy=
+      assert(num_defined([style,tex_style])<2, "In cyl() the 'tex_style' parameters has been replaced by 'style'.  You cannot give both.")
+      assert(num_defined([tex_reps,tex_counts])<2, "In cyl() the 'tex_counts' parameters has been replaced by 'tex_reps'.  You cannot give both.")
+      assert(num_defined([tex_scale,tex_depth])<2, "In cyl() the 'tex_scale' parameter has been replaced by 'tex_depth'.  You cannot give both.");
+    style = is_def(tex_style)? echo("In cyl the 'tex_style()' parameters is deprecated and has been replaced by 'style'")tex_style
+          : default(style,"min_edge");
+    tex_reps = is_def(tex_counts)? echo("In cyl() the 'tex_counts' parameter is deprecated and has been replaced by 'tex_reps'")tex_counts
+             : tex_reps;
+    tex_depth = is_def(tex_scale)? echo("In rotate_sweep() the 'tex_scale' parameter is deprecated and has been replaced by 'tex_depth'")tex_scale
+              : default(tex_depth,1);
     l = one_defined([l, h, length, height],"l,h,length,height",dflt=1);
     _r1 = get_radius(r1=r1, r=r, d1=d1, d=d, dflt=1);
     _r2 = get_radius(r1=r2, r=r, d1=d2, d=d, dflt=1);
@@ -1678,9 +1709,9 @@ module cyl(
                     from_end=from_end, from_end1=from_end1, from_end2=from_end2,
                     teardrop=teardrop,
                     texture=texture, tex_size=tex_size,
-                    tex_counts=tex_counts, tex_scale=tex_scale,
+                    tex_reps=tex_reps, tex_depth=tex_depth,
                     tex_inset=tex_inset, tex_rot=tex_rot,
-                    tex_style=tex_style, tex_taper=tex_taper,
+                    style=style, tex_taper=tex_taper,
                     tex_samples=tex_samples
                 );
                 vnf_polyhedron(vnf, convexity=texture!=undef? 2 : 10);
@@ -1694,7 +1725,7 @@ module cyl(
 
 // Module: xcyl()
 // Synopsis: creates a cylinder oriented along the X axis.
-// SynTags: Geom, VNF
+// SynTags: Geom
 // Topics: Cylinders, Textures, Rounding, Chamfers
 // See Also: texture(), rotate_sweep(), cyl()
 // Description:
@@ -1777,7 +1808,7 @@ module xcyl(
 
 // Module: ycyl()
 // Synopsis: Creates a cylinder oriented along the y axis.
-// SynTags: Geom, VNF
+// SynTags: Geom
 // Topics: Cylinders, Textures, Rounding, Chamfers
 // See Also: texture(), rotate_sweep(), cyl()
 // Description:
@@ -1862,7 +1893,7 @@ module ycyl(
 
 // Module: zcyl()
 // Synopsis: Creates a cylinder oriented along the Z axis.
-// SynTags: Geom, VNF
+// SynTags: Geom
 // Topics: Cylinders, Textures, Rounding, Chamfers
 // See Also: texture(), rotate_sweep(), cyl()
 // Description:
@@ -1946,7 +1977,7 @@ module zcyl(
 
 // Module: tube()
 // Synopsis: Creates a cylindrical or conical tube.
-// SynTags: Geom, VNF
+// SynTags: Geom
 // Topics: Shapes (3D), Attachable, VNF Generators
 // See Also: rect_tube()
 // Description:
@@ -2143,7 +2174,7 @@ function pie_slice(
 
 // Function&Module: sphere()
 // Synopsis: Creates an attachable spherical object.
-// SynTags: Geom, VNF
+// SynTags: Geom, VNF, Ext
 // Topics: Shapes (3D), Attachable, VNF Generators
 // See Also: spheroid()
 // Usage: As Module (native OpenSCAD)
@@ -2934,7 +2965,7 @@ function onion(r, ang=45, cap_h, d, anchor=CENTER, spin=0, orient=UP) =
 //   direction = The text direction.  `"ltr"` for left to right.  `"rtl"` for right to left. `"ttb"` for top to bottom. `"btt"` for bottom to top.  Default: `"ltr"`
 //   language = The language the text is in.  Default: `"en"`
 //   script = The script the text is in.  Default: `"latin"`
-//   atype = Change vertical center between "baseline" and "center".  Default: "baseline"
+//   atype = Change vertical center between "baseline" and "ycenter".  Default: "baseline"
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `"baseline"`
 //   center = Center the text.  Equivalent to `atype="center", anchor=CENTER`.  Default: false
 //   spin = Rotate this many degrees around the Z axis.  See [spin](attachments.scad#subsection-spin).  Default: `0`
@@ -2954,7 +2985,7 @@ module text3d(text, h, size=10, font="Helvetica", spacing=1.0, direction="ltr", 
               anchor, spin=0, orient=UP) {
     no_children($children);
     h = one_defined([h,height,thickness],"h,height,thickness",dflt=1);
-    assert(is_undef(atype) || in_list(atype,["ycenter","baseline"]), "atype must be \"center\" or \"baseline\"");
+    assert(is_undef(atype) || in_list(atype,["ycenter","baseline"]), "atype must be \"ycenter\" or \"baseline\"");
     assert(is_bool(center));
     atype = default(atype, center?"ycenter":"baseline");
     anchor = default(anchor, center?CENTER:LEFT);
@@ -3248,10 +3279,10 @@ module path_text(path, text, font, size, thickness, lettersize, offset=0, revers
 
 
 
-// Topics: Shapes (3D), Attachable
 // Module: fillet()
 // Synopsis: Creates a smooth fillet between two faces.
 // SynTags: Geom, VNF
+// Topics: Shapes (3D), Attachable
 // See Also: mask2d_roundover()
 // Description:
 //   Creates a shape that can be unioned into a concave joint between two faces, to fillet them.
@@ -3347,7 +3378,7 @@ module fillet(l=1.0, r, ang=90, overlap=0.01, d, length, h, height, anchor=CENTE
 //   data = This is either the 2D rectangular array of heights, or a function literal that takes X and Y arguments.
 //   size = The [X,Y] size of the surface to create.  If given as a scalar, use it for both X and Y sizes. Default: `[100,100]`
 //   bottom = The Z coordinate for the bottom of the heightfield object to create.  Any heights lower than this will be truncated to very slightly above this height.  Default: -20
-//   maxz = The maximum height to model.  Truncates anything taller to this height.  Default: 99
+//   maxz = The maximum height to model.  Truncates anything taller to this height.  Set to INF for no truncation.  Default: 100
 //   xrange = A range of values to iterate X over when calculating a surface from a function literal.  Default: [-1 : 0.01 : 1]
 //   yrange = A range of values to iterate Y over when calculating a surface from a function literal.  Default: [-1 : 0.01 : 1]
 //   style = The style of subdividing the quads into faces.  Valid options are "default", "alt", and "quincunx".  Default: "default"
@@ -3415,7 +3446,7 @@ function heightfield(data, size=[100,100], bottom=-20, maxz=100, xrange=[-1:0.04
                     for (x = [0:1:xcnt-1]) [
                         size.x * (x/(xcnt-1)-0.5),
                         size.y * (y/(ycnt-1)-0.5),
-                        data[y][x]
+                        min(data[y][x],maxz)
                     ]
                 ]
             ] : [

@@ -23,22 +23,33 @@ include <screw_drive.scad>
 //    including tolerances for screw fit.  You can also create screws with
 //    various head types and drive types that should match standard hardware.
 // Subsection: Screw Naming
-//    You can specify screws using a string that specifies the screw.  
-//    For ISO (metric) screws the specification has the form: "M`<size>`x`<pitch>`,`<length>`,
+//    You can specify screws using a string that specifies the screw.
+//    Metric or ISO screws are specified by a diameter in millimeters and a thread pitch in millimeters.  For example,
+//    an M8x2 screw has a nominal diameter of 8 mm and a thread pitch of 2 mm.  
+//    The screw specification for these screws has the form: "M`<size>`x`<pitch>`,`<length>`,
 //    so "M6x1,10" specifies a 6mm diameter screw with a thread pitch of 1mm and length of 10mm.
-//    You can omit the pitch or length, e.g. "M6x1", or "M6,10", or just "M6".
+//    You can omit the pitch or length, e.g. "M6x1", or "M6,10", or just "M6".  If you omit the
+//    length then you must provide the `length` parameter.  If you omit the pitch, the library
+//    provides a standard pitch for the specified diameter.
 //    .
-//    For UTS (English) screws the specification has the form `<size>`-`<threadcount>`,`<length>`, e.g. 
+//    Imperial or UTS screws are specified by a diameter and the number of threads per inch.
+//    For large screws, the diameter is simply the nominal diameter in inches, so a 5/16-18 screw
+//    has a nominal diameter of 5/16 inches and 18 threads per inch.  For diameters smaller than
+//    1/4 inch, the screw diameter is given using a screw gauge, which can be from 0 up to 12.
+//    A common smaller size is #8-32, an 8 gauge screw with 32 threads per inch.  
+//    For UTS screws the specification has the form `<size>`-`<threadcount>`,`<length>`, e.g. 
 //    "#8-32,1/2", or "1/4-20,1".  The units are in inches, including the length.  Size can be a
-//    number from 0 to 12 with or without a leading # to specify a screw gauge size, or any other
+//    gauge number from 0 to 12 with or without a leading # to specify a screw gauge size, or any other
 //    value to specify a diameter in inches, either as a float or a fraction, so "0.5-13" and
 //    "1/2-13" are equivalent.  To force interpretation of the value as inches add '' (two
 //    single-quotes) to the end, e.g. "1''-4" is a one inch screw and "1-80" is a very small
 //    1-gauge screw.  The pitch is specified using a thread count, the number of threads per inch.
 //    As with the ISO screws, you can omit the pitch or length and specify "#6-32", "#6,3/4", or simply #6.
+//    As in the metric case, if you omit the length then you must provide the `length` parameter.  If you omit the pitch, the
+//    library provides a standard pitch for the specified diameter.
 // Subsection: Standard Screw Pitch
 //    If you omit the pitch when specifying a screw or nut then the library supplies a standard screw pitch based
-//    on the screw diameter.  For each screw diameter, multiple standard pitches are possible.
+//    on the screw diameter as listed in ISO 724 or ASME B1.1.  For many diameters, multiple standard pitches exist.
 //    The available thread pitch types are different for ISO and UTS:
 //    .
 //    | ISO      |    UTS   |
@@ -189,6 +200,7 @@ Torx values:  https://www.stanleyengineeredfastening.com/-/media/web/sef/resourc
 
 // Module: screw()
 // Synopsis: Creates a standard screw with optional tolerances.
+// SynTags: Geom
 // Topics: Threading, Screws
 // See Also: screw_hole(), shoulder_screw()
 // Usage:
@@ -576,8 +588,7 @@ module screw(spec, head, drive, thread, drive_size,
             assert(is_finite(length) && length>0, "Must specify positive screw length")
             assert(is_finite(_shoulder_len) && _shoulder_len>=0, "Must specify a nonegative shoulder length")
             assert(is_finite(_shoulder_diam) && _shoulder_diam>=0, "Must specify nonnegative shoulder diameter")
-            assert(is_undef(user_thread_len) || (is_finite(user_thread_len) && user_thread_len>=0), "Must specify nonnegative thread length")
-            assert(!_teardrop || pitch==0);
+            assert(is_undef(user_thread_len) || (is_finite(user_thread_len) && user_thread_len>=0), "Must specify nonnegative thread length");
    sides = max(pitch==0 ? 3 : 12, segs(nominal_diam/2));
    head_height = headless || flathead ? 0 
                : counterbore==true || is_undef(counterbore) || counterbore==0 ? struct_val(spec, "head_height")
@@ -704,7 +715,7 @@ module screw(spec, head, drive, thread, drive_size,
                       pitch = struct_val(threadspec, "pitch"),
                       l=thread_len+eps_thread, left_handed=false, internal=_internal, 
                       bevel1=bevel1,
-                      bevel2=bevel2,
+                      bevel2=bevel2,teardrop=_teardrop,
                       blunt_start=blunt_start, blunt_start1=blunt_start1, blunt_start2=blunt_start2, 
                       $fn=sides, anchor=TOP);
             }
@@ -720,6 +731,7 @@ module screw(spec, head, drive, thread, drive_size,
 
 // Module: screw_hole()
 // Synopsis: Creates a screw hole.
+// SynTags: Geom
 // Topics: Threading, Screws
 // See Also: screw()
 // Usage:
@@ -761,7 +773,7 @@ module screw(spec, head, drive, thread, drive_size,
 //   head = head type.  See [screw heads](#subsection-screw-heads)  Default: none
 //   ---
 //   thread = thread type or specification for threaded masks, true to make a threaded mask with the standard threads, or false to make an unthreaded mask.  See [screw pitch](#subsection-standard-screw-pitch). Default: false
-//   teardrop = if true produce teardrop hole.  Only compatible with clearance holes, not threaded.  Default: false
+//   teardrop = if true produce teardrop hole.  Default: false
 //   oversize = amount to increase diameter of the screw hole (hole and countersink).  A scalar or length 2 vector.  Default: use computed tolerance
 //   hole_oversize = amount to increase diameter of the hole.  Overrides the use of tolerance and replaces any settings given in the screw specification. 
 //   head_oversize = amount to increase diameter of head.  Overrides the user of tolerance and replaces any settings given in the screw specification.  
@@ -839,7 +851,6 @@ module screw_hole(spec, head, thread, oversize, hole_oversize, head_oversize,
    counterbore = default(counterbore, default_counterbore);
    dummy = _validate_screw_spec(screwspec);
    threaded = thread==true || (is_finite(thread) && thread>0) || (is_undef(thread) && struct_val(screwspec,"pitch")>0);
-   dummy2 = assert(!threaded || !teardrop, "Cannot make threaded teardrop holes");
    oversize = force_list(oversize,2);
    hole_oversize = first_defined([hole_oversize, oversize[0],struct_val(screwspec,"shaft_oversize")]);
    head_oversize = first_defined([head_oversize, oversize[1],struct_val(screwspec,"head_oversize")]);
@@ -977,6 +988,7 @@ module screw_hole(spec, head, thread, oversize, hole_oversize, head_oversize,
 
 // Module: shoulder_screw()
 // Synopsis: Creates a shoulder screw.
+// SynTags: Geom
 // Topics: Threading, Screws
 // See Also: screw(), screw_hole()
 // Usage:
@@ -1390,6 +1402,7 @@ function _parse_drive(drive=undef, drive_size=undef) =
 
 // Module: screw_head()
 // Synopsis: Creates a screw head.
+// SynTags: Geom
 // Topics: Threading, Screws
 // See Also: screw(), screw_hole()
 // Usage:
@@ -1427,63 +1440,69 @@ module screw_head(screw_info,details=false, counterbore=0,flat_height,teardrop=f
 
    counterbore = counterbore_temp==0 && head!="flat" ? counterbore_temp : counterbore_temp + 0.01;
    adj_diam = struct_val(screw_info, "diameter") + head_oversize;   // Used for determining chamfers and ribbing
-   if (head!="flat" && counterbore>0){
-     d = head=="hex"? 2*head_size/sqrt(3) : head_size;
-     if (teardrop)
-       teardrop(d=d, l=counterbore, orient=BACK, anchor=BACK);
-     else                    
-       cyl(d=d, l=counterbore, anchor=BOTTOM);
-   }  
-   if (head=="flat") {   // For flat head, counterbore is integrated
-     angle = struct_val(screw_info, "head_angle")/2;
-     sharpsize = struct_val(screw_info, "head_size_sharp")+head_oversize;
-     sidewall_height = (sharpsize - head_size)/2 / tan(angle);
-     cylheight = counterbore + sidewall_height;
-     slopeheight = flat_height - sidewall_height;
-     r1 = head_size/2;
-     r2 = r1 - tan(angle)*slopeheight;
-     n = segs(r1);
-     prof1 = teardrop ? teardrop2d(r=r1,$fn=n) : circle(r=r1, $fn=n);
-     prof2 = teardrop ? teardrop2d(r=r2,$fn=n) : circle(r=r2, $fn=n);
-     skin([prof2,prof1,prof1], z=[-flat_height, -flat_height+slopeheight, counterbore],slices=0);
-   }
-   if (head!="flat" && counterbore==0) {
-     if (in_list(head,["round","pan round","button","fillister","cheese"])) {
-       base = head=="fillister" ? 0.75*head_height :
-              head=="pan round" ? .6 * head_height :
-              head=="cheese" ? .7 * head_height :
-              0.1 * head_height;   // round and button
-       head_size2 = head=="cheese" ?  head_size-2*tan(5)*head_height : head_size; // 5 deg slope on cheese head
-       segs = segs(head_size);
-       cyl(l=base, d1=head_size, d2=head_size2,anchor=BOTTOM, $fn=segs)
-         attach(TOP)
-           zrot(180) // Needed to align facets when $fn is odd
-           rotate_extrude($fn=segs)  // ensure same number of segments for cap as for head body
-             intersection(){
-               arc(points=[[-head_size2/2,0], [0,-base+head_height * (head=="button"?4/3:1)], [head_size2/2,0]]);
-               square([head_size2, head_height-base]);
+   attachable(){
+     union(){
+         if (head!="flat" && counterbore>0){
+           d = head=="hex"? 2*head_size/sqrt(3) : head_size;
+           if (teardrop)
+             teardrop(d=d, l=counterbore, orient=BACK, anchor=BACK);
+           else                    
+             cyl(d=d, l=counterbore, anchor=BOTTOM);
+         }  
+         if (head=="flat") {   // For flat head, counterbore is integrated
+           angle = struct_val(screw_info, "head_angle")/2;
+           sharpsize = struct_val(screw_info, "head_size_sharp")+head_oversize;
+           sidewall_height = (sharpsize - head_size)/2 / tan(angle);
+           cylheight = counterbore + sidewall_height;
+           slopeheight = flat_height - sidewall_height;
+           r1 = head_size/2;
+           r2 = r1 - tan(angle)*slopeheight;
+           n = segs(r1);
+           prof1 = teardrop ? teardrop2d(r=r1,$fn=n) : circle(r=r1, $fn=n);
+           prof2 = teardrop ? teardrop2d(r=r2,$fn=n) : circle(r=r2, $fn=n);
+           skin([prof2,prof1,prof1], z=[-flat_height, -flat_height+slopeheight, counterbore],slices=0);
+         }
+         if (head!="flat" && counterbore==0) {
+           if (in_list(head,["round","pan round","button","fillister","cheese"])) {
+             base = head=="fillister" ? 0.75*head_height :
+                    head=="pan round" ? .6 * head_height :
+                    head=="cheese" ? .7 * head_height :
+                    0.1 * head_height;   // round and button
+             head_size2 = head=="cheese" ?  head_size-2*tan(5)*head_height : head_size; // 5 deg slope on cheese head
+             segs = segs(head_size);
+             cyl(l=base, d1=head_size, d2=head_size2,anchor=BOTTOM, $fn=segs)
+               attach(TOP)
+                 zrot(180) // Needed to align facets when $fn is odd
+                 rotate_extrude($fn=segs)  // ensure same number of segments for cap as for head body
+                   intersection(){
+                     arc(points=[[-head_size2/2,0], [0,-base+head_height * (head=="button"?4/3:1)], [head_size2/2,0]]);
+                     square([head_size2, head_height-base]);
+                   }
+           }
+           if (head=="pan flat")
+             cyl(l=head_height, d=head_size, rounding2=0.2*head_size, anchor=BOTTOM);
+           if (head=="socket")
+             cyl(l=head_height, d=head_size, anchor=BOTTOM, chamfer2=details? adj_diam/10:undef);
+           if (head=="socket ribbed"){
+             // These numbers are based on ISO specifications that dictate how much oversizsed a ribbed socket head can be
+             // We are making our ribbed heads the same size as unribbed (by cutting the ribbing away), but these numbers are presumably a good guide
+             rib_size = [[2, .09],
+                         [3, .09],
+                         [6, .11],
+                         [12, .135],
+                         [20, .165]];
+             intersection() {
+               cyl(h=head_height/4, d=head_size, anchor=BOT)
+                  attach(TOP) cyl(l=head_height*3/4, d=head_size, anchor=BOT, texture="trunc_ribs", tex_reps=[31,1],
+                                  tex_inset=true, tex_depth=-lookup(adj_diam,rib_size));
+               cyl(h=head_height,d=head_size, chamfer2=adj_diam/10, anchor=BOT);
              }
-     }
-     if (head=="pan flat")
-       cyl(l=head_height, d=head_size, rounding2=0.2*head_size, anchor=BOTTOM);
-     if (head=="socket")
-       cyl(l=head_height, d=head_size, anchor=BOTTOM, chamfer2=details? adj_diam/10:undef);
-     if (head=="socket ribbed"){
-       // These numbers are based on ISO specifications that dictate how much oversizsed a ribbed socket head can be
-       // We are making our ribbed heads the same size as unribbed (by cutting the ribbing away), but these numbers are presumably a good guide
-       rib_size = [[2, .09],
-                   [3, .09],
-                   [6, .11],
-                   [12, .135],
-                   [20, .165]];
-       intersection() {
-         cyl(h=head_height/4, d=head_size, anchor=BOT)
-            attach(TOP) cyl(l=head_height*3/4, d=head_size, anchor=BOT, texture="trunc_ribs", tex_counts=[31,1], tex_scale=-lookup(adj_diam,rib_size));
-         cyl(h=head_height,d=head_size, chamfer2=adj_diam/10, anchor=BOT);
-       }
-     }
-     if (head=="hex")
-       up(head_height/2)_nutshape(head_size,head_height,"hex",false,true);
+           }
+           if (head=="hex")
+             up(head_height/2)_nutshape(head_size,head_height,"hex",false,true);
+         }
+     }    
+     union(){};
    }
 }
 
@@ -1493,6 +1512,7 @@ module screw_head(screw_info,details=false, counterbore=0,flat_height,teardrop=f
 
 // Module: nut()
 // Synopsis: Creates a standard nut.
+// SynTags: Geom
 // Topics: Threading, Screws
 // See Also: screw(), screw_hole()
 // Usage:
@@ -1615,6 +1635,7 @@ module nut(spec, shape, thickness, nutwidth, thread, tolerance, hole_oversize,
 
 // Module: nut_trap_side()
 // Synopsis: Creates a side nut trap mask.
+// SynTags: Geom
 // Topics: Threading, Screws
 // See Also: screw(), screw_hole()
 // Usage:
@@ -1705,6 +1726,7 @@ module nut_trap_side(trap_width, spec, shape, thickness, nutwidth, anchor=BOT, o
 
 // Module: nut_trap_inline()
 // Synopsis: Creates an inline nut trap mask.
+// SynTags: Geom
 // Topics: Threading, Screws
 // See Also: screw(), screw_hole()
 // Usage:
@@ -1884,7 +1906,7 @@ function screw_info(name, head, drive, thread, drive_size, shaft_oversize, head_
 //   . 
 //   Field              | What it is
 //   ------------------ | ---------------
-//   "type"           | Always set to "screw_info"
+//   "type"           | Always set to "nut_info"
 //   "system"         | Either `"UTS"` or `"ISO"` (used for correct tolerance computation).
 //   "origin"         | Module that created the structure
 //   "name"           | Name used to specify threading, such as "M6" or "#8"
@@ -2178,6 +2200,7 @@ function _screw_info_english(diam, threadcount, head, thread, drive) =
        tentry = struct_val(UTS_thread, diam)
      )
      assert(is_def(tentry), str("Unknown screw size, \"",diam,"\""))
+     assert(is_def(tentry[tind]), str("No ",thread," pitch known for screw size, \"",diam,"\""))
      INCH / tentry[tind],
    head_data =
        head=="none" ? let (
@@ -2607,8 +2630,10 @@ function _screw_info_metric(diam, pitch, head, thread, drive) =
         ],
         tentry = struct_val(ISO_thread, diam)
      )
-     assert(is_def(tentry), str("Unknown screw size, M",diam,""))
+     assert(is_def(tentry), str("Unknown screw size, M",diam))
+     assert(is_def(tentry[tind]), str("No ",thread," pitch known for M",diam))
      tentry[tind],
+   
    head_data =
        head=="none" ? let(
            metric_setscrew =

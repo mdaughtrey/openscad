@@ -314,7 +314,35 @@ function lcm(a,b=[]) =
         assert(len(arglist)>0, "Invalid call to lcm with empty list(s)")
         _lcmlist(arglist);
 
+// Function rational_approx()
+// Usage:
+//   pq = rational_approx(x, maxq);
+// Description:
+//   Finds the best rational approximation p/q to the number x so that q<=maxq.  Returns
+//   the result as `[p,q]`.  If the input is zero, then returns `[0,1]`.  
+// Example:
+//   pq1 = rational_approx(PI,10);        // Returns: [22,7]
+//   pq2 = rational_approx(PI,10000);     // Returns: [355, 113]
+//   pq3 = rational_approx(221/323,500);  // Returns: [13,19]
+//   pq4 = rational_approx(0,50);         // Returns: [0,1]
+function rational_approx(x, maxq, cfrac=[], p, q) =
+  let(
+       next = floor(x),
+       fracpart = x-next,
+       cfrac = [each cfrac, next],
+       pq = _cfrac_to_pq(cfrac)
+  )
+    approx(fracpart,0) ? pq 
+  : pq[1]>maxq ? [p,q]
+  : rational_approx(1/fracpart,maxq,cfrac, pq[0], pq[1]);
 
+
+// Converts a continued fraction given as a list with leading integer term
+// into a fraction in the form p / q, returning [p,q]. 
+function _cfrac_to_pq(cfrac,p=0,q=1,ind) =
+    is_undef(ind) ? _cfrac_to_pq(cfrac,p,q,len(cfrac)-1)
+  : ind==0 ? [p+q*cfrac[0], q]
+  : _cfrac_to_pq(cfrac, q, cfrac[ind]*q+p, ind-1);
 
 
 // Section: Hyperbolic Trigonometry
@@ -574,12 +602,12 @@ function posmod(x,m) =
 // Description:
 //   Takes an angle in degrees and normalizes it to an equivalent angle value between -180 and 180.
 // Example:
-//   a1 = modang(-700,360);  // Returns: 20
-//   a2 = modang(-270,360);  // Returns: 90
-//   a3 = modang(-120,360);  // Returns: -120
-//   a4 = modang(120,360);   // Returns: 120
-//   a5 = modang(270,360);   // Returns: -90
-//   a6 = modang(700,360);   // Returns: -20
+//   a1 = modang(-700);  // Returns: 20
+//   a2 = modang(-270);  // Returns: 90
+//   a3 = modang(-120);  // Returns: -120
+//   a4 = modang(120);   // Returns: 120
+//   a5 = modang(270);   // Returns: -90
+//   a6 = modang(700);   // Returns: -20
 function modang(x) =
     assert( is_finite(x), "Input must be a finite number.")
     let(xx = posmod(x,360)) xx<180? xx : xx-360;
@@ -735,29 +763,38 @@ function _product(v, i=0, _tot) =
 // Synopsis: Returns the running cumulative product of a list of values.
 // Topics: Math, Statistics
 // See Also: sum(), mean(), median(), product(), cumsum()
+// Usage:
+//   prod_list = cumprod(list, [right]);
 // Description:
 //   Returns a list where each item is the cumulative product of all items up to and including the corresponding entry in the input list.
-//   If passed an array of vectors, returns a list of elementwise vector products.  If passed a list of square matrices returns matrix
-//   products multiplying on the left, so a list `[A,B,C]` will produce the output `[A,BA,CBA]`.  
+//   If passed an array of vectors, returns a list of elementwise vector products.  If passed a list of square matrices by default returns matrix
+//   products multiplying on the left, so a list `[A,B,C]` will produce the output `[A,BA,CBA]`.  If you set `right=true` then it returns
+//   the product of multiplying on the right, so a list `[A,B,C]` will produce the output `[A,AB,ABC]` in that case.
 // Arguments:
-//   list = The list to get the product of.
+//   list = The list to get the cumulative product of.
+//   right = if true multiply matrices on the right
 // Example:
 //   cumprod([1,3,5]);  // returns [1,3,15]
 //   cumprod([2,2,2]);  // returns [2,4,8]
 //   cumprod([[1,2,3], [3,4,5], [5,6,7]]));  // returns [[1, 2, 3], [3, 8, 15], [15, 48, 105]]
-function cumprod(list) =
+function cumprod(list,right=false) =
    is_vector(list) ? _cumprod(list) :
    assert(is_consistent(list), "Input must be a consistent list of scalars, vectors or square matrices")
-   is_matrix(list[0]) ? assert(len(list[0])==len(list[0][0]), "Matrices must be square") _cumprod(list) 
+   assert(is_bool(right))
+   is_matrix(list[0]) ? assert(len(list[0])==len(list[0][0]), "Matrices must be square") _cumprod(list,right) 
                       : _cumprod_vec(list);
 
-function _cumprod(v,_i=0,_acc=[]) =
+function _cumprod(v,right,_i=0,_acc=[]) = 
     _i==len(v) ? _acc :
     _cumprod(
-        v, _i+1,
+        v, right, _i+1,
         concat(
             _acc,
-            [_i==0 ? v[_i] : v[_i]*_acc[len(_acc)-1]]
+            [
+              _i==0 ? v[_i]
+             : right? _acc[len(_acc)-1]*v[_i]
+             : v[_i]*_acc[len(_acc)-1]
+            ]
         )
     );
 
@@ -1532,13 +1569,6 @@ function _poly_roots(p, pderiv, s, z, tol, i=0) =
 //   eps = used to determine whether imaginary parts of roots are zero
 //   tol = tolerance for the complex polynomial root finder
 
-//   The algorithm is based on Brent's method and is a combination of
-//   bisection and inverse quadratic approximation, where bisection occurs
-//   at every step, with refinement using inverse quadratic approximation
-//   only when that approximation gives a good result.  The detail
-//   of how to decide when to use the quadratic came from an article
-//   by Crenshaw on "The World's Best Root Finder".
-//   https://www.embedded.com/worlds-best-root-finder/
 function real_roots(p,eps=undef,tol=1e-14) =
     assert( is_vector(p), "Invalid polynomial." )
     let( p = _poly_trim(p,eps=0) )
@@ -1574,6 +1604,14 @@ function real_roots(p,eps=undef,tol=1e-14) =
 //    x0 = endpoint of interval to search for root
 //    x1 = second endpoint of interval to search for root
 //    tol = tolerance for solution.  Default: 1e-15
+
+//   The algorithm is based on Brent's method and is a combination of
+//   bisection and inverse quadratic approximation, where bisection occurs
+//   at every step, with refinement using inverse quadratic approximation
+//   only when that approximation gives a good result.  The detail
+//   of how to decide when to use the quadratic came from an article
+//   by Crenshaw on "The World's Best Root Finder".
+//   https://www.embedded.com/worlds-best-root-finder/
 function root_find(f,x0,x1,tol=1e-15) =
    let(
         y0 = f(x0),
