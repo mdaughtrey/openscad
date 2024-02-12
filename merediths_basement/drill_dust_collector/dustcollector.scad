@@ -64,6 +64,7 @@ module coupling()
 
 module forViewing()
 {
+    model_drill();
     if (model) {
         model_drill();
         up(4300) model_wheel();
@@ -71,7 +72,7 @@ module forViewing()
 //    *recolor("cornflowerblue")
 //    drillmount();
 //front_half(s=20000)
-    hood(anchor=BOT);
+//    hood(anchor=BOT);
 //    halfcyl(anchor=BOT);
 //    model_hose();
 //    coupling();

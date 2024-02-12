@@ -6,11 +6,19 @@ $fn=96;
 
 module model_drill()
 {
-    recolor("silver") cyl(d=2370,h=1500,anchor=BOT)
-    attach(TOP) recolor("dimgray") cyl(d1=2370,d2=2000,h=1010,anchor=BOT)
-    attach(TOP) cyl(d1=1800,d2=1700,h=200,anchor=BOT)
-    attach(TOP) cyl(d=1700,h=1280,anchor=BOT)
-    attach(TOP) cyl(d1=1700,d2=1000,h=850,anchor=BOT);
+    diff()
+    tube(id=2230,wall=100,h=700)
+    {
+        tag("remove") cuboid([1760,2500,701]);
+        attach(TOP,norot=1) tube(id=2080,wall=180,h=200,anchor=BOT);
+    }
+
+
+//    recolor("silver") cyl(d=2370,h=1500,anchor=BOT)
+//    attach(TOP) recolor("dimgray") cyl(d1=2370,d2=2000,h=1010,anchor=BOT)
+//    attach(TOP) cyl(d1=1800,d2=1700,h=200,anchor=BOT)
+//    attach(TOP) cyl(d=1700,h=1280,anchor=BOT)
+//    attach(TOP) cyl(d1=1700,d2=1000,h=850,anchor=BOT);
 }
 
 module model_wheel()
@@ -28,28 +36,39 @@ module model_hose(anchor=CENTER)
 }
 
 
-module drillmount()
+module drillmount(anchor=CENTER,spin=0,orient=UP)
 {
-    tube(id=2400,od=2600,h=4800,anchor=BOT)
-    attach(TOP) hoodside(anchor=BOT)
-    // attach(TOP) tube(id=2400,od=6000,h=200,anchor=BOT);
-    attach(TOP) tube(id=5800,od=6000,h=1000,anchor=BOT)
-    attach(TOP) hoodside(anchor=BOT);
-
+    module drillmount_()
+    {
+        diff()
+        tube(id=2230,wall=200,h=700,anchor=BOT)
+        {
+            tag("remove") cuboid([1760,2700,701]);
+            attach(TOP,norot=1) tube(id=2080,wall=280,h=200,anchor=BOT);
+            attach(TOP,norot=1) tube(id=2080,wall=150,h=2780,anchor=BOT)
+            tag("remove") attach(TOP,norot=1) down(500) cuboid([1760,2700,1000],anchor=TOP);
+        }
+    }
+    attachable(anchor,spin,orient,d=2430,h=3760)
+    {
+        down(3760/2)
+        drillmount_();
+        children();
+    }
 }
 
 module hood(anchor=CENTER,spin=0,orient=UP)
 {
-    delta=300;
-    attachable(anchor=anchor,spin=spin,orient=orient,size=[5600,6000,5400-delta])
+//    delta=300;
+    attachable(anchor,spin,orient,d=6000,h=2600)
     {
-        up(800+2100-delta/2)
+//        up(800+2100-delta/2)
         diff() 
         rotate_sweep(angle=180,spin=90,shape=rect([3000,2600],anchor=LEFT))  {
-            attach(BOT+CENTER+FRONT,norot=1) tube(id=2400,od=2600,h=3800-delta,anchor=TOP);
+//            attach(BOT+CENTER+FRONT,norot=1) tube(id=2400,od=2700,h=3800,anchor=TOP);
             attach(LEFT+FRONT,norot=1) cuboid([6000,700,2600],anchor=LEFT+BACK);
             tag("remove") attach(CENTER) cyl(d=5600,h=2200) attach(FRONT,norot=1) cuboid([5600,3000,2200],anchor=FRONT);
-            tag("remove") attach(FRONT+CENTER+BOT,norot=1) down(1) cyl(d=2400,h=202,anchor=BOT);
+            tag("remove") attach(FRONT+CENTER+BOT,norot=1) down(1) cyl(d=2300,h=202,anchor=BOT);
             tag("remove") attach(RIGHT+BACK,overlap=200) cyl(d=1600,h=500); // hose cutout
             attach(RIGHT+BACK,overlap=150) model_hose(anchor=BOT);
         }
@@ -64,17 +83,9 @@ module coupling()
 
 module forViewing()
 {
-    if (model) {
-        model_drill();
-        up(4300) model_wheel();
-    }
-//    *recolor("cornflowerblue")
-//    drillmount();
-back_half(s=20000)
-    hood(anchor=BOT);
-//    halfcyl(anchor=BOT);
-//    model_hose();
-//    coupling();
+    drillmount()
+    down(450)
+    attach(TOP,norot=1) hood(anchor=BOT);
 }
 
 module forPrinting()
