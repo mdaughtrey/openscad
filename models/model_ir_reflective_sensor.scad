@@ -25,7 +25,7 @@ module model_ir_reflective_sensor(anchor=CENTER,spin=0,orient=UP,cutoutpad=0)
     }
     attachable(anchor=anchor,spin=spin,orient=orient,size=[700+cutoutpad*2,200+cutoutpad*2,600+cutoutpad*2])
     {
-        down((600-75)/2+10)
+        down((600-75)/2+10-50)
         model_ir_reflective_sensor_();
         children();
     }

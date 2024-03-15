@@ -239,7 +239,7 @@ module support_1(anchor=CENTER,spin=0,orient=UP)
 module forViewing()
 {
 //    hexled_mount();
-     collared_length(l=2000);
+//     collared_length(l=2000);
 //    attach(TOP) 
 //    recolor("cyan") down(350) elbow90(anchor=BOT)
 //    attach(BOT,norot=1) zflip() up(1500) hexled_mount();
@@ -257,7 +257,7 @@ module forViewing()
 
 module forPrinting()
 {
-    magnetholder();
+//    magnetholder();
 //    elbow90();
 //hexled_mount();
 //     simplelength(l=2000);

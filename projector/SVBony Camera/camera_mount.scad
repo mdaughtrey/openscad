@@ -320,7 +320,7 @@ module forViewing()
             model_svbony205();
             translate([0, 0, 1140])
             if (modelcolor) color("green")
-            model_mountto();
+            #model_mountto();
         }
     }
     cameramount();

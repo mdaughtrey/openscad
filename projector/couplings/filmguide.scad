@@ -22,7 +22,7 @@ module collar_acceptor(anchor=CENTER,spin=0,orient=UP)
 {
     attachable(anchor,spin,orient,size=[1500,1500,600]) {
         up(50) rect_tube(h=500,size=1500,isize=1400,rounding=50,anchor=CENTER)
-            attach(BOT,overlap=1) rect_tube(size=[1500,1500],isize=[500,300],h=100,rounding=50,anchor=BOT);
+            attach(BOT,overlap=1) rect_tube(size=[1500,1500],isize=[500,400],h=100,rounding=50,anchor=BOT);
         children();
     }
 }
@@ -71,9 +71,9 @@ module foot0()
     }
 }
 
-module filmguides(anchor=CENTER,spin=0,orient=UP,width=1000)
+module filmguidbase(anchor=CENTER,spin=0,orient=UP,width=1000)
 {
-    module _filmguides() {
+    module _filmguidbase() {
         $fn=96;
         diff()
         cuboid([width,2300,100],rounding=450,edges="Z") {
@@ -93,7 +93,7 @@ module filmguides(anchor=CENTER,spin=0,orient=UP,width=1000)
 
     attachable(anchor,spin,orient,size=[width,2300,200+25+130])
     {
-        down(50+25+275/2) _filmguides();
+        down(50+25+275/2) _filmguidbase();
         children();
     }
 }
@@ -172,18 +172,22 @@ module simple_extender(anchor=CENTER,spin=0,orient=UP,length=2000)
 //    ruler(3200,orient=FRONT,spin=90,alpha=0.3);
 }
 
+module filmguide(anchor=CENTER,spin=0,orient=UP)
+{
+    filmguidbase(width=1100) {
+        attach(LEFT,overlap=1) collar_acceptor(anchor=BOT);
+        attach(RIGHT,overlap=1) rect_tube(h=100,size=[1500,1500],isize=[700,500],rounding=50)
+        attach(TOP,overlap=1) zflip() collar_inserter(anchor=TOP);
+        attach(BOT,norot=1) cuboid([1200,500,570],anchor=TOP);
+    }
+}
 
 module forViewing()
 {
 //    simple_extender(length=3500);
 //    hood();
 //    footmount();
-//    filmguides(width=900);
-    *filmguides(width=1100) {
-        attach(LEFT,overlap=1) collar_acceptor(anchor=BOT);
-        attach(RIGHT,overlap=1) rect_tube(h=100,size=[1500,1500],isize=[500,400],rounding=50)
-        attach(TOP,overlap=1) zflip() collar_inserter(anchor=TOP);
-    }
+    filmguide();
 
 //    led_tube_body_support();
 //    ruler(3000,500);
@@ -192,12 +196,13 @@ module forViewing()
 
 module forPrinting()
 {
-    hood();
+    filmguides();
+//    hood();
 //    stabilizer();
 }
 
 scale(ViewScale)
 {
-//    forViewing();
-    forPrinting();
+    forViewing();
+//    forPrinting();
 }

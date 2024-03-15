@@ -421,12 +421,12 @@ module forPrinting()
 
 module forViewing()
 {
-    sensorholder(anchor=TOP)
-    attach(TOP,norot=1)
-    left(70+60)
+    //sensorholder(anchor=TOP)
+    //attach(TOP,norot=1)
+    //left(70+60)
     slotguide(lift=50);
     *attach(TOP,norot=1) down(120) right(80)
-    xflip() recolor("cornflowerblue")
+    *xflip() recolor("cornflowerblue")
     model_film_super8(frames=5)
     *completeModel();
     *attach(TOP,norot=1)
@@ -439,8 +439,8 @@ module forViewing()
 
 scale(ViewScale)
 {
-    forPrinting();
-    *forViewing();
+    *forPrinting();
+    forViewing();
     *bearing_support();
     *filmguides();
     *ir_sensor_mount();

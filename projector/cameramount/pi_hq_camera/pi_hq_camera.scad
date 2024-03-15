@@ -96,15 +96,15 @@ module pcb_back(anchor=CENTER,spin=0,orient=UP)
     module pcb_back_()
     {
         diff()
-        cuboid([mm(38),mm(38),50],rounding=100,edges="Z")
+        cuboid([mm(38),mm(38),100],rounding=100,edges="Z")
         {
             *tag("remove") grid_copies(spacing=[mm(38)-mm(8),mm(38)-mm(8)],n=[2,2])
             cyl(d=mm(2.5),h=mm(1.5));
-            attach(TOP,norot=1) left(305) cuboid([100,mm(38),300],anchor=BOT+RIGHT);
-            attach(TOP,norot=1) right(305) cuboid([100,mm(38),300],anchor=BOT+LEFT);
+            attach(TOP,norot=1) left(305) cuboid([200,mm(38),300],anchor=BOT+RIGHT);
+            attach(TOP,norot=1) right(305) cuboid([200,mm(38),300],anchor=BOT+LEFT);
             attach(BOT,norot=1)
             grid_copies(spacing=[mm(38)-mm(8),mm(38)-mm(8)],n=[2,2])
-            tube(id=mm(1),od=200,h=200,anchor=TOP);
+            tube(id=mm(1),od=200,h=150,anchor=TOP);
 //            attach(TOP,norot=1) left(310) cuboid([100,mm(38),300],anchor=BOT+RIGHT);
 
         }
@@ -192,10 +192,10 @@ module forViewing()
 
 module forPrinting()
 {
-    arm();
+    *arm();
     *pcb_to_mountto();
     *pcb_back();
-    *pcb_back_lid();
+    pcb_back_lid();
 }
 
 scale(ViewScale)

@@ -145,13 +145,14 @@ module model_mountto()
 
 module forViewing()
 {
+    model_hqcam();
  //   model_hqcam();
- color("green")
- translate([0, 0, -50])
- model_mountto();
-    color("cyan")
-    mount0();
-    mount1();
+// color("green")
+// translate([0, 0, -50])
+// model_mountto();
+//    color("cyan")
+//    mount0();
+//    mount1();
 }
 
 module forPrinting()
