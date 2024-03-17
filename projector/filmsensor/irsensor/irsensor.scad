@@ -424,7 +424,7 @@ module forViewing()
     //sensorholder(anchor=TOP)
     //attach(TOP,norot=1)
     //left(70+60)
-    slotguide(lift=50);
+    slotguide(lift=125);
     *attach(TOP,norot=1) down(120) right(80)
     *xflip() recolor("cornflowerblue")
     model_film_super8(frames=5)
