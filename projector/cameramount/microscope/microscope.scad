@@ -75,8 +75,9 @@ module filmguidebase(anchor=CENTER,spin=0,orient=UP,width=1000)
         cuboid([width,2500,100],rounding=450,edges="Z") {
             tag("remove") attach(TOP+BACK,norot=1) fwd(500) up(1) cyl(d=180,h=104,anchor=TOP);
             tag("remove") attach(TOP+FRONT,norot=1) back(500) up(1) cyl(d=180,h=104,anchor=TOP);
-            attach(BOT+BACK,norot=1) fwd(500) tube(id=180,od=480,h=570,anchor=TOP);
-            attach(BOT+FRONT,norot=1) back(500) tube(id=180,od=480,h=570,anchor=TOP);
+            // Support tubes - print separately
+            *attach(BOT+BACK,norot=1) fwd(500) tube(id=180,od=480,h=570,anchor=TOP);
+            *attach(BOT+FRONT,norot=1) back(500) tube(id=180,od=480,h=570,anchor=TOP);
             tag("keep") attach(TOP+BACK,norot=1) fwd(500) tube(od=400,id=180,h=25,anchor=BOT) {
                 attach(TOP) tube(od=300,id=180,h=130,anchor=BOT);
 //                attach(TOP) recolor("silver")  tube(od=867,id=315,h=275,anchor=BOT);
@@ -101,9 +102,14 @@ module ms_mount(anchor=CENTER,spin=0,orient=UP)
     module ms_mount_()
     {
         diff()
-        tube(id=1560,od=1760,h=1350)
-        attach(TOP,overlap=1) cyl(h=100,d=1760,anchor=TOP)
-        tag("remove") attach(TOP)  cuboid([700,500,102],anchor=TOP);
+        tube(id=1560,od=1760,h=1350) {
+            attach(LEFT+BOT,norot=1) right(100) tube(id=250,od=450,h=1250,anchor=BOT+RIGHT)
+            attach(TOP) cyl(d=450,h=50,anchor=BOT);
+            attach(RIGHT+BOT,norot=1) left(100) tube(id=250,od=450,h=1250,anchor=BOT+LEFT)
+            attach(TOP) cyl(d=450,h=50,anchor=BOT);
+            attach(TOP,overlap=1) cyl(h=100,d=1760,anchor=TOP) 
+                tag("remove") attach(TOP)  cuboid([700,500,102],anchor=TOP);
+        }
     }
     attachable(anchor,spin,orient,d=1740,l=1600)
     {
@@ -112,17 +118,22 @@ module ms_mount(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
+module viewMount()
+{
+    model_microscope();
+    up(2000) ms_mount(anchor=TOP)
+    attach(TOP,norot=1) up(430) zrot(90) yrot(90)  filmguide();
+}
+
 module forViewing()
 {
-    filmguidebase();
+    viewMount();
 }
 
 module forPrinting()
 {
-    ms_mount(anchor=TOP);
-    up(430) yrot(90)
-    filmguide();
-//    filmguidebase(width=900);
+    ms_mount()
+    attach(TOP,norot=1) up(430) zrot(90) yrot(90)  filmguide();
 }
 
 scale(ViewScale)
