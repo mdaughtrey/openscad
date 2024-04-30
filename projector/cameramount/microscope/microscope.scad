@@ -118,11 +118,33 @@ module ms_mount(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
+module vexmount(anchor=CENTER,spin=0,orient=UP)
+{
+    module vexmount_()
+    {
+        diff()
+        cuboid([1860,200+170,170],rounding=330/2,edges="Z") {
+        attach(BOT,norot=1) left(750) tube(id=180,od=370,h=490,anchor=TOP);
+        attach(BOT,norot=1) right(750) tube(id=180,od=370,h=490,anchor=TOP);
+        attach(TOP,norot=1) left(250) cuboid([170,170,100]);
+        attach(TOP,norot=1) right(250) cuboid([170,170,100]);
+        tag("remove") attach(TOP,norot=1) left(750) cyl(d=180,h=330,anchor=TOP);
+        tag("remove") attach(TOP,norot=1) right(750) cyl(d=180,h=330,anchor=TOP);
+        }
+    }
+    attachable(anchor,spin,orient,size=[2500,370,330])
+    {
+        vexmount_();
+        children();
+    }
+}
+
 module viewMount()
 {
-    model_microscope();
-    up(2000) ms_mount(anchor=TOP)
+//    model_microscope();
+    up(2000) ms_mount()
     attach(TOP,norot=1) up(430) zrot(90) yrot(90)  filmguide();
+    fwd(840) up(3300)  xrot(90) vexmount();
 }
 
 module forViewing()
@@ -132,8 +154,9 @@ module forViewing()
 
 module forPrinting()
 {
-    ms_mount()
-    attach(TOP,norot=1) up(430) zrot(90) yrot(90)  filmguide();
+//    ms_mount()
+//    attach(TOP,norot=1) up(430) zrot(90) yrot(90)  filmguide();
+    vexmount();
 }
 
 scale(ViewScale)
