@@ -3,6 +3,8 @@ include </../BOSL2-master/std.scad>
 include <../models/model_ssd1306.scad>
 include <../models/pushbutton.scad>
 
+$fn=96;
+
 //module modname(anchor=CENTER,spin=0,orient=UP)
 //{
 //    module modname_()
@@ -67,15 +69,55 @@ module board_surround(anchor=CENTER,spin=0,orient=UP)
 
 module facia()
 {
+    module facia_top(d=120)
+    {
+        rect_tube(h=50,rounding=d/2,wall=d,isize=[ssd1306_128_32_length-460-d,ssd1306_128_32_width-d])
+        attach(TOP,norot=1)
+
+        top_half(s=ssd1306_128_32_length*2)
+        {
+            ycopies(n=2,spacing=ssd1306_128_32_width)
+            cyl(l=ssd1306_128_32_length-460,d=d,orient=LEFT)
+            {
+                attach(TOP) sphere(d=d);
+                attach(BOT) sphere(d=d);
+            }
+
+            xcopies(n=2,spacing=ssd1306_128_32_length-460)
+            cyl(l=ssd1306_128_32_width,d=d,orient=BACK)
+            {
+                attach(TOP) sphere(d=d);
+                attach(BOT) sphere(d=d);
+            }
+        }
+    }
+    
+    diff()
+    cuboid([ssd1306_128_32_length+120,ssd1306_128_32_width+120,130])
+    {
+        tag("remove") {
+        attach(BOT,norot=1,overlap=1)
+        cuboid([ssd1306_128_32_length,ssd1306_128_32_width,50],anchor=BOT)
+        attach(RIGHT+TOP,norot=1,overlap=1) left(230+0)  
+        cuboid([ssd1306_128_32_length-230-60,ssd1306_128_32_width+80,65],anchor=RIGHT+BOT)
+        attach(TOP,norot=1,overlap=1) right(230/2-30)
+        cuboid([ssd1306_128_32_length-460,ssd1306_128_32_width,25],anchor=BOT);
+        }
+        attach(TOP,norot=1) facia_top();
+    }
 }
 
 module forViewing()
 {
-    yrot(180)
+    *yrot(180)
     model_pushbutton_flat();
     up(100)
     model_ssd1306_128_32()
-    attach(CENTER,norot=1) down(20) board_surround();
+    {
+    //    attach(CENTER,norot=1) down(20) board_surround();
+        attach(TOP,norot=1) up(100) facia();
+    }
+        
 }
 
 module forPrinting()
@@ -85,4 +127,5 @@ module forPrinting()
 scale(ViewScale)
 {
     forViewing();
+    //facia();
 }
