@@ -23,7 +23,7 @@ module board_surround(anchor=CENTER,spin=0,orient=UP)
     module _board_surround()
     {
         diff()
-        cuboid([ssd1306_128_32_length+120,ssd1306_128_32_width+120,50])
+        cuboid([ssd1306_128_32_length+120,ssd1306_128_32_width+120,50],rounding=100,edges="Z")
         {
             // Components
             tag("remove")
@@ -45,7 +45,13 @@ module board_surround(anchor=CENTER,spin=0,orient=UP)
             tag("remove")
             attach(RIGHT+BOT,norot=1)
             left(60)
-            cuboid([300,ssd1306_128_32_width,60],anchor=RIGHT+BOT);
+            cuboid([300,ssd1306_128_32_width,60],anchor=RIGHT+BOT,rounding=50,edges="Z");
+
+            // General Cutout
+            tag("remove")
+            attach(LEFT+BOT,norot=1)
+            right(60)
+            cuboid([300,ssd1306_128_32_width,60],anchor=LEFT+BOT,rounding=50,edges="Z");
             
             // Button Surround
             attach(BOT,norot=1)
@@ -57,7 +63,7 @@ module board_surround(anchor=CENTER,spin=0,orient=UP)
             // Skirt
             attach(BOT,norot=1)
             rect_tube(140,size=[ssd1306_128_32_length+120,ssd1306_128_32_width+120],
-                wall=60,anchor=TOP); 
+                wall=60,rounding=100,anchor=TOP); 
         }
     }
     attachable(anchor,spin,orient,size=[ssd1306_128_32_length+120,ssd1306_128_32_width+120,190])
@@ -67,7 +73,7 @@ module board_surround(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
-module facia()
+module facia(anchor=CENTER,spin=0,orient=UP)
 {
     module facia_top(d=120)
     {
@@ -92,40 +98,55 @@ module facia()
         }
     }
     
-    diff()
-    cuboid([ssd1306_128_32_length+120,ssd1306_128_32_width+120,130])
+    attachable(anchor,spin,orient,
+        size=[ssd1306_128_32_length+120,ssd1306_128_32_width+120,145])
     {
-        tag("remove") {
-        attach(BOT,norot=1,overlap=1)
-        cuboid([ssd1306_128_32_length,ssd1306_128_32_width,50],anchor=BOT)
-        attach(RIGHT+TOP,norot=1,overlap=1) left(230+0)  
-        cuboid([ssd1306_128_32_length-230-60,ssd1306_128_32_width+80,65],anchor=RIGHT+BOT)
-        attach(TOP,norot=1,overlap=1) right(230/2-30)
-        cuboid([ssd1306_128_32_length-460,ssd1306_128_32_width,25],anchor=BOT);
+        diff()
+        cuboid([ssd1306_128_32_length+120,ssd1306_128_32_width+120,145],rounding=100,edges="Z")
+        {
+            tag("remove") {
+                attach(BOT,norot=1) 
+                cuboid([ssd1306_128_32_length+20,ssd1306_128_32_width+20,50],
+                    rounding=100,edges="Z",anchor=BOT)
+                attach(RIGHT+TOP,norot=1) left(230)  
+                cuboid([ssd1306_128_32_length-230+20,ssd1306_128_32_width+20,70],
+                    anchor=RIGHT+BOT)
+                {
+                    right(230/2)
+                    {
+                        tag("keep")
+                        {
+                            attach(TOP,norot=1) facia_top();
+                        }
+                        attach(TOP,norot=1) 
+                        cuboid([ssd1306_128_32_length-460,ssd1306_128_32_width,26],anchor=BOT);
+                    }
+                }
+             }
         }
-        attach(TOP,norot=1) facia_top();
+        children();
     }
 }
 
 module forViewing()
 {
-    *yrot(180)
+    model_ssd1306_128_32();
+    facia(anchor=BOT);
+    board_surround();
+    down(40)
+    yrot(180)
     model_pushbutton_flat();
-    up(100)
-    model_ssd1306_128_32()
-    {
-    //    attach(CENTER,norot=1) down(20) board_surround();
-        attach(TOP,norot=1) up(100) facia();
-    }
-        
 }
 
 module forPrinting()
 {
+    facia();
+    //board_surround();
 }
 
 scale(ViewScale)
 {
-    forViewing();
-    //facia();
+//    forViewing();
+    forPrinting();
+//    facia();
 }
