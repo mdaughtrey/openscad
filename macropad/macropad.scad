@@ -26,7 +26,7 @@ module board_surround(anchor=CENTER,spin=0,orient=UP,twobuttons=0)
     module _board_surround()
     {
         diff()
-        cuboid([l+110,w+110,50],rounding=100,edges="Z")
+        cuboid([l+100,w+100,50],rounding=100,edges="Z")
         {
             // Components
             tag("remove")
@@ -66,14 +66,14 @@ module board_surround(anchor=CENTER,spin=0,orient=UP,twobuttons=0)
             {
                 // Button Surround
                 attach(LEFT+BOT,norot=1) right(180)
-                rect_tube(140,isize=[480,480],size=[590,w+110],anchor=TOP+LEFT)
+                rect_tube(140,isize=[490,490],size=[590,w+100],anchor=TOP+LEFT)
                 tag("remove")
                 attach(BOT,norot=1)
                 cuboid([600,290,140],anchor=BOT);
 
                 // Button Surround
                 attach(RIGHT+BOT,norot=1) left(180)
-                rect_tube(140,isize=[480,480],size=[590,w+110],anchor=TOP+RIGHT)
+                rect_tube(140,isize=[490,490],size=[590,w+100],anchor=TOP+RIGHT)
                 tag("remove")
                 attach(BOT,norot=1)
                 cuboid([600,290,140],anchor=BOT);
@@ -90,11 +90,11 @@ module board_surround(anchor=CENTER,spin=0,orient=UP,twobuttons=0)
             }
             // Skirt
             attach(BOT,norot=1)
-            rect_tube(140,size=[l+110,w+110],
-                wall=60,rounding=100,anchor=TOP); 
+            rect_tube(140,size=[l+100,w+100],
+                wall=50,rounding=100,anchor=TOP); 
         }
     }
-    attachable(anchor,spin,orient,size=[l+120,w+120,190])
+    attachable(anchor,spin,orient,size=[l+110,w+110,190])
     {
         _board_surround();
         children();
