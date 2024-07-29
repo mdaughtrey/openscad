@@ -20,51 +20,60 @@ $fn=96;
 
 module board_surround(anchor=CENTER,spin=0,orient=UP,twobuttons=0)
 {
+    l = ssd1306_128_32_length;
+    w = ssd1306_128_32_width;
+
     module _board_surround()
     {
         diff()
-        cuboid([ssd1306_128_32_length+120,ssd1306_128_32_width+120,50],rounding=100,edges="Z")
+        cuboid([l+110,w+110,50],rounding=100,edges="Z")
         {
             // Components
             tag("remove")
             attach(TOP+LEFT,norot=1)
             right(535) 
-            cuboid([160,ssd1306_128_32_width,50],anchor=TOP+LEFT);
+            cuboid([160,w,50],anchor=TOP+LEFT);
 
             tag("remove")
             attach(TOP+LEFT,norot=1)
             right(765)
-            cuboid([160,ssd1306_128_32_width,50],anchor=TOP+LEFT);
+            cuboid([160,w,50],anchor=TOP+LEFT);
 
             tag("remove")
             attach(TOP+LEFT,norot=1)
             right(1035)
-            cuboid([210,ssd1306_128_32_width,50],anchor=TOP+LEFT);
+            cuboid([210,w,50],anchor=TOP+LEFT);
 
             // Signal Connections
             tag("remove")
             attach(RIGHT+BOT,norot=1)
             left(60)
-            cuboid([200,ssd1306_128_32_width,60],anchor=RIGHT+BOT,rounding=50,edges="Z");
+            cuboid([200,w,60],anchor=RIGHT+BOT,rounding=50,edges="Z");
+
+            // Wire Channel
+            tag("remove")
+            attach(LEFT+BOT,norot=1)
+            right(60)
+            cuboid([l-60,200,60],anchor=LEFT+BOT);
 
             // General Cutout
             *tag("remove")
             attach(LEFT+BOT,norot=1)
             right(60)
-            cuboid([380,ssd1306_128_32_width,60],anchor=LEFT+BOT,rounding=50,edges="Z");
+            cuboid([380,w,60],anchor=LEFT+BOT,rounding=50,edges="Z");
             
             if (twobuttons)
             {
                 // Button Surround
                 attach(LEFT+BOT,norot=1) right(180)
-                rect_tube(140,isize=[480,480],size=[590,ssd1306_128_32_width+120],anchor=TOP+LEFT)
+                rect_tube(140,isize=[480,480],size=[590,w+110],anchor=TOP+LEFT)
                 tag("remove")
                 attach(BOT,norot=1)
                 cuboid([600,290,140],anchor=BOT);
 
                 // Button Surround
                 attach(RIGHT+BOT,norot=1) left(180)
-                rect_tube(140,isize=[480,480],size=[590,ssd1306_128_32_width+120],anchor=TOP+RIGHT)
+                rect_tube(140,isize=[480,480],size=[590,w+110],anchor=TOP+RIGHT)
                 tag("remove")
                 attach(BOT,norot=1)
                 cuboid([600,290,140],anchor=BOT);
@@ -73,7 +82,7 @@ module board_surround(anchor=CENTER,spin=0,orient=UP,twobuttons=0)
             {
                 // Button Surround
                 attach(BOT,norot=1)
-                rect_tube(140,isize=[480,480],size=[590,ssd1306_128_32_width+120],anchor=TOP)
+                rect_tube(140,isize=[480,480],size=[590,w+120],anchor=TOP)
                 tag("remove")
                 attach(BOT,norot=1)
                 cuboid([600,290,140],anchor=BOT);
@@ -81,11 +90,11 @@ module board_surround(anchor=CENTER,spin=0,orient=UP,twobuttons=0)
             }
             // Skirt
             attach(BOT,norot=1)
-            rect_tube(140,size=[ssd1306_128_32_length+120,ssd1306_128_32_width+120],
+            rect_tube(140,size=[l+110,w+110],
                 wall=60,rounding=100,anchor=TOP); 
         }
     }
-    attachable(anchor,spin,orient,size=[ssd1306_128_32_length+120,ssd1306_128_32_width+120,190])
+    attachable(anchor,spin,orient,size=[l+120,w+120,190])
     {
         _board_surround();
         children();
@@ -124,11 +133,11 @@ module facia(anchor=CENTER,spin=0,orient=UP)
         size=[l+120,w+120,175])
     {
         diff()
-        cuboid([l+120,w+120,175],rounding=100,edges="Z")
+        cuboid([l+120,w+120,150],rounding=100,edges="Z")
         {
             tag("remove") {
                 attach(BOT,norot=1) 
-                cuboid([l+20,w+20,85],anchor=BOT)
+                cuboid([l+20,w+20,60],anchor=BOT)
                 attach(RIGHT+TOP,norot=1,overlap=1) left(230)  
                 cuboid([l-230+20,w+20,75],
                     anchor=RIGHT+BOT)
@@ -186,7 +195,14 @@ module backstop(anchor=CENTER,spin=0,orient=UP)
         diff()
         cuboid([l+140+80,w+140+80,50])
         {
-            attach(TOP,norot=1) cuboid([l+130,w+130,50],anchor=BOT);
+            //attach(TOP,norot=1) cuboid([l+130,w+130,50],anchor=BOT);
+            attach(TOP,norot=1) rect_tube(h=50,size=[l+130,w+130],wall=50,anchor=BOT)
+            {
+                attach(LEFT+BOT,norot=1) right(390/2+180+90)
+                cyl(h=50,d=310,anchor=BOT);
+                attach(RIGHT+BOT,norot=1) left(390/2+180+90)
+                cyl(h=50,d=310,anchor=BOT);
+            }
             tag("remove") attach(RIGHT+BOT,norot=1) left(100) cuboid([300,500,101],rounding=100,edges="Z",anchor=BOT+RIGHT);
         }
     }
@@ -206,31 +222,23 @@ module buttonblank()
 
 module forViewing()
 {
-    *down(30)
-    model_ssd1306_128_32();
-    facia();
-    *recolor("green")
-    enclosure(tapeinsert=1)
-    recolor("cornflowerblue") 
-    attach(BOT,norot=1) up(200) backstop(anchor=TOP);
-    *board_surround();
-    *down(40)
-    *yrot(180)
-    model_pushbutton_flat();
+//    backstop();
+//    up(400)
+    board_surround(twobuttons=1);
 }
 
 module forPrinting()
 {
 //    buttonblank();
-   facia();
-//    board_surround(twobuttons=1);
+//   facia();
+    board_surround(twobuttons=1);
 //    enclosure();
 //    backstop();
 }
 
 scale(ViewScale)
 {
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 //    facia();
 }
