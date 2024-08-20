@@ -31,6 +31,7 @@ module model_ssd1306_128_32(anchor=CENTER,spin=0,orient=UP)
         recolor("steelblue")
         diff()
         cuboid([ssd1306_128_32_length,ssd1306_128_32_width,45])  {
+            // Connector Holes
             tag("remove")  {
                 attach(BOT+RIGHT,norot=1)
                     left(80)
@@ -48,17 +49,18 @@ module model_ssd1306_128_32(anchor=CENTER,spin=0,orient=UP)
                 // Components
                 recolor("cyan")
                 attach(BOT+LEFT+FRONT,norot=1)
-                right(500) back(54)
-                cuboid([76,395,20],anchor=TOP+LEFT+FRONT)
+                right(490) 
+                cuboid([130,ssd1306_128_32_width,20],anchor=TOP+LEFT+FRONT);
 
-                attach(RIGHT,norot=1)
-                right(165)
-                back(148-54)
-                cuboid([76,276,20],anchor=LEFT)
+                recolor("cyan")
+                attach(BOT+LEFT+FRONT,norot=1)
+                right(720)
+                cuboid([130,ssd1306_128_32_width,20],anchor=TOP+LEFT+FRONT);
 
-                attach(RIGHT,norot=1)
-                right(236)
-                cuboid([76,275,20],anchor=LEFT);
+                recolor("cyan")
+                attach(BOT+LEFT+FRONT,norot=1)
+                right(980)
+                cuboid([210,ssd1306_128_32_width,20],anchor=TOP+LEFT+FRONT);
 
             }
         }

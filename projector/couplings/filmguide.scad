@@ -71,9 +71,9 @@ module foot0()
     }
 }
 
-module filmguidbase(anchor=CENTER,spin=0,orient=UP,width=1000)
+module filmguidebase(anchor=CENTER,spin=0,orient=UP,width=1000)
 {
-    module _filmguidbase() {
+    module _filmguidebase() {
         $fn=96;
         diff()
         cuboid([width,2300,100],rounding=450,edges="Z") {
@@ -93,7 +93,7 @@ module filmguidbase(anchor=CENTER,spin=0,orient=UP,width=1000)
 
     attachable(anchor,spin,orient,size=[width,2300,200+25+130])
     {
-        down(50+25+275/2) _filmguidbase();
+        down(50+25+275/2) _filmguidebase();
         children();
     }
 }
@@ -174,7 +174,7 @@ module simple_extender(anchor=CENTER,spin=0,orient=UP,length=2000)
 
 module filmguide(anchor=CENTER,spin=0,orient=UP)
 {
-    filmguidbase(width=1100) {
+    filmguidebase(width=1100) {
         attach(LEFT,overlap=1) collar_acceptor(anchor=BOT);
         attach(RIGHT,overlap=1) rect_tube(h=100,size=[1500,1500],isize=[700,500],rounding=50)
         attach(TOP,overlap=1) zflip() collar_inserter(anchor=TOP);
@@ -196,13 +196,15 @@ module forViewing()
 
 module forPrinting()
 {
-    filmguides();
+    filmguidebase(width=1000);
+//    filmguides();
 //    hood();
 //    stabilizer();
 }
 
 scale(ViewScale)
 {
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
+
 }

@@ -96,9 +96,9 @@ module lid(anchor=CENTER,spin=0,orient=UP)
     module lid_()
     {
         attach(BACK+BOT,norot=1) down(40)
-        cuboid([mirrorsize2d[1]+60+80,30,a+80],anchor=BOT+FRONT)
+        cuboid([mirrorsize2d[1]+60+70,30,a+70],anchor=BOT+FRONT)
         attach(FRONT)
-        rect_tube(size=[mirrorsize2d[1]+60+80,a+80],wall=30,h=200,anchor=BOT);
+        rect_tube(size=[mirrorsize2d[1]+60+70,a+70],wall=35,h=200,anchor=BOT);
 
     }
     attachable(anchor,spin,orient,size=mirrorsize3d)
@@ -110,6 +110,7 @@ module lid(anchor=CENTER,spin=0,orient=UP)
 
 module forPrinting()
 {
+    lid();
 }
 
 module forViewing()
@@ -121,6 +122,6 @@ module forViewing()
 
 scale(ViewScale)
 {
-    *forPrinting();
-    forViewing();
+    forPrinting();
+   // forViewing();
 }

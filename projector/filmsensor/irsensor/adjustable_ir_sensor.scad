@@ -2,10 +2,11 @@ ViewScale = [0.0254, 0.0254, 0.0254];
 include <../../../BOSL2-master/std.scad>
 include <../../../models/model_ir_reflective_sensor.scad>
 
-model=0;
+model=1;
 
 offset_s8 = 220-110;
 offset_8mm = 197-110;
+caseY = 800;
 // offset_s8 = 0;
 // offset_8mm = 0;
 
@@ -25,7 +26,6 @@ offset_8mm = 197-110;
 //module model_ir_reflective_sensor(anchor=CENTER,spin=0,orient=UP,cutoutpad=0)
 module case()
 {
-    caseY = 800;
     diff()
     cuboid([110,caseY,150]) // left bottom
     {
@@ -59,10 +59,33 @@ module case()
 
         if (model) recolor("cornflowerblue")
         {
-            attach(TOP,norot=1) fwd(offset_8mm) right(5) model_ir_reflective_sensor(anchor=BOT+FRONT,spin=-90)
-            attach(BACK,norot=1) fwd(offset_8mm-offset_s8) back(30) model_ir_reflective_sensor(anchor=FRONT,spin=0);
+            attach(TOP,norot=1) fwd(offset_8mm) right(10) model_ir_reflective_sensor(anchor=BOT+FRONT,spin=-90)
+            attach(BACK,norot=1) fwd(offset_8mm-offset_s8) fwd(10) model_ir_reflective_sensor(anchor=FRONT,spin=0);
         }
 
+    }
+}
+
+module insert(anchor=CENTER,spin=0,orient=UP)
+{
+    // isize=[340,caseY-210,50];
+    isize=[340,caseY-410,50];
+    module insert_()
+    {
+        diff()
+        cuboid(isize)
+        {
+            tag("remove") attach(FRONT,norot=1) 
+            {
+                left(100) fwd(1) cuboid([40,300,51], anchor=FRONT);
+                right(100) fwd(1) cuboid([40,300,51], anchor=FRONT);
+            }
+        }
+    }
+    attachable(anchor,spin,orient,size=isize)
+    {
+        insert_();
+        children();
     }
 }
 
@@ -70,13 +93,16 @@ module forViewing()
 {
 //    model_ir_reflective_sensor(anchor=BOT);
     case();
+    recolor("pink") up(800) right(220) insert();
 }
 
 module forPrinting()
 {
+    insert();
 }
 
 scale(ViewScale)
 {
-    forViewing();
+//    forViewing();
+    forPrinting();
 }
