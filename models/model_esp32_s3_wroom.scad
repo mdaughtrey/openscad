@@ -13,11 +13,17 @@ module model_esp32_s3_wroom(anchor=CENTER,spin=0,orient=UP)
             recolor("silver")
             {
                 // USB Connectors
-                attach(LEFT+TOP, norot=1) back(300) cuboid([400, 400, 100], anchor=LEFT+BOT);
-                attach(LEFT+TOP, norot=1) fwd(300) cuboid([400, 400, 100], anchor=LEFT+BOT);
+                attach(LEFT+TOP, norot=1) back(58+175) cuboid([292, 350, 130], anchor=LEFT+BOT);
+                attach(LEFT+TOP, norot=1) fwd(58+175) cuboid([292, 350, 130], anchor=LEFT+BOT);
                 // WIFI Module
                 recolor("lightgray")
-                attach(RIGHT+TOP, norot=1) left(300) cuboid([1200,700,200], anchor=BOT);
+                attach(RIGHT+TOP, norot=1) cuboid([700,620,125], anchor=RIGHT+BOT);
+                // WIFI Antenna
+                recolor("black")
+                attach(RIGHT+TOP, norot=1) cuboid([246,700,30], anchor=LEFT+BOT);
+                // Components
+                attach(TOP+LEFT, norot=1) right(420)
+                cuboid([950, 664, 72], anchor=LEFT+BOT);
                 
             }
         }
