@@ -12,6 +12,12 @@ coverX = 1700 * 2;
 coverY = 1500 + 800 * 4;
 coverZ = 525;
 coverWall = 150;
+    bcx = coverX + coverWall * 2 - 200 - 40;
+    bcy = coverY + coverWall * 2 - 200 - 40;
+    bcz = 500;
+    bcx2 = floor(bcx/2);
+    bcy2 = floor(bcy/2);
+    bcz2 = floor(bcz/2);
 
 alignment = true;
 
@@ -474,11 +480,12 @@ module stand(anchor=CENTER, spin=0, orient=UP)
         {
             // Heat inserts
             tag("remove")
-            attach(BOT, norot=1, overlap=1)
+            #attach(BACK, norot=1, overlap=1)
             {
-                screw_locations(d=100, h=alignment?1000:110, anchor=BOT);
-#                grid_copies([coverX/3+400, coverY - 200], [3,2]) cyl(d=100, h=alignment?1000:110, anchor=BOT);
-#                back(1000) cyl(d=100, h=alignment?1000:110, anchor=BOT);
+                fwd(80)
+                screws(d=100, h=alignment?1000:110, anchor=BACK);
+                *grid_copies([coverX/3+400, coverY - 200], [3,2]) cyl(d=100, h=alignment?1000:110, anchor=BOT);
+                *back(1000) cyl(d=100, h=alignment?1000:110, anchor=BOT);
             }
             // NW cutout
             tag("remove") attach(TOP+BACK+LEFT, norot=1)
@@ -500,22 +507,45 @@ module stand(anchor=CENTER, spin=0, orient=UP)
     }
 }
 
-module screw_locations(anchor=CENTER, spin=0, orient=UP, h=500, d=100, back_cover=false)
+module screws(anchor=CENTER, spin=0, orient=UP, h=500, d=100)
 {
-    module screw_locations_()
+    center_offset=1500;
+    module screws_()
     {
-        grid_copies([coverX/3+400, coverY - 200], [3,back_cover?1:2]) 
+        cyl(d=d, h=h)
+        fwd(bcy2-center_offset)
+        grid_copies([coverX/3+400, coverY - 200], [3,2]) 
         cyl(d=d, h=h);
-        back(1000) cyl(d=d, h=h);
     }
-    attachable(anchor,spin,orient,size=[2*(coverX/3+400),coverY-200,h])
+    sizeY = coverY-200+d;
+    attachable(anchor,spin,orient,size=[2*(coverX/3+400)+d,sizeY,h])
     {
-        screw_locations_();
+        back(bcy2-center_offset)
+        screws_();
         children();
     }
 }
 
-module back_cover(anchor=CENTER, spin=0, orient=UP)
+module screws_back_cover(anchor=CENTER, spin=0, orient=UP, h=500, d=100)
+{
+    center_offset=1500;
+    module screws_()
+    {
+        cyl(d=d, h=h)
+        back(center_offset-d)
+        xcopies(coverX/3+400, n=3)
+        cyl(d=d, h=h);
+    }
+    sizeY = center_offset+d;
+    attachable(anchor,spin,orient,size=[2*(coverX/3+400)+d,sizeY,h])
+    {
+        fwd(center_offset)
+        screws_();
+        children();
+    }
+}
+
+module back_cover_outer(anchor=CENTER, spin=0, orient=UP)
 {
     bcx = coverX + coverWall * 2 - 200 - 40;
     bcy = coverY + coverWall * 2 - 200 - 40;
@@ -527,30 +557,38 @@ module back_cover(anchor=CENTER, spin=0, orient=UP)
     module back_cover_()
     {
         rounding=100;
-        diff()
+//        diff()
         cuboid([bcx2, 2000, bcz], rounding=rounding, edges=[TOP,LEFT+BACK], except=[FRONT,RIGHT])
         {
             attach(RIGHT,norot=1)
             cuboid([bcx2, 2000, bcz], rounding=rounding, edges=[TOP,RIGHT+BACK,RIGHT+FRONT], except=[LEFT], anchor=LEFT);
             attach(FRONT, norot=1)
             cuboid([bcx2, bcy2-2000, bcz], anchor=BACK, rounding=rounding, edges=[TOP,LEFT+FRONT,RIGHT+FRONT], except=[BACK]);
-            // Screw holes
-            move([200,-200+70,alignment?-500:0])
-            tag("remove")
-            attach(BACK+LEFT,norot=1) 
-            {
-                #screw_locations(orient=DOWN,anchor=BACK+RIGHT,back_cover=false);
-                up(100) screw_locations(orient=DOWN,anchor=BACK+RIGHT,back_cover=false,d=250);
-            }
         }
     }
-    attachable(anchor, spin, orient, size=[bcx, bcy, bcz])
+    attachable(anchor, spin, orient, size=[bcx, 2000, bcz])
     {
         fwd(2000/2)
         back(bcy2/2)
         left(bcx2/2)
         back_cover_();
         children();
+    }
+}
+
+module back_cover(anchor=CENTER, spin=0, orient=UP)
+{
+    diff("bc_remove")
+    back_cover_outer(anchor,spin,orient)
+    
+    // Screw holes
+//    move([0,0,alignment?-500:-500])
+    back(125)
+    tag("bc_remove")
+    attach(BACK,norot=1) 
+    {
+        #screws_back_cover()
+        up(100) back(125) screws_back_cover(d=250);
     }
 }
 
@@ -627,8 +665,8 @@ module rounding_test()
         attach(BOT, norot=1)  up(100)
         {
             grid_copies([coverX/3+400, coverY - 200], [3,2]) 
-            #cyl(d=100, h=1000, anchor=BOT);
-            #back(1000) cyl(d=100, h=1000, anchor=BOT);
+            cyl(d=100, h=1000, anchor=BOT);
+            back(1000) cyl(d=100, h=1000, anchor=BOT);
         }
        
     }
@@ -645,14 +683,16 @@ module rounded_squares()
 
 module forViewing()
 {
-//    bcy = coverY + coverWall * 2 - 200 - 40;
-//    stand()
-//    attach(BOT,norot=1) recolor("cornflowerblue") 
-//    back(bcy/4)
-//    back_cover(orient=DOWN,anchor=BOT);
-        back_cover();
+    bcy = coverY + coverWall * 2 - 200 - 40;
+    stand()
+    attach(BOT,norot=1) recolor("cornflowerblue") 
+    back(bcy/4)
+    back_cover(orient=DOWN,anchor=BOT);
+//
+//    module model_esp32_s3_wroom(anchor=CENTER,spin=0,orient=UP)
 //    model_esp32_s3_wroom();
-
+//    screws(back_cover=true);
+//    case();
 }
 
 module forPrinting()
