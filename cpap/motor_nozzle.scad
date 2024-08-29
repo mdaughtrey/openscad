@@ -18,11 +18,11 @@ $fn=96;
 
 module nozzle()
 {
-    tube(id=1470,h=200,od=1700)
+    tube(id=1370,h=200,od=1700)
     attach(TOP,norot=1)
-    tube(id=1300,id2=1250,od=1700,h=450,anchor=BOT)
+    tube(id=1200,id2=1150,od=1700,h=450,anchor=BOT)
     attach(TOP,norot=1)
-    tube(id=1250,id2=1040,od=1700,h=1500,anchor=BOT);
+    tube(id=1250,id2=940,od=1700,h=1500,anchor=BOT);
 }
 
 module forViewing()
