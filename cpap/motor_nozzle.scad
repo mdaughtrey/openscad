@@ -18,16 +18,37 @@ $fn=96;
 
 module nozzle()
 {
-    tube(id=1370,h=200,od=1700)
+    tube(id=1250,h=200,od=1500)
     attach(TOP,norot=1)
-    tube(id=1200,id2=1150,od=1700,h=450,anchor=BOT)
+    tube(id=1150,id2=1050,od=1500,h=450,anchor=BOT)
     attach(TOP,norot=1)
-    tube(id=1250,id2=940,od=1700,h=1500,anchor=BOT);
+    tube(id=950,od=1500,h=1000,anchor=BOT);
 }
 
+module pipe_tester()
+{
+    for (ii = [[0,1050],[199,950],[399,850],[599,750]])
+    {
+        up(ii[0])
+        tube(id=ii[1],od=1200,h=200);
+    }
+
+}
+
+module motor_tester()
+{
+    for (ii = [[0,1350],[199,1150],[399,950],[599,750]])
+    {
+        up(ii[0])
+        tube(id=ii[1],od=1500,h=200);
+    }
+
+}
 module forViewing()
 {
     nozzle();
+    //pipe_tester();
+//    motor_tester();
 }
 
 module forPrinting()

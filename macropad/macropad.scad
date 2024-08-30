@@ -539,7 +539,7 @@ module screws_back_cover(anchor=CENTER, spin=0, orient=UP, h=500, d=100)
     sizeY = center_offset+d;
     attachable(anchor,spin,orient,size=[2*(coverX/3+400)+d,sizeY,h])
     {
-        fwd(center_offset)
+        fwd(center_offset/2-d)
         screws_();
         children();
     }
@@ -583,12 +583,12 @@ module back_cover(anchor=CENTER, spin=0, orient=UP)
     
     // Screw holes
 //    move([0,0,alignment?-500:-500])
-    back(125)
+    back(110)
     tag("bc_remove")
     attach(BACK,norot=1) 
     {
-        #screws_back_cover()
-        up(100) back(125) screws_back_cover(d=250);
+        #screws_back_cover(anchor=BACK)
+        up(100) screws_back_cover(d=250);
     }
 }
 
@@ -688,11 +688,9 @@ module forViewing()
     attach(BOT,norot=1) recolor("cornflowerblue") 
     back(bcy/4)
     back_cover(orient=DOWN,anchor=BOT);
-//
-//    module model_esp32_s3_wroom(anchor=CENTER,spin=0,orient=UP)
-//    model_esp32_s3_wroom();
-//    screws(back_cover=true);
-//    case();
+//      screws();
+//        screws_back_cover();
+
 }
 
 module forPrinting()
