@@ -40,8 +40,8 @@ module board_surround(anchor=CENTER,spin=0,orient=UP,twobuttons=0)
 {
     l = ssd1306_128_32_length;
     w = ssd1306_128_32_width;
-    hadd = 60;
-    wadd = 20;
+    hadd = 30; // 60
+    wadd = 50;
 
     module _board_surround()
     {
@@ -86,14 +86,14 @@ module board_surround(anchor=CENTER,spin=0,orient=UP,twobuttons=0)
             {
                 // Button Surround
                 attach(LEFT+BOT,norot=1) right(180)
-                rect_tube(140,isize=[490,490],size=[590,w+80],anchor=TOP+LEFT)
+                rect_tube(140,isize=[490-15,490-15],size=[590,w+80],anchor=TOP+LEFT)
                 tag("remove")
                 attach(BOT,norot=1)
                 cuboid([600,290,140],anchor=BOT);
 
                 // Button Surround
                 attach(RIGHT+BOT,norot=1) left(180)
-                rect_tube(140,isize=[490,490],size=[590,w+80],anchor=TOP+RIGHT)
+                rect_tube(140,isize=[490-15,490],size=[590,w+80],anchor=TOP+RIGHT)
                 tag("remove")
                 attach(BOT,norot=1)
                 cuboid([600,290,140],anchor=BOT);
@@ -111,7 +111,14 @@ module board_surround(anchor=CENTER,spin=0,orient=UP,twobuttons=0)
             // Skirt
             attach(BOT,norot=1)
             rect_tube(140,size=[l+80,w+80+wadd],
-                wall=50,rounding=100,anchor=TOP); 
+                wall=50,rounding=100,anchor=TOP)
+            // End cutouts
+            tag("remove")
+            {
+                attach(BOT+LEFT,norot=1) cuboid([100,300,100], anchor=BOT);
+                attach(BOT+RIGHT,norot=1) cuboid([100,300,100], anchor=BOT);
+            }
+            
         }
     }
     attachable(anchor,spin,orient,size=[l+110,w+110,190])
@@ -213,18 +220,12 @@ module standalone_backstop(anchor=CENTER,spin=0,orient=UP)
 
     module standalone_backstop_()
     {
-        diff()
-        cuboid([l+140+80,w+140+80,50])
+        diff("sb_remove")
+        cuboid([l+200,w+200,50])
         {
-            //attach(TOP,norot=1) cuboid([l+130,w+130,50],anchor=BOT);
-            attach(TOP,norot=1) rect_tube(h=100,size=[l+130,w+130],wall=50,anchor=BOT)
-            {
-                attach(LEFT+BOT,norot=1) right(390/2+180+90)
-                cyl(h=80,d=310,anchor=BOT);
-                attach(RIGHT+BOT,norot=1) left(390/2+180+90)
-                cyl(h=80,d=310,anchor=BOT);
-            }
-            tag("remove") attach(RIGHT+BOT,norot=1) left(100) cuboid([300,500,101],rounding=100,edges="Z",anchor=BOT+RIGHT);
+            attach(TOP, norot=1) backstop(anchor=BOT);
+            tag("sb_remove") attach(RIGHT,norot=1)
+            cuboid([400,250,51], rounding=100, edges="Z");
         }
     }
     attachable(anchor,spin,orient,size=[l+140,w+140,150])
@@ -246,19 +247,19 @@ module backstop(anchor=CENTER,spin=0,orient=UP)
 //        cuboid([l+140+80,w+140+80,50])
 //        {
             //attach(TOP,norot=1) cuboid([l+130,w+130,50],anchor=BOT);
-            rect_tube(h=150,size=[l+100,w+100],wall=50,anchor=BOT)
+            rect_tube(h=78-35,size=[l+120,w+120],wall=50,anchor=BOT)
             {
                 tag("remove2")
                 {
-                    attach(FRONT, norot=1, overlap=1)
-                    cuboid([1000,60,152], anchor=FRONT);
-                    attach(BACK, norot=1, overlap=1)
-                    cuboid([1000,60,152], anchor=BACK);
+                    attach(FRONT, norot=1, overlap=1) cuboid([1000,60,152], anchor=FRONT);
+                    attach(BACK, norot=1, overlap=1) cuboid([1000,60,152], anchor=BACK);
+                    attach(LEFT, norot=1, overlap=1) cuboid([60,300,152], anchor=LEFT);
+                    attach(RIGHT, norot=1, overlap=1) cuboid([60,300,152], anchor=RIGHT);
                 }
                 attach(LEFT+BOT,norot=1) right(390/2+180+90)
-                cyl(h=90,d=310,anchor=BOT);
+                cyl(h=30,d=310,anchor=BOT);
                 attach(RIGHT+BOT,norot=1) left(390/2+180+90)
-                cyl(h=90,d=310,anchor=BOT);
+                cyl(h=30,d=310,anchor=BOT);
             }
 //            tag("remove") attach(RIGHT+BOT,norot=1) left(100) cuboid([300,500,101],rounding=100,edges="Z",anchor=BOT+RIGHT);
 //        }
@@ -476,40 +477,72 @@ module sensor_test()
     }
 }
 
-module stand(anchor=CENTER, spin=0, orient=UP)
+module backplate(anchor=CENTER, spin=0, orient=UP)
 {
     cx = coverX + coverWall * 2 - 200 - 40;
     cy = coverY + coverWall * 2 - 200 - 40;
-    module stand_()
+    prototype=1;
+    module backplate_()
     {
-        diff()
+        diff("s_remove", "s_keep")
         cuboid([cx, cy, 100], rounding = 100, edges = "Z")
         {
+            if (prototype)
+            {
+                tag("s_remove")
+                {
+                    attach(FRONT+LEFT,norot=1) right(300) back(300) cuboid([cx-700,2400,101], anchor=FRONT+LEFT);
+                    attach(BACK+RIGHT,norot=1) left(300) fwd(300) cuboid([1500,1500,101], anchor=BACK+RIGHT);
+                }
+                attach(LEFT+TOP,norot=1) cuboid([200,4000,100], anchor=LEFT+BOT);
+                attach(LEFT+TOP,norot=1) right(1200) cuboid([200,cy,100], anchor=LEFT+BOT);
+                attach(RIGHT+TOP,norot=1) cuboid([200,4000,100], anchor=RIGHT+BOT);
+                attach(RIGHT+TOP,norot=1) left(1200) cuboid([200,cy,100], anchor=RIGHT+BOT);
+            
+            }
+            // Outer lip
+            *attach(TOP, norot=1)
+            rect_tube(150, size=[cx, cy], wall=50, rounding = 100, anchor=BOT);
+            
             // Heat inserts
-            tag("remove")
-            #attach(BACK, norot=1, overlap=1)
+            tag("s_remove")
+            attach(BACK+BOT, norot=1, overlap=1)
             {
                 fwd(80)
-                screws(d=100, h=alignment?1000:110, anchor=BACK);
-//                *grid_copies([coverX/3+400, coverY - 200], [3,2]) cyl(d=100, h=alignment?1000:110, anchor=BOT);
-//                *back(1000) cyl(d=100, h=alignment?1000:110, anchor=BOT);
+                screws_back_cover(d=100, h=alignment?1000:410, anchor=BACK+BOT);
+                fwd(80)
+                screws(d=100, h=alignment?1000:410, anchor=BACK+BOT)
+                tag("s_other") attach(BOT, norot=1)
+                screws(d=250, h=alignment?1000:300, anchor=BOT);
             }
+            // Lifts
+            *attach(TOP, norot=1)
+            {
+                 cyl(h=150,d=200,anchor=BOT);
+                 fwd(1000) cyl(h=150,d=200,anchor=BOT);
+                 fwd(2000) cyl(h=150,d=200,anchor=BOT);
+            }
+
+            // NW indent
+            tag("s_remove") attach(TOP+BACK+LEFT, norot=1)
+            right(200) fwd(300) up(1) cuboid([1300, 1300, 50], anchor=TOP+LEFT+BACK);
+
             // NW cutout
-            tag("remove") attach(TOP+BACK+LEFT, norot=1)
-            right(200) fwd(200) up(1) cuboid([1300, 1300, 111], rounding=200, edges="Z", anchor=TOP+LEFT+BACK);
+            tag("s_remove") attach(TOP+BACK+LEFT, norot=1)
+            right(200) fwd(800) up(1) cuboid([1300, 300, 111], rounding=100, edges="Z", anchor=TOP+LEFT+BACK);
 
             // Macro key backstops
-            attach(TOP+FRONT, norot=1) back(1650+120)
+            *attach(TOP+FRONT, norot=1) back(1650+120)
             grid_copies([1700,700], [2, 4]) backstop(anchor=BOT);
 
             // Selector backstop
-            attach(BACK+RIGHT+TOP, norot=1)
+            *attach(BACK+RIGHT+TOP, norot=1)
             left(coverWall + 1700/2 - 120) fwd(200 + coverWall + 800/2-120) backstop(anchor=BOT);
         }
     }
     attachable(anchor,spin,orient,size=[cx,cy,301])
     {
-        stand_();
+        backplate_();
         children();
     }
 }
@@ -518,9 +551,9 @@ module screws(anchor=CENTER, spin=0, orient=UP, h=500, d=100)
 {
     module screws_()
     {
-        back((coverY-200)/2)
-        fwd(center_offset)
-        cyl(d=d, h=h);
+//        back((coverY-200)/2)
+//        fwd(center_offset)
+//        cyl(d=d, h=h);
         grid_copies([coverX/3+400, coverY - 200], [3,2]) 
         cyl(d=d, h=h);
     }
@@ -578,22 +611,28 @@ module back_cover_outer(anchor=CENTER, spin=0, orient=UP)
     module back_cover_outer_()
     {
         rounding=100;
-        diff("bco_remove")
+        diff("bco_remove","bco_keep")
         cuboid([bcx2, 2000, bcz], rounding=rounding, edges=[TOP,LEFT+BACK], except=[FRONT,RIGHT])
         {
             attach(RIGHT,norot=1)
             cuboid([bcx2, 2000, bcz], rounding=rounding, edges=[TOP,RIGHT+BACK,RIGHT+FRONT], except=[LEFT], anchor=LEFT);
             attach(FRONT, norot=1)
-            cuboid([bcx2, bcy2-1500, bcz], anchor=BACK, rounding=rounding, edges=[TOP,LEFT+FRONT,RIGHT+FRONT], except=[BACK]);
+            cuboid([bcx2, bcy2-1500, bcz], anchor=BACK, rounding=rounding, edges=[TOP,LEFT+FRONT,RIGHT+FRONT], except=[BACK])
+            tag("bco_keep")
+            right(100) down(100)
+            {
+                attach(FRONT+TOP,norot=1) back(300) cyl(d=300,h=100,anchor=TOP+FRONT);
+                attach(FRONT+TOP,norot=1) back(1300) cyl(d=300,h=100,anchor=TOP+FRONT);
+            }
             tag("bco_remove")
             {
                 attach(BOT+LEFT, norot=1, overlap=1) right(150) fwd(20)
-                cuboid([bcx-300,1350,bcz-200], anchor=BOT+LEFT, rounding=rounding, edges=[TOP])
+                cuboid([bcx-300,1350,bcz-100], anchor=BOT+LEFT, rounding=rounding, edges=[TOP])
                 {
                     attach(RIGHT,norot=1) left(200)
-                    cuboid([1200,1800,bcz-200], anchor=RIGHT,rounding=rounding,edges=[TOP]);
+                    cuboid([1200,1800,bcz-100], anchor=RIGHT,rounding=rounding,edges=[TOP]);
                     attach(LEFT+BACK,norot=1) right(200) fwd(50)
-                    cuboid([1250,2600,bcz-200], anchor=LEFT+BACK,rounding=0,edges=[TOP]);
+                    cuboid([1250,2600,bcz-100], anchor=LEFT+BACK,rounding=0,edges=[TOP]);
                     *attach(FRONT+LEFT, norot=1) right(200) back(200)
                     cuboid([1140,1200,bcz-200], anchor=LEFT+BACK, rounding=rounding, edges=[TOP], except=[BACK]);
                     *attach(BACK+LEFT, norot=1) right(425) 
@@ -632,7 +671,7 @@ module wroom_mount()
     x0 = model_esp32_s3_wroomX + 20;
     y0 = model_esp32_s3_wroomY + 20;
     x1 = x0+100+146;
-    y1 = y0+100;
+    y1 = y0+120;
 
     diff("wm_remove")
     cuboid([x1, y1, 70])
@@ -640,17 +679,17 @@ module wroom_mount()
         *attach(LEFT,norot=1) up(200)
         model_esp32_s3_wroom(orient=DOWN,spin=180,anchor=LEFT);
         // Side walls
-        attach(BACK+TOP+LEFT,norot=1) cuboid([200,50,200],anchor=BOT+BACK+LEFT);
-        attach(BACK+TOP+RIGHT,norot=1) left(146) cuboid([200,50,200],anchor=BOT+BACK+RIGHT);
-        attach(FRONT+TOP+LEFT,norot=1) cuboid([200,50,200],anchor=BOT+FRONT+LEFT);
-        attach(FRONT+TOP+RIGHT,norot=1) left(146) cuboid([200,50,200],anchor=BOT+FRONT+RIGHT);
+        attach(BACK+TOP+LEFT,norot=1) cuboid([200,50,300],anchor=BOT+BACK+LEFT);
+        attach(BACK+TOP+RIGHT,norot=1) left(146) cuboid([200,50,300],anchor=BOT+BACK+RIGHT);
+        attach(FRONT+TOP+LEFT,norot=1) cuboid([200,50,300],anchor=BOT+FRONT+LEFT);
+        attach(FRONT+TOP+RIGHT,norot=1) left(146) cuboid([200,50,300],anchor=BOT+FRONT+RIGHT);
         // Antenna Restraints
-        attach(BACK+RIGHT+TOP,norot=1) left(146) cuboid([120,250,200],anchor=BOT+BACK+RIGHT);
-        attach(FRONT+RIGHT+TOP,norot=1) left(146) cuboid([120,250,200],anchor=BOT+FRONT+RIGHT);
+        attach(BACK+RIGHT+TOP,norot=1) left(146) cuboid([120,250,300],anchor=BOT+BACK+RIGHT);
+        attach(FRONT+RIGHT+TOP,norot=1) left(146) cuboid([120,250,300],anchor=BOT+FRONT+RIGHT);
         // WiFi Module Restraint
-        attach(RIGHT+TOP,norot=1) left(146) left(880) cuboid([100,y0,130],anchor=BOT+RIGHT);
+        attach(RIGHT+TOP,norot=1) left(146) left(880) cuboid([100,y0-300,130],anchor=BOT+RIGHT);
         // USB Connector Restraint
-        attach(LEFT+TOP,norot=1) right(300) cuboid([100,y0,130],anchor=BOT+LEFT);
+        attach(LEFT+TOP,norot=1) right(300) cuboid([100,y0-300,130],anchor=BOT+LEFT);
 
         // Base cutout
         tag("wm_remove")
@@ -666,34 +705,36 @@ module wroom_mount()
 module forViewing()
 {
 //    bcy = coverY + coverWall * 2 - 200 - 40;
-//    stand()
-//    attach(BOT,norot=1) recolor("cornflowerblue") 
-//    back(bcy/4)
+    backplate();
+    up(400) case()
+    attach(BOT,norot=1) recolor("cornflowerblue") 
+    back(bcy/4)
    back_cover(orient=DOWN,anchor=BOT);
-*    up(0) right(800) fwd(400)
-    model_esp32_s3_wroom(orient=DOWN,spin=90,anchor=TOP);
-//    up(500)
-//    case();
+//*    up(0) right(800) fwd(400)
+//    model_esp32_s3_wroom(orient=DOWN,spin=90,anchor=TOP);
 //      screws_back_cover(anchor=FRONT);
 //        up(100) screws_back_cover(d=250);
 //    back(3000) ruler(4000,500,spin=-90,unit=250);
-    down(55) fwd(430) right(750) zrot(90) zflip()
-    wroom_mount();
+//    down(55) fwd(430) right(750) zrot(90) zflip()
+//    wroom_mount();
     *left(130)
     model_esp32_s3_wroom(orient=DOWN,spin=180,anchor=TOP);
+//screws();
 
 }
 
 module forPrinting()
 {
+//    standalone_backstop();
+//case();
 //    buttonblank();
 //   facia();
 //    board_surround(twobuttons=1);
-   back_cover();
-    
+//   back_cover();
+//    wroom_mount();
 //    enclosure();
 //    backstop();
-//    stand();
+    backplate();
 }
 
 scale(ViewScale)
