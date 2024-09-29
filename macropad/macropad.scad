@@ -6,6 +6,8 @@ include <../models/pushbutton.scad>
 include <../models/model_fingerprint_sensor_as608.scad>
 include <../models/model_fingerprint_sensor_sfm_v17.scad>
 include <../models/model_esp32_s3_wroom.scad>
+include <../models/model_io_expander.scad>
+include <../models/model_i2c_mux.scad>
 
 $fn=96;
 coverX = 1700 * 2;
@@ -666,59 +668,109 @@ module back_cover(anchor=CENTER, spin=0, orient=UP)
     }
 }
 
-module wroom_mount()
+module wroom_mount(anchor=CENTER,spin=0,orient=UP)
 {
     x0 = model_esp32_s3_wroomX + 20;
     y0 = model_esp32_s3_wroomY + 20;
     x1 = x0+100+146;
     y1 = y0+120;
-
-    diff("wm_remove")
-    cuboid([x1, y1, 70])
+    module wroom_mount_()
     {
-        *attach(LEFT,norot=1) up(200)
-        model_esp32_s3_wroom(orient=DOWN,spin=180,anchor=LEFT);
-        // Side walls
-        attach(BACK+TOP+LEFT,norot=1) cuboid([200,50,300],anchor=BOT+BACK+LEFT);
-        attach(BACK+TOP+RIGHT,norot=1) left(146) cuboid([200,50,300],anchor=BOT+BACK+RIGHT);
-        attach(FRONT+TOP+LEFT,norot=1) cuboid([200,50,300],anchor=BOT+FRONT+LEFT);
-        attach(FRONT+TOP+RIGHT,norot=1) left(146) cuboid([200,50,300],anchor=BOT+FRONT+RIGHT);
-        // Antenna Restraints
-        attach(BACK+RIGHT+TOP,norot=1) left(146) cuboid([120,250,300],anchor=BOT+BACK+RIGHT);
-        attach(FRONT+RIGHT+TOP,norot=1) left(146) cuboid([120,250,300],anchor=BOT+FRONT+RIGHT);
-        // WiFi Module Restraint
-        attach(RIGHT+TOP,norot=1) left(146) left(880) cuboid([100,y0-300,130],anchor=BOT+RIGHT);
-        // USB Connector Restraint
-        attach(LEFT+TOP,norot=1) right(300) cuboid([100,y0-300,130],anchor=BOT+LEFT);
-
-        // Base cutout
-        tag("wm_remove")
+        diff("wm_remove")
+        cuboid([x1, y1, 70], anchor=BOT)
         {
-            attach(BOT+LEFT,norot=1,overlap=1) right(415)
-            cuboid([970,900,102],rounding=100,edges="Z",anchor=LEFT+BOT);
-            attach(BOT+RIGHT,norot=1,overlap=1) left(150)
-            cuboid([700,900,102],rounding=100,edges="Z",anchor=RIGHT+BOT);
+            *attach(LEFT,norot=1) up(200)
+            model_esp32_s3_wroom(orient=DOWN,spin=180,anchor=LEFT);
+            // Side walls
+            attach(BACK+TOP+LEFT,norot=1) cuboid([200,50,300],anchor=BOT+BACK+LEFT);
+            attach(BACK+TOP+RIGHT,norot=1) left(146) cuboid([200,50,300],anchor=BOT+BACK+RIGHT);
+            attach(FRONT+TOP+LEFT,norot=1) cuboid([200,50,300],anchor=BOT+FRONT+LEFT);
+            attach(FRONT+TOP+RIGHT,norot=1) left(146) cuboid([200,50,300],anchor=BOT+FRONT+RIGHT);
+            // Antenna Restraints
+            attach(BACK+RIGHT+TOP,norot=1) left(146) cuboid([120,250,300],anchor=BOT+BACK+RIGHT);
+            attach(FRONT+RIGHT+TOP,norot=1) left(146) cuboid([120,250,300],anchor=BOT+FRONT+RIGHT);
+            // WiFi Module Restraint
+            attach(RIGHT+TOP,norot=1) left(146) left(880) cuboid([100,y0-300,130],anchor=BOT+RIGHT);
+            // USB Connector Restraint
+            attach(LEFT+TOP,norot=1) right(300) cuboid([100,y0-300,130],anchor=BOT+LEFT);
+
+            // Base cutout
+            tag("wm_remove")
+            {
+                attach(BOT+LEFT,norot=1,overlap=1) right(415)
+                cuboid([970,900,102],rounding=100,edges="Z",anchor=LEFT+BOT);
+                attach(BOT+RIGHT,norot=1,overlap=1) left(150)
+                cuboid([700,900,102],rounding=100,edges="Z",anchor=RIGHT+BOT);
+            }
         }
+    }
+    attachable(anchor, spin, orient, size=[x1, y1, 370])
+    {
+        wroom_mount_();
+        children();
+    }
+}
+
+module io_expander_mount(anchor=CENTER, spin=0, orient=UP)
+{
+    iox = model_io_expanderX;
+    ioy = model_io_expanderY;
+
+    module io_expander_mount_()
+    {
+        *up(350) model_io_expander(orient=DOWN);
+        diff("iox_remove")
+        cuboid([iox + 100, ioy + 100, 160+210], anchor=BOT)
+        {
+            tag("iox_remove")
+            {
+                attach(BOT,norot=1) down(1) cuboid([iox-100, ioy-100, 97+210], anchor=BOT);
+                attach(TOP,norot=1) up(1) cuboid([iox+20, ioy+20,70+100], anchor=TOP)
+                {
+                    attach(BACK+TOP,norot=1) fwd(1) cuboid([iox-100,51,70],anchor=FRONT+TOP);
+                    attach(FRONT+TOP,norot=1) back(1) cuboid([iox-100,51,70],anchor=BACK+TOP);
+                    attach(LEFT+TOP,norot=1) right(1) cuboid([51,ioy-100,70],anchor=RIGHT+TOP);
+                    attach(RIGHT+TOP,norot=1) left(1) cuboid([51,ioy-100,70],anchor=LEFT+TOP);
+                }
+                attach(TOP, norot=1) cuboid([iox-100,ioy+120,200], anchor=TOP);
+                attach(TOP, norot=1) cuboid([iox+120,ioy-100,200], anchor=TOP);
+                
+            }
+        }
+//model_io_expanderZ = 136;
+    }
+    attachable(anchor, spin, orient, size=[iox+100, ioy+100, 160+210])
+    {
+        io_expander_mount_();
+        children();
     }
 }
 
 module forViewing()
 {
 //    bcy = coverY + coverWall * 2 - 200 - 40;
-    backplate();
-    up(400) case()
-    attach(BOT,norot=1) recolor("cornflowerblue") 
-    back(bcy/4)
-   back_cover(orient=DOWN,anchor=BOT);
+//    backplate();
+//    up(400) case()
+//    attach(BOT,norot=1) recolor("cornflowerblue") 
+//    back(bcy/4)
+//   back_cover(orient=DOWN,anchor=BOT);
 //*    up(0) right(800) fwd(400)
 //    model_esp32_s3_wroom(orient=DOWN,spin=90,anchor=TOP);
 //      screws_back_cover(anchor=FRONT);
 //        up(100) screws_back_cover(d=250);
 //    back(3000) ruler(4000,500,spin=-90,unit=250);
 //    down(55) fwd(430) right(750) zrot(90) zflip()
-//    wroom_mount();
+//        io_expander_mount();
+    //wroom_mount();
+    wroom_mount()
+    {
+        attach(BACK+BOT,norot=1) io_expander_mount(anchor=FRONT+BOT);
+        attach(FRONT+BOT,norot=1) io_expander_mount(anchor=BACK+BOT);
+    }
     *left(130)
     model_esp32_s3_wroom(orient=DOWN,spin=180,anchor=TOP);
+//model_i2c_mux();
+//model_io_expander();
 //screws();
 
 }
@@ -739,7 +791,7 @@ module forPrinting()
 
 scale(ViewScale)
 {
-//    forViewing();
-    forPrinting();
+    forViewing();
+//    forPrinting();
 //    facia();
 }
