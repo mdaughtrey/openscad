@@ -778,7 +778,7 @@ module forViewing()
 module forPrinting()
 {
 //    standalone_backstop();
-//case();
+case();
 //    buttonblank();
 //   facia();
 //    board_surround(twobuttons=1);
@@ -786,12 +786,12 @@ module forPrinting()
 //    wroom_mount();
 //    enclosure();
 //    backstop();
-    backplate();
+//    backplate();
 }
 
 scale(ViewScale)
 {
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 //    facia();
 }
