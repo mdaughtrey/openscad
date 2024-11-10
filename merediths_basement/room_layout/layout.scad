@@ -72,9 +72,25 @@ module layout()
 {
     cuboid([ft(21), in(6), in(84)]) // West
     {
+        // Pole
+        attach(FRONT+LEFT+BOT, norot=1)
+        move([in(18), -in(140), 0])
+        cyl(d=in(8), h=in(84), anchor=BACK+LEFT+BOT);
+
+        // Muscle Racks
+        recolor("grey")
+        attach(FRONT+LEFT+BOT, norot=1)
+        {
+            move([0, -in(84), 0])
+            cuboid([ft(2), ft(4), ft(6)], anchor=BACK+LEFT+BOT);
+            move([0, -in(83)+ft(4), 0])
+            cuboid([ft(2), ft(4), ft(6)], anchor=BACK+LEFT+BOT);
+        }
+        
+
         // Couch
         attach(FRONT+LEFT+BOT, norot=1)
-        move([ft(2), -ft(1), 0])
+        move([ft(2.5), -ft(1), 0])
         recolor("Wheat")
         cuboid([in(76), in(36), in(36)], anchor=BACK+LEFT+BOT);
         // Drain
