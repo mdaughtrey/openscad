@@ -4,7 +4,7 @@ include <../BOSL2-master/rounding.scad>
 include <../models/model_ssd1306.scad>
 include <../models/pushbutton.scad>
 include <../models/model_fingerprint_sensor_as608.scad>
-include <../models/model_fingerprint_sensor_sfm_v17.scad>
+include <../models/model_fingerprint_sensor_zw101.scad>
 include <../models/model_esp32_s3_wroom.scad>
 include <../models/model_io_expander.scad>
 include <../models/model_i2c_mux.scad>
@@ -778,8 +778,8 @@ module forViewing()
 module forPrinting()
 {
 //    standalone_backstop();
-case();
-//    buttonblank();
+//case();
+    buttonblank();
 //   facia();
 //    board_surround(twobuttons=1);
 //   back_cover();
