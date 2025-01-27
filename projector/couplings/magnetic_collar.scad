@@ -25,7 +25,7 @@ module forViewing()
 
 module forPrinting()
 {
-    magnetic_collar_v2(thick=100);
+    magnetic_collar_v2(thick=300);
     back(400) right(400) magnetholder(anchor=BOT);
     back(400) left(400) magnetholder(anchor=BOT);
     fwd(400) right(400) magnetholder(anchor=BOT);

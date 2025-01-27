@@ -1,5 +1,5 @@
-model_fingerprint_sensor_sfm_v17_r = 800;
-model_fingerprint_sensor_sfm_v17_z = 300;
+model_fingerprint_sensor_zw101_r = 800;
+model_fingerprint_sensor_zw101_z = 300;
 //model_fingerprint_sensor_ = 1755;
 
 module model_fingerprint_sensor_sfm_v17(anchor=CENTER,spin=0,orient=UP)
@@ -14,8 +14,8 @@ module model_fingerprint_sensor_sfm_v17(anchor=CENTER,spin=0,orient=UP)
 //            attach(BOT, norot=1) cuboid([236, 40, 40], anchor=TOP);
         }
     }
-    attachable(anchor,spin,orient,size=[model_fingerprint_sensor_as608X,
-        model_fingerprint_sensor_as608Y, model_fingerprint_sensor_as608Z])
+    attachable(anchor,spin,orient,d=model_fingerprint_sensor_zw101_r,
+        h=model_fingerprint_sensor_zw101_z)
     {
         model_fingerprint_sensor_sfm_v17_();
         children();

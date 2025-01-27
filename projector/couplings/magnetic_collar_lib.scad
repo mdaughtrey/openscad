@@ -65,7 +65,7 @@ module magnetholder(anchor=CENTER,spin=0,orient=UP)
 {
     attachable(anchor,spin,orient,size=[magnetd+100,magnetd+100,magneth/2+30]) {
         diff() {
-            cuboid([magnetd+100,magnetd+100,magneth/2+30],rounding=50,edges="Z")
+            cuboid([magnetd+100,magnetd+100,magneth/2+50],rounding=50,edges="Z")
             {
                 tag("remove") attach(TOP) cyl(h=magneth/2,d=magnetd+20,anchor=TOP);
             }
@@ -78,7 +78,7 @@ module magnetic_collar_v2(anchor=CENTER,spin=0,orient=UP,thick=200)
 {
     attachable(anchor,spin,orient,size=[1620,1620,thick])
     {
-        rect_tube(h=thick,isize=1520,size=1620,irounding=50,rounding=100)
+        rect_tube(h=thick,isize=1500,size=1620,irounding=50,rounding=100)
         {
             attach(FRONT+BOT,norot=1) magnetholder(anchor=BACK+BOT);
             attach(BACK+BOT,norot=1) magnetholder(anchor=FRONT+BOT);
