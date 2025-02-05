@@ -90,7 +90,7 @@ module simplelength(anchor=CENTER,spin=0,orient=UP,l)
     }
 }
 
-module collared_length(anchor=CENTER,spin=0,orient=UP,l)
+module collared_length(anchor=CENTER,spin=0,orient=UP,l=1150,shift=[0,0])
 {
 //        rect_tube(h=thick,isize=1520,size=1620,irounding=50,rounding=100)
     assert(l>1150,"simple length must be >= 1150");
@@ -104,7 +104,7 @@ module collared_length(anchor=CENTER,spin=0,orient=UP,l)
                 attach(BOT+RIGHT,norot=1) magnetholder(anchor=LEFT+BOT);
             }
 
-            attach(TOP,overlap=1) rect_tube(size=1500,isize=1400,h=l-1150,anchor=BOT,rounding=50)
+            attach(TOP,overlap=1) rect_tube(size=1500,isize=1400,h=l-1150,anchor=BOT,rounding=50,shift=shift)
             attach(TOP) collar_acceptor(anchor=BOT) 
             attach(TOP) rect_tube(h=200,isize=[1450,1450],size=[1620,1620],rounding=50,anchor=TOP) {
                 attach(TOP+BACK,norot=1) magnetholder(anchor=FRONT+BOT,orient=DOWN);
@@ -239,7 +239,7 @@ module support_1(anchor=CENTER,spin=0,orient=UP)
 module forViewing()
 {
 //    hexled_mount();
-//     collared_length(l=2000);
+     collared_length(l=1200,shift=[450,0]);
 //    attach(TOP) 
 //    recolor("cyan") down(350) elbow90(anchor=BOT)
 //    attach(BOT,norot=1) zflip() up(1500) hexled_mount();
@@ -267,6 +267,6 @@ module forPrinting()
 
 scale(ViewScale)
 {
-//    forViewing();
-    forPrinting();
+    forViewing();
+//    forPrinting();
 }
