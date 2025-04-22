@@ -28,6 +28,8 @@ module model_esp32_c3(anchor=CENTER,spin=0,orient=UP,rmtag="asvc4_remove")
     }
     attachable(anchor,spin,orient,size=[X,Y,Z])
     {
+        up(31)
+        down((62+130)/2) left(100)
         model_esp32_c3_();
         children();
     }
