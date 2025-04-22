@@ -81,3 +81,68 @@ module model_esp32_s3_wroom_devkit_v1(anchor=CENTER,spin=0,orient=UP)
         children();
     }
 }
+
+module esp32_c3_holder(anchor=CENTER,spin=0,orient=UP)
+{
+    rmtag="qwv54_remove";
+    module esp32_c3_holder_()
+    {
+        diff(rmtag)
+        rect_tube(isize=[esp32_c3_ai_pcb_X+30, esp32_c3_ai_Y+30], wall=50, h=200)
+        {
+            // USB Connector Cutout
+            tag(rmtag)
+            attach(TOP+LEFT, norot=1) left(1) up(1) cuboid([100, esp32_c3_ai_Y-200, 150], 
+                rounding=100, edges=[BACK+BOT, FRONT+BOT], anchor=TOP+LEFT);
+            // Inner board support
+            attach(BOT, norot=1) rect_tube(isize=[esp32_c3_ai_pcb_X-30, esp32_c3_ai_Y-30], wall=60, h=150, anchor=BOT);
+
+            // Screw mounts
+            attach(LEFT+FRONT+BOT, norot=1) tube(h=200, id=screwhole, od=200, anchor=BOT+FRONT+RIGHT);
+            attach(LEFT+BACK+BOT, norot=1) tube(h=200, id=screwhole, od=200, anchor=BOT+BACK+RIGHT);
+
+            attach(RIGHT+FRONT+BOT, norot=1) tube(h=200, id=screwhole, od=200, anchor=BOT+FRONT+LEFT);
+            attach(RIGHT+BACK+BOT, norot=1) tube(h=200, id=screwhole, od=200, anchor=BOT+BACK+LEFT);
+        }
+    }
+    attachable(anchor,spin,orient,size=[esp32_c3_ai_pcb_X+1030, esp32_c3_ai_Y+30, 200])
+    {
+        down(100)
+        esp32_c3_holder_();
+        children();
+    }
+}
+
+module esp32_c3_holder_retainer()
+{
+    rmtag = "a4vq_remove";
+    hide("hidden") tag("hidden")
+    rect_tube(isize=[esp32_c3_ai_pcb_X+30, esp32_c3_ai_Y+30], wall=50, h=200)
+    {
+        // SW Screw mount
+        attach(LEFT+FRONT+BOT, norot=1) tube(h=200, id=80, od=250, anchor=BOT+FRONT+RIGHT)
+        tag("visible") 
+        attach(TOP, norot=1) tube(h=70, id=100, od=250, anchor=BOT)
+        attach(TOP, norot=1) tube(h=115, id=200, od=250, anchor=BOT);
+
+        // NW Screw mount
+        attach(LEFT+BACK+BOT, norot=1) tube(h=200, id=80, od=250, anchor=BOT+BACK+RIGHT)
+        tag("visible") 
+        attach(TOP, norot=1) tube(h=70, id=100, od=250, anchor=BOT)
+        attach(TOP, norot=1) tube(h=115, id=200, od=250, anchor=BOT);
+
+    }
+    up(360) left(720+60)
+    diff(rmtag)
+    cuboid([500, esp32_c3_ai_Y+60+70, 50], rounding=200, edges=[RIGHT+BACK,RIGHT+FRONT])
+    {
+        tag(rmtag)
+        {
+            attach(BOT+LEFT+FRONT, norot=1) cyl(d=250, h=51, anchor=BOT+LEFT+FRONT);
+            attach(BOT+LEFT+BACK, norot=1) cyl(d=250, h=51, anchor=BOT+LEFT+BACK);
+            attach(LEFT+BOT, norot=1) down(1) cuboid([250, esp32_c3_ai_Y-200,52], anchor=LEFT+BOT, 
+                rounding=100, edges=[RIGHT+BACK, RIGHT+FRONT]);
+        }
+            
+    }
+}

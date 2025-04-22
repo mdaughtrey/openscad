@@ -4,6 +4,7 @@ include <../../models/model_ld2410_presence_sensor.scad>
 include <../../models/model_5v_3v3_buck.scad>
 include <../../models/model_esp32_s3_wroom.scad>
 include <../../models/model_esp32_c3.scad>
+include <../../models/model_esp32_devkit_v1.scad>
 
 $fn=96;
 screwhole = 80;
@@ -156,13 +157,13 @@ module base(basex, basey, anchor=CENTER,spin=0,orient=UP)
                 // ESP32 Mount
                 attach(TOP+RIGHT+FRONT, norot=1) 
                 left(450) fwd(220)
-                esp32_c3_holder(spin=90,anchor=BOT+LEFT+FRONT)
+                esp32_devkit_holder(spin=90,anchor=BOT+LEFT+FRONT)
                 // ESP32 Model
                 if (model)
                 {
                     attach(BOT, norot=1) 
                     up(170) right(100)
-                    model_esp32_c3(anchor=BOT);
+                    model_esp32_devkit_v1(anchor=BOT);
                 }
                 // Buck Mount
                 attach(TOP, norot=1) left(350) fwd(200)
@@ -195,20 +196,24 @@ module screw()
 }
 
 
-module esp32_c3_holder(anchor=CENTER,spin=0,orient=UP)
+module esp32_devkit_holder(anchor=CENTER,spin=0,orient=UP)
 {
+    x = model_esp32_devkit_v1_x;
+    y = model_esp32_devkit_v1_y;
+    z = model_esp32_devkit_v1_z;
+
     rmtag="qwv54_remove";
-    module esp32_c3_holder_()
+    module esp32_devkit_holder_()
     {
         diff(rmtag)
-        rect_tube(isize=[esp32_c3_ai_pcb_X+30, esp32_c3_ai_Y+30], wall=50, h=200)
+        rect_tube(isize=[x+30, y+30], wall=50, h=200)
         {
             // USB Connector Cutout
             tag(rmtag)
-            attach(TOP+LEFT, norot=1) left(1) up(1) cuboid([100, esp32_c3_ai_Y-200, 150], 
+            attach(TOP+LEFT, norot=1) left(1) up(1) cuboid([100, y-200, 150], 
                 rounding=100, edges=[BACK+BOT, FRONT+BOT], anchor=TOP+LEFT);
             // Inner board support
-            attach(BOT, norot=1) rect_tube(isize=[esp32_c3_ai_pcb_X-30, esp32_c3_ai_Y-30], wall=60, h=150, anchor=BOT);
+            attach(BOT, norot=1) rect_tube(isize=[x-30, y-30], wall=60, h=150, anchor=BOT);
 
             // Screw mounts
             attach(LEFT+FRONT+BOT, norot=1) tube(h=200, id=screwhole, od=200, anchor=BOT+FRONT+RIGHT);
@@ -218,10 +223,10 @@ module esp32_c3_holder(anchor=CENTER,spin=0,orient=UP)
             attach(RIGHT+BACK+BOT, norot=1) tube(h=200, id=screwhole, od=200, anchor=BOT+BACK+LEFT);
         }
     }
-    attachable(anchor,spin,orient,size=[esp32_c3_ai_pcb_X+1030, esp32_c3_ai_Y+30, 200])
+    attachable(anchor,spin,orient,size=[x+1030, y+30, 200])
     {
         down(100)
-        esp32_c3_holder_();
+        esp32_devkit_holder_();
         children();
     }
 }
@@ -307,6 +312,8 @@ module forViewing()
 //    down(40) fwd(300)
 //    model_ld2410_presence_sensor();
 }
+
+
 
 module forPrinting()
 {
