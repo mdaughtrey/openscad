@@ -167,6 +167,31 @@ module base(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
+module sensor_protector(anchor=CENTER,spin=0,orient=UP)
+{
+    module sensor_protector_()
+    {
+        rmtag = "afg412qc";
+        diff(rmtag)
+        cuboid([600,600,230],rounding=100,edges="Z")
+        {
+            attach(BOT+FRONT, norot=1)
+            tag(rmtag)
+            cuboid([400,300,230], anchor=BOT+FRONT)
+            attach(TOP+BACK, norot=1)
+            cuboid([200, 250,100], anchor=FRONT+TOP);
+            attach(TOP, norot=1)
+            rect_tube(h=100,size=[600,600],wall=50,rounding=100);
+        }
+    }
+    attachable(anchor,spin,orient,size=[600, 600, 160])
+    {
+        sensor_protector_();
+        children();
+    }
+}
+
+
 module forViewing()
 {
     lid(anchor=RIGHT)
@@ -178,7 +203,8 @@ module forViewing()
 
 module forPrinting()
 {
-    base();
+    sensor_protector();
+//    base();
 }
 
 scale(ViewScale)

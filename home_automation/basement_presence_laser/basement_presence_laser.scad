@@ -92,18 +92,64 @@ module buck_mount(anchor=CENTER,spin=0,orient=UP,rmtag="bm_remove")
     }
 }
 
-module lid(basex, basey, anchor=CENTER,spin=0,orient=UP)
+module vents(anchor=CENTER,spin=0,orient=UP,numvents=2,l=2000)
 {
+    module vents_()
+    {
+        ycopies(200,numvents)
+        cyl(d=100, h=200)
+        attach(BOT, norot=1)
+        cuboid([l, 100, 200], anchor=BOT+LEFT)
+        attach(BOT+RIGHT, norot=1)
+        cyl(d=100, h=200, anchor=BOT);
+
+    }
+
+    attachable(anchor,spin,orient,size=[l+100, numvents+(100+200), 200])
+    {
+        left(l/2)
+        vents_();
+        children();
+    }
+}
+
+
+module lid(basex, basey, basez, anchor=CENTER,spin=0,orient=UP)
+{
+    rmtag = "sabddf4e";
     module lid_()
     {
-        diff("lid_remove")
-        cuboid([basex + 150, basey + 150, 100])
+        diff(rmtag)
+        cuboid([basex + 150, basey + 50, basez-20], rounding=100, edges=[FRONT+LEFT, FRONT+RIGHT])
         {
-            attach(LEFT+BOT, norot=1) cuboid([60, basey + 150, 120], anchor=TOP+LEFT)
+            tag(rmtag)
+            attach(BOT+BACK, norot=1) down(1) back(1)
+            cuboid([basex-100, basey-100, 57], anchor=BOT+BACK)
+            attach(TOP, norot=1)
+            cuboid([basex+60, basey-50+70, 85], anchor=BOT)
+            attach(TOP, norot=1)
+            cuboid([basex-100, basey-100, basez-62-75-50-50], anchor=BOT);
+            // Front corner cutout
+            tag(rmtag)
+            attach(TOP+BACK+RIGHT, norot=1) up(1)
+            cuboid([150, 120, basez-18], anchor=TOP+BACK+RIGHT);
+
+            // Bottom vents
+            tag(rmtag) attach(LEFT) vents(anchor=TOP);
+            // Top vents
+            tag(rmtag) attach(RIGHT) vents(anchor=TOP);
+            // Cable hole
+            tag(rmtag) attach(FRONT+BOT,norot=1)
+            cuboid([200, 200, 200], anchor=FRONT+BOT)
+            attach(TOP+FRONT,norot=1)
+            cyl(d=200, h=200, orient=BACK, anchor=BOT);
+
+            *attach(LEFT+BOT, norot=1) cuboid([60, basey + 150, 120], anchor=TOP+LEFT)
+
             attach(BOT+RIGHT, norot=1) cuboid([60, basey + 150, 50], anchor=BOT+LEFT);
-            attach(RIGHT+BOT, norot=1) cuboid([60, basey + 150, 120], anchor=TOP+RIGHT)
+            *attach(RIGHT+BOT, norot=1) cuboid([60, basey + 150, 120], anchor=TOP+RIGHT)
             attach(BOT+LEFT, norot=1) cuboid([60, basey + 150, 50], anchor=BOT+RIGHT);
-            attach(FRONT+BOT, norot=1) cuboid([basex + 150, 60, 120], anchor=TOP+FRONT)
+            *attach(FRONT+BOT, norot=1) cuboid([basex + 150, 60, 120], anchor=TOP+FRONT)
             attach(BOT+BACK, norot=1) cuboid([basex + 150, 60, 50], anchor=BOT+FRONT);
         }
     }
@@ -135,14 +181,16 @@ module base(basex, basey, anchor=CENTER,spin=0,orient=UP)
                 rounding=100, edges="Z", except=BACK)
             {
                 attach(TOP+BACK, norot=1) rect_tube(size=[basex, basey], h=65, 
-                    wall=100, rounding=100, anchor=BOT+BACK)
+                    wall=200, rounding=100, anchor=BOT+BACK)
+                tag(rmtag) fwd(100) left(390) attach(BACK+BOT, norot=1)
+                 cuboid([900, 100, 65], anchor=BACK+BOT);
                 // Front plate
                 // attach(BOT+BACK, norot=1) #cuboid([basex, 300, 600], anchor=BOT+BACK)
-                attach(BOT+BACK+LEFT, norot=1) cuboid([1000, 300, 638], anchor=BOT+BACK+LEFT)
+                attach(BOT+BACK+LEFT, norot=1) cuboid([1000, 300, 638+60], anchor=BOT+BACK+LEFT)
                 {
                     // Radar Module
-                    attach(RIGHT+BACK+BOT, norot=1) down(100) fwd(20) radar_holder(orient=BACK,anchor=LEFT+BACK+TOP)
-                    attach(RIGHT+FRONT+TOP, norot=1) back(0) up(20) cuboid([1900, 575, 100], anchor=LEFT+FRONT+TOP);
+                    attach(RIGHT+BACK+BOT, norot=1) down(40) fwd(20) radar_holder(orient=BACK,anchor=LEFT+BACK+TOP)
+                    attach(RIGHT+FRONT+TOP, norot=1) fwd(0) up(20) cuboid([1900, 575+60, 100], anchor=LEFT+FRONT+TOP);
                     // Laser cutouts
                     tag(rmtag)
                     {
@@ -156,7 +204,7 @@ module base(basex, basey, anchor=CENTER,spin=0,orient=UP)
                 }
                 // ESP32 Mount
                 attach(TOP+RIGHT+FRONT, norot=1) 
-                left(450) fwd(220)
+                left(450) fwd(300) down(10)
                 esp32_devkit_holder(spin=90,anchor=BOT+LEFT+FRONT)
                 // ESP32 Model
                 if (model)
@@ -175,8 +223,12 @@ module base(basex, basey, anchor=CENTER,spin=0,orient=UP)
                     model_5v_3v3_buck(anchor=BOT);
                 }
                 // Cable tie
-                attach(TOP+FRONT+LEFT, norot=1) right(200) back(400) down(100)
+                attach(TOP+FRONT+LEFT, norot=1)  right(700) back(400) down(100) zrot(90)
                 rect_tube(isize=[300,200], wall=100, h=100, orient=FRONT, anchor=FRONT+LEFT);
+                attach(TOP, norot=1)
+                left(1500) fwd(550)
+                cyl(d=200, h=300, anchor=BOT);
+
                 
             }
         }
@@ -206,24 +258,27 @@ module esp32_devkit_holder(anchor=CENTER,spin=0,orient=UP)
     module esp32_devkit_holder_()
     {
         diff(rmtag)
-        rect_tube(isize=[x+30, y+30], wall=50, h=200)
+        rect_tube(isize=[x+30, y+30], wall=50, h=300)
         {
             // USB Connector Cutout
             tag(rmtag)
             attach(TOP+LEFT, norot=1) left(1) up(1) cuboid([100, y-200, 150], 
                 rounding=100, edges=[BACK+BOT, FRONT+BOT], anchor=TOP+LEFT);
             // Inner board support
-            attach(BOT, norot=1) rect_tube(isize=[x-30, y-30], wall=60, h=150, anchor=BOT);
+            attach(BOT, norot=1) rect_tube(isize=[x-30, y-30], wall=60, h=250, anchor=BOT);
 
             // Screw mounts
-            attach(LEFT+FRONT+BOT, norot=1) tube(h=200, id=screwhole, od=200, anchor=BOT+FRONT+RIGHT);
-            attach(LEFT+BACK+BOT, norot=1) tube(h=200, id=screwhole, od=200, anchor=BOT+BACK+RIGHT);
+//            attach(LEFT+FRONT+BOT, norot=1) tube(h=200, id=screwhole, od=200, anchor=BOT+FRONT+RIGHT);
+//            attach(LEFT+BACK+BOT, norot=1) tube(h=200, id=screwhole, od=200, anchor=BOT+BACK+RIGHT);
+//            attach(RIGHT+FRONT+BOT, norot=1) tube(h=200, id=screwhole, od=200, anchor=BOT+FRONT+LEFT);
+//            attach(RIGHT+BACK+BOT, norot=1) tube(h=200, id=screwhole, od=200, anchor=BOT+BACK+LEFT);
 
-            attach(RIGHT+FRONT+BOT, norot=1) tube(h=200, id=screwhole, od=200, anchor=BOT+FRONT+LEFT);
-            attach(RIGHT+BACK+BOT, norot=1) tube(h=200, id=screwhole, od=200, anchor=BOT+BACK+LEFT);
+            attach(BOT, norot=1)
+            grid_copies(size=[x-180, y-180], n=2)
+                tube(od=170,id=screwhole, h=250, anchor=BOT);
         }
     }
-    attachable(anchor,spin,orient,size=[x+1030, y+30, 200])
+    attachable(anchor,spin,orient,size=[x+1030, y+30, 250])
     {
         down(100)
         esp32_devkit_holder_();
@@ -277,14 +332,15 @@ module radar_holder(anchor=CENTER,spin=0,orient=UP)
         cuboid([x+10, 100, 50])
         {
             attach(LEFT+BOT+BACK, norot=1) cuboid([100, 440, 50], anchor=BOT+LEFT+BACK);
-            attach(RIGHT+BOT+BACK, norot=1) cuboid([100, 350, 50], anchor=BOT+RIGHT+BACK);
+            attach(RIGHT+BOT+BACK, norot=1) cuboid([100, 440, 50], anchor=BOT+RIGHT+BACK);
             attach(TOP+BACK, norot=1) cuboid([x+10, y+10, 30], anchor=BOT+BACK)
             tag(rmtag)
             {
-                attach(BACK+TOP, norot=1) fwd(150) cuboid([670, 220, 30], anchor=BACK+TOP);
-                attach(TOP+FRONT+LEFT, norot=1) move([80, 80, 0]) cuboid([80, 50, 30], anchor=TOP+FRONT+LEFT);
+                attach(BACK+TOP, norot=1) fwd(150) cuboid([770, 420, 30], anchor=BACK+TOP);
+//                attach(BACK+TOP, norot=1) fwd(150) cuboid([670, 220, 30], anchor=BACK+TOP);
+//                attach(TOP+FRONT+LEFT, norot=1) move([80, 80, 0]) cuboid([80, 50, 30], anchor=TOP+FRONT+LEFT);
             }
-            attach(TOP+BACK, norot=1) up(30) back(100) rect_tube(isize=[x+9,y+9-100],wall=100,h=250,anchor=TOP+BACK)
+            attach(TOP+BACK, norot=1) up(30) back(100-50) rect_tube(isize=[x+9,y+9-100-50],wall=100,h=250,anchor=TOP+BACK)
             {
                 tag(rmtag) attach(BOT+FRONT, norot=1) cuboid([x+9,100,190],anchor=BOT+FRONT);
                 attach(BOT+BACK+RIGHT, norot=1) left(99) cuboid([150, y+10, 30], anchor=BOT+BACK+RIGHT);
@@ -305,23 +361,22 @@ module radar_holder(anchor=CENTER,spin=0,orient=UP)
 
 module forViewing()
 {
-//    radar_holder();
-//    model_esp32_c3();
-//    buck_mount();
     base(basex = 4000, basey = 2500);
-//    down(40) fwd(300)
-//    model_ld2410_presence_sensor();
+    recolor("cyan") fwd(30) up(370)
+    lid(basex = 4000, basey = 2500, basez = 800, anchor=BOT);
+//    vents();
 }
 
 
 
 module forPrinting()
 {
-    base(basex = 4000, basey = 2500);
+//    base(basex = 4000, basey = 2500);
+    lid(basex = 4000, basey = 2500, basez = 800);
 }
 
 scale(ViewScale)
 {
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 }
