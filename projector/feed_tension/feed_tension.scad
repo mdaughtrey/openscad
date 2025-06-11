@@ -126,7 +126,7 @@ module arm(anchor=CENTER,spin=0,orient=UP)
         diff(rmtag)
         tube(id=180, od=300, h=315)
         {
-            attach(BOT, norot=1) tube(id=180, od=500, h=50, anchor=BOT);
+            *attach(BOT, norot=1) tube(id=180, od=500, h=50, anchor=BOT);
             attach(BOT, norot=1) fwd(90) cyl(d=200, h=610, anchor=BACK+BOT)
             {
                 tag(rmtag) attach(TOP, norot=1) back(190) cyl(d=300, h=300, anchor=TOP);
@@ -209,7 +209,7 @@ module forPrinting()
 
 scale(ViewScale)
 {
-//    forPrinting();
-    forViewing();
+    forPrinting();
+//    forViewing();
 }
 

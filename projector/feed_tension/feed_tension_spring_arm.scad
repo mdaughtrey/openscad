@@ -88,7 +88,7 @@ module wheel_contact0(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
-module shield0(anchor=CENTER,spin=0,orient=UP)
+module shield00(anchor=CENTER,spin=0,orient=UP)
 {
     h=450;
     d=600;
@@ -121,12 +121,39 @@ module shield0(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
+module shield0(anchor=CENTER,spin=0,orient=UP)
+{
+    h=850;
+    d=600;
+    module shield_()
+    {
+        rmtag = "v2412";
+        front_half(s=1550)
+        diff(rmtag)
+        cyl(d=d, h=50)
+        {
+            tag(rmtag) attach(BOT, norot=1) cyl(d=120, h=50, anchor=BOT);
+            attach(BOT, norot=1) tube(id=599, od=699, h=h, anchor=BOT)
+            attach(TOP, norot=1) cyl(d=d, h=50, anchor=TOP)
+            tag(rmtag) attach(BOT, norot=1) cyl(d=120, h=50, anchor=BOT);
+        }
+    }
+    attachable(anchor,spin,orient,d=699,h=h)
+    {
+        up(25)
+        down(h/2)
+        shield_();
+        children();
+    }
+}
+
 module shield(anchor=CENTER,spin=0,orient=UP)
 {
     h=450;
     module shield_()
     {
         intersect("mask")
+        up(200)
         shield0()
         zrot(-135) attach(BOT, norot=1) tag("mask") pie_slice(ang=90,l=451,r=700/2,anchor=BOT)
         attach(TOP, norot=1) cyl(d=700,l=450,anchor=BOT);
@@ -166,22 +193,22 @@ module arm(anchor=CENTER,spin=0,orient=UP)
         diff(rmtag)
         tube(id=180, od=300, h=315)
         {
-            attach(BOT, norot=1) tube(id=180, od=500, h=50, anchor=BOT);
-            attach(BOT, norot=1) fwd(90) cyl(d=200, h=610, anchor=BACK+BOT)
+            *attach(BOT, norot=1) tube(id=180, od=500, h=50, anchor=BOT);
+            attach(BOT, norot=1) fwd(90) cyl(d=200, h=950, anchor=BACK+BOT)
             {
-                tag(rmtag) attach(TOP, norot=1) back(190) cyl(d=300, h=300, anchor=TOP);
+                tag(rmtag) attach(TOP, norot=1) back(190) cyl(d=300, h=635, anchor=TOP);
                 attach(RIGHT+TOP, norot=1) left(20) zrot(25) cuboid([900,100,100], anchor=LEFT+TOP, rounding=100, edges=[TOP+RIGHT]);
                 attach(RIGHT+TOP, norot=1) left(20) cuboid([800,100,100], anchor=LEFT+TOP, rounding=100, edges=[TOP+RIGHT]);
 
                 attach(RIGHT+BOT, norot=1) left(20) zrot(25) cuboid([900,100,100], anchor=LEFT+BOT, rounding=100, edges=[BOT+RIGHT]);
                 attach(RIGHT+BOT, norot=1) left(20) cuboid([800,100,100], anchor=LEFT+BOT, rounding=100, edges=[BOT+RIGHT])
-                attach(RIGHT+TOP, norot=1) back(200) zrot(20) cyl(d=450,h=50,anchor=BOT)
+                attach(RIGHT+TOP, norot=1) back(200) zrot(20) down(50) cyl(d=450,h=50,anchor=BOT)
                 {
                     if (model)
                         attach(TOP, norot=1) up(190) models(headw=210, headl=110, boltw=110, boltlen=1000);
                     tag(rmtag) attach(BOT, norot=1) cyl(d=120, h=50, anchor=BOT);
                     attach(BOT, norot=1) shield(anchor=BOT)
-                    attach(TOP, norot=1) cyl(d=450,h=50,anchor=TOP)
+                    *attach(TOP, norot=1) cyl(d=450,h=50,anchor=TOP)
                     tag(rmtag) attach(BOT, norot=1) cyl(d=290, h=50, anchor=BOT);
                 }
                 attach(LEFT+BOT, norot=1) right(30) zrot(20) cuboid([800,100,610], anchor=RIGHT+BOT, rounding=100, edges=[BOT+LEFT,TOP+LEFT])
