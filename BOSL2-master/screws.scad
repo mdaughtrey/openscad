@@ -277,22 +277,22 @@ Torx values:  https://www.stanleyengineeredfastening.com/-/media/web/sef/resourc
 //   shaft = screw shaft
 //   shank = unthreaded section of shaft (invalid if screw is fully threaded)
 //   threads = threaded section of screw     
-// Extra Anchors:
-//   top = top of screw
-//   bot = bottom of screw
-//   center = center of screw
-//   head_top = top of head (same as top for headless screws)
-//   head_bot = bottom of head (same as top for headless screws)
-//   head_center = center of head (same as top for headless screws)
-//   shaft_top = top of shaft
-//   shaft_bot = bottom of shaft
-//   shaft_center = center of shaft
-//   shank_top = top of shank (invalid if screw is fully threaded)
-//   shank_bot = bottom of shank (invalid if screw is fully threaded)
-//   shank_center = center of shank (invalid if screw is fully threaded)
-//   threads_top = top of threaded portion of screw (invalid if thread_len=0)
-//   threads_bot = bottom of threaded portion of screw (invalid if thread_len=0)
-//   threads_center = center of threaded portion of screw (invalid if thread_len=0)
+// Named Anchors:
+//   "top" = top of screw
+//   "bot" = bottom of screw
+//   "center" = center of screw
+//   "head_top" = top of head (same as top for headless screws)
+//   "head_bot" = bottom of head (same as top for headless screws)
+//   "head_center" = center of head (same as top for headless screws)
+//   "shaft_top" = top of shaft
+//   "shaft_bot" = bottom of shaft
+//   "shaft_center" = center of shaft
+//   "shank_top" = top of shank (invalid if screw is fully threaded)
+//   "shank_bot" = bottom of shank (invalid if screw is fully threaded)
+//   "shank_center" = center of shank (invalid if screw is fully threaded)
+//   "threads_top" = top of threaded portion of screw (invalid if thread_len=0)
+//   "threads_bot" = bottom of threaded portion of screw (invalid if thread_len=0)
+//   "threads_center" = center of threaded portion of screw (invalid if thread_len=0)
 // Example(Med): Selected UTS (English) screws
 //   $fn=32;
 //   xdistribute(spacing=8){
@@ -552,7 +552,9 @@ module screw(spec, head, drive, thread, drive_size,
              : undersize;
    dummyA=assert(is_undef(undersize) || is_vector(undersize,2), "Undersize must be a scalar or 2-vector")
           assert(is_undef(undersize) || num_defined([shaft_undersize, head_undersize])==0,
-                 "Cannot combine \"undersize\" with other more specific undersize parameters");
+                 "Cannot combine \"undersize\" with other more specific undersize parameters")
+          assert(is_bool(_teardrop) ||_teardrop=="max" || all_nonnegative([_teardrop]), str("Invalid teardrop parameter",_teardrop));
+   _teardrop = _teardrop==true ? .05 : _teardrop;   // set teardrop default
    shaft_undersize = first_defined([shaft_undersize, undersize[0]]);
    head_undersize = first_defined([head_undersize, undersize[1]]);
    dummyB=assert(is_undef(shaft_undersize) || is_finite(shaft_undersize), "shaft_undersize must be a number")
@@ -590,6 +592,8 @@ module screw(spec, head, drive, thread, drive_size,
             assert(is_finite(_shoulder_diam) && _shoulder_diam>=0, "Must specify nonnegative shoulder diameter")
             assert(is_undef(user_thread_len) || (is_finite(user_thread_len) && user_thread_len>=0), "Must specify nonnegative thread length");
    sides = max(pitch==0 ? 3 : 12, segs(nominal_diam/2));
+   rad_scale = _internal? (1/cos(180/sides)) : 1;
+   islop = _internal ? 4*get_slop() : 0;
    head_height = headless || flathead ? 0 
                : counterbore==true || is_undef(counterbore) || counterbore==0 ? struct_val(spec, "head_height")
                : counterbore;
@@ -597,7 +601,8 @@ module screw(spec, head, drive, thread, drive_size,
    flat_height = !flathead ? 0 
                : let( given_height = struct_val(spec, "head_height"))
                  all_positive(given_height) ? given_height
-               : (struct_val(spec,"head_size_sharp")+struct_val(spec,"head_oversize",0)-d_major)/2/tan(struct_val(spec,"head_angle")/2);
+               : (struct_val(spec,"head_size_sharp")+struct_val(spec,"head_oversize",0)-d_major*rad_scale-islop)/2/tan(struct_val(spec,"head_angle")/2);
+
    flat_cbore_height = flathead && is_num(counterbore) ? counterbore : 0;
 
    blunt_start1 = first_defined([blunt_start1,blunt_start,true]);
@@ -648,8 +653,6 @@ module screw(spec, head, drive, thread, drive_size,
           named_anchor("threads_bot", [0,0,-length-shoulder_full+offset]),
           named_anchor("threads_center", [0,0,(-shank_len-length-_shoulder_len-shoulder_full-flat_height)/2+offset])
    ];
-   rad_scale = _internal? (1/cos(180/sides)) : 1;
-   islop = _internal ? 4*get_slop() : 0;
    vnf = head=="hex" && atype=="head" && counterbore==0 ? linear_sweep(hexagon(id=head_diam*rad_scale),height=head_height,center=true) : undef;
    head_diam_full = head=="hex" ? 2*head_diam/sqrt(3) : head_diam;
    attach_d = in_list(atype,["threads","shank","shaft"]) ? d_major 
@@ -683,8 +686,9 @@ module screw(spec, head, drive, thread, drive_size,
                       slop=islop,teardrop=_teardrop);
            if (_shoulder_len>0)
              up(eps_shoulder-flat_height){
-               if (_teardrop)
-                 teardrop(d=_shoulder_diam*rad_scale+islop, h=_shoulder_len+eps_shoulder, anchor=FRONT, orient=BACK, $fn=sides);
+               if (_teardrop!=false) //////
+                 teardrop(d=_shoulder_diam*rad_scale+islop,cap_h=is_num(_teardrop) ? (_shoulder_diam*rad_scale+islop)/2*(1+_teardrop):undef,
+                          h=_shoulder_len+eps_shoulder, anchor=FRONT, orient=BACK, $fn=sides);
                else
                  cyl(d=_shoulder_diam*rad_scale+islop, h=_shoulder_len+eps_shoulder, anchor=TOP, $fn=sides, chamfer1=details ? _shoulder_diam/30:0);
              }
@@ -702,8 +706,9 @@ module screw(spec, head, drive, thread, drive_size,
                   : bevel2=="reverse" ? -bevsize
                   : bevel2;
              down(_shoulder_len+flat_height-eps_shank)
-               if (_teardrop)
-                 teardrop(d=d_major*rad_scale+islop, h=L+eps_shank, anchor=FRONT, orient=BACK, $fn=sides, chamfer1=bev1, chamfer2=bev2);
+               if (_teardrop!=false)  ///////
+                 teardrop(d=d_major*rad_scale+islop, cap_h=is_num(_teardrop) ? (d_major*rad_scale+islop)/2*(1+_teardrop) : undef,
+                          h=L+eps_shank, anchor=FRONT, orient=BACK, $fn=sides, chamfer1=bev1, chamfer2=bev2);
                else
                  cyl(d=d_major*rad_scale+islop, h=L+eps_shank, anchor=TOP, $fn=sides, chamfer1=bev1, chamfer2=bev2);
            }
@@ -773,7 +778,7 @@ module screw(spec, head, drive, thread, drive_size,
 //   head = head type.  See [screw heads](#subsection-screw-heads)  Default: none
 //   ---
 //   thread = thread type or specification for threaded masks, true to make a threaded mask with the standard threads, or false to make an unthreaded mask.  See [screw pitch](#subsection-standard-screw-pitch). Default: false
-//   teardrop = if true produce teardrop hole.  Default: false
+//   teardrop = If true, adds a teardrop profile to the hole for 3d printability of horizontal holes. If numeric, specifies the proportional extra distance of the teardrop flat top from the screw center, or set to "max" for a pointed teardrop. Default: false
 //   oversize = amount to increase diameter of the screw hole (hole and countersink).  A scalar or length 2 vector.  Default: use computed tolerance
 //   hole_oversize = amount to increase diameter of the hole.  Overrides the use of tolerance and replaces any settings given in the screw specification. 
 //   head_oversize = amount to increase diameter of head.  Overrides the user of tolerance and replaces any settings given in the screw specification.  
@@ -799,22 +804,22 @@ module screw(spec, head, drive, thread, drive_size,
 //   shaft = screw shaft
 //   shank = unthreaded section of shaft (invalid if screw is fully threaded)
 //   threads = threaded section of screw     
-// Extra Anchors:
-//   top = top of screw
-//   bot = bottom of screw
-//   center = center of screw
-//   head_top = top of head (invalid for headless screws)
-//   head_bot = bottom of head (invalid for headless screws)
-//   head_center = center of head (invalid for headless screws)
-//   shaft_top = top of shaft
-//   shaft_bot = bottom of shaft
-//   shaft_center = center of shaft
-//   shank_top = top of shank (invalid if screw is fully threaded)
-//   shank_bot = bottom of shank (invalid if screw is fully threaded)
-//   shank_center = center of shank (invalid if screw is fully threaded)
-//   threads_top = top of threaded portion of screw (invalid if thread_len=0)
-//   threads_bot = bottom of threaded portion of screw (invalid if thread_len=0)
-//   threads_center = center of threaded portion of screw (invalid if thread_len=0)
+// Named Anchors:
+//   "top" = top of screw
+//   "bot" = bottom of screw
+//   "center" = center of screw
+//   "head_top" = top of head (invalid for headless screws)
+//   "head_bot" = bottom of head (invalid for headless screws)
+//   "head_center" = center of head (invalid for headless screws)
+//   "shaft_top" = top of shaft
+//   "shaft_bot" = bottom of shaft
+//   "shaft_center" = center of shaft
+//   "shank_top" = top of shank (invalid if screw is fully threaded)
+//   "shank_bot" = bottom of shank (invalid if screw is fully threaded)
+//   "shank_center" = center of shank (invalid if screw is fully threaded)
+//   "threads_top" = top of threaded portion of screw (invalid if thread_len=0)
+//   "threads_bot" = bottom of threaded portion of screw (invalid if thread_len=0)
+//   "threads_center" = center of threaded portion of screw (invalid if thread_len=0)
 // Example: Counterbored clearance hole
 //   diff()
 //     cuboid(20)
@@ -968,8 +973,8 @@ module screw_hole(spec, head, thread, oversize, hole_oversize, head_oversize,
              : in_list(downcase(tolerance), ["loose", "coarse"]) ? 2
              : in_list(tolerance, ["H12","H13","H14"]) ?
                    assert(struct_val(screwspec,"system")=="ISO", str("Hole tolerance ", tolerance, " only allowed with ISO screws"))
-                   parse_int(substr(tolerance,1))
-             : assert(false,str("Unknown tolerance ",tolerance, " for clearance hole"));
+                   parse_int(substr(tolerance,1))-12
+             : assert(false,str("Unknown tolerance ",tolerance, " for unthreaded clearance hole.  Use one of \"close\", \"normal\", or \"loose\""));
      tol_table = struct_val(screwspec,"system")=="UTS" ? UTS_clearance[tol_ind] : ISO_clearance[tol_ind];
      tol_gap = lookup(_nominal_diam(screwspec), tol_table);
      // If we got here, hole_oversize is undefined and oversize is undefined
@@ -1033,22 +1038,22 @@ module screw_hole(spec, head, thread, oversize, hole_oversize, head_oversize,
 //   shoulder = the shoulder
 //   shaft = screw shaft
 //   threads = threaded section of screw     
-// Extra Anchors:
-//   top = top of screw
-//   bot = bottom of screw
-//   center = center of screw
-//   head_top = top of head (invalid for headless screws)
-//   head_bot = bottom of head (invalid for headless screws)
-//   head_center = center of head (invalid for headless screws)
-//   shoulder_top = top of shoulder
-//   shoulder_bot = bottom of shoulder
-//   shoulder_center = center of shoulder
-//   shaft_top = top of shaft
-//   shaft_bot = bottom of shaft
-//   shaft_center = center of shaft
-//   threads_top = top of threaded portion of screw (invalid if thread_len=0)
-//   threads_bot = bottom of threaded portion of screw (invalid if thread_len=0)
-//   threads_center = center of threaded portion of screw (invalid if thread_len=0)
+// Named Anchors:
+//   "top" = top of screw
+//   "bot" = bottom of screw
+//   "center" = center of screw
+//   "head_top" = top of head (invalid for headless screws)
+//   "head_bot" = bottom of head (invalid for headless screws)
+//   "head_center" = center of head (invalid for headless screws)
+//   "shoulder_top" = top of shoulder
+//   "shoulder_bot" = bottom of shoulder
+//   "shoulder_center" = center of shoulder
+//   "shaft_top" = top of shaft
+//   "shaft_bot" = bottom of shaft
+//   "shaft_center" = center of shaft
+//   "threads_top" = top of threaded portion of screw (invalid if thread_len=0)
+//   "threads_bot" = bottom of threaded portion of screw (invalid if thread_len=0)
+//   "threads_center" = center of threaded portion of screw (invalid if thread_len=0)
 // Example: ISO shoulder screw
 //   shoulder_screw("iso",10,length=20);
 // Example: English shoulder screw
@@ -1270,8 +1275,8 @@ function _ISO_thread_tolerance(diameter, pitch, internal=false, tolerance=undef)
                                                           && str_find("3456789", tol_str[0]) != undef
                                                           && str_find("468", tol_str[2]) !=undef)
   )
-  assert(internalok,str("Invalid internal thread tolerance, ",tolerance,".  Must have form <digit><letter>"))
-  assert(externalok,str("invalid external thread tolerance, ",tolerance,".  Must have form <digit><letter> or <digit><letter><digit><letter>"))
+  assert(internalok,str("Invalid ISO internal thread tolerance, ",tolerance,".  Must have form <digit><letter>"))
+  assert(externalok,str("invalid ISO external thread tolerance, ",tolerance,".  Must have form <digit><letter> or <digit><letter><digit><letter>"))
   let(
     tol_num_pitch = parse_num(tol_str[0]),
     tol_num_crest = parse_num(tol_str[2]),
@@ -1418,8 +1423,8 @@ function _parse_drive(drive=undef, drive_size=undef) =
 //    ---
 //    details = true for more detailed model.  Default: false
 //    counterbore = counterbore height.  Default: no counterbore
-//    flat_height = height of flat head
-//    teardrop = if true make flathead and counterbores teardrop shaped
+//    flat_height = height of flat head (required for flat heads)
+//    teardrop = if true make flatheads and counterbores teardrop shaped with the flat 5% away from the edge of the screw.  If numeric, specify the fraction of extra to add.  Set to "max" for a pointed teardrop.  Default: false
 //    slop = enlarge diameter by this extra amount (beyond that specified in the screw specification).  Default: 0
 function screw_head(screw_info,details=false, counterbore=0,flat_height,teardrop=false,slop=0) = no_function("screw_head");
 module screw_head(screw_info,details=false, counterbore=0,flat_height,teardrop=false,slop=0) {
@@ -1428,7 +1433,9 @@ module screw_head(screw_info,details=false, counterbore=0,flat_height,teardrop=f
    head = struct_val(screw_info, "head");
    head_size = struct_val(screw_info, "head_size",0) + head_oversize;
    head_height = struct_val(screw_info, "head_height");
-   dum0=assert(is_def(head_height) || in_list(head,["flat","none"]), "Undefined head height only allowed with flat head or headless screws");
+   dum0=assert(is_def(head_height) || in_list(head,["flat","none"]), "Undefined head height only allowed with flat head or headless screws")
+        assert(is_bool(teardrop) || teardrop=="max" || all_nonnegative([teardrop]),"Teardrop parameter invalid");
+   teardrop = teardrop==true ? .05 : teardrop;
    heightok = (is_undef(head_height) && in_list(head,["flat","none"])) || all_positive(head_height);
    dum1=assert(heightok, "Head hight must be a postive number");
    dum2=assert(counterbore==0 || counterbore==false || head!="none", "Cannot counterbore a headless screw");
@@ -1444,12 +1451,13 @@ module screw_head(screw_info,details=false, counterbore=0,flat_height,teardrop=f
      union(){
          if (head!="flat" && counterbore>0){
            d = head=="hex"? 2*head_size/sqrt(3) : head_size;
-           if (teardrop)
-             teardrop(d=d, l=counterbore, orient=BACK, anchor=BACK);
+           if (teardrop!=false)
+             teardrop(d=d, l=counterbore, cap_h=is_num(teardrop) ? d/2*(1+teardrop):undef, orient=BACK, anchor=BACK);
            else                    
              cyl(d=d, l=counterbore, anchor=BOTTOM);
          }  
          if (head=="flat") {   // For flat head, counterbore is integrated
+           dummy = assert(all_positive([flat_height]), "flat_height must be given for flat heads");
            angle = struct_val(screw_info, "head_angle")/2;
            sharpsize = struct_val(screw_info, "head_size_sharp")+head_oversize;
            sidewall_height = (sharpsize - head_size)/2 / tan(angle);
@@ -1458,8 +1466,8 @@ module screw_head(screw_info,details=false, counterbore=0,flat_height,teardrop=f
            r1 = head_size/2;
            r2 = r1 - tan(angle)*slopeheight;
            n = segs(r1);
-           prof1 = teardrop ? teardrop2d(r=r1,$fn=n) : circle(r=r1, $fn=n);
-           prof2 = teardrop ? teardrop2d(r=r2,$fn=n) : circle(r=r2, $fn=n);
+           prof1 = teardrop!=false ? teardrop2d(r=r1,cap_h=is_num(teardrop)?r1*(1+teardrop):undef,$fn=n) : circle(r=r1, $fn=n);
+           prof2 = teardrop!=false ? teardrop2d(r=r2,cap_h=is_num(teardrop)?r2*(1+teardrop):undef,$fn=n) : circle(r=r2, $fn=n);
            skin([prof2,prof1,prof1], z=[-flat_height, -flat_height+slopeheight, counterbore],slices=0);
          }
          if (head!="flat" && counterbore==0) {

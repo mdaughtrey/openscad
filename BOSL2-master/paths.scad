@@ -16,17 +16,22 @@
 //////////////////////////////////////////////////////////////////////
 
 // Section: Utility Functions
+// Definitions:
+//   Point|Points = A list of numbers, also called a vector.  Usually has length 2 or 3 to represent points in the place on points in space.  
+//   Pointlist|Pointlists|Point List|Point Lists = An unordered list of {{points}}.
+//   Path|Paths = An ordered list of two or more {{points}} specifying a path through space.  Usually points are 2D.  
+//   Polygon|Polygons = A {{path}}, usually 2D, that describes a polygon by asuming that the first and last point are connected.
 
 // Function: is_path()
-// Synopsis: Returns True if 'list' is a path.
+// Synopsis: Returns True if 'list' is a {{path}}.
 // Topics: Paths
 // See Also: is_region(), is_vnf()
 // Usage:
 //   is_path(list, [dim], [fast])
 // Description:
-//   Returns true if `list` is a path.  A path is a list of two or more numeric vectors (AKA points).
+//   Returns true if `list` is a {{path}}.  A path is a list of two or more numeric vectors (AKA {{points}}).
 //   All vectors must of the same size, and may only contain numbers that are not inf or nan.
-//   By default the vectors in a path must be 2d or 3d.  Set the `dim` parameter to specify a list
+//   By default the vectors in a path must be 2D or 3D.  Set the `dim` parameter to specify a list
 //   of allowed dimensions, or set it to `undef` to allow any dimension.  (Note that this function
 //   returns `false` on 1-regions.)  
 // Example:
@@ -58,13 +63,13 @@ function is_path(list, dim=[2,3], fast=false) =
         && (is_undef(dim) || in_list(len(list[0]), force_list(dim)));
 
 // Function: is_1region()
-// Synopsis: Returns true if path is a region with one component.
+// Synopsis: Returns true if {{path}} is a {{region}} with one component.
 // Topics: Paths, Regions
 // See Also: force_path()
 // Usage:
 //   bool = is_1region(path, [name])
 // Description:
-//   If `path` is a region with one component (a 1-region) then return true.  If path is a region with more components
+//   If `path` is a {{region}} with one component (a single-{{path}} region, or 1-region) then returns true.  If path is a region with more components
 //   then display an error message about the parameter `name` requiring a path or a single component region.  If the input
 //   is not a region then return false.  This function helps path functions accept 1-regions.
 // Arguments:
@@ -84,8 +89,8 @@ function is_1region(path, name="path") =
 // Usage:
 //   outpath = force_path(path, [name])
 // Description:
-//   If `path` is a region with one component (a 1-region) then returns that component as a path.
-//   If path is a region with more components then displays an error message about the parameter
+//   If `path` is a {{region}} with one component (a single-{{path}} region, or 1-region) then returns that component as a path.
+//   If `path` is a region with more components then displays an error message about the parameter
 //   `name` requiring a path or a single component region.  If the input is not a region then
 //   returns the input without any checks.  This function helps path functions accept 1-regions.
 // Arguments:
@@ -134,7 +139,8 @@ function _path_select(path, s1, u1, s2, u2, closed=false) =
 // SynTags: Path
 // Topics: Paths, Regions
 // Description:
-//   Takes a path and removes unnecessary sequential collinear points.
+//   Takes a {{path}} and removes unnecessary sequential collinear {{points}}.  Note that when `closed=true` either of the path
+//   endpoints may be removed.  
 // Usage:
 //   path_merge_collinear(path, [eps])
 // Arguments:
@@ -146,17 +152,15 @@ function path_merge_collinear(path, closed, eps=EPSILON) =
     let(closed=default(closed,false))
     assert(is_bool(closed))
     assert( is_path(path), "Invalid path in path_merge_collinear." )
-    assert( is_undef(eps) || (is_finite(eps) && (eps>=0) ), "Invalid tolerance." )    
+    assert( is_undef(eps) || (is_finite(eps) && (eps>=0) ), "Invalid tolerance." )
     len(path)<=2 ? path :
-    let(
-        indices = [
-            0,
-            for (i=[1:1:len(path)-(closed?1:2)]) 
-                if (!is_collinear(path[i-1], path[i], select(path,i+1), eps=eps)) i, 
-            if (!closed) len(path)-1 
-        ]
-    ) [for (i=indices) path[i]];
-
+    let(path = deduplicate(path, closed=closed))
+    [
+      if(!closed) path[0],
+      for(triple=triplet(path,wrap=closed))
+        if (!is_collinear(triple,eps=eps)) triple[1],
+      if(!closed) last(path)
+    ];
 
 
 // Section: Path length calculation
@@ -169,7 +173,7 @@ function path_merge_collinear(path, closed, eps=EPSILON) =
 // Usage:
 //   path_length(path,[closed])
 // Description:
-//   Returns the length of the path.
+//   Returns the length of the given {{path}}.
 // Arguments:
 //   path = Path of any dimension or 1-region. 
 //   closed = true if the path is closed.  Default: false
@@ -186,7 +190,7 @@ function path_length(path,closed) =
 
 
 // Function: path_segment_lengths()
-// Synopsis: Returns a list of the lengths of segments in a path.
+// Synopsis: Returns a list of the lengths of segments in a {{path}}.
 // Topics: Paths
 // See Also: path_length(), path_length_fractions()
 // Usage:
@@ -214,7 +218,7 @@ function path_segment_lengths(path, closed) =
 // Usage:
 //   fracs = path_length_fractions(path, [closed]);
 // Description:
-//    Returns the distance fraction of each point in the path along the path, so the first
+//    Returns the distance fraction of each point in the {{path}} along the path, so the first
 //    point is zero and the final point is 1.  If the path is closed the length of the output
 //    will have one extra point because of the final connecting segment that connects the last
 //    point of the path to the first point.
@@ -242,7 +246,7 @@ function path_length_fractions(path, closed) =
 /// Usage:
 ///   isects = _path_self_intersections(path, [closed], [eps]);
 /// Description:
-///   Locates all self intersection points of the given path.  Returns a list of intersections, where
+///   Locates all self intersection {{points}} of the given {{path}}.  Returns a list of intersections, where
 ///   each intersection is a list like [POINT, SEGNUM1, PROPORTION1, SEGNUM2, PROPORTION2] where
 ///   POINT is the coordinates of the intersection point, SEGNUMs are the integer indices of the
 ///   intersecting segments along the path, and the PROPORTIONS are the 0.0 to 1.0 proportions
@@ -280,7 +284,7 @@ function _path_self_intersections(path, closed=true, eps=EPSILON) =
             // [a1,a2]. The variable signals is zero when abs(vals[j]-ref) is less than
             // eps and the sign of vals[j]-ref otherwise.  
           signals = [for(j=[i+2:1:plen-(i==0 && closed? 2: 1)]) 
-                        abs(vals[j]-ref) <  eps ? 0 : sign(vals[j]-ref) ] 
+                        abs(vals[j]-ref) <  eps ? 0 : sign(vals[j]-ref) ]
         )
         if(max(signals)>=0 && min(signals)<=0 ) // some remaining edge intersects line [a1,a2]
         for(j=[i+2:1:plen-(i==0 && closed? 3: 2)])
@@ -325,10 +329,10 @@ function _sum_preserving_round(data, index=0) =
 // Usage:
 //   newpath = subdivide_path(path, n|refine=|maxlen=, [method=], [closed=], [exact=]);
 // Description:
-//   Takes a path as input (closed or open) and subdivides the path to produce a more
+//   Takes a {{path}} as input (closed or open) and subdivides the path to produce a more
 //   finely sampled path.  You control the subdivision process by using the `maxlen` arg
 //   to specify a maximum segment length, or by specifying `n` or `refine`, which request
-//   a certain point count in the output.
+//   a certain {{point}} count in the output.
 //   .
 //   You can specify the point count using the `n` option, where
 //   you give the number of points you want in the output, or you can use
@@ -471,8 +475,8 @@ function subdivide_path(path, n, refine, maxlen, closed=true, exact, method) =
 // Usage:
 //   newpath = resample_path(path, n|spacing=, [closed=]);
 // Description:
-//   Compute a uniform resampling of the input path.  If you specify `n` then the output path will have n
-//   points spaced uniformly (by linear interpolation along the input path segments).  The only points of the
+//   Compute a uniform resampling of the input {{path}}.  If you specify `n` then the output path will have n
+//   {{points}} spaced uniformly (by linear interpolation along the input path segments).  The only points of the
 //   input path that are guaranteed to appear in the output path are the starting and ending points, and any
 //   points that have an angular deflection of at least the number of degrees given in `keep_corners`.
 //   If you specify `spacing` then the length you give will be rounded to the nearest spacing that gives
@@ -562,14 +566,14 @@ function resample_path(path, n, spacing, keep_corners, closed=true) =
 // Section: Path Geometry
 
 // Function: is_path_simple()
-// Synopsis: Returns true if a path has no self intersections.
+// Synopsis: Returns true if a {{path}} has no self intersections.
 // Topics: Paths
 // See Also: is_path()
 // Usage:
 //   bool = is_path_simple(path, [closed], [eps]);
 // Description:
-//   Returns true if the given 2D path is simple, meaning that it has no self-intersections.
-//   Repeated points are not considered self-intersections: a path with such points can
+//   Returns true if the given 2D {{path}} is simple, meaning that it has no self-intersections.
+//   Repeated {{points}} are not considered self-intersections: a path with such points can
 //   still be simple.  
 //   If closed is set to true then treat the path as a polygon.
 // Arguments:
@@ -581,6 +585,9 @@ function is_path_simple(path, closed, eps=EPSILON) =
     let(closed=default(closed,false))
     assert(is_path(path, 2),"Must give a 2D path")
     assert(is_bool(closed))
+    let(
+        path = deduplicate(path,closed=closed,eps=eps)
+    )
     // check for path reversals
     [for(i=[0:1:len(path)-(closed?2:3)])
          let(v1=path[i+1]-path[i],
@@ -595,13 +602,13 @@ function is_path_simple(path, closed, eps=EPSILON) =
 
 
 // Function: path_closest_point()
-// Synopsis: Returns the closest place on a path to a given point.
+// Synopsis: Returns the closest place on a {{path}} to a given {{point}}.
 // Topics: Paths
 // See Also: point_line_distance(), line_closest_point()
 // Usage:
 //   index_pt = path_closest_point(path, pt);
 // Description:
-//   Finds the closest path segment, and point on that segment to the given point.
+//   Finds the closest {{path}} segment, and {{point}} on that segment to the given point.
 //   Returns `[SEGNUM, POINT]`
 // Arguments:
 //   path = Path of any dimension or a 1-region.
@@ -633,7 +640,7 @@ function path_closest_point(path, pt, closed=true) =
 // Usage:
 //   tangs = path_tangents(path, [closed], [uniform]);
 // Description:
-//   Compute the tangent vector to the input path.  The derivative approximation is described in deriv().
+//   Compute the tangent vector to the input {{path}}.  The derivative approximation is described in deriv().
 //   The returns vectors will be normalized to length 1.  If any derivatives are zero then
 //   the function fails with an error.  If you set `uniform` to false then the sampling is
 //   assumed to be non-uniform and the derivative is computed with adjustments to produce corrected
@@ -672,15 +679,15 @@ function path_tangents(path, closed, uniform=true) =
 // Usage:
 //   norms = path_normals(path, [tangents], [closed]);
 // Description:
-//   Compute the normal vector to the input path.  This vector is perpendicular to the
+//   Compute the normal vector to the input {{path}}.  This vector is perpendicular to the
 //   path tangent and lies in the plane of the curve.  For 3d paths we define the plane of the curve
-//   at path point i to be the plane defined by point i and its two neighbors.  At the endpoints of open paths
+//   at path {{point}} i to be the plane defined by point i and its two neighbors.  At the endpoints of open paths
 //   we use the three end points.  For 3d paths the computed normal is the one lying in this plane that points
-//   towards the center of curvature at that path point.  For 2d paths, which lie in the xy plane, the normal
+//   towards the center of curvature at that path point.  For 2D paths, which lie in the xy plane, the normal
 //   is the path pointing to the right of the direction the path is traveling.  If points are collinear then
 //   a 3d path has no center of curvature, and hence the 
 //   normal is not uniquely defined.  In this case the function issues an error.
-//   For 2d paths the plane is always defined so the normal fails to exist only
+//   For 2D paths the plane is always defined so the normal fails to exist only
 //   when the derivative is zero (in the case of repeated points).
 // Arguments:
 //   path = 2D or 3D path or a 1-region
@@ -711,13 +718,13 @@ function path_normals(path, tangents, closed) =
 
 
 // Function: path_curvature()
-// Synopsis: Returns the estimated numerical curvature of the path.
+// Synopsis: Returns the estimated numerical curvature of the {{path}}.
 // Topics: Paths
 // See Also: path_tangents(), path_normals(), path_torsion()
 // Usage:
 //   curvs = path_curvature(path, [closed]);
 // Description:
-//   Numerically estimate the curvature of the path (in any dimension).
+//   Numerically estimate the curvature of the {{path}} (in any dimension).
 // Arguments:
 //   path = path in any dimension or a 1-region
 //   closed = if true then treat the path as a polygon.  Default: false
@@ -739,13 +746,13 @@ function path_curvature(path, closed) =
 
 
 // Function: path_torsion()
-// Synopsis: Returns the estimated numerical torsion of the path.
+// Synopsis: Returns the estimated numerical torsion of the {{path}}.
 // Topics: Paths
 // See Also: path_tangents(), path_normals(), path_curvature()
 // Usage:
 //   torsions = path_torsion(path, [closed]);
 // Description:
-//   Numerically estimate the torsion of a 3d path.
+//   Numerically estimate the torsion of a 3d {{path}}.
 // Arguments:
 //   path = 3D path
 //   closed = if true then treat path as a polygon.  Default: false
@@ -763,24 +770,50 @@ function path_torsion(path, closed=false) =
     ];
 
 
+// Function: surface_normals()
+// Synopsis: Estimates the normals to a surface defined by a {{point}} array
+// Topics: Math, Geometry
+// See Also: path_tangents(), path_normals()
+// Usage:
+//   normals = surface_normals(surf, [col_wrap=], [row_wrap=]);
+// Description:
+//   Numerically estimate the normals to a surface defined by a 2D array of 3d {{points}}, which can
+//   also be regarded as an array of {{paths}} (all of the same length).  
+// Arguments:
+//   surf = surface in 3d defined by a 2D array of points
+//   ---
+//   row_wrap = if true then wrap path in the row direction (first index)
+//   col_wrap = if true then wrap path in the column direction (second index)
+
+function surface_normals(surf, col_wrap=false, row_wrap=false) =
+  let(
+      rowderivs = [for(y=[0:1:len(surf)-1])  path_tangents(surf[y],closed=col_wrap)],
+      colderivs = [for(x=[0:1:len(surf[0])-1]) path_tangents(column(surf,x), closed=row_wrap)]
+  )
+  [for(y=[0:1:len(surf)-1])
+     [for(x=[0:1:len(surf[0])-1])
+         cross(colderivs[x][y],rowderivs[y][x])]];
+
+
+
 // Section: Breaking paths up into subpaths
 
 
 
 // Function: path_cut()
-// Synopsis: Cuts a path into subpaths at various points.
+// Synopsis: Cuts a {{path}} into subpaths at various {{points}}.
 // SynTags: PathList
 // Topics: Paths, Path Subdivision
 // See Also: split_path_at_self_crossings(), path_cut_points()
 // Usage:
 //   path_list = path_cut(path, cutdist, [closed]);
 // Description:
-//   Given a list of distances in `cutdist`, cut the path into
+//   Given a list of distances in `cutdist`, cut the {{path}} into
 //   subpaths at those lengths, returning a list of paths.
 //   If the input path is closed then the final path will include the
-//   original starting point.  The list of cut distances must be
+//   original starting {{point}}.  The list of cut distances must be
 //   in ascending order and should not include the endpoints: 0 
-//   or len(path).  If you repeat a distance you will get an
+//   or `len(path)`.  If you repeat a distance you will get an
 //   empty list in that position in the output.  If you give an
 //   empty cutdist array you will get the input path as output
 //   (without the final vertex doubled in the case of a closed path).
@@ -798,8 +831,8 @@ function path_cut(path,cutdist,closed) =
   let(closed=default(closed,false))
   assert(is_bool(closed))
   assert(is_vector(cutdist))
-  assert(last(cutdist)<path_length(path,closed=closed),"Cut distances must be smaller than the path length")
-  assert(cutdist[0]>0, "Cut distances must be strictly positive")
+  assert(last(cutdist)<path_length(path,closed=closed)-EPSILON,"Cut distances must be smaller than the path length")
+  assert(cutdist[0]>EPSILON, "Cut distances must be strictly positive")
   let(
       cutlist = path_cut_points(path,cutdist,closed=closed)
   )
@@ -830,14 +863,14 @@ function _path_cut_getpaths(path, cutlist, closed) =
 
 
 // Function: path_cut_points()
-// Synopsis: Returns a list of cut points at a list of distances from the first point in a path.
+// Synopsis: Returns a list of cut {{points}} at a list of distances from the first point in a {{path}}.
 // Topics: Paths, Path Subdivision
 // See Also: path_cut(), split_path_at_self_crossings()
 // Usage:
 //   cuts = path_cut_points(path, cutdist, [closed=], [direction=]);
 //
 // Description:
-//   Cuts a path at a list of distances from the first point in the path.  Returns a list of the cut
+//   Cuts a {{path}} at a list of distances from the first {{point}} in the path.  Returns a list of the cut
 //   points and indices of the next point in the path after that point.  So for example, a return
 //   value entry of [[2,3], 5] means that the cut point was [2,3] and the next point on the path after
 //   this point is path[5].  If the path is too short then path_cut_points returns undef.  If you set
@@ -968,14 +1001,14 @@ function _cut_to_seg_u_form(pathcut, path, closed) =
 
 
 // Function: split_path_at_self_crossings()
-// Synopsis: Split a 2D path wherever it crosses itself.
+// Synopsis: Split a 2D {{path}} wherever it crosses itself.
 // SynTags: PathList
 // Topics: Paths, Path Subdivision
 // See Also: path_cut(), path_cut_points()
 // Usage:
 //   paths = split_path_at_self_crossings(path, [closed], [eps]);
 // Description:
-//   Splits a 2D path into sub-paths wherever the original path crosses itself.
+//   Splits a 2D {{path}} into sub-paths wherever the original path crosses itself.
 //   Splits may occur mid-segment, so new vertices will be created at the intersection points.
 //   Returns a list of the resulting subpaths.  
 // Arguments:
@@ -1039,14 +1072,14 @@ function _tag_self_crossing_subpaths(path, nonzero, closed=true, eps=EPSILON) =
 
 
 // Function: polygon_parts()
-// Synopsis: Parses a self-intersecting polygon into a list of non-intersecting polygons.
+// Synopsis: Parses a self-intersecting polygon into a list of non-intersecting {{polygons}}.
 // SynTags: PathList
 // Topics: Paths, Polygons
 // See Also: split_path_at_self_crossings(), path_cut(), path_cut_points()
 // Usage:
 //   splitpolys = polygon_parts(poly, [nonzero], [eps]);
 // Description:
-//   Given a possibly self-intersecting 2d polygon, constructs a representation of the original polygon as a list of
+//   Given a possibly self-intersecting 2D {{polygon}}, constructs a representation of the original polygon as a list of
 //   non-intersecting simple polygons.  If nonzero is set to true then it uses the nonzero method for defining polygon membership.
 //   For simple cases, such as the pentagram, this will produce the outer perimeter of a self-intersecting polygon.  
 // Arguments:
@@ -1242,6 +1275,60 @@ function _assemble_path_fragments(fragments, eps=EPSILON, _finished=[]) =
         eps=eps,
         _finished=finished
     );
+
+
+/// Different but similar path assembly function that is much faster than
+/// _assemble_path_fragments and can work in 3d, but cannot handle loops.
+///
+/// Takes a list of paths that are in the correct direction and assembles
+/// them into a list of paths.  Returns a list of assembled paths.
+/// If closed is false then any paths that are closed will have duplicate
+/// endpoints, and open paths will not have duplicate endpoints.
+/// If closed=true then all paths are assumed closed and none of the returned
+/// paths will have duplicate endpoints.
+///
+/// It is assumed that the paths do not intersect each other.
+/// Paths can be in any dimension
+
+function _assemble_partial_paths(paths, closed=false, eps=1e-7) =
+    let(
+        pathlist = _assemble_partial_paths_recur(paths, eps)
+        //// this eliminates crossing paths that cross only at vertices in the input paths lists
+        // splitpaths =
+        //     [for(path=pathlist) each
+        //        let(
+        //            searchlist = vector_search(path,eps,path),
+        //            duplist = [for(i=idx(searchlist)) if (len(searchlist[i])>1) i]
+        //        )
+        //        duplist==[] ? [path]
+        //       :               
+        //        let(
+        //            fragments = [for(i=idx(duplist)) select(path, duplist[i], select(duplist,i+1))]
+        //        )
+        //        len(fragments)==1 ? fragments
+        //                          : _assemble_path_fragments(fragments)
+        //     ]
+    )
+    closed ? [for(path=pathlist) list_unwrap(path)] : pathlist;
+
+
+function _assemble_partial_paths_recur(edges, eps, paths=[], i=0) =
+    i==len(edges) ? paths :
+    norm(edges[i][0]-last(edges[i]))<eps ? _assemble_partial_paths_recur(edges, eps, paths,i+1) :
+    let(    // Find paths that connects on left side and right side of the edges (if one exists)
+        
+        left = [for(j=idx(paths)) if (approx(last(paths[j]),edges[i][0],eps)) j],
+        right = [for(j=idx(paths)) if (approx(last(edges[i]),paths[j][0],eps)) j]
+    )
+    let(
+        keep_path = list_remove(paths,[if (len(left)>0) left[0],if (len(right)>0) right[0]]),
+        update_path =  left==[] && right==[] ? edges[i]
+                    : left==[] ? concat(list_head(edges[i]),paths[right[0]])
+                    : right==[] ?  concat(paths[left[0]],slice(edges[i],1,-1))
+                    : left[0] != right[0] ? concat(paths[left[0]],slice(edges[i],1,-2), paths[right[0]])
+                    : concat(paths[left[0]], slice(edges[i],1,-1)) // last arg -2 removes duplicate endpoints but this is handled in passthrough function
+    )
+    _assemble_partial_paths_recur(edges, eps, concat(keep_path, [update_path]), i+1);
 
 
 

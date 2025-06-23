@@ -3,7 +3,7 @@
 //   This file provides 2D Boolean set operations on polygons, where you can
 //   compute, for example, the intersection or union of the shape defined by point lists, producing
 //   a new point list.  Of course, such operations may produce shapes with multiple
-//   components.  To handle that, we use "regions" which are lists of paths representing the polygons.
+//   components.  To handle that, we use "regions", which are lists of paths representing the polygons.
 //   In addition to set operations, you can calculate offsets, determine whether a point is in a
 //   region and you can decompose a region into parts.  
 // Includes:
@@ -19,16 +19,16 @@
 
 
 // Section: Regions
-//   A region is a list of polygons meeting these conditions:
+//   A {{region}} is a list of polygons meeting these conditions:
 //   .
 //   - Every polygon on the list is simple, meaning it does not intersect itself
 //   - Two polygons on the list do not cross each other
 //   - A vertex of one polygon never meets the edge of another one except at a vertex
 //   .
-//   Note that this means vertex-vertex touching between two polygons is acceptable
+//   This means vertex-vertex touching between two polygons is acceptable
 //   to define a region.  Note, however, that regions with vertex-vertex contact usually
 //   cannot be rendered with CGAL.  See {{is_valid_region()}} for examples of valid regions and
-//   lists of polygons that are not regions.  Note that {{is_region_simple()}} will identify
+//   lists of polygons that are not regions. Note that {{is_region_simple()}} identifies
 //   regions with no polygon intersections at all, which should render successfully witih CGAL.  
 //   .
 //   The actual geometry of the region is defined by XORing together
@@ -37,35 +37,59 @@
 //   Checking that a list of polygons is a valid region, meaning that it satisfies all of the conditions
 //   above, can be a time consuming test, so it is not done automatically.  It is your responsibility to ensure that your regions are
 //   compliant.  You can construct regions by making a suitable list of polygons, or by using
-//   set operation function such as union() or difference(), which all acccept polygons, as
-//   well as regions, as their inputs.  And if you must you can clean up an ill-formed region using make_region(),
-//   which will break up self-intersecting polygons and polygons that cross each other.  
+//   set operation function such as {{union()}} or {{difference()}}, which all acccept polygons, as
+//   well as regions, as their inputs. If you must, you can clean up an ill-formed region using
+//   {{make_region()}}, which breaks up self-intersecting polygons and polygons that cross each other.
+//
+// Figure(2D): An Sample {{Region}}
+//   path1 = union([
+//       circle(d=100),
+//       translate([50,20], p=circle(d=40))
+//   ])[0];
+//   rgn = [
+//       // Main shape
+//       select(path1, hull(path1)),
+//       translate([50,20], p=circle(d=20)),
+//       rot(-8, p=hexagon(d=60, rounding=10)),
+//       // Inner disjointed shape
+//       circle(d=25),
+//       rot(30-8, p=rect(10)),
+//       // External disjoined shape
+//       each translate([60,-25], p=rot(55, p=[
+//           rect([20,15], rounding=5),
+//           ellipse([6,3])
+//       ])),
+//   ];
+//   region(rgn);
+//
 
+// Definitions:
+//   Region|Regions = A list of one or more non-intersecting {{polygons}} representing a union of one or more disconnected polygons that may have internal holes.
 
 // Function: is_region()
-// Synopsis: Returns true if the input appears to be a region.
+// Synopsis: Returns true if the input appears to be a {{region}}.
 // Topics: Regions, Paths, Polygons, List Handling
 // See Also: is_valid_region(), is_1region(), is_region_simple()
 // Usage:
 //   bool = is_region(x);
 // Description:
-//   Returns true if the given item looks like a region.  A region is a list of non-crossing simple polygons.  This test just checks
+//   Returns true if the given item looks like a {{region}}.  A region is a list of non-crossing simple {{polygons}}.  This test just checks
 //   that the argument is a list whose first entry is a path.  
 function is_region(x) = is_list(x) && is_path(x.x);
 
 
 // Function: is_valid_region()
-// Synopsis: Returns true if the input is a valid region.
+// Synopsis: Returns true if the input is a valid {{region}}.
 // Topics: Regions, Paths, Polygons, List Handling
 // See Also: is_region(), is_1region(), is_region_simple()
 // Usage:
 //   bool = is_valid_region(region, [eps]);
 // Description:
-//   Returns true if the input is a valid region, meaning that it is a list of simple polygons whose segments do not cross each other.
-//   This test can be time consuming with regions that contain many points.
-//   It differs from `is_region()` which simply checks that the object is a list whose first entry is a path
+//   Returns true if the input is a valid {{region}}, meaning that it is a list of simple {{polygons}} whose segments do not cross each other.
+//   This test can be time consuming with regions that contain many {{points}}.
+//   It differs from `is_region()`, which simply checks that the object is a list whose first entry is a path
 //   because it searches all the list polygons for any self-intersections or intersections with each other.  
-//   Will also return true if given a single simple polygon.  Use {{make_region()}} to convert sets of self-intersecting polygons into
+//   Also returns true if given a single simple polygon.  Use {{make_region()}} to convert sets of self-intersecting polygons into
 //   a region.  
 // Arguments:
 //   region = region to check
@@ -86,7 +110,7 @@ function is_region(x) = is_list(x) && is_path(x.x);
 //   object = [square(10), move([8,8], square(8))];
 //   rainbow(object)stroke($item, width=.2,closed=true);
 //   back(17)text(is_valid_region(object) ? "region" : "non-region", size=2);
-// Example(2D,NoAxes): A union is one way to fix the above example and get a region.  (Note that union is run here on two simple polygons, which are valid regions themselves and hence acceptable inputs to union.
+// Example(2D,NoAxes): A union is one way to fix the above example and get a region. Union is run here on two simple polygons, which are valid regions themselves and hence acceptable inputs to union.
 //   region = union([square(10), move([8,8], square(8))]);
 //   rainbow(region)stroke($item, width=.25,closed=true);
 //   back(12)text(is_valid_region(region) ? "region" : "non-region", size=2);
@@ -170,7 +194,7 @@ function is_region(x) = is_list(x) && is_path(x.x);
 //   move([-5,11.4])text(is_valid_region(region) ? "region" : "non-region", size=3);
 function is_valid_region(region, eps=EPSILON) =
    let(region=force_region(region))
-   assert(is_region(region), "Input is not a region")
+   assert(is_region(region), "\nInput is not a region.")
    // no short paths
    [for(p=region) if (len(p)<3) 1] == []
    &&
@@ -220,7 +244,7 @@ function _polygon_crosses_region(region, poly, eps=EPSILON) =
 // Usage:
 //   bool = is_region_simple(region, [eps]);
 // Description:
-//   We extend the notion of the simple path to regions: a simple region is entirely
+//   We extend the notion of the simple {{path}} to {{regions}}: a simple region is entirely
 //   non-self-intersecting, meaning that it is formed from a list of simple polygons that
 //   don't intersect each other at all&mdash;not even with corner contact points.
 //   Regions with corner contact are valid but may fail CGAL.  Simple regions
@@ -238,7 +262,7 @@ function _polygon_crosses_region(region, poly, eps=EPSILON) =
 //   move([1,13])text(is_region_simple(region) ? "simple" : "not-simple", size=2);
 function is_region_simple(region, eps=EPSILON) =
    let(region=force_region(region))
-   assert(is_region(region), "Input is not a region")
+   assert(is_region(region), "\nInput is not a region.")
    [for(p=region) if (!is_path_simple(p,closed=true,eps=eps)) 1] == []
    &&
    [for(i=[0:1:len(region)-2])
@@ -247,7 +271,7 @@ function is_region_simple(region, eps=EPSILON) =
   
   
 // Function: make_region()
-// Synopsis: Converts lists of intersecting polygons into valid regions.
+// Synopsis: Converts lists of intersecting {{polygons}} into valid {{regions}}.
 // SynTags: Region
 // Topics: Regions, Paths, Polygons, List Handling
 // See Also: force_region(), region()
@@ -255,8 +279,8 @@ function is_region_simple(region, eps=EPSILON) =
 // Usage:
 //   region = make_region(polys, [nonzero], [eps]);
 // Description:
-//   Takes a list of polygons that may intersect themselves or cross each other 
-//   and converts it into a properly defined region without these defects.
+//   Takes a list of {{polygons}} that may intersect themselves or cross each other 
+//   and converts it into a properly defined {{region}} without these defects.
 // Arguments:
 //   polys = list of polygons to use
 //   nonzero = set to true to use nonzero rule for polygon membership.  Default: false
@@ -275,7 +299,7 @@ function is_region_simple(region, eps=EPSILON) =
 
 function make_region(polys,nonzero=false,eps=EPSILON) =
      let(polys=force_region(polys))
-     assert(is_region(polys), "Input is not a region")
+     assert(is_region(polys), "\nInput is not a region.")
      exclusive_or(
                   [for(poly=polys) each polygon_parts(poly,nonzero,eps)],
                   eps=eps);
@@ -297,14 +321,14 @@ function force_region(poly) = is_path(poly) ? [poly] : poly;
 // Section: Turning a region into geometry
 
 // Module: region()
-// Synopsis: Creates the 2D polygons described by the given region or list of polygons.
+// Synopsis: Creates the 2D {{polygons}} described by the given {{region}} or list of polygons.
 // SynTags: Geom
 // Topics: Regions, Paths, Polygons, List Handling
-// See Also: make_region(), region()
+// See Also: make_region(), debug_region()
 // Usage:
 //   region(r, [anchor], [spin=], [cp=], [atype=]) [ATTACHMENTS];
 // Description:
-//   Creates the 2D polygons described by the given region or list of polygons.  This module works on
+//   Creates the 2D {{polygons}} described by the given {{region}} or list of polygons.  This module works on
 //   arbitrary lists of polygons that cross each other and hence do not define a valid region.  The
 //   displayed result is the exclusive-or of the polygons listed in the input. 
 // Arguments:
@@ -314,9 +338,14 @@ function force_region(poly) = is_path(poly) ? [poly] : poly;
 //   spin = Rotate this many degrees after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
 //   cp = Centerpoint for determining intersection anchors or centering the shape.  Determintes the base of the anchor vector.  Can be "centroid", "mean", "box" or a 2D point.  Default: "centroid"
 //   atype = Set to "hull" or "intersect" to select anchor type.  Default: "hull"
+// Named Anchors:
+//   "origin" = The native position of the region.
+// Anchor Types:
+//   "hull" = Anchors to the virtual convex hull of the region.
+//   "intersect" = Anchors to the outer edge of the region.
 // Example(2D): Displaying a region
 //   region([circle(d=50), square(25,center=true)]);
-// Example(2D): Displaying a list of polygons that intersect each other, which is not a region
+// Example(2D): Displaying a list of polygons that intersect each other, which is not a region.
 //   rgn = concat(
 //       [for (d=[50:-10:10]) circle(d=d-5)],
 //       [square([60,10], center=true)]
@@ -324,9 +353,9 @@ function force_region(poly) = is_path(poly) ? [poly] : poly;
 //   region(rgn);
 module region(r, anchor="origin", spin=0, cp="centroid", atype="hull")
 {
-    assert(in_list(atype, _ANCHOR_TYPES), "Anchor type must be \"hull\" or \"intersect\"");
+    assert(in_list(atype, _ANCHOR_TYPES), "\nAnchor type must be \"hull\" or \"intersect\".");
     r = force_region(r);
-    dummy=assert(is_region(r), "Input is not a region");
+    dummy=assert(is_region(r), "\nInput is not a region.");
     points = flatten(r);
     lengths = [for(path=r) len(path)];
     starts = [0,each cumsum(lengths)];
@@ -339,16 +368,61 @@ module region(r, anchor="origin", spin=0, cp="centroid", atype="hull")
 
 
 
+// Module: debug_region()
+// Synopsis: Draws an annotated {{region}}.
+// SynTags: Geom
+// Topics: Shapes (2D)
+// See Also: region(), debug_polygon(), debug_vnf(), debug_bezier()
+//
+// Usage:
+//   debug_region(region, [vertices=], [edges=], [convexity=], [size=]);
+// Description:
+//   A replacement for {{region()}} that displays the {{region}} and labels the vertices and
+//   edges.  The region vertices and edges are labeled with letters to identify the path
+//   component in the region, starting with A.  
+//   The start of each path is marked with a blue circle and the end with a pink diamond.
+//   You can suppress the display of vertex or edge labeling using the `vertices` and `edges` arguments.
+// Arguments:
+//   region = region to display
+//   ---
+//   vertices = if true display vertex labels and start/end markers.  Default: true
+//   edges = if true display edge labels.  Default: true
+//   convexity = The max number of walls a ray can pass through the given polygon paths.
+//   size = The base size of the line and labels.
+// Example(2D,Big):
+//   region = make_region([square(15), move([5,5],square(15))]);
+//   debug_region(region,size=1);
+module debug_region(region, vertices=true, edges=true, convexity=2, size=1)
+{
+  
+  if (is_path(region) || (is_region(region) && len(region)==1))
+    debug_polygon(force_path(region), vertices=vertices, edges=edges, convexity=convexity, size=size);
+  else {
+    for(i=idx(region))
+      echo(str("points_",chr(97+i)," = ",region[i]))
+    linear_extrude(height=0.01, convexity=convexity, center=true) 
+      region(region);
+    if(vertices)
+        _debug_poly_verts(region,size);
+    for(j=idx(region)){
+      if(edges)
+        _debug_poly_edges(j,region[j],vertices=vertices,size=size);
+    }      
+  }      
+}
+
+
+
 // Section: Geometrical calculations with regions
 
 // Function: point_in_region()
-// Synopsis: Tests if a point is inside, outside, or on the border of a region. 
+// Synopsis: Tests if a point is inside, outside, or on the border of a {{region}}. 
 // Topics: Regions, Points, Comparison
 // See Also: region_area(), are_regions_equal()
 // Usage:
 //   check = point_in_region(point, region, [eps]);
 // Description:
-//   Tests if a point is inside, outside, or on the border of a region.  
+//   Tests if a point is inside, outside, or on the border of a {{region}}.  
 //   Returns -1 if the point is outside the region.
 //   Returns 0 if the point is on the boundary.
 //   Returns 1 if the point lies inside the region.
@@ -366,8 +440,8 @@ module region(r, anchor="origin", spin=0, cp="centroid", atype="hull")
 //       move([x,y]) color("#ddf") circle(0.1, $fn=12);
 function point_in_region(point, region, eps=EPSILON) =
     let(region=force_region(region))
-    assert(is_region(region), "Region given to point_in_region is not a region")
-    assert(is_vector(point,2), "Point must be a 2D point in point_in_region")
+    assert(is_region(region), "\nRegion given to point_in_region is not a region.")
+    assert(is_vector(point,2), "\nPoint must be a 2D point in point_in_region.")
     _point_in_region(point, region, eps);
 
 function _point_in_region(point, region, eps=EPSILON, i=0, cnt=0) =
@@ -380,19 +454,19 @@ function _point_in_region(point, region, eps=EPSILON, i=0, cnt=0) =
 
 
 // Function: region_area()
-// Synopsis: Computes the area of the specified valid region.
+// Synopsis: Computes the area of the specified valid {{region}}.
 // Topics: Regions, Area
 // Usage:
 //   area = region_area(region);
 // Description:
-//   Computes the area of the specified valid region. (If the region is invalid and has self intersections
+//   Computes the area of the specified valid {{region}}. (If the region is invalid and has self intersections
 //   the result is meaningless.)
 // Arguments:
 //   region = region whose area to compute
 // Examples:
 //   area = region_area([square(10), right(20,square(8))]);  // Returns 164
 function region_area(region) =
-  assert(is_region(region), "Input must be a region")
+  assert(is_region(region), "\nInput must be a region.")
   let(
       parts = region_parts(region)
   )
@@ -418,7 +492,7 @@ function are_regions_equal(region1, region2, either_winding=false) =
         region1=force_region(region1),
         region2=force_region(region2)
     )
-    assert(is_region(region1) && is_region(region2), "One of the inputs is not a region")
+    assert(is_region(region1) && is_region(region2), "\nOne of the inputs is not a region.")
     len(region1) != len(region2)? false :
     __are_regions_equal(either_winding?_clockwise_region(region1):region1,
                         either_winding?_clockwise_region(region2):region2,
@@ -511,15 +585,15 @@ function _region_region_intersections(region1, region2, closed1=true,closed2=tru
 
 
 // Function: split_region_at_region_crossings()
-// Synopsis: Splits regions where polygons touch and at intersections.
+// Synopsis: Splits {{regions}} where {{polygons}} touch and at intersections.
 // Topics: Regions, Polygons, List Handling
 // See Also: region_parts()
 // 
 // Usage:
 //   split_region = split_region_at_region_crossings(region1, region2, [closed1], [closed2], [eps])
 // Description:
-//   Splits region1 at the places where polygons in region1 touches each other at corners and at locations
-//   where region1 intersections region2.  Split region2 similarly with respect to region1.
+//   Splits the {{region} `region1` at the places where its {{polygons}} touches each other at corners and at locations
+//   where `region1` intersects `region2`.  Split `region2` similarly with respect to `region1`.
 //   The return is a pair of results of the form [split1, split2] where split1=[frags1,frags2,...]
 //   and frags1 is a list of paths that when placed end to end (in the given order), give the first polygon of region1.
 //   Each path in the list is either entirely inside or entirely outside region2.  
@@ -527,7 +601,7 @@ function _region_region_intersections(region1, region2, closed1=true,closed2=tru
 //   the same list, but for the polygons in region2.  
 //   You can pass a single polygon in for either region, but the output will be a singleton list, as if
 //   you passed in a singleton region.  If you set the closed parameters to false then the region components
-//   will be treated as open paths instead of polygons.  
+//   are treated as open paths instead of polygons.  
 // Arguments:
 //   region1 = first region
 //   region2 = second region
@@ -549,7 +623,7 @@ function split_region_at_region_crossings(region1, region2, closed1=true, closed
         region1=force_region(region1),
         region2=force_region(region2)
     )
-    assert(is_region(region1) && is_region(region2),"One of the inputs is not a region")
+    assert(is_region(region1) && is_region(region2),"\nOne of the inputs is not a region.")
     let(
         xings = _region_region_intersections(region1, region2, closed1, closed2, eps),
         regions = [region1,region2],
@@ -578,15 +652,15 @@ function split_region_at_region_crossings(region1, region2, closed1=true, closed
                 
 
 // Function: region_parts()
-// Synopsis: Splits a region into a list of regions.
+// Synopsis: Splits a {{region}} into a list of connected regions.
 // SynTags: RegList
 // Topics: Regions, List Handling
 // See Also: split_region_at_region_crossings()
 // Usage:
 //   rgns = region_parts(region);
 // Description:
-//   Divides a region into a list of connected regions.  Each connected region has exactly one clockwise outside boundary
-//   and zero or more counter-clockwise outlines defining internal holes.  Note that behavior is undefined on invalid regions whose
+//   Divides a {{region}} into a list of connected regions.  Each connected region has exactly one clockwise outside boundary
+//   and zero or more counter-clockwise outlines defining internal holes. Behavior is undefined on invalid regions whose
 //   components cross each other.
 // Example(2D,NoAxes):
 //   R = [for(i=[1:7]) square(i,center=true)];
@@ -604,7 +678,7 @@ function region_parts(region) =
    let(
        region = force_region(region)
    )
-   assert(is_region(region), "Input is not a region")
+   assert(is_region(region), "\nInput is not a region.")
    let(
        inside = [for(i=idx(region))
                     let(pt = mean([region[i][0], region[i][1]]))
@@ -655,7 +729,7 @@ function _offset_chamfer(center, points, delta) =
 
 
 function _shift_segment(segment, d) =
-    assert(!approx(segment[0],segment[1]),"Path has repeated points")
+    assert(!approx(segment[0],segment[1]),"\nPath has repeated points.")
     move(d*line_normal(segment),segment);
 
 
@@ -731,7 +805,7 @@ function _good_segments(path, d, shiftsegs, closed, quality) =
 // we want to quit as soon as we find a point with distance > d, hence the recursive code structure.
 //
 // This test is approximate because it only samples the points listed in alpha.  Listing more points
-// will make the test more accurate, but slower.
+// makes the test more accurate, but slower.
 function _segment_good(path,pathseg_unit,pathseg_len, d, seg,alpha ,index=0) =
     index == len(alpha) ? false :
     _point_dist(path,pathseg_unit,pathseg_len, alpha[index]*seg[0]+(1-alpha[index])*seg[1]) > d ? true :
@@ -754,23 +828,25 @@ function _point_dist(path,pathseg_unit,pathseg_len,pt) =
 
 
 // Function: offset()
-// Synopsis: Takes a 2D path, polygon or region and returns a path offset by an amount.
+// Synopsis: Takes a 2D {{path}}, {{polygon}} or {{region}} and returns a path offset by an amount.
 // SynTags: Path, Region, Ext
 // Topics: Paths, Polygons, Regions
 // Usage:
-//   offsetpath = offset(path, [r=|delta=], [chamfer=], [closed=], [check_valid=], [quality=], [same_length=])
-//   path_faces = offset(path, return_faces=true, [r=|delta=], [chamfer=], [closed=], [check_valid=], [quality=], [firstface_index=], [flip_faces=])
+//   offsetpath = offset(path, [r=|delta=], [chamfer=], [closed=], [check_valid=], [quality=], [error=], [same_length=])
+//   path_faces = offset(path, return_faces=true, [r=|delta=], [chamfer=], [closed=], [check_valid=], [quality=], [error=], [firstface_index=], [flip_faces=])
 // Description:
-//   Takes a 2D input path, polygon or region and returns a path offset by the specified amount.  As with the built-in
+//   Takes a 2D input {{path}}, {{polygon}} or {{region}} and returns a path offset by the specified amount.  As with the built-in
 //   offset() module, you can use `r` to specify rounded offset and `delta` to specify offset with
 //   corners.  If you used `delta` you can set `chamfer` to true to get chamfers.
-//   For paths and polygons positive offsets make the polygons larger.  For paths, 
-//   positive offsets shift the path to the left, relative to the direction of the path.
+//   When `closed=true` (the default), the input is treated as a polygon.  If the input is a region it is treated as a collection
+//   of polygons.  In this case, positive offset values make the shape larger.  If you set `closed=false` then the input is treated as a path
+//   with distinct start and end points.  For paths, positive offsets shifts the path to the left, relative to the direction of the path.
+//   Note that a path that happens to end at its starting point is not the same as a polygon, and the offset result may differ at the ends.  
 //   .
 //   If you use `delta` without chamfers, the path must not include any 180 degree turns, where the path
 //   reverses direction.  Such reversals result in an offset with two parallel segments, so they cannot be
-//   extended to an intersection point.  If you select chamfering the reversals are permitted and will result
-//   in a single segment connecting the parallel segments.  With rounding, a semi-circle will connect the two offset segments.
+//   extended to an intersection point.  If you select chamfering, the reversals are permitted and result
+//   in a single segment connecting the parallel segments. With rounding, a semi-circle connects the two offset segments.
 //   Note also that repeated points are always illegal in the input; remove them first with {{deduplicate()}}.  
 //   .
 //   When offsets shrink the path, segments cross and become invalid.  By default `offset()` checks
@@ -782,12 +858,12 @@ function _point_dist(path,pathseg_unit,pathseg_len,pt) =
 //   The erroneous removal of segments is more common when your input
 //   contains very small segments and in this case can result in an invalid situation where the remaining
 //   valid segments are parallel and cannot be connected to form an offset curve.  If this happens, you
-//   will get an error message to this effect.  The only solutions are to either remove the small segments with {{deduplicate()}},
+//   get an error message to this effect.  The only solutions are either to remove the small segments with {{deduplicate()}},
 //   or if your path permits it, to set check_valid to false.  
 //   .
 //   Another situation that can arise with validity testing is that the test is not sufficiently thorough and some
 //   segments persist that should be eliminated.  In this case, increase `quality` from its default of 1 to a value of 2 or 3.
-//   This increases the number of samples on the segment that are checked, so it will increase run time.  In
+//   This increases the number of samples on the segment that are checked, so it also increase run time.  In
 //   some situations you may be able to decrease run time by setting quality to 0, which causes only
 //   segment ends to be checked.  
 //   .
@@ -797,12 +873,12 @@ function _point_dist(path,pathseg_unit,pathseg_len,pt) =
 //   difficult to associate with the input.  If you want to maintain alignment between the points you
 //   can use the `same_length` option.  This option requires that you use `delta=` with `chamfer=false` to ensure
 //   that no points are added.  with `same_length`, when points collapse to a single point in the offset, the output includes
-//   that point repeated to preserve the correct length.  Generally repeated points will not appear in the offset output
-//   unless you set `same_length` to true, but in some rare circumstances involving very short segments, it is possible for the
+//   that point repeated to preserve the correct length.  Generally, repeated points do not appear in the offset output
+//   unless you set `same_length=true`, but in some rare circumstances involving short segments, it is possible for the
 //   repeated points to occur in the output, even when `same_length=false`.  
 //   .
 //   Another way to obtain alignment information is to use the return_faces option, which can
-//   provide alignment information for all offset parameters: it returns a face list which lists faces between
+//   provide alignment information for all offset parameters: it returns a face list that lists faces between
 //   the original path and the offset path where the vertices are ordered with the original path
 //   first, starting at `firstface_index` and the offset path vertices appearing afterwords.  The
 //   direction of the faces can be flipped using `flip_faces`.  When you request faces the return
@@ -810,20 +886,22 @@ function _point_dist(path,pathseg_unit,pathseg_len,pt) =
 // Arguments:
 //   path = the path to process.  A list of 2d points.
 //   ---
-//   r = offset radius.  Distance to offset.  Will round over corners.
-//   delta = offset distance.  Distance to offset with pointed corners.
-//   chamfer = chamfer corners when you specify `delta`.  Default: false
-//   closed = if true path is treate as a polygon. Default: False.
-//   check_valid = perform segment validity check.  Default: True.
-//   quality = validity check quality parameter, a small integer.  Default: 1.
-//   same_length = return a path with the same length as the input.  Only compatible with `delta=`.  Default: false
-//   return_faces = return face list.  Default: False.
-//   firstface_index = starting index for face list.  Default: 0.
-//   flip_faces = flip face direction.  Default: false
+//   r = offset radius.  Distance to offset, rounds over corners.
+//   delta = Distance to offset with pointed corners.
+//   chamfer = Chamfer corners when you specify `delta`.  Default: false
+//   closed = If true, path is treated as a polygon. Default: true
+//   check_valid = Perform segment validity check.  Default: true
+//   quality = Validity check quality parameter, a small integer.  Default: 1
+//   error = If true, assert an error if offset path is degenerate. If false, return an empty list `[]` for a degenerate path. You must check the result yourself before passing it into another function. Default: true
+//   same_length = Return a path with the same length as the input.  Only compatible with `delta=`.  Default: false
+//   return_faces = Return face list.  Default: false
+//   firstface_index = Starting index for face list.  Default: 0
+//   flip_faces = Flip face direction.  Default: false
 // Example(2D,NoAxes): Offset the red star out by 10 units.
 //   star = star(5, r=100, ir=30);
 //   stroke(closed=true, star, width=3, color="red");
-//   stroke(closed=true, width=3, offset(star, delta=10, closed=true));
+//   stroke(closed=true, width=3,
+//       offset(star, delta=10, closed=true));
 // Example(2D,NoAxes):  Offset the star with chamfering
 //   star = star(5, r=100, ir=30);
 //   stroke(closed=true, star, width=3, color="red");
@@ -852,7 +930,7 @@ function _point_dist(path,pathseg_unit,pathseg_len,pt) =
 // Example(2D): Open path.  The red path moves from left to right as shown by the arrow and the positive offset shifts to the left of the initial red path.
 //   sinpath = 2*[for(theta=[-180:5:180]) [theta/4,45*sin(theta)]];
 //   stroke(sinpath, width=2, color="red", endcap2="arrow2");
-//   stroke(offset(sinpath, r=17.5),width=2);
+//   stroke(offset(sinpath, r=17.5,closed=false),width=2);
 // Example(2D,NoAxes): An open path in red with with its positive offset in yellow and its negative offset in blue. 
 //   seg = [[0,0],[0,50]];
 //   stroke(seg,color="red",endcap2="arrow2"); 
@@ -886,7 +964,7 @@ function _point_dist(path,pathseg_unit,pathseg_len,pt) =
 //   op=offset(path, r=1.5,closed=true);
 //   stroke([path],width=.1,color="red");
 //   stroke([op],width=.1);
-// Example(2D,NoAxes):  With the default quality value, this case produces the wrong answer.  This happens because the offset edge corresponding to the long left edge (shown in green) is erroneously flagged as invalid.  If you use `r=` instead of `delta=` then this will fail with an error.  
+// Example(2D,NoAxes):  With the default quality value, this case produces the wrong answer.  This happens because the offset edge corresponding to the long left edge (shown in green) is erroneously flagged as invalid.  If you use `r=` instead of `delta=` then this fails with an error.  
 //   test = [[0,0],[10,0],[10,7],[0,7], [-1,-3]];
 //   polygon(offset(test,delta=-1.9, closed=true)); 
 //   stroke([test],width=.1,color="red");
@@ -903,7 +981,7 @@ function _point_dist(path,pathseg_unit,pathseg_len,pt) =
 //   color("red")
 //     stroke(offset(star, delta=-10, closed=true, check_valid=false),   // Fails if check_valid=true 
 //            width=.3,closed=true); 
-// Example(2D): But if you use rounding with offset then you need `check_valid=true` when `r` is big enough.  It works without the validity check as long as the offset shape retains a some of the straight edges at the star tip, but once the shape shrinks smaller than that, it fails.  There is no simple way to get a correct result for the case with `r=10`, because as in the previous example, it will fail if you turn on validity checks.  
+// Example(2D): But if you use rounding with offset then you need `check_valid=true` when `r` is big enough.  It works without the validity check as long as the offset shape retains a some of the straight edges at the star tip, but once the shape shrinks smaller than that, it fails.  There is no simple way to get a correct result for the case with `r=10`, because as in the previous example, it fails if you turn on validity checks.  
 //   star = star(5, r=22, ir=13);
 //   color("green")
 //     stroke(offset(star, r=-8, closed=true,check_valid=false), width=.1, closed=true);
@@ -925,23 +1003,25 @@ function _point_dist(path,pathseg_unit,pathseg_len,pt) =
 //                          square([40,20], center=true)));
 //   stroke(rgn, width=1, color="red");
 //   region(offset(rgn, r=-5));
-// Example(2D,NoAxes): Using `same_length=true` to align the original curve to the offset.  Note that lots of points map to the corner at the top.
+// Example(2D,NoAxes): Using `same_length=true` to align the original curve to the offset. Many points map to the corner at the top.
 //   closed=false;
 //   path = [for(angle=[0:5:180]) 10*[angle/100,2*sin(angle)]];
-//   opath = offset(path, delta=-3,same_length=true,closed=closed);
+//   opath = offset(path,delta=-3,same_length=true,closed=closed);
 //   stroke(path,closed=closed,width=.3);
 //   stroke(opath,closed=closed,width=.3);
-//   color("red") for(i=idx(path)) stroke([path[i],opath[i]],width=.3);
+//   for(i=idx(path))
+//       stroke([path[i],opath[i]],width=.3,color="red");
 
 function offset(
     path, r=undef, delta=undef, chamfer=false,
-    closed=false, check_valid=true,
-    quality=1, return_faces=false, firstface_index=0,
+    closed=true, check_valid=true,
+    quality=1, error=true, return_faces=false, firstface_index=0,
     flip_faces=false, same_length=false
 ) =
-    assert(!(same_length && return_faces), "Cannot combine return_faces with same_length")
+    assert(!(same_length && return_faces), "\nCannot combine return_faces with same_length.")
     is_region(path)?
-        assert(!return_faces, "return_faces not supported for regions.")
+        assert(closed, "\nCannot set closed=false for a region.")
+        assert(!return_faces, "\nParameter return_faces is not supported for regions.")
         let(
             ofsregs = [for(R=region_parts(path))
                 difference([for(i=idx(R)) offset(R[i], r=u_mul(i>0?-1:1,r), delta=u_mul(i>0?-1:1,delta),
@@ -950,9 +1030,9 @@ function offset(
         union(ofsregs)
     :
     let(rcount = num_defined([r,delta]))
-    assert(rcount==1,"Must define exactly one of 'delta' and 'r'")
-    assert(!same_length || (is_def(delta) && !chamfer), "Must specify delta, with chamfer=false, when same_length=true")
-    assert(is_path(path), "Input must be a path or region")
+    assert(rcount==1,"\nMust define exactly one of 'delta' and 'r'.")
+    assert(!same_length || (is_def(delta) && !chamfer), "\nMust specify delta with chamfer=false, when same_length=true.")
+    assert(is_path(path), "\nInput must be a path or region.")
     let(
         chamfer = is_def(r) ? false : chamfer,
         quality = max(0,round(quality)),
@@ -969,10 +1049,12 @@ function offset(
         good = check_valid ? _good_segments(path, abs(d), shiftsegs, closed, quality)
                            : repeat(true,len(shiftsegs)),
         goodsegs = bselect(shiftsegs, good),
-        goodpath = bselect(path,good)
+        goodpath = bselect(path,good),
+        degenerate = (len(goodsegs)-(!closed && select(good,-1)?1:0) <= 0)
     )
-    assert(len(goodsegs)-(!closed && select(good,-1)?1:0)>0,"Offset of path is degenerate")
-    let(
+    assert(!(degenerate && error), "\nOffset of path is degenerate.")
+    degenerate ? [] // return empty path
+    : let(
         // Extend the shifted segments to their intersection points.  For open curves the endpoints
         // are simply the endpoints of the shifted segments.  If segments are parallel then the intersection
         // points will be undef
@@ -985,12 +1067,12 @@ function offset(
         cornercheck = [for(i=idx(goodsegs)) (!closed && (i==0 || i==len(goodsegs)-1))
                                           || is_def(sharpcorners[i])
                                           || approx(unit(deltas(select(goodsegs,i-1))[0]) * unit(deltas(goodsegs[i])[0]),-1)],
-        dummyA = assert(len(sharpcorners)==2 || all(cornercheck),"Two consecutive valid offset segments are parallel but do not meet at their ends, maybe because path contains very short segments that were mistakenly flagged as invalid; unable to compute offset"),
+        dummyA = assert(len(sharpcorners)==2 || all(cornercheck),"\nTwo consecutive valid offset segments are parallel but do not meet at their ends, maybe because path contains very short segments that were mistakenly flagged as invalid; unable to compute offset. If you get this error from offset_sweep() try setting ofset=\"delta\"."),
         reversecheck = 
             !same_length 
               || !(is_def(delta) && !chamfer)            // Reversals only a problem in delta mode without chamfers
               || all_defined(sharpcorners),
-        dummyB = assert(reversecheck, "Either validity check failed and removed a valid segment or the input 'path' contains a segment that reverses direction (180 deg turn).  Path reversals are not allowed when same_length is true because they increase path length."),
+        dummyB = assert(reversecheck, "\nEither validity check failed and removed a valid segment or the input 'path' contains a segment that reverses direction (180 deg turn). Path reversals are not allowed when same_length is true because they increase path length."),
         // This is a Boolean array that indicates whether a corner is an outside or inside corner
         // For outside corners, the new corner is an extension (angle 0), for inside corners, it turns backward (angle 180)
         // If either side turns back it is an inside corner---must check both.
@@ -1014,7 +1096,7 @@ function offset(
                   : let(vang = vector_angle(select(goodsegs,i-1)[1]-goodpath[i],
                                             goodsegs[i][0]-goodpath[i]))
                     assert(!outsidecorner[i] || vang!=0,    // If outsidecorner[i] is true then vang>0 needed to give valid step count
-                           "Offset computation failed, probably because validity check mistakenly removed a valid segment.  Increasing quality might fix this.")
+                           "\nOffset computation failed, probably because validity check mistakenly removed a valid segment.  Increasing quality might fix this.")
                     1+floor(segs(r)*vang/360)
                 ],
         // newcorners is a list where each entry is a list of the points that correspond to a single point in the sharpcorners 
@@ -1120,6 +1202,7 @@ function _filter_region_parts(region1, region2, keep, eps=EPSILON) =
     );
 
 
+
 function _list_three(a,b,c) =
    is_undef(b) ? a : 
    [
@@ -1141,16 +1224,19 @@ function _list_three(a,b,c) =
 //   region = union(REGION1,REGION2);
 //   region = union(REGION1,REGION2,REGION3);
 // Description:
-//   When called as a function and given a list of regions or 2D polygons,
+//   When called as a function and given a list of {{regions}} or 2D {{polygons}},
 //   returns the union of all given regions and polygons.  Result is a single region.
 //   When called as the built-in module, makes the union of the given children.
+//   This function is **much** slower than the native union module acting on geometry,
+//   so you should only use it when you need a point list for further processing.  
 // Arguments:
 //   regions = List of regions to union.
 // Example(2D):
 //   shape1 = move([-8,-8,0], p=circle(d=50));
 //   shape2 = move([ 8, 8,0], p=circle(d=50));
 //   color("green") region(union(shape1,shape2));
-//   for (shape = [shape1,shape2]) color("red") stroke(shape, width=0.5, closed=true);
+//   for (shape = [shape1,shape2])
+//       stroke(shape, width=0.5, closed=true, color="red");
 function union(regions=[],b=undef,c=undef,eps=EPSILON) =
     let(regions=_list_three(regions,b,c))
     len(regions)==0? [] :
@@ -1175,16 +1261,19 @@ function union(regions=[],b=undef,c=undef,eps=EPSILON) =
 //   region = difference(REGION1,REGION2);
 //   region = difference(REGION1,REGION2,REGION3);
 // Description:
-//   When called as a function, and given a list of regions or 2D polygons, 
+//   When called as a function, and given a list of {{regions}} or 2D {{polygons}}, 
 //   takes the first region or polygon and differences away all other regions/polygons from it.  The resulting
 //   region is returned.
 //   When called as the built-in module, makes the set difference of the given children.
+//   This function is **much** slower than the native difference module acting on geometry,
+//   so you should only use it when you need a point list for further processing.  
 // Arguments:
 //   regions = List of regions or polygons to difference.
 // Example(2D):
 //   shape1 = move([-8,-8,0], p=circle(d=50));
 //   shape2 = move([ 8, 8,0], p=circle(d=50));
-//   for (shape = [shape1,shape2]) color("red") stroke(shape, width=0.5, closed=true);
+//   for (shape = [shape1,shape2])
+//       stroke(shape, width=0.5, color="red", closed=true);
 //   color("green") region(difference(shape1,shape2));
 function difference(regions=[],b=undef,c=undef,eps=EPSILON) =
      let(regions = _list_three(regions,b,c))
@@ -1211,7 +1300,7 @@ function difference(regions=[],b=undef,c=undef,eps=EPSILON) =
 //   region = intersection(REGION1,REGION2);
 //   region = intersection(REGION1,REGION2,REGION3);
 // Description:
-//   When called as a function, and given a list of regions or polygons returns the
+//   When called as a function, and given a list of {{regions}} or {{polygons}} returns the
 //   intersection of all given regions.  Result is a single region.
 //   When called as the built-in module, makes the intersection of all the given children.
 // Arguments:
@@ -1219,7 +1308,8 @@ function difference(regions=[],b=undef,c=undef,eps=EPSILON) =
 // Example(2D):
 //   shape1 = move([-8,-8,0], p=circle(d=50));
 //   shape2 = move([ 8, 8,0], p=circle(d=50));
-//   for (shape = [shape1,shape2]) color("red") stroke(shape, width=0.5, closed=true);
+//   for (shape = [shape1,shape2])
+//       stroke(shape,width=0.5, color="red", closed=true);
 //   color("green") region(intersection(shape1,shape2));
 function intersection(regions=[],b=undef,c=undef,eps=EPSILON) =
      let(regions = _list_three(regions,b,c))
@@ -1246,11 +1336,13 @@ function intersection(regions=[],b=undef,c=undef,eps=EPSILON) =
 //   region = exclusive_or(REGION1,REGION2);
 //   region = exclusive_or(REGION1,REGION2,REGION3);
 // Description:
-//   When called as a function and given a list of regions or 2D polygons, 
+//   When called as a function and given a list of {{regions}} or 2D {{polygons}}, 
 //   returns the exclusive_or of all given regions.  Result is a single region.
-//   When called as a module, performs a Boolean exclusive-or of up to 10 children.  Note that when
-//   the input regions cross each other the exclusive-or operator will produce shapes that
+//   When called as a module, performs a Boolean exclusive-or of up to 10 children. Note that when
+//   the input regions cross each other, the exclusive-or operator produces shapes that
 //   meet at corners (non-simple regions), which do not render in CGAL.  
+//   This function is **much** slower than the native intersection module acting on geometry,
+//   so you should only use it when you need a point list for further processing.  
 // Arguments:
 //   regions = List of regions or polygons to exclusive_or
 // Example(2D): As Function.  A linear_sweep of this shape fails to render in CGAL.  
@@ -1391,22 +1483,22 @@ module exclusive_or() {
             children(9);
         }
     } else {
-        assert($children<=10, "exclusive_or() can only handle up to 10 children.");
+        assert($children<=10, "\nexclusive_or() can handle up to 10 children.");
     }
 }
 
 
 
 // Function&Module: hull_region()
-// Synopsis: Compute convex hull of region or 2d path
+// Synopsis: Compute convex hull of {{region}} or 2D {{path}}
 // SynTags: Geom, Path
 // Topics: Regions, Polygons, Shapes2D
 // Usage:
 //    path = hull_region(region);
 //    hull_region(region);
 // Description:
-//   Given a path, or a region, compute the convex hull
-//   and return it as a path.  This differs from {{hull()}} and {{hull2d_path()}} which
+//   Given a {{path}}, or a {{region}}, compute the convex hull
+//   and return it as a path.  This differs from {{hull()}} and {{hull2d_path()}}, which
 //   return an index list into the point list.  As a module invokes the native hull() on
 //   the specified region.  
 // Arguments:
@@ -1429,6 +1521,50 @@ module hull_region(region)
 {
   hull()region(region);
 }
+
+
+// Function: fill()
+// Synopsis: Remove holes from a {{region}}
+// SynTags: Geom, Path
+// Topics: Regions, Polygons, Shapes2D
+// Usage:
+//    filled = fill(region);
+// Description:
+//   Given a {{region}}, fill in any internal holes in the components of the region.  This returns the outside border of each region component, and
+//   is equivalent to {{hull()}} for region components whose outside boundary is convex.  
+// Arguments:
+//   region = region to fill
+// Example(2D, NoAxes):  The original region in green has internal holes and subparts that are all filled in on the yellow filled region.  
+//   $fs=.5;$fa=1;
+//   reg=[circle(r=10),right(5.5,circle(r=1)),
+//        circle(r=8), circle(r=3),
+//        right(5.5,rect([3,4]))];
+//   color("green")region(reg);
+//   right(25)region(fill(reg));
+// Example(2D, NoAxes): Here the input region in green has two components:
+//   reg = [circle(8), circle(6)];
+//   reg2 = union([reg, fwd(18,reg)]);
+//   color("green")region(reg2);
+//   right(18) region(fill(reg2));
+
+function fill(region) =
+   let(
+       region = force_region(region)
+   )
+   assert(is_region(region), "\nInput is not a region.")
+   let(
+       inside = [for(i=idx(region))
+                    let(pt = mean([region[i][0], region[i][1]]))
+                    [for(j=idx(region))  i==j ? 0
+                                       : point_in_polygon(pt,region[j]) >=0 ? 1 : 0]
+                ],
+       level = inside*repeat(1,len(region))
+   )
+   [ for(i=idx(region))
+      if(level[i]==0) clockwise_polygon(region[i])];
+
+
+
 
 
 // vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4 nowrap

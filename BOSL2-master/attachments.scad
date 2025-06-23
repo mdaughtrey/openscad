@@ -12,10 +12,10 @@
 // FileFootnotes: STD=Included in std.scad
 //////////////////////////////////////////////////////////////////////
 
-
 // Default values for attachment code.
 $tags=undef;      // for backward compatibility
 $tag = "";
+$save_tag = undef;
 $tag_prefix = "";
 $overlap = 0;
 $color = "default";
@@ -24,7 +24,7 @@ $save_color = undef;         // Saved color to revert back for children
 $anchor_override = undef;
 $attach_to = undef;
 $attach_anchor = [CENTER, CENTER, UP, 0];
-$attach_norot = false;
+$attach_alignment = undef;
 
 $parent_anchor = BOTTOM;
 $parent_spin = 0;
@@ -33,8 +33,20 @@ $parent_orient = UP;
 $parent_size = undef;
 $parent_geom = undef;
 
+$attach_inside = false;  // If true, flip the meaning of the inside parameter for align() and attach()
+
+$edge_angle = undef;
+$edge_length = undef;
+
 $tags_shown = "ALL";
 $tags_hidden = [];
+
+$ghost_this=false;
+$ghost=false;
+$ghosting=false;    // Ghosting is in effect, so don't apply it again
+
+$highlight_this=false;
+$highlight=false;
 
 _ANCHOR_TYPES = ["intersect","hull"];
 
@@ -49,7 +61,7 @@ _ANCHOR_TYPES = ["intersect","hull"];
 //   - Orientation is rotating an object so that its top is pointed towards a given vector.
 //   .
 //   An object will first be translated to its anchor position, then spun, then oriented.
-//   For a detailed step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a detailed step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachment-Relative-Positioning).
 //   .
 //   For describing directions, faces, edges, and corners the library provides a set of shortcuts
 //   all based on combinations of unit direction vectors.  You can use these for anchoring and orienting
@@ -99,19 +111,22 @@ _ANCHOR_TYPES = ["intersect","hull"];
 //   motors have anchors for `"screw1"`, `"screw2"`, etc. to refer to the various screwholes on the
 //   stepper motor shape.  The names, positions, directions, and spins of these anchors are
 //   specific to the object, and are documented when they exist.
+//   .
+//   The anchor argument is ignored if you use {{align()}} or the two-argument form of {{attach()}} because
+//   these modules provide their own anchoring for their children.  
 // Subsection: Spin
-//   Spin is specified with the `spin` argument in most shape modules.  Specifying a scalar `spin`
-//   when creating an object will rotate the object counter-clockwise around the Z axis by the given
-//   number of degrees.  If given as a 3D vector, the object will be rotated around each of the X, Y, Z
-//   axes by the number of degrees in each component of the vector.  Spin is always applied after
-//   anchoring, and before orientation.  Since spin is applied after anchoring it is not what
-//   you might think of intuitively as spinning the shape.  To do that, apply `zrot()` to the shape before anchoring.
+//   Spin is specified with the `spin` argument in most shape modules.  Specifying a spin
+//   angle when creating an object will rotate the object counter-clockwise around the Z axis by the given
+//   number of degrees.  Spin is always applied after anchoring, and before orientation.
+//   Since spin is applied **after** anchoring it does not, in general, rotate around the object's center,
+//   so it is not always what you might think of intuitively as spinning the shape.  
 // Subsection: Orient
 //   Orientation is specified with the `orient` argument in most shape modules.  Specifying `orient`
 //   when creating an object will rotate the object such that the top of the object will be pointed
 //   at the vector direction given in the `orient` argument.  Orientation is always applied after
 //   anchoring and spin.  The constants `UP`, `DOWN`, `FRONT`, `BACK`, `LEFT`, and `RIGHT` can be
-//   added together to form the directional vector for this.  ie: `LEFT+BACK`
+//   added together to form the directional vector for this (e.g. `LEFT+BACK`).  The orient parameter
+//   is ignored when you use {{attach()}} with two arguments, because {{attach()}} provides its own orientation. 
 // Subsection: Specifying Directions
 //   You can use direction vectors to specify anchors for objects or to specify edges, faces, and
 //   corners of cubes.  You can simply specify these direction vectors numerically, but another
@@ -472,33 +487,40 @@ _ANCHOR_TYPES = ["intersect","hull"];
 // Topics: Attachments
 // See Also: attachable(), attach(), orient()
 // Usage:
-//   PARENT() position(from) CHILDREN;
+//   PARENT() position(at) CHILDREN;
 // Description:
 //   Attaches children to a parent object at an anchor point.  For a step-by-step explanation
-//   of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   of attachments, see the [Attachments Tutorial](Tutorial-Attachment-Relative-Positioning).
 // Arguments:
-//   from = The vector, or name of the parent anchor point to attach to.
+//   at = The vector, or name of the parent anchor point to attach to.
 // Side Effects:
 //   `$attach_anchor` for each `from=` anchor given, this is set to the `[ANCHOR, POSITION, ORIENT, SPIN]` information for that anchor.
 //   `$attach_to` is set to `undef`.
-//   `$attach_norot` is set to `true`.
+//   `$edge_angle` is set to the angle of the edge if the anchor is on an edge and the parent is a prismoid, or vnf with "hull" anchoring
+//   `$edge_length` is set to the length of the edge if the anchor is on an edge and the parent is a prismoid, or vnf with "hull" anchoring
 // Example:
 //   spheroid(d=20) {
 //       position(TOP) cyl(l=10, d1=10, d2=5, anchor=BOTTOM);
 //       position(RIGHT) cyl(l=10, d1=10, d2=5, anchor=BOTTOM);
 //       position(FRONT) cyl(l=10, d1=10, d2=5, anchor=BOTTOM);
 //   }
-module position(from)
+module position(at,from)
 {
+    if (is_def(from)){
+      echo("'from' argument of position() has changed to 'at' and will be removed in a future version");
+    }
+    dummy0=assert(num_defined([at,from])==1, "Cannot give both `at` argument and the deprectated `from` argument to position()");
+    at = first_defined([at,from]);
     req_children($children);
     dummy1=assert($parent_geom != undef, "No object to position relative to.");
-    anchors = (is_vector(from)||is_string(from))? [from] : from;
+    anchors = (is_vector(at)||is_string(at))? [at] : at;
     two_d = _attach_geom_2d($parent_geom);
     for (anchr = anchors) {
         anch = _find_anchor(anchr, $parent_geom);
+        $edge_angle = len(anch)==5 ? struct_val(anch[4],"edge_angle") : undef;
+        $edge_length = len(anch)==5 ? struct_val(anch[4],"edge_length") : undef;
         $attach_to = undef;
         $attach_anchor = anch;
-        $attach_norot = true;
         translate(anch[1]) children();
     }
 }
@@ -514,13 +536,12 @@ module position(from)
 //   PARENT() orient(anchor, [spin]) CHILDREN;
 // Description:
 //   Orients children such that their top is tilted in the direction of the specified parent anchor point. 
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachment-Relative-Positioning).
 // Arguments:
 //   anchor = The anchor on the parent which you want to match the orientation of.
 //   spin = The spin to add to the children.  (Overrides anchor spin.)
 // Side Effects:
 //   `$attach_to` is set to `undef`.
-//   `$attach_norot` is set to `true`.
 // Example: When orienting to an anchor, the spin of the anchor may cause confusion:
 //   prismoid([50,50],[30,30],h=40) {
 //       position(TOP+RIGHT)
@@ -551,7 +572,6 @@ module orient(anchor, spin) {
     dummy=assert(is_finite(spin));
 
     $attach_to = undef;
-    $attach_norot = true;
     if (two_d)
         rot(spin)rot(from=fromvec, to=anch[2]) children();
     else
@@ -559,180 +579,544 @@ module orient(anchor, spin) {
 }
 
 
-
 // Module: align()
-// Synopsis: Position and orient children with alignment to parent edges.
+// Synopsis: Position children with alignment to parent edges.
 // SynTags: Trans
 // Topics: Attachments
 // See Also: attachable(), attach(), position(), orient()
 // Usage:
-//   PARENT() align(anchor, [orient], [spin], [inside=]) CHILDREN;
+//   PARENT() align(anchor, [align], [inside=], [inset=], [shiftout=], [overlap=]) CHILDREN;
 // Description:
-//   Positions children to the specified anchor(s) on the parent and anchors the
-//   children so that they are aligned with the edge(s) of the parent at those parent anchors.
-//   You can specify a parent anchor point in `orient` and in this case, the top of the child
-//   is tilted in the direction of that anchor.
-//   This means you can easily place children so they are aligned flush with edges of the parent.
-//   In contrast, with {{position()}} you will have to work out the correct anchor for the children
-//   which is not always obvious.  It also enables you to place several children that have different
-//   anchors, which would otherwise require several {{position()}} calls.  The inside argument
-//   causes the object to appear inside the parent for use with {{diff()}}.  
+//   Place a child on the face identified by `anchor`.  If align is not given or is CENTER
+//   then the child will be centered on top of the specified face, outside the parent object.  The align parameter is a
+//   direction defining an edge or corner to align to.  The child will be aligned to that edge or corner by
+//   choosing an appropriate anchor on the child.  
+//   Like {{position()}} this module never rotates the child.  If you give `anchor=RIGHT` then the child
+//   will be given the LEFT anchor and placed adjacent to the parent.  You can use `orient=` or `spin=`
+//   with the child and the alignment will adjust to select the correct child anchor.  Note that if
+//   you spin the child by an amount not a multiple of 90 degrees then an edge of the child will be
+//   placed against the parent.  This module makes it easy to place children aligned flush with the edges
+//   of the parent, even after orienting them or spinning them.  In contrast {{position()}} can 
+//   do the same thing but you would have to figure out the correct child anchor, which is not always obvious.
 //   .
-//   When you use `align()`, the `orient=` and `anchor=` arguments to the child objects are overriden,
-//   so they do not have any effect.  The `spin=` argument to the child still applies. 
+//   Because `align()` works by setting the child anchor, it overrides any anchor you specify to the child:
+//   **any `anchor=` value given to the child is ignored.**
+//   .
+//   Several options can adjust how the child is positioned.  You can specify `inset=` to inset the
+//   aligned object from its alignment location. If you set `inside=true` then the
+//   child will appear inside the parent instead of on its surface so that you can use {{diff()}} to subract it.
+//   In this case the child recieved a default "remove" tag.   The `shiftout=` option works with `inside=true` to 
+//   shift the child out by the specified distance so that the child doesn't exactly align with the parent.
+//   .
+//   Note that in the description above the anchor was said to define a "face".  You can also use this module
+//   with an edge anchor, in which case a corner of the child will be placed in contact with the specified
+//   edge and the align direction will shift the child to either end of the edge.  You can even give a
+//   corner as the anchor point, but in that case the only allowed alignment is CENTER.
+//   .
+//   If you give a list of anchors and/or a list of align directions then all combinations are generated.
+//   In this way align() acts like a distributor, creating multiple copies of the child.  
+//   Named anchors are not supported by `align()`.  
 // Arguments:
-//   anchor = parent anchor or list of parent anchors for positioning children
-//   orient = parent anchor to give direction for orienting the children.  Default: UP
-//   spin = spin in degrees for rotating the children.  Default: Derived from orient anchor
+//   anchor = parent anchor or list of parent anchors for positioning children.
+//   align = optional alignment direction or directions for aligning the children.  Default: CENTER
 //   ---
 //   inside = if true, place object inside the parent instead of outside.  Default: false
+//   inset = shift the child away from the alignment edge/corner by this amount.  Default: 0
+//   shiftout = Shift an inside object outward so that it overlaps all the aligned faces.  Default: 0
+//   overlap = Amount to sink the child into the parent.  Defaults to `$overlap` which is zero by default.
 // Side Effects:
+//   `$anchor` set to the anchor value used for the child.
+//   `$align` set to the align value used for the child.
+//   `$idx` set to a unique index for each child, increasing by alignment first.
 //   `$attach_anchor` for each anchor given, this is set to the `[ANCHOR, POSITION, ORIENT, SPIN]` information for that anchor.
-//   `$attach_to` is set to `undef`.
-//   `$attach_norot` is set to `true`.
-//   `$anchor_override` is set to the anchor required for proper positioning of the child.  
-//   if inside is true then set default tag to "remove"
+//   if `inside` is true then set default tag to "remove"
+// Example:  Cuboid positioned on the right of its parent.  Note that it is in its native orientation.  
+//   cuboid([20,35,25])
+//     align(RIGHT)
+//       color("lightgreen")cuboid([5,1,9]);
 // Example: Child would require anchor of RIGHT+FRONT+BOT if placed with {{position()}}. 
 //   cuboid([50,40,15])
-//     align(RIGHT+FRONT+TOP)
+//     align(TOP,RIGHT+FRONT)
 //       color("lightblue")prismoid([10,5],[7,4],height=4);
-// Example: Child requires a different anchor for each position, so explicit specification of the anchor for children is impossible in this case, without using two separate commands.
+// Example: Child requires a different anchor for each position, so a simple explicit specification of the anchor for children is impossible in this case, without using two separate commands.
 //   cuboid([50,40,15])
-//     align([RIGHT+TOP,LEFT+TOP])
+//     align(TOP,[RIGHT,LEFT])
 //       color("lightblue")prismoid([10,5],[7,4],height=4);
-// Example: If you try to spin your child, the spin happens after the alignment anchor, so the child will not be flush:
+// Example: If you spin the child 90 deg it is still flush with the edge of the parent.  In this case the required anchor for the child is BOT+FWD:
 //   cuboid([50,40,15])
-//     align([RIGHT+TOP])
+//     align(TOP,RIGHT)
 //       color("lightblue")
 //          prismoid([10,5],[7,4],height=4,spin=90);
-// Example: You can instead spin the attached children using the spin parameter to `align()`.  In this example, the required anchor is BOT+FWD, which is less obvious.
+// Example: Here the child is placed on the RIGHT face.  Notice how the TOP+LEFT anchor of the prismoid is aligned with the edge of the parent.  The prismoid remains in the same orientation.  
 //   cuboid([50,40,15])
-//     align(RIGHT+TOP,spin=90)
+//     align(RIGHT,TOP)
 //       color("lightblue")prismoid([10,5],[7,4],height=4);
-// Example: Here the child is oriented to the RIGHT, so it appears flush with the top.  In this case you don't have to figure out that the required child anchor is BOT+BACK.  
+// Example: If you change the orientation of the child it still appears aligned flush in its changed orientation:
 //   cuboid([50,40,15])
-//     align(RIGHT+TOP,RIGHT)
-//       color("lightblue")prismoid([10,5],[7,4],height=4);
-// Example: If you change the orientation the child still appears aligned flush in its changed orientation:
+//     align(TOP, RIGHT)
+//       color("lightblue")prismoid([10,5],[7,4],height=4,orient=DOWN);
+// Example: The center of the cubes edge is lined up with the center of the prismoid edge, so this result is the expected result:  
+//   prismoid(50,30,25)
+//     align(RIGHT,FRONT)
+//       color("lightblue")cuboid(8);
+// Example: Spinning the cube means that the corner of the cube is the most extreme point, so that's what aligns with the front edge of the parent:
 //   cuboid([50,40,15])
-//     align(RIGHT+TOP,DOWN)
-//       color("lightblue")prismoid([10,5],[7,4],height=4);
-// Example: Objects on the right already have nonzero spin by default, so setting spin=0 changes the spin:
-//   prismoid(50,30,25){
-//     align(RIGHT+TOP,RIGHT,spin=0)
-//       color("lightblue")prismoid([10,5],[7,4],height=4);
-//     align(RIGHT+BOT,RIGHT)
-//       color("green")prismoid([10,5],[7,4],height=4);
-//   }
-// Example: Setting inside=true enables us to subtract the child from the parent with {{diff()}.  The "remove" tag is automatically applied when you set `inside=true`.  
+//     align(TOP,FWD)
+//       color("lightblue")cuboid(9,spin=22);
+// Example: A similar thing happens if you attach a cube to a cylinder with an arbitrary anchor angle:
+//   cyl(h=20,d=10,$fn=128)
+//     align([1,.3],TOP)
+//       color("lightblue")cuboid(5);
+// Example: Orienting the child is done in the global coordinate system (as usual) not in the parent coordinate system.  Note that the blue prismoid is not lined up with the parent face.  (To place the child on the face use {{attach()}}.
+//   prismoid(50,30,25)
+//     align(RIGHT)
+//      color("lightblue")prismoid([10,5],[7,4],height=4,orient=RIGHT);
+// Example: Setting `inside=true` enables us to subtract the child from the parent with {{diff()}}.  The "remove" tag is automatically applied when you set `inside=true`, and we used `shiftout=0.01` to prevent z-fighting on the faces.  
 //   diff()
 //     cuboid([40,30,10])
-//       move(.1*[0,-1,1])
-//         align(FRONT+TOP,inside=true)
-//           prismoid([10,5],[7,5],height=4);
-module align(anchor,orient=UP,spin,inside=false)
+//       align(FRONT,TOP,inside=true,shiftout=0.01)
+//         prismoid([10,5],[7,5],height=4);
+// Example: Setting `inset` shifts all of the children away from their aligned edge, which is a different direction for each child.  
+//   cuboid([40,30,30])
+//     align(FRONT,[TOP,BOT,LEFT,RIGHT,TOP+RIGHT,BOT+LEFT], inset=3)
+//       color("green") cuboid(5);
+// Example: Changing the child characteristics based on the alignment
+//   cuboid([20,20,8])
+//     align(TOP,[for(i=[-1:1], j=[-1:1]) [i,j]])
+//       color("orange")
+//         if (norm($align)==0) cuboid([3,3,1]);
+//         else if (norm($align)==norm([1,1])) cuboid([3,3,4.5]);
+//         else cuboid(3);
+// Example:  In this example the pink cubes are positioned onto an edge.  They meet edge-to-edge.  Aligning left shifts the cube to the left end of the edge. 
+//   cuboid([30,30,20])
+//      align(TOP+BACK,[CTR,LEFT])
+//        color("pink")cuboid(4);
+// Example: Normally `overlap` is used to create a tiny overlap to keep CGAL happy, but you can also give it a large value as shown here:
+//   cuboid([30,30,20])
+//     align(TOP+BACK,[RIGHT,CTR,LEFT],overlap=2)
+//       color("lightblue")cuboid(4);
+
+module align(anchor,align=CENTER,inside=false,inset=0,shiftout=0,overlap)
 {
     req_children($children);
+    overlap = (overlap!=undef)? overlap : $overlap;
     dummy1=assert($parent_geom != undef, "No object to align to.")
-           assert(is_string(orient) || is_vector(orient),"Bad orient value");
-    position_anchors = (is_vector(anchor)||is_string(anchor))? [anchor] : anchor;
+           assert(is_undef($attach_to), "Cannot use align() as a child of attach()");
+    anchor = is_vector(anchor) ? [anchor] : anchor;
+    align = is_vector(align) ? [align] : align;
     two_d = _attach_geom_2d($parent_geom);
-    fromvec = two_d? BACK : UP;
-
-    orient_anch = _find_anchor(orient, $parent_geom);
-    spin = default(spin, orient_anch[3]);
-    dummy2=assert(is_finite(spin));
-    
-    $attach_to = undef;
-    $attach_norot = true;
-
-    factor = inside?1:-1;
-    
-    for (thisanch = position_anchors) {
-        pos_anch = _find_anchor(thisanch, $parent_geom);
-        init_anch = two_d ? rot(from=orient_anch[2], to=fromvec, p=zrot(-spin,pos_anch[0]))
-                          : rot(spin, from=fromvec, to=orient_anch[2], reverse=true, p=pos_anch[0]);
-        quant_anch = [for(v=init_anch) sign(round(v))];
-        $anchor_override = two_d && quant_anch.y!=0 ? [quant_anch.x,factor*quant_anch.y]
-                         : !two_d && quant_anch.z!=0 ? [quant_anch.x,quant_anch.y, factor*quant_anch.z]
-                         : factor*quant_anch;
-        $attach_anchor = pos_anch;
-        translate(pos_anch[1]) {
-            if (two_d)
-                rot(spin)rot(from=fromvec, to=orient_anch[2])
-                  default_tag("remove",inside) children();
-            else
-                rot(spin, from=fromvec, to=orient_anch[2])
-                  default_tag("remove",inside) children();                  
+    factor = ($anchor_inside ? -1 : 1)*(inside?-1:1);
+    for (i = idx(anchor)) {
+        $align_msg=false;     // Remove me when removing the message above
+        face = anchor[i];
+        $anchor=face;
+        dummy=
+          assert(!is_string(face),
+                 str("Named anchor \"",face,"\" given for anchor, but align() does not support named anchors"))
+          assert(is_vector(face) && (len(face)==2 || len(face)==3),
+                 str("Invalid face ",face, ".  Must be a 2-vector or 3-vector"));
+        thisface = two_d? _force_anchor_2d(face) : point3d(face);
+        for(j = idx(align)) {
+          edge=align[j];
+          $idx = j+len(align)*i;
+          $align=edge;
+          dummy1=assert(is_vector(edge) && (len(edge)==2 || len(edge)==3),
+                        "align direction must be a 2-vector or 3-vector");
+          thisedge = two_d? _force_anchor_2d(edge) : point3d(edge);
+          dummy=assert(all_zero(v_mul(thisedge,thisface)),
+                       str("align (",thisedge,") cannot include component parallel to anchor ",thisface));
+          thisface_anch = _find_anchor(thisface, $parent_geom);
+          inset_dir = two_d ? -thisface
+                    : unit(thisface_anch[1]-_find_anchor([thisedge.x,0,0]+thisface, $parent_geom)[1],CTR)
+                       +unit(thisface_anch[1]-_find_anchor([0,thisedge.y,0]+thisface, $parent_geom)[1],CTR)
+                       +unit(thisface_anch[1]-_find_anchor([0,0,thisedge.z]+thisface, $parent_geom)[1],CTR);
+          
+          pos_anch = _find_anchor(thisface+thisedge, $parent_geom);
+          $attach_alignment = thisedge-factor*thisface;
+          $attach_anchor=list_set(pos_anch,2,UP);
+          translate(pos_anch[1]
+                    +inset*inset_dir
+                    +shiftout*(thisface_anch[2]-inset_dir)
+                    -overlap*thisface_anch[2])
+              default_tag("remove",inside) children();                  
         }
     }
 }
 
+// Quantize anchor entry to {-1,0,1}
+function _quant_anch(x) = approx(x,0) ? 0 : sign(x);
 
-
+// Make arbitrary anchor legal for a given geometry
+function _make_anchor_legal(anchor,geom) =
+   in_list(geom[0], ["prismoid","trapezoid"]) ? [for(v=anchor) _quant_anch(v)]
+ : in_list(geom[0], ["conoid", "extrusion_extent"]) ? [anchor.x,anchor.y, _quant_anch(anchor.z)]
+ : anchor;
+    
 
 
 // Module: attach()
-// Synopsis: Attaches children to a parent object at an anchor point and orientation.
+// Synopsis: Attaches children to a parent object at an anchor point and with anchor orientation.
 // SynTags: Trans
 // Topics: Attachments
-// See Also: attachable(), position(), face_profile(), edge_profile(), corner_profile()
+// See Also: attachable(), position(), align(), face_profile(), edge_profile(), corner_profile()
 // Usage:
-//   PARENT() attach(from, [overlap=], [norot=]) CHILDREN;
-//   PARENT() attach(from, to, [overlap=], [norot=]) CHILDREN;
+//   PARENT() attach(parent, child, [align=], [spin=], [overlap=], [inside=], [inset=], [shiftout=]) CHILDREN;
+//   PARENT() attach(parent, [overlap=], [spin=]) CHILDREN;
 // Description:
-//   Attaches children to a parent object at an anchor point and orientation.  Attached objects will
-//   be overlapped into the parent object by a little bit, as specified by the `$overlap`
-//   value (0 by default), or by the overriding `overlap=` argument.  This is to prevent OpenSCAD
+//   Attaches children to a parent object at an anchor point or points, oriented in the anchor direction.
+//   This module differs from {{position()}} and {{align()}} in that it rotates the children to
+//   the anchor direction, which generally means it places the children on the surface of a parent.
+//   There are two modes of operation, parent anchor (single argument) and parent-child anchor (double argument).
+//   In most cases you should use the parent-child (double argument) version of `attach()`.  
+//   .
+//   The parent-child anchor (double argument) version is usually easier to use, and it is more powerful because it supports
+//   alignment.  You provide an anchor on the parent (`parent`) and an anchor on the child (`child`).
+//   This module connects the `child` anchor on the child to the `parent` anchor on the parent.  
+//   Imagine pointing the parent and child anchor arrows at each other and pushing the objects
+//   together until they meet at the anchor point.    The most basic case
+//   is `attach(TOP,BOT)` which puts the bottom of the child onto the top of the parent.  If you
+//   do `attach(RIGHT,BOT)` this puts the bottom of the child onto the right anchor of the parent.
+//   When an object is attached to the top or bottom its BACK direction will remaing pointing BACK.
+//   When an object is attached to one of the other anchors its FRONT will be pointed DOWN and its
+//   BACK pointed UP.  You can change this using the `spin=` argument to attach().  Note that this spin
+//   rotates around the attachment vector and is not the same as the spin argument to the child, which
+//   will usually rotate around some other direction that may be hard to predict.  For 2D objects you cannot
+//   give spin because it is not possible to spin around the attachment vector; spinning the object around the Z axis
+//   would change the child orientation so that the anchors are no longer parallel.  Furthermore, any spin
+//   parameter you give to the child will be ignored so that the attachment condition of parallel anchors is preserved.  
+//   .
+//   As with {{align()}} you can use the `align=` parameter to align the child to an edge or corner of the
+//   face where that child is attached.  For example `attach(TOP,BOT,align=RIGHT)` would stand the child
+//   up on the top while aligning it with the right edge of the top face, and `attach(RIGHT,BOT,align=TOP)` which
+//   stand the object on the right face while aligning with the top edge.  If you apply spin using the
+//   argument to `attach()` then it will be taken into account for the alignment.  If you apply spin with
+//   a parameter to the child it will NOT be taken into account.  The special spin value "align" will
+//   spin the child so that the child's BACK direction is pointed towards the aligned edge on the parent. 
+//   Note that spin is not permitted for
+//   2D objects because it would change the child orientation so that the anchors are no longer parallel.  
+//   When you use `align=` you can also adjust the position using `inset=`, which shifts the child
+//   away from the edge or corner it is aligned to.
+//   .
+//   Note that the concept of alignment doesn't always make sense for objects without corners, such as spheres or cylinders.
+//   In same cases the alignments using such children will be odd because the alignment computation is trying to
+//   place a non-existent corner somewhere.  Because attach() doesn't have in formation about the child when
+//   it runs it cannot handle curved shapes differently from cubes, so this behavior cannot be changed.  
+//   .
+//   If you give `inside=true` then the anchor arrows are lined up so they are pointing the same direction and
+//   the child object will be located inside the parent.  In this case a default "remove" tag is applied to
+//   the children.  
+//   .
+//   Because the attachment process forces an orientation and anchor point for the child, it overrides
+//   any such specifications you give to the child:  **both `anchor=` and `orient=` given to the child are
+//   ignored** with the **double argument** version of `attach()`.  As noted above, you can give `spin=` to the
+//   child but using the `spin=` parameter to `attach()` is more likely to be useful.
+//   .
+//   You can overlap attached children into the parent by giving the `$overlap` value
+//   which is 0 by default, or by the `overlap=` argument.    This is to prevent OpenSCAD
 //   from making non-manifold objects.  You can define `$overlap=` as an argument in a parent
-//   module to set the default for all attachments to it.  For a step-by-step explanation of
-//   attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   module to set the default for all attachments to it.  When you give `inside=true`, a positive overlap
+//   value shifts the child object outward.
+//   .
+//   If you specify an `inset=` value then the child is shifted away from any edges it is aligned to, towards the middle
+//   of the parent.  The `shiftout=` parameter is intended to simplify differences with aligned objects
+//   placed inside the parent.  It will shift the child outward along every direction where it is aligned with
+//   the parent.  For an inside child this is equivalent to giving a positive overlap and negative inset value.
+//   For a child with `inside=false` it is equivalent to a negative overlap and negative inset.  
+//   .
+//   The single parameter version of `attach()` is rarely needed; to use it, you give only the `parent` anchor.  The `align` direction
+//   is not permitted.  In this case the child is placed at the specified parent anchor point
+//   and rotated to the anchor direction.  For example, `attach(TOP) cuboid(2);` will place a small
+//   cube **with its center** located at the TOP anchor of the parent, so just half the cube will project
+//   from the parent.  If you want the cube sitting on the parent you need to anchor the cube to its bottom:
+//   `attach(TOP) cuboid(2,anchor=BOT);`.
+//   .
+//   The **single argument** version of `attach()` **respects `anchor=` and `orient=` given to the child.**
+//   These options will probably be necessary, in fact, to get the child correctly positioned.  Note that
+//   giving `spin=` to `attach()` in this case is the same as applying `zrot()` to the child. 
+//   .
+//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachment-Relative-Positioning).
 // Arguments:
-//   from = The vector, or name of the parent anchor point to attach to.
-//   to = Optional name of the child anchor point.  If given, orients the child such that the named anchors align together rotationally.
+//   parent = The parent anchor point to attach to or a list of parent anchor points.
+//   child = Optional child anchor point.  If given, orients the child to connect this anchor point to the parent anchor.
 //   ---
+//   align = If `child` is given you can specify alignment or list of alistnments to shift the child to an edge or corner of the parent. 
+//   inset = Shift aligned children away from their alignment edge/corner by this amount.  Default: 0
 //   overlap = Amount to sink child into the parent.  Equivalent to `down(X)` after the attach.  This defaults to the value in `$overlap`, which is `0` by default.
-//   norot = If true, don't rotate children when attaching to the anchor point.  Only translate to the anchor point.
+//   inside = If `child` is given you can set `inside=true` to attach the child to the inside of the parent for diff() operations.  Default: false
+//   shiftout = Shift an inside object outward so that it overlaps all the aligned faces.  Default: 0
+//   spin = Amount to rotate the parent around the axis of the parent anchor.  Can set to "align" to align the child's BACK with the parent aligned edge.  (Only permitted in 3D.)
 // Side Effects:
-//   `$idx` is set to the index number of each anchor if a list of anchors is given.  Otherwise is set to `0`.
-//   `$attach_anchor` for each `from=` anchor given, this is set to the `[ANCHOR, POSITION, ORIENT, SPIN]` information for that anchor.
-//   `$attach_to` is set to the value of the `to=` argument, if given.  Otherwise, `undef`
-//   `$attach_norot` is set to the value of the `norot=` argument.
-// Example:
-//   spheroid(d=20) {
-//       attach(TOP) down(1.5) cyl(l=11.5, d1=10, d2=5, anchor=BOTTOM);
-//       attach(RIGHT, BOTTOM) down(1.5) cyl(l=11.5, d1=10, d2=5);
-//       attach(FRONT, BOTTOM, overlap=1.5) cyl(l=11.5, d1=10, d2=5);
+//   `$anchor` set to the parent anchor value used for the child.
+//   `$align` set to the align value used for the child.  
+//   `$idx` set to a unique index for each child, increasing by alignment first.
+//   `$attach_anchor` for each anchor given, this is set to the `[ANCHOR, POSITION, ORIENT, SPIN]` information for that anchor.
+//   if inside is true then set default tag to "remove"
+//   `$attach_to` is set to the value of the `child` argument, if given.  Otherwise, `undef`
+//   `$edge_angle` is set to the angle of the edge if the anchor is on an edge and the parent is a prismoid or vnf with "hull" anchoring
+//   `$edge_length` is set to the length of the edge if the anchor is on an edge and the parent is a prismoid or vnf with "hull" anchoring
+// Example: Cylinder placed on top of cube:
+//   cuboid(50)
+//     attach(TOP,BOT) cylinder(d1=30,d2=15,h=25);
+// Example: Cylinder on right and front side of cube:
+//   cuboid(50)
+//     attach([RIGHT,FRONT],BOT) cylinder(d1=30,d2=15,h=25);
+// Example:  Using `align` can align child object(s) with edges
+//   prismoid(50,25,25) color("green"){
+//     attach(TOP,BOT,align=[BACK,FWD]) cuboid(4);
+//     attach(RIGHT,BOT,align=[TOP,BOT]) cuboid(4);
 //   }
-module attach(from, to, overlap, norot=false)
+// Example: One aligned to the corner upside down (light blue) and one inset fromt the corner (pink), one aligned on a side (orange) and one rotated and aligned (green).
+//   cuboid(30) {
+//     attach(TOP,TOP,align=FRONT+RIGHT) color("lightblue") prismoid(5,3,3);
+//     attach(TOP,BOT,inset=3,align=FRONT+LEFT) color("pink") prismoid(5,3,3);
+//     attach(FRONT,RIGHT,align=TOP) color("orange") prismoid(5,3,3);
+//     attach(FRONT,RIGHT,align=RIGHT,spin=90) color("lightgreen") prismoid(5,3,3);    
+//   }
+// Example: Rotation not a multiple of 90 degrees with alignment.  The children are aligned on a corner.  
+//   cuboid(30)
+//     attach(FRONT,BOT,spin=33,align=[RIGHT,LEFT,TOP,BOT,RIGHT+TOP])
+//       color("lightblue")cuboid(4);
+// Example: Anchoring the cone onto the sphere gives a single point of contact. 
+//   spheroid(d=20) 
+//       attach([1,1.5,1], BOTTOM) cyl(l=11.5, d1=10, d2=5);
+// Example: Using the `overlap` option can help:
+//   spheroid(d=20) 
+//       attach([1,1.5,1], BOTTOM, overlap=1.5) cyl(l=11.5, d1=10, d2=5);
+// Example: Alignment works on the sides of cylinders but you can only align with either the top or bototm face:
+//   cyl(h=30,d=10)
+//     attach([LEFT,[1,1.3]], BOT,align=TOP) cuboid(6);
+// Example: Attaching to edges.  The light blue and orange objects are attached to edges.  The purple object is attached to an edge and aligned. 
+//   prismoid([20,10],[10,10],7){
+//     attach(RIGHT+TOP,BOT,align=FRONT) color("pink")cuboid(2);
+//     attach(BACK+TOP, BOT) color("lightblue")cuboid(2);
+//     attach(RIGHT+BOT, RIGHT) color("orange")cyl(h=8,d=1);
+//   }
+// Example: Attaching inside the parent.  For inside attachment the anchors are lined up pointing the same direction, so the most natural way to anchor the child is using its TOP anchor.  This is equivalent to anchoring outside with the BOTTOM anchor and then lowering the child into the parent by its full depth.  
+//   back_half()
+//     diff()
+//     cuboid(20)
+//       attach(TOP,TOP,inside=true,shiftout=0.01) cyl(d1=10,d2=5,h=10);
+// Example: Attaching inside the parent with alignment
+//   diff()
+//   cuboid(20){
+//     attach(TOP,TOP,inside=true,align=RIGHT,shiftout=.01) cuboid([8,7,3]);
+//     attach(TOP,TOP,inside=true,align=LEFT+FRONT,shiftout=0.01) cuboid([3,4,5]);
+//     attach(RIGHT+FRONT, TOP, inside=true) cuboid([10,3,5]);
+//     attach(RIGHT+FRONT, TOP, inside=true, align=TOP,shiftout=.01) cuboid([5,1,2]);  
+//   }
+// Example: Attaching a 3d edge mask.  Simple 2d masks can be done using {{edge_profile()}} but this mask varies along its length.
+//   module wavy_edge(length,cycles, r, steps, n)
+//   {
+//     rmin = is_vector(r) ? r[0] : 0.01;
+//     rmax = is_vector(r) ? r[1] : r;
+//     layers = [for(z=[0:steps])
+//                   let(
+//                        r=rmin+(rmax-rmin)/2*(cos(z*360*cycles/steps)+1)
+//                   )
+//                   path3d( concat([[0,0]],
+//                                  arc(corner=path2d([BACK,CTR,RIGHT]), n=n, r=r)),
+//                           z/steps*length-length/2)
+//               ];
+//     attachable([rmax,rmax,length]){
+//         skin(layers,slices=0);
+//         children();
+//     }  
+//   }            
+//   diff()
+//   cuboid(25)
+//     attach([TOP+RIGHT,TOP+LEFT,TOP+FWD, FWD+RIGHT], FWD+LEFT, inside=true, shiftout=.01)
+//       wavy_edge(length=25.1,cycles=1.4,r=4,steps=24,n=15); 
+
+
+module attach(parent, child, overlap, align, spin=0, norot, inset=0, shiftout=0, inside=false, from, to)
 {
+    dummy3=
+      assert(num_defined([to,child])<2, "Cannot combine deprecated 'to' argument with 'child' parameter")
+      assert(num_defined([from,parent])<2, "Cannot combine deprecated 'from' argument with 'parent' parameter")
+      assert(spin!="align" || is_def(align), "Can only set spin to \"align\" when the 'align' parameter is given")
+      assert(is_finite(spin) || spin=="align", "Spin must be a number (unless align is given)")
+      assert((is_undef(overlap) || is_finite(overlap)) && (is_def(overlap) || is_undef($overlap) || is_finite($overlap)),
+             str("Provided ",is_def(overlap)?"":"$","overlap is not valid."));
+    removetag = inside;
+    inside = $anchor_inside ? !inside : inside;
+    if (is_def(to))
+      echo("The 'to' option to attach() is deprecated and will be removed in the future.  Use 'child' instead.");
+    if (is_def(from))
+      echo("The 'from' option to attach(0 is deprecated and will be removed in the future.  Use 'parent' instead");
+    if (norot)
+      echo("The 'norot' option to attach() is deprecated and will be removed in the future.  Use position() instead.");
     req_children($children);
-    assert($parent_geom != undef, "No object to attach to!");
+    
+    dummy=assert($parent_geom != undef, "No object to attach to!")
+          assert(is_undef(child) || is_string(child) || (is_vector(child) && (len(child)==2 || len(child)==3)),
+                 "child must be a named anchor (a string) or a 2-vector or 3-vector")
+          assert(is_undef(align) || !is_string(child), "child is a named anchor.  Named anchors are not supported with align=");
+
+    two_d = _attach_geom_2d($parent_geom);
+    basegeom = $parent_geom[0]=="conoid" ? attach_geom(r=2,h=2,axis=$parent_geom[5])
+             : $parent_geom[0]=="prismoid" ? attach_geom(size=[2,2,2],axis=$parent_geom[4])
+             : attach_geom(size=[2,2,2]);
+    childgeom = attach_geom([2,2,2]);
+    child_abstract_anchor = is_vector(child) && !two_d ? _find_anchor(_make_anchor_legal(child,childgeom), childgeom) : undef;
     overlap = (overlap!=undef)? overlap : $overlap;
-    anchors = (is_vector(from)||is_string(from))? [from] : from;
-    for ($idx = idx(anchors)) {
-        anchr = anchors[$idx];
-        anch = _find_anchor(anchr, $parent_geom);
-        two_d = _attach_geom_2d($parent_geom);
-        $attach_to = to;
-        $attach_anchor = anch;
-        $attach_norot = norot;
-        olap = two_d? [0,-overlap,0] : [0,0,-overlap];
-        if (norot || (norm(anch[2]-UP)<1e-9 && anch[3]==0)) {
-            translate(anch[1]) translate(olap) children();
-        } else {
-            fromvec = two_d? BACK : UP;
-            translate(anch[1]) rot(anch[3],from=fromvec,to=anch[2]) translate(olap) children();
+    parent = first_defined([parent,from]);
+    anchors = is_vector(parent) || is_string(parent) ? [parent] : parent;
+    align_list = is_undef(align) ? [undef]
+               : is_vector(align) || is_string(align) ? [align] : align;
+    dummy4 = assert(is_string(parent) || is_list(parent), "Invalid parent anchor or anchor list")
+             assert(spin==0 || (!two_d || is_undef(child)), "spin is not allowed for 2d objects when 'child' is given");
+    child_temp = first_defined([child,to]);
+    child = two_d ? _force_anchor_2d(child_temp) : child_temp;
+    dummy2=assert(align_list==[undef] || is_def(child), "Cannot use 'align' without 'child'")
+           assert(!inside || is_def(child), "Cannot use 'inside' without 'child'")
+           assert(inset==0 || is_def(child), "Cannot specify 'inset' without 'child'")
+           assert(inset==0 || is_def(align), "Cannot specify 'inset' without 'align'")
+           assert(shiftout==0 || is_def(child), "Cannot specify 'shiftout' without 'child'");
+    factor = inside?-1:1;
+    $attach_to = child;
+    for (anch_ind = idx(anchors)) {
+        dummy=assert(is_string(anchors[anch_ind]) || (is_vector(anchors[anch_ind]) && (len(anchors[anch_ind])==2 || len(anchors[anch_ind])==3)),
+                     str("parent[",anch_ind,"] is ",anchors[anch_ind]," but it must be a named anchor (string) or a 2-vector or 3-vector"))
+              assert(align_list==[undef] || !is_string(anchors[anch_ind]),
+                     str("parent[",anch_ind,"] is a named anchor (",anchors[anch_ind],"), but named anchors are not supported with align="));
+        anchor = is_string(anchors[anch_ind])? anchors[anch_ind]
+               : two_d?_force_anchor_2d(anchors[anch_ind])
+               : point3d(anchors[anch_ind]);
+        $anchor=anchor;
+        anchor_data = _find_anchor(anchor, $parent_geom);
+        $edge_angle = len(anchor_data)==5 ? struct_val(anchor_data[4],"edge_angle") : undef;
+        $edge_length = len(anchor_data)==5 ? struct_val(anchor_data[4],"edge_length") : undef;
+        $edge_end1 = len(anchor_data)==5 ? struct_val(anchor_data[4],"vec") : undef;
+        anchor_pos = anchor_data[1];
+        anchor_dir = factor*anchor_data[2];
+        anchor_spin = two_d || !inside || anchor==TOP || anchor==BOT ? anchor_data[3]
+                    : let(spin_dir = rot(anchor_data[3],from=UP, to=-anchor_dir, p=BACK))
+                      _compute_spin(anchor_dir,spin_dir);
+        parent_abstract_anchor = is_vector(anchor) && !two_d ? _find_anchor(_make_anchor_legal(anchor,basegeom),basegeom) : undef;
+        for(align_ind = idx(align_list)){
+            align = is_undef(align_list[align_ind]) ? undef
+                  : assert(is_vector(align_list[align_ind],2) || is_vector(align_list[align_ind],3), "align direction must be a 2-vector or 3-vector")
+                    two_d ? _force_anchor_2d(align_list[align_ind])
+                  : point3d(align_list[align_ind]);
+            spin = is_num(spin) ? spin
+                 : align==CENTER ? 0
+                 : sum(v_abs(anchor))==1 ?   // parent anchor is a face
+                   let(
+                       spindir = in_list(anchor,[TOP,BOT]) ? BACK : UP,
+                       proj = project_plane(point4d(anchor),[spindir,align]),
+                       ang = v_theta(proj[1])-v_theta(proj[0])
+                   )
+                   ang
+                 : // parent anchor is not a face, so must be an edge (corners not allowed)
+                   let(
+                        nativeback = apply(rot(to=parent_abstract_anchor[2],from=UP)
+                                       *affine3d_zrot(parent_abstract_anchor[3]), BACK)
+                    )
+                    nativeback*align<0 ? -180:0;
+            $idx = align_ind+len(align_list)*anch_ind;
+            $align=align;
+            goodcyl = $parent_geom[0] != "conoid" || is_undef(align) || align==CTR ? true
+                    : let(
+                           align=rot(from=$parent_geom[5],to=UP,p=align),
+                           anchor=rot(from=$parent_geom[5],to=UP,p=anchor)
+                      )
+                      anchor==TOP || anchor==BOT || align==TOP || align==BOT;
+            badcorner = !in_list($parent_geom[0],["conoid","spheroid"]) && !is_undef(align) && align!=CTR && sum(v_abs(anchor))==3;
+            badsphere = $parent_geom[0]=="spheroid" && !is_undef(align) && align!=CTR;
+            dummy=assert(is_undef(align) || all_zero(v_mul(anchor,align)),
+                         str("Invalid alignment: align value (",align,") includes component parallel to parent anchor (",anchor,")"))
+                  assert(goodcyl, str("Cannot use align with an anchor on a curved edge or surface of a cylinder at parent anchor (",anchor,")"))
+                  assert(!badcorner, str("Cannot use align at a corner anchor (",anchor,")"))
+                  assert(!badsphere, "Cannot use align on spheres.");
+            // Now compute position on the parent (including alignment but not inset) where the child will be anchored
+            pos = is_undef(align) ? anchor_data[1] : _find_anchor(anchor+align, $parent_geom)[1];
+            $attach_anchor = list_set(anchor_data, 1, pos);      // Never used;  For user informational use?  Should this be set at all?
+            // Compute adjustment to the child anchor for position purposes.  This adjustment
+            // accounts for the change in the anchor needed to to alignment.
+            child_adjustment = is_undef(align)? CTR
+                              : two_d ? rot(to=child,from=-factor*anchor,p=align)
+                              : apply(   rot(to=child_abstract_anchor[2],from=UP)
+                                            * affine3d_zrot(child_abstract_anchor[3])
+                                            * affine3d_yrot(inside?0:180)
+                                       * affine3d_zrot(-parent_abstract_anchor[3])
+                                            *  rot(from=parent_abstract_anchor[2],to=UP)
+                                            * rot(v=anchor,-spin),
+                                      align);
+            // The $anchor_override anchor value forces an override of the *position* only for the anchor
+            // used when attachable() places the child
+            $anchor_override = all_zero(child_adjustment)? inside?child:undef
+                             : child+child_adjustment;
+            reference = two_d? BACK : UP;
+            // inset_dir is the direction for insetting when alignment is in effect
+            inset_dir = is_undef(align) ? CTR
+                      : two_d ? rot(to=reference, from=anchor,p=align)
+                      : apply(affine3d_yrot(inside?180:0)
+                                * affine3d_zrot(-parent_abstract_anchor[3])
+                                * rot(from=parent_abstract_anchor[2],to=UP)
+                                * rot(v=anchor,-spin),
+                              align);
+
+            
+            spinaxis = two_d? UP : anchor_dir;
+            olap = - overlap * reference - inset*inset_dir + shiftout * (inset_dir + factor*reference);
+            if (norot || (approx(anchor_dir,reference) && anchor_spin==0)) 
+                translate(pos) rot(v=spinaxis,a=factor*spin) translate(olap) default_tag("remove",removetag) children();
+            else  
+                translate(pos)
+                    rot(v=spinaxis,a=factor*spin)
+                    rot(anchor_spin,from=reference,to=anchor_dir)
+                    translate(olap)
+                    default_tag("remove",removetag) children();
         }
     }
 }
 
+
+
+// Module: attach_part()
+// Synopsis: Select a named attachable part for subsequent attachment operations
+// Topics: Attachment
+// See Also: attach(), align(), attachable(), define_part(), parent_part()
+// Usage:
+//   PARENT() attach_part(name) CHILDREN;
+// Description:
+//   Most attachable objects have a single geometry defined that is used by the attachment commands,
+//   but some objects also define attachable parts.  This module selects 
+//   an attachable part using a name defined by the parent object.  Any operations
+//   that use the parent geometry such as {{attach()}}, {{align()}}, {{position()}} or {{parent()}}
+//   will reference the geometry for the specified part.  This allows you to access the inner wall
+//   of tubes, for example.  Note that you cannot call `attach_part()` as a child of another `attach_part()`.  
+// Arguments:
+//   name = name of part to use for subsequent attachments.  
+// Example: This example shows attaching the light blue cube normally, on the outside of the tube, and the pink cube using the "inside" attachment part.  
+//   tube(ir1=10,ir2=20,h=20, wall=3){
+//     color("lightblue")attach(RIGHT,BOT) cuboid(4);
+//     color("pink")
+//        attach_part("inside")
+//        attach(BACK,BOT) cuboid(4);
+//   }  
+
+module attach_part(name)
+{
+  req_children($children);
+  dummy=assert(!is_undef($parent_parts), "Parent does not exist or does not have any parts");
+  ind = search([name], $parent_parts, 1,0)[0];
+  dummy2 = assert(ind!=[], str("Parent does not have a part named ",name));
+  $parent_geom = $parent_parts[ind][1];
+  $anchor_inside = $parent_parts[ind][2];
+  T = $parent_parts[ind][3];
+  $parent_parts = [];
+  multmatrix(T)
+    children();
+}
+
+ 
 // Section: Tagging
 
 // Module: tag()
 // Synopsis: Assigns a tag to an object
 // Topics: Attachments
-// See Also: force_tag(), recolor(), hide(), show_only(), diff(), intersect()
+// See Also: tag_this(), force_tag(), recolor(), hide(), show_only(), diff(), intersect()
 // Usage:
 //   PARENT() tag(tag) CHILDREN;
 // Description:
@@ -741,7 +1125,7 @@ module attach(from, to, overlap, norot=false)
 //   This works by setting the `$tag` variable, but it provides extra error checking and
 //   handling of scopes.  You may set `$tag` directly yourself, but this is not recommended.
 //   .
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of tagged attachments, see the [Attachments Tutorial](Tutorial-Attachment-Tags).
 // Arguments:
 //   tag = tag string, which must not contain any spaces.
 // Side Effects:
@@ -767,6 +1151,40 @@ module tag(tag)
 }
 
 
+
+// Module: tag_this()
+// Synopsis: Assigns a tag to an object at the current level only.
+// Topics: Attachments
+// See Also: tag(), force_tag(), recolor(), hide(), show_only(), diff(), intersect()
+// Usage:
+//   PARENT() tag(tag) CHILDREN;
+// Description:
+//   Assigns the specified tag to the children at the current level only, with tags reverting to
+//   the previous tag in force for deeper descendents.  This works using `$tag` and `$save_tag`.  
+//   .
+//   For a step-by-step explanation of tagged attachments, see the [Attachments Tutorial](Tutorial-Attachment-Tags).
+// Arguments:
+//   tag = tag string, which must not contain any spaces.
+// Side Effects:
+//   Sets `$tag` to the tag you specify, possibly with a scope prefix, and saves current tag in `$save_tag`. 
+// Example(3D):  Here we subtract a cube while keeping its child.  With {{tag()}} the child would inherit the "remove" tag and we would need to explicitly retag the child to prevent it from also being subtracted.  
+//   diff()
+//   cuboid([10,10,4])
+//     tag_this("remove")position(TOP) cuboid(3)  // This cube is subtracted
+//       attach(TOP,BOT) cuboid(1);  // Tag is reset so this cube displays
+
+module tag_this(tag)
+{
+    req_children($children);
+    check=
+      assert(is_string(tag),"tag must be a string")
+      assert(undef==str_find(tag," "),str("Tag string \"",tag,"\" contains a space, which is not allowed"));
+    $save_tag=default($tag,"");
+    $tag = str($tag_prefix,tag);
+    children();
+}
+
+
 // Module: force_tag()
 // Synopsis: Assigns a tag to a non-attachable object.
 // Topics: Attachments
@@ -782,8 +1200,8 @@ module tag(tag)
 //   that don't use {{attachable()}} or built in modules such as
 //   - `polygon()`
 //   - `projection()`
-//   - `polyhedron()`  (or use [`vnf_polyhedron()`](vnf.scad#vnf_polyhedron))
-//   - `linear_extrude()`  (or use [`linear_sweep()`](regions.scad#linear_sweep))
+//   - `polyhedron()`  (or use {{vnf_polyhedron()}})
+//   - `linear_extrude()`  (or use {{linear_sweep()}})
 //   - `rotate_extrude()`
 //   - `surface()`
 //   - `import()`
@@ -798,7 +1216,7 @@ module tag(tag)
 //   get the correct behavior, every non-attachable module needs an invocation of force_tag, even ones
 //   that are not tagged.
 //   .
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of tagged attachments, see the [Attachments Tutorial](Tutorial-Attachment-Tags).
 // Arguments:
 //   tag = tag string, which must not contain any spaces
 // Side Effects:
@@ -845,7 +1263,7 @@ module force_tag(tag)
 //   specified tag from a parent, which can be very confusing to a user trying to change the tag on a module.
 //   The `do_tag` parameter allows you to apply a default tag conditionally without having to repeat the children.  
 //   .
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of tagged attachments, see the [Attachments Tutorial](Tutorial-Attachment-Tags).
 // Arguments:
 //   tag = tag string, which must not contain any spaces.
 //   do_tag = if false do not set the tag.  
@@ -882,13 +1300,66 @@ module default_tag(tag,do_tag=true)
 //   Creates a tag scope with locally altered tag names to avoid tag name conflict with other code.
 //   This is necessary when writing modules because the module's caller might happen to use the same tags.
 //   Note that if you directly set the `$tag` variable then tag scoping will not work correctly.
+//   Usually you will want to use tag_scope in the first child of {{attachable()}} to isolate the geometry
+//   of your attachable object.  If you put it **outside** the {{attachable()}} call, then it will
+//   set a scope that also applies to the children passed to your attachable object, which is probably not what you want.  
 // Side Effects:
 //   `$tag_prefix` is set to the value of `scope=` if given, otherwise is set to a random string.
-// Example: In this example the ring module uses "remove" tags which will conflict with use of the same tags by the parent.
-//   module ring(r,h,w=1,anchor,spin,orient)
+// Example(3D,NoAxes): In this example, tag_scope() is required for things to work correctly. 
+//   module myring(){
+//      attachable(anchor=CENTER, spin=0, d=60, l=60) {
+//         tag_scope()
+//         diff()
+//           cyl(d=60, l=60){
+//              tag("remove")
+//                color_this("lightblue")
+//                cyl(d=30, l=61);
+//           }      
+//         children();
+//      }
+//   }
+//   diff()
+//     myring()
+//       color_this("green") cyl(d=20, l=61)
+//         tag("remove") color_this("yellow") cyl(d=10, l=65);
+// Example(3D,NoAxes): Without tag_scope() we get this result
+//   module myring(){
+//      attachable(anchor=CENTER, spin=0, d=60, l=60) {
+//         diff()
+//           cyl(d=60, l=60){
+//              tag("remove")
+//                color_this("lightblue")
+//                cyl(d=30, l=61);
+//           }      
+//         children();
+//      }
+//   }
+//   diff()
+//     myring()
+//       color_this("green") cyl(d=20, l=61)
+//         tag("remove") color_this("yellow") cyl(d=10, l=65);
+// Example(3D,NoAxes): If the tag_scope() is outside the attachable() call then the scope applies to the children and something different goes wrong:
+//   module myring(){
+//      tag_scope()
+//      attachable(anchor=CENTER, spin=0, d=60, l=60) {
+//         diff()
+//           cyl(d=60, l=60){
+//              tag("remove")
+//                color_this("lightblue")
+//                cyl(d=30, l=61);
+//           }      
+//         children();
+//      }
+//   }
+//   diff()
+//     myring()
+//       color_this("green") cyl(d=20, l=61)
+//         tag("remove") color_this("yellow") cyl(d=10, l=65);
+// Example: In this example the myring module uses "remove" tags which will conflict with use of the same tags elsewhere in a diff() operation, even without a parent-child relationship.  Without the tag_scope() the result is a solid cylinder.    
+//   module myring(r,h,w=1,anchor,spin,orient)
 //   {
-//     tag_scope("ringscope")
 //       attachable(anchor,spin,orient,r=r,h=h){
+//         tag_scope("myringscope")
 //         diff()
 //           cyl(r=r,h=h)
 //             tag("remove") cyl(r=r-w,h=h+1);
@@ -897,14 +1368,14 @@ module default_tag(tag,do_tag=true)
 //   }
 //   // Calling the module using "remove" tags
 //   // will conflict with internal tag use in
-//   // the ring module.
+//   // the myring module.
 //   $fn=32;
 //   diff(){
-//       ring(10,7,w=4);
-//       tag("remove")ring(8,8);
+//       myring(10,7,w=4);
+//       tag("remove")myring(8,8);
 //       tag("remove")diff("rem"){
-//          ring(9.5,8,w=1);
-//          tag("rem")ring(9.5,8,w=.3);
+//          myring(9.5,8,w=1);
+//          tag("rem")myring(9.5,8,w=.3);
 //       }
 //     }
 module tag_scope(scope){
@@ -917,7 +1388,7 @@ module tag_scope(scope){
 }
 
 
-// Section: Attachment Modifiers
+// Section: Tagged Operations with Attachable Objects
 
 // Module: diff()
 // Synopsis: Performs a differencing operation using tags rather than hierarchy to control what happens.
@@ -947,7 +1418,7 @@ module tag_scope(scope){
 //   .
 //   Note that `diff()` invokes its children three times.
 //   .
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of tagged attachments, see the [Attachments Tutorial](Tutorial-Attachment-Tags).
 // Arguments:
 //   remove = String containing space delimited set of tag names of children to difference away.  Default: `"remove"`
 //   keep = String containing space delimited set of tag names of children to keep; that is, to union into the model after differencing is completed.  Default: `"keep"`
@@ -1115,7 +1586,7 @@ module diff(remove="remove", keep="keep")
 // Topics: Attachments
 // See Also: tag(), force_tag(), recolor(), show_only(), hide(), diff(), intersect(), tag_intersect()
 // Usage:
-//   tag_diff(tag, [remove], [keep]) PARENT() CHILDREN;
+//   tag_diff([tag], [remove], [keep]) PARENT() CHILDREN;
 // Description:
 //   Perform a differencing operation in the manner of {{diff()}} using tags to control what happens,
 //   and then tag the resulting difference object with the specified tag.  This forces the specified
@@ -1123,9 +1594,9 @@ module diff(remove="remove", keep="keep")
 //   but if you have kept objects and want to operate on this difference object as a whole object using
 //   more tag operations, you will probably not get the results you want if you simply use {{tag()}}.
 //   .
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of tagged attachments, see the [Attachments Tutorial](Tutorial-Attachment-Tags).
 // Arguments:
-//   tag = Tag string to apply to this difference object
+//   tag = Tag string to apply to this difference object.  Default: `""` (no tag)
 //   remove = String containing space delimited set of tag names of children to difference away.  Default: `"remove"`
 //   keep = String containing space delimited set of tag names of children to keep; that is, to union into the model after differencing is completed.  Default: `"keep"`
 // Side Effects:
@@ -1162,7 +1633,7 @@ module diff(remove="remove", keep="keep")
 //         cyl(r=7,h=7)
 //           tag("remove")cyl(r=6,h=8)
 //           tag("keep")cyl(r=5,h=9);
-module tag_diff(tag,remove="remove", keep="keep")
+module tag_diff(tag="",remove="remove", keep="keep")
 {
     req_children($children);
     assert(is_string(remove),"remove must be a string of tags");
@@ -1203,7 +1674,7 @@ module tag_diff(tag,remove="remove", keep="keep")
 //   .
 //   Note that `intersect()` invokes its children three times.
 //   .
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of tagged attachments, see the [Attachments Tutorial](Tutorial-Attachment-Tags).
 // Arguments:
 //   intersect = String containing space delimited set of tag names of children to intersect.  Default: "intersect"
 //   keep = String containing space delimited set of tag names of children to keep whole.  Default: "keep"
@@ -1258,7 +1729,7 @@ module intersect(intersect="intersect",keep="keep")
 // Topics: Attachments
 // See Also: tag(), force_tag(), recolor(), show_only(), hide(), diff(), tag_diff(), intersect()
 // Usage:
-//   tag_intersect(tag, [intersect], [keep]) PARENT() CHILDREN;
+//   tag_intersect([tag], [intersect], [keep]) PARENT() CHILDREN;
 // Description:
 //   Perform an intersection operation in the manner of {{intersect()}} using tags to control what happens,
 //   and then tag the resulting difference object with the specified tag.  This forces the specified
@@ -1266,9 +1737,9 @@ module intersect(intersect="intersect",keep="keep")
 //   but if you have kept objects and want to operate on this difference object as a whole object using
 //   more tag operations, you will probably not get the results you want if you simply use {{tag()}}.
 //   .
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of tagged attachments, see the [Attachments Tutorial](Tutorial-Attachment-Tags).
 // Arguments:
-//   tag = Tag to set for the intersection
+//   tag = Tag to set for the intersection.  Default: `""` (no tag)
 //   intersect = String containing space delimited set of tag names of children to intersect.  Default: "intersect"
 //   keep = String containing space delimited set of tag names of children to keep whole.  Default: "keep"
 // Side Effects:
@@ -1291,7 +1762,7 @@ module intersect(intersect="intersect",keep="keep")
 //         tag("intersect")position(RIGHT) cyl(r=7,h=10);
 //         tag("keep")position(LEFT)cyl(r=4,h=10);
 //       }
-module tag_intersect(tag,intersect="intersect",keep="keep")
+module tag_intersect(tag="",intersect="intersect",keep="keep")
 {
    assert(is_string(intersect),"intersect must be a string of tags");
    assert(is_string(keep),"keep must be a string of tags");
@@ -1322,7 +1793,7 @@ module tag_intersect(tag,intersect="intersect",keep="keep")
 //   .
 //   Note that `conv_hull()` invokes its children twice.  
 //   .
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of tagged attachments, see the [Attachments Tutorial](Tutorial-Attachment-Tags).
 // Arguments:
 //   keep = String containing space delimited set of tag names of children to keep out of the hull.  Default: "keep"
 // Example:
@@ -1353,7 +1824,7 @@ module conv_hull(keep="keep")
 // Topics: Attachments
 // See Also: tag(), recolor(), show_only(), hide(), diff(), intersect()
 // Usage:
-//   tag_conv_hull(tag, [keep]) CHILDREN;
+//   tag_conv_hull([tag], [keep]) CHILDREN;
 // Description:
 //   Perform a convex hull operation in the manner of {{conv_hull()}} using tags to control what happens,
 //   and then tag the resulting hull object with the specified tag.  This forces the specified
@@ -1361,8 +1832,9 @@ module conv_hull(keep="keep")
 //   but if you have kept objects and want to operate on the hull object as a whole object using
 //   more tag operations, you will probably not get the results you want if you simply use {{tag()}}.
 //   .
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of tagged attachments, see the [Attachments Tutorial](Tutorial-Attachment-Tags).
 // Arguments:
+//   tag = Tag string to apply to this convex hull object.  Default: `""` (no tag)
 //   keep = String containing space delimited set of tag names of children to keep out of the hull.  Default: "keep"
 // Side Effects:
 //   Sets `$tag` to the tag you specify, possibly with a scope prefix.
@@ -1384,7 +1856,7 @@ module conv_hull(keep="keep")
 //            tag("keep")position(FRONT+LEFT)cyl(r=4,h=10);
 //          }
 //   }
-module tag_conv_hull(tag,keep="keep")
+module tag_conv_hull(tag="",keep="keep")
 {
     req_children($children);
     assert(is_string(keep),"keep must be a string of tags");
@@ -1407,7 +1879,7 @@ module tag_conv_hull(tag,keep="keep")
 //   hide(tags) CHILDREN;
 // Description:
 //   Hides all attachable children with the given tags, which you supply as a space separated string. Previously hidden objects remain hidden, so hiding is cumulative, unlike `show_only()`.
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of tagged attachments, see the [Attachments Tutorial](Tutorial-Attachment-Tags).
 // Side Effects:
 //   Sets `$tags_hidden` to include the tags you specify.
 // Example:  Hides part of the model.
@@ -1434,6 +1906,39 @@ module hide(tags)
 }
 
 
+// Module: hide_this()
+// Synopsis: Hides attachable children at the current level
+// Topics: Attachments
+// See Also: hide(), tag_this(), tag(), recolor(), show_only(), show_all(), show_int(), diff(), intersect()
+// Usage:
+//   hide_this() CHILDREN;
+// Description:
+//   Hides all attachable children at the current level, while still displaying descendants.  
+//   For a step-by-step explanation of tagged attachments, see the [Attachments Tutorial](Tutorial-Attachment-Tags).
+// Side Effects:
+//   Sets `$tag` and `$save_tag`
+// Example: Use an invisible parent to position children.  Unlike with {{hide()}} we do not need to explicitly use any tags.  
+//   $fn=16;
+//   hide_this() cuboid(10)
+//       {
+//         attach(RIGHT,BOT) cyl(r=1,h=5);
+//         attach(LEFT,BOT) cyl(r=1,h=5);
+//       }
+// Example: Nesting applications of hide_this()
+//   $fn=32;
+//   hide_this() cuboid(10)
+//     attach(TOP,BOT) cyl(r=2,h=5)
+//       hide_this() attach(TOP,BOT) cuboid(4)
+//         attach(RIGHT,BOT) cyl(r=1,h=2);
+
+module hide_this()
+{
+  tag_scope()
+    hide("child")
+    tag_this("child")
+    children();
+}
+
 // Module: show_only()
 // Synopsis: Show only the children with the listed tags.
 // See Also: tag(), recolor(), show_all(), show_int(), diff(), intersect()
@@ -1441,8 +1946,8 @@ module hide(tags)
 // Usage:
 //   show_only(tags) CHILDREN;
 // Description:
-//   Show only the children with the listed tags, which you sply as a space separated string.  Only unhidden objects will be shown, so if an object is hidden either before or after the `show_only()` call then it will remain hidden.  This overrides any previous `show_only()` calls.  Unlike `hide()`, calls to `show_only()` are not cumulative.
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   Show only the children with the listed tags, which you supply as a space separated string.  Only unhidden objects will be shown, so if an object is hidden either before or after the `show_only()` call then it will remain hidden.  This overrides any previous `show_only()` calls.  Unlike `hide()`, calls to `show_only()` are not cumulative.
+//   For a step-by-step explanation of tagged attachments, see the [Attachments Tutorial](Tutorial-Attachment-Tags).
 // Side Effects:
 //   Sets `$tags_shown` to the tag you specify.
 // Example:  Display the attachments but not the parent
@@ -1521,7 +2026,7 @@ module show_int(tags)
 //   (Z-) shaped to be diffed away from the face of parent attachable shape.  If no tag is set then
 //   `face_mask()` sets the tag for children to "remove" so that it will work with the default {{diff()}} tag.
 //   For details on specifying the faces to mask see [Specifying Faces](attachments.scad#subsection-specifying-faces).
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of masking attachments, see the [Attachments Tutorial](Tutorial-Attachment-Edge-Profiling).
 // Arguments:
 //   edges = Faces to mask.  See  [Specifying Faces](attachments.scad#subsection-specifying-faces) for information on specifying faces.  Default: All faces
 // Side Effects:
@@ -1559,12 +2064,12 @@ module face_mask(faces=[LEFT,RIGHT,FRONT,BACK,BOT,TOP]) {
 // Usage:
 //   PARENT() edge_mask([edges], [except]) CHILDREN;
 // Description:
-//   Takes a 3D mask shape, and attaches it to the given edges, with the appropriate orientation to be
+//   Takes a 3D mask shape, and attaches it to the given edges of a cuboid parent, with the appropriate orientation to be
 //   differenced away.  The mask shape should be vertically oriented (Z-aligned) with the back-right
 //   quadrant (X+Y+) shaped to be diffed away from the edge of parent attachable shape.  If no tag is set
 //   then `edge_mask` sets the tag for children to "remove" so that it will work with the default {{diff()}} tag.
 //   For details on specifying the edges to mask see [Specifying Edges](attachments.scad#subsection-specifying-edges).
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of masking attachments, see the [Attachments Tutorial](Tutorial-Attachment-Edge-Profiling).
 // Figure: A Typical Edge Rounding Mask
 //   module roundit(l,r) difference() {
 //       translate([-1,-1,-l/2])
@@ -1580,6 +2085,7 @@ module face_mask(faces=[LEFT,RIGHT,FRONT,BACK,BOT,TOP]) {
 //   Tags the children with "remove" (and hence sets `$tag`) if no tag is already set.
 //   `$idx` is set to the index number of each edge.
 //   `$attach_anchor` is set for each edge given, to the `[ANCHOR, POSITION, ORIENT, SPIN]` information for that anchor.
+//   `$parent_size` is set to the size of the parent object.
 // Example:
 //   diff()
 //   cube([50,60,70],center=true)
@@ -1599,9 +2105,10 @@ module edge_mask(edges=EDGES_ALL, except=[]) {
         vcount = (vec.x?1:0) + (vec.y?1:0) + (vec.z?1:0);
         dummy=assert(vcount == 2, "Not an edge vector!");
         anch = _find_anchor(vec, $parent_geom);
+        $edge_angle = len(anch)==5 ? struct_val(anch[4],"edge_angle") : undef;
+        $edge_length = len(anch)==5 ? struct_val(anch[4],"edge_length") : undef;
         $attach_to = undef;
         $attach_anchor = anch;
-        $attach_norot = true;
         rotang =
             vec.z<0? [90,0,180+v_theta(vec)] :
             vec.z==0 && sign(vec.x)==sign(vec.y)? 135+v_theta(vec) :
@@ -1625,7 +2132,7 @@ module edge_mask(edges=EDGES_ALL, except=[]) {
 //   be differenced away.  The 3D corner mask shape should be designed to mask away the X+Y+Z+ octant.  If no tag is set
 //   then `corner_mask` sets the tag for children to "remove" so that it will work with the default {{diff()}} tag.
 //   See [Specifying Corners](attachments.scad#subsection-specifying-corners) for information on how to specify corner sets.
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of masking attachments, see the [Attachments Tutorial](Tutorial-Attachment-Edge-Profiling).
 // Arguments:
 //   corners = Corners to mask.  See [Specifying Corners](attachments.scad#subsection-specifying-corners).  Default: All corners.
 //   except = Corners to explicitly NOT mask.  See [Specifying Corners](attachments.scad#subsection-specifying-corners).  Default: No corners.
@@ -1653,7 +2160,6 @@ module corner_mask(corners=CORNERS_ALL, except=[]) {
         anch = _find_anchor(vec, $parent_geom);
         $attach_to = undef;
         $attach_anchor = anch;
-        $attach_norot = true;
         rotang = vec.z<0?
             [  0,0,180+v_theta(vec)-45] :
             [180,0,-90+v_theta(vec)-45];
@@ -1674,7 +2180,7 @@ module corner_mask(corners=CORNERS_ALL, except=[]) {
 //   Given a 2D edge profile, extrudes it into a mask for all edges and corners bounding each given face. If no tag is set
 //   then `face_profile` sets the tag for children to "remove" so that it will work with the default {{diff()}} tag.
 //   See  [Specifying Faces](attachments.scad#subsection-specifying-faces) for information on specifying faces.
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of masking attachments, see the [Attachments Tutorial](Tutorial-Attachment-Edge-Profiling).
 // Arguments:
 //   faces = Faces to mask edges and corners of.
 //   r = Radius of corner mask.
@@ -1715,8 +2221,7 @@ module face_profile(faces=[], r, d, excess=0.01, convexity=10) {
 //   extruded length to be `diff()`ed away, to give the edge a matching profile.  If no tag is set
 //   then `edge_profile` sets the tag for children to "remove" so that it will work with the default {{diff()}} tag.
 //   For details on specifying the edges to mask see [Specifying Edges](attachments.scad#subsection-specifying-edges).
-//   For a step-by-step
-//   explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of masking attachments, see the [Attachments Tutorial](Tutorial-Attachment-Edge-Profiling).
 // Arguments:
 //   edges = Edges to mask.  See [Specifying Edges](attachments.scad#subsection-specifying-edges).  Default: All edges.
 //   except = Edges to explicitly NOT mask.  See [Specifying Edges](attachments.scad#subsection-specifying-edges).  Default: No edges.
@@ -1733,18 +2238,18 @@ module face_profile(faces=[], r, d, excess=0.01, convexity=10) {
 //   cube([50,60,70],center=true)
 //       edge_profile([TOP,"Z"],except=[BACK,TOP+LEFT])
 //           mask2d_roundover(r=10, inset=2);
-// Example: Using $edge_angle on a Conoid
+// Example: Using $edge_angle on a conoid
 //   diff()
 //   cyl(d1=50, d2=30, l=40, anchor=BOT) {
 //       edge_profile([TOP,BOT], excess=10, convexity=6) {
 //           mask2d_roundover(r=8, inset=1, excess=1, mask_angle=$edge_angle);
 //       }
 //   }
-// Example: Using $edge_angle on a Prismoid
+// Example: Using $edge_angle on a prismoid
 //   diff()
 //   prismoid([60,50],[30,20],h=40,shift=[-25,15]) {
 //       edge_profile(excess=10, convexity=20) {
-//           mask2d_roundover(r=5,inset=1,mask_angle=$edge_angle);
+//           mask2d_roundover(r=5,inset=1,mask_angle=$edge_angle,$fn=32);
 //       }
 //   }
 
@@ -1775,7 +2280,6 @@ module edge_profile(edges=EDGES_ALL, except=[], excess=0.01, convexity=10) {
         post_T = path_angs_T[2];
         $attach_to = undef;
         $attach_anchor = anch;
-        $attach_norot = true;
         $profile_type = "edge";
         multmatrix(post_T) {
             for (i = idx(path,e=-2)) {
@@ -1806,18 +2310,26 @@ module edge_profile(edges=EDGES_ALL, except=[], excess=0.01, convexity=10) {
 // Topics: Attachments, Masking
 // See Also: attachable(), position(), attach(), face_profile(), edge_profile(), corner_profile(), edge_mask(), face_mask(), corner_mask()
 // Usage:
-//   PARENT() edge_profile([edges], [except=], [convexity=], [flip=], [corner_type=]) CHILDREN;
+//   PARENT() edge_profile([edges], [except], [convexity=], [flip=], [corner_type=]) CHILDREN;
 // Description:
 //   Takes an asymmetric 2D mask shape and attaches it to the selected edges and corners, with the appropriate
 //   orientation and extruded length to be `diff()`ed away, to give the edges and corners a matching profile.
 //   If no tag is set then `edge_profile_asym()` sets the tag for children to "remove" so that it will work
 //   with the default {{diff()}} tag.  For details on specifying the edges to mask see [Specifying Edges](attachments.scad#subsection-specifying-edges).
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
-//   Profile orientation will be made consistent for all connected edges and corners.  This prohibits having three
-//   edges meeting at any one corner.  You can intert the orientations of all edges with `flip=true`.
+//   For a step-by-step explanation of masking attachments, see the [Attachments Tutorial](Tutorial-Attachment-Edge-Profiling).
+//   The asymmetric profiles are joined consistently at the corners.  This is impossible if all three edges at a corner use the profile, hence
+//   this situation is not permitted.  The profile orientation can be inverted using the `flip=true` parameter.
+//   .
+//   The standard profiles are located in the first quadrant and have positive X values.  If you provide a profile located in the second quadrant,
+//   where the X values are negative, then it will produce a fillet.  You can flip any of the standard profiles using {{xflip()}}.  
+//   Fillets are always asymmetric because at a given edge, they can blend in two different directions, so even for symmetric profiles,
+//   the asymmetric logic is required.  You can set the `corner_type` parameter to select rounded, chamfered or sharp corners.
+//   However, when the corners are inside (concave) corners, you must provide the size of the profile ([width,height]), because the
+//   this information is required to produce the correct corner and cannot be obtain from the profile itself, which is a child object.  
 // Arguments:
 //   edges = Edges to mask.  See [Specifying Edges](attachments.scad#subsection-specifying-edges).  Default: All edges.
 //   except = Edges to explicitly NOT mask.  See [Specifying Edges](attachments.scad#subsection-specifying-edges).  Default: No edges.
+//   ---
 //   excess = Excess length to extrude the profile to make edge masks.  Default: 0.01
 //   convexity = Max number of times a line could intersect the perimeter of the mask shape.  Default: 10
 //   flip = If true, reverses the orientation of any external profile parts at each edge.  Default false
@@ -1828,6 +2340,7 @@ module edge_profile(edges=EDGES_ALL, except=[], excess=0.01, convexity=10) {
 //   `$idx` is set to the index number of each edge.
 //   `$attach_anchor` is set for each edge given, to the `[ANCHOR, POSITION, ORIENT, SPIN]` information for that anchor.
 //   `$profile_type` is set to `"edge"`.
+//   `$edge_angle` is set to the inner angle of the current edge.
 // Example:
 //   ogee = [
 //       "xstep",1,  "ystep",1,  // Starting shoulder.
@@ -1889,7 +2402,7 @@ module edge_profile(edges=EDGES_ALL, except=[], excess=0.01, convexity=10) {
 //   cuboid(40) {
 //       edge_profile_asym(
 //           [FWD+DOWN,FWD+LEFT],
-//           corner_type="chamfer", size=[7,10]
+//           corner_type="chamfer", size=[10,10]/sqrt(2)
 //        ) xflip() mask2d_chamfer(10);
 //   }
 // Example: Rounding internal corners.
@@ -2072,7 +2585,6 @@ module edge_profile_asym(
                 mirT = _corner_orientation(pos, pvec);
                 $attach_to = undef;
                 $attach_anchor = _find_anchor(pos, $parent_geom);
-                $attach_norot = true;
                 $profile_type = "corner";
                 position(pos) {
                     multmatrix(mirT) {
@@ -2129,7 +2641,6 @@ module edge_profile_asym(
         for (i = idx(edge_string)) {
             $attach_to = undef;
             $attach_anchor = _find_anchor(edge_string[i], $parent_geom);
-            $attach_norot = true;
             $profile_type = "edge";
             edge_profile(edge_string[i], excess=excess, convexity=convexity) {
                 if (flipverts[i]) {
@@ -2156,7 +2667,7 @@ module edge_profile_asym(
 //   to the selected corners with the appropriate orientation. If no tag is set then `corner_profile()`
 //   sets the tag for children to "remove" so that it will work with the default {{diff()}} tag.
 //   See [Specifying Corners](attachments.scad#subsection-specifying-corners) for information on how to specify corner sets.
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of masking attachments, see the [Attachments Tutorial](Tutorial-Attachment-Edge-Profiling).
 // Arguments:
 //   corners = Corners to mask.  See [Specifying Corners](attachments.scad#subsection-specifying-corners).  Default: All corners.
 //   except = Corners to explicitly NOT mask.  See [Specifying Corners](attachments.scad#subsection-specifying-corners).  Default: No corners.
@@ -2188,7 +2699,6 @@ module corner_profile(corners=CORNERS_ALL, except=[], r, d, convexity=10) {
         anch = _find_anchor(vec, $parent_geom);
         $attach_to = undef;
         $attach_anchor = anch;
-        $attach_norot = true;
         $profile_type = "corner";
         rotang = vec.z<0?
             [  0,0,180+v_theta(vec)-45] :
@@ -2273,19 +2783,34 @@ module corner_profile(corners=CORNERS_ALL, except=[], r, d, convexity=10) {
 //   for the anchor points referred to by `from` and `to` are fetched,
 //   which will include position, direction, and spin.  With that info,
 //   the following transformations are performed:
-//   * Translates this part so it's anchor position matches the parent's anchor position.
-//   * Rotates this part so it's anchor direction vector exactly opposes the parent's anchor direction vector.
-//   * Rotates this part so it's anchor spin matches the parent's anchor spin.
+//   * Translates this part so its anchor position matches the parent's anchor position.
+//   * Rotates this part so its anchor direction vector exactly opposes the parent's anchor direction vector.
+//   * Rotates this part so its anchor spin matches the parent's anchor spin.
 //   .
-//   This module is also responsible for handing coloring of objects with {{recolor()}} and {{color_this()}}, and
+//   In addition to handling positioning of the attachable object, 
+//   this module is also responsible for handing coloring of objects with {{recolor()}} and {{color_this()}}, and
 //   it is responsible for processing tags and determining whether the object should
-//   display or not in the current context.  The determination to display the attachable object
-//   occurs in this module, which means that an object which does not display (e.g. a "remove" tagged object
-//   inside {{diff()}} cannot have internal {{tag()}} calls that change its tags and cause submodel
-//   portions to display: the entire child simply does not run.  
-
-
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   display or not in the current context.  The determination based on the tags of whether to display the attachable object
+//   often occurs in this module, which means that an object which does not display (e.g. a "remove" tagged object
+//   inside {{diff()}}) cannot have internal {{tag()}} calls that change its tags and cause submodel
+//   portions to display: the entire object simply does not run.  If you want the use the attachable object's internal tags outside
+//   of the attachable object you can set `expose_tags=true` which delays the determination to display objects to the children.
+//   For this to work correctly, all of the children must be attachables.  An example situation where you should set
+//   `expose_tags=true` is when you want to have negative space in an attachable object that gets removed from the parent via
+//   a "remove" tagged component of your attachable.  
+//   .
+//   Application of {{recolor()}} and {{color_this()}} also happens in this module and normally it applies to the
+//   entire attachable object, so coloring commands that you give internally in the first child to `attachable()` have no effect.
+//   Generally it makes sense that if a user specifies a color for an attachable object, the entire object is displayed
+//   in that color, but if you want to retain control of color for sub-parts of an attachable object, you can use
+//   the `keep_color=true` option, which delays the assignment of colors to the child level.  For this to work
+//   correctly, all of the sub-parts of your attachable object must be attachables.  Also note that this option could
+//   be confusing to users who don't understand why color commands are not working on the object.
+//   .
+//   Note that anchors created by attachable() are generally intended for use by the user-supplied children of the attachable object, but they
+//   are available internally and can be used in the object's definition.  
+//   .
+//   For a step-by-step explanation of making objects attachable, see the [Attachments Tutorial](Tutorial-Attachment-Making).
 //
 // Arguments:
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
@@ -2313,6 +2838,8 @@ module corner_profile(corners=CORNERS_ALL, except=[], r, d, convexity=10) {
 //   axis = The vector pointing along the axis of a geometry.  Default: UP
 //   override = Function that takes an anchor and for 3d returns a triple `[position, direction, spin]` or for 2d returns a pair `[position,direction]` to use for that anchor to override the normal one.  You can also supply a lookup table that is a list of `[anchor, [position, direction, spin]]` entries.  If the direction/position/spin that is returned is undef then the default will be used.  This option applies only to the "trapezoid" and "prismoid" geometry types.  
 //   geom = If given, uses the pre-defined (via {{attach_geom()}} geometry.
+//   expose_tags = If true then delay the decision to display or not display this object to the children, which it possible for tags to respond to operations like {{diff()}} used outside the attachble object.  Only works correctly if everything in the attachable is also attachable.  Default: false
+//   keep_color = If true then delay application of color to the children, which means that externally applied color is overridden by color specified within the attachable.  Only works properly if everything in the attachable is also attacahble.  Default: false
 //
 // Side Effects:
 //   `$parent_anchor` is set to the parent object's `anchor` value.
@@ -2454,7 +2981,7 @@ module corner_profile(corners=CORNERS_ALL, except=[], r, d, convexity=10) {
 //       children();
 //   }
 //
-// Example: An object can be designed to attach as negative space using {{diff()}}, but if you want an object to include both positive and negative space then you need to call attachable() twice, because tags inside the attachable() call don't work as expected.  This example shows how you can call attachable twice to create an object with positive and negative space.  Note, however, that children in the negative space are differenced away: the highlighted little cube does not survive into the final model.
+// Example: An object can be designed to attach as negative space using {{diff()}}, but if you want an object to include both positive and negative space then you run into trouble because tags inside the `attachable()` are ignored.  One solution is to call attachable() twice.  This example shows how two calls to  attachable can create an object with positive and negative space.  Note, however, that children in the negative space are differenced away: the highlighted little cube does not survive into the final model.
 //   module thing(anchor,spin,orient) {
 //      tag("remove") attachable(size=[15,15,15],anchor=anchor,spin=spin,orient=orient){
 //        cuboid([10,10,16]);
@@ -2486,6 +3013,97 @@ module corner_profile(corners=CORNERS_ALL, except=[], r, d, convexity=10) {
 //        attach([FRONT,TOP],overlap=-4)
 //          thing(anchor=TOP)
 //            tube(ir=12,h=10);
+// Example: A different way to achieve similar effects to the above to examples is to use the `expose_tags` parameter.  This parameter allows you to use just one call to attachable.  The second example above can also be rewritten like this. 
+//   module thing(anchor,spin,orient) {
+//      attachable(size=[15,15,15],anchor=anchor,spin=spin,orient=orient,expose_tags=true){
+//        union(){
+//          cuboid([15,15,15]);
+//          tag("remove")cuboid([10,10,16]);
+//        }
+//        children();
+//      }
+//   }
+//   diff()
+//     cube([19,10,19])
+//       attach([FRONT],overlap=-4)
+//         thing(anchor=TOP);
+// Example: An advantage of using `expose_tags` is that it can work on nested constructions.  Here the child cylinder is aligned relative to its parent and removed from the calling parent object.
+//   $fn=64;
+//   module thing(anchor=BOT){
+//     attachable(anchor = anchor,d=9,h=6,expose_tags=true){
+//       cyl(d = 9, h = 6) 
+//         tag("remove") 
+//            align(RIGHT+TOP,inside=true) 
+//                 left(1)up(1)cyl(l=11, d=3);
+//       children();
+//     }
+//   }
+//   back_half()
+//     diff()
+//       cuboid(10)
+//         position(TOP)thing(anchor=BOT);
+// Example(3D,NoAxes): Here an attachable module uses {{recolor()}} to change the color of a sub-part, producing the result shown on the left.  But if the caller applies color to the attachable, then both the green and yellow are changed, as shown on the right.  
+//   module thing(anchor=CENTER) {
+//       attachable(anchor,size=[10,10,10]) {
+//           cuboid(10)
+//             position(TOP) recolor("green")
+//               cuboid(5,anchor=BOT);
+//           children();
+//       }
+//   }
+//   move([-15,-15])
+//   thing()
+//     attach(RIGHT,BOT)
+//       recolor("blue") cyl(d=5,h=5);
+//   recolor("pink") thing()
+//     attach(RIGHT,BOT)
+//       recolor("blue") cyl(d=5,h=5);
+// Example(3D,NoAxes): Using the `keep_color=true` option enables the green color to persist, even when the user specifies a color.
+//   module thing(anchor=CENTER) {
+//       attachable(anchor,size=[10,10,10],keep_color=true) {
+//           cuboid(10)
+//             position(TOP) recolor("green")
+//               cuboid(5,anchor=BOT);
+//           children();
+//       }
+//   }
+//   recolor("pink") thing()
+//     attach(RIGHT,BOT)
+//       recolor("blue") cyl(d=5,h=5);
+// Example(3D,NoScale): This example defines named anchors and then uses them internally in the object definition to make a cutout in the socket() object and to attach the plug on the plug() object.  These objects can be connected using the "socket" and "plug" named anchors, which will fit the plug into the socket.
+//   module socket(anchor, spin, orient) {
+//       sz = 50;
+//       prong_size = 10;
+//       anchors = [
+//           named_anchor("socket", [sz/2,.15*sz,.2*sz], RIGHT, 0)
+//       ];
+//       attachable(anchor, spin, orient, size=[sz,sz,sz], anchors=anchors) {
+//           diff() {
+//               cuboid(sz);
+//               tag("remove") attach("socket") zcyl(d=prong_size, h=prong_size*2, $fn=6);
+//           }
+//           children();
+//       }
+//   }
+//   module plug(anchor, spin, orient) {
+//       sz = 30;
+//       prong_size = 9.5;
+//       anchors=[
+//           named_anchor("plug", [0,sz/3,sz/2], UP, 0)
+//       ];
+//       attachable(anchor, spin, orient, size=[sz,sz,sz], anchors=anchors) {
+//          union(){
+//            cuboid(sz);
+//            attach("plug") cyl(d=prong_size, h=prong_size*2,$fn=6);
+//          }
+//          children();
+//       }
+//   }
+//   socket();
+//   right(75) plug();
+
+
+
 module attachable(
     anchor, spin, orient,
     size, size2, shift,
@@ -2497,15 +3115,18 @@ module attachable(
     anchors=[],
     two_d=false,
     axis=UP,override,
-    geom
-) { 
+    geom,
+    parts=[],
+    expose_tags=false, keep_color=false
+) {
     dummy1 =
         assert($children==2, "attachable() expects exactly two children; the shape to manage, and the union of all attachment candidates.")
-        assert(is_undef(anchor) || is_vector(anchor) || is_string(anchor), str("Got: ",anchor))
-        assert(is_undef(spin)   || is_vector(spin,3) || is_num(spin), str("Got: ",spin))
-        assert(is_undef(orient) || is_vector(orient,3), str("Got: ",orient));
-    anchor = first_defined([$anchor_override, anchor, CENTER]);
-    spin =   default(spin,   0);
+        assert(is_undef(anchor) || is_vector(anchor) || is_string(anchor), str("Invalid anchor: ",anchor))
+        assert(is_undef(spin) || is_finite(spin), str("Invalid spin: ",spin))
+        assert(is_undef(orient) || is_vector(orient,3), str("Invalid orient: ",orient));
+        assert(in_list(v_abs(axis),[UP,RIGHT,BACK]), "axis must be a coordinate direction");
+    anchor = default(anchor,CENTER);
+    spin = default(spin,0); 
     orient = is_def($anchor_override)? UP : default(orient, UP);
     region = !is_undef(region)? region :
         !is_undef(path)? [path] :
@@ -2528,16 +3149,53 @@ module attachable(
         $parent_size   = _attach_geom_size(geom);
         $attach_to   = undef;
         $anchor_override=undef;
-        if (_is_shown())
-            _color($color) children(0);
-        if (is_def($save_color)) {
-            $color=$save_color;
-            $save_color=undef;
-            children(1);
+        $attach_alignment=undef;
+        $parent_parts = parts;
+        $anchor_inside = false;
+        if (expose_tags || _is_shown()){
+            if (!keep_color)
+                _color($color)
+                  _show_ghost() children(0);
+            else {
+                $save_color=undef; // Force color_this() color in effect to persist for the entire object
+                _show_ghost() children(0);
+            }
         }
-        else children(1);
-    }
+        let(
+            $ghost_this=false,
+            $highlight_this=false,
+            $tag=default($save_tag,$tag),
+            $save_tag=undef,
+            $color=default($save_color,$color),
+            $save_color=undef
+        )
+        children(1);
+   }
 }
+
+module _show_highlight()
+{
+  if ($highlight || $highlight_this)
+    #children();
+  else
+    children();
+}  
+
+
+module _show_ghost()
+{  
+    if (($ghost || $ghost_this) && !$ghosting)
+        %union(){
+           $ghosting=true;
+           _show_highlight()children();
+        }
+    else _show_highlight()children();
+}
+
+
+
+function _is_geometry(entry) = is_list(entry) && is_string(entry[0]);
+
 
 // Function: reorient()
 // Synopsis: Calculates the transformation matrix needed to reorient an object.
@@ -2596,11 +3254,11 @@ module attachable(
 //   .
 //   If `$attach_to` is defined, as a consequence of `attach(from,to)`, then
 //   the following transformations are performed in order:
-//   * Translates this part so it's anchor position matches the parent's anchor position.
-//   * Rotates this part so it's anchor direction vector exactly opposes the parent's anchor direction vector.
-//   * Rotates this part so it's anchor spin matches the parent's anchor spin.
+//   * Translates this part so its anchor position matches the parent's anchor position.
+//   * Rotates this part so its anchor direction vector exactly opposes the parent's anchor direction vector.
+//   * Rotates this part so its anchor spin matches the parent's anchor spin.
 //   .
-//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachments).
+//   For a step-by-step explanation of attachments, see the [Attachments Tutorial](Tutorial-Attachment-Basic-Positioning).
 //
 // Arguments:
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
@@ -2640,10 +3298,10 @@ function reorient(
     axis=UP, override, 
     geom,
     p=undef
-) =
-    assert(is_undef(anchor) || is_vector(anchor) || is_string(anchor), str("Got: ",anchor))
-    assert(is_undef(spin)   || is_vector(spin,3) || is_num(spin), str("Got: ",spin))
-    assert(is_undef(orient) || is_vector(orient,3), str("Got: ",orient))
+) = 
+    assert(is_undef(anchor) || is_vector(anchor) || is_string(anchor), str("Invalid anchor: ",anchor))
+    assert(is_undef(spin) || is_finite(spin), str("Invalid spin: ",spin))
+    assert(is_undef(orient) || is_vector(orient,3), str("Invalid orient: ",orient))
     let(
         anchor = default(anchor, CENTER),
         spin =   default(spin,   0),
@@ -2660,7 +3318,9 @@ function reorient(
                 cp=cp, offset=offset, anchors=anchors,
                 two_d=two_d, axis=axis, override=override
             ),
-        $attach_to = undef
+        $attach_to = undef,
+        $anchor_override= undef,
+        $attach_alignment = undef
     ) _attach_transform(anchor,spin,orient,geom,p);
 
 
@@ -2670,16 +3330,41 @@ function reorient(
 // See Also: reorient(), attachable()
 // Usage:
 //   a = named_anchor(name, pos, [orient], [spin]);
+//   a = named_anchor(name, [pos], rot=, [flip=]);
 // Description:
-//   Creates an anchor data structure.  For a step-by-step explanation of attachments,
-//   see the [Attachments Tutorial](Tutorial-Attachments).
+//   Creates an anchor data structure.  You can specify the position, orient direction and spin directly.
+//   Alternatively for the 3D case you can give a 4x4 rotation matrix which can specify the orient and spin, and optionally
+//   the position, using a translation component of the matrix.  If you specify `pos` along with `rot` then the position you
+//   give overrides any translation included in `rot`.  For a step-by-step explanation of attachments, 
+//   see the [Attachments Tutorial](Tutorial-Attachment-Basic-Positioning).
 // Arguments:
 //   name = The string name of the anchor.  Lowercase.  Words separated by single dashes.  No spaces.
 //   pos = The [X,Y,Z] position of the anchor.
 //   orient = A vector pointing in the direction parts should project from the anchor position.  Default: UP
 //   spin = If needed, the angle to rotate the part around the direction vector.  Default: 0
-function named_anchor(name, pos, orient=UP, spin=0) = [name, pos, orient, spin];
-
+//   ---
+//   info = structure listing info to be propagated to the attached child, e.g. "edge_anchor"
+//   rot = A 4x4 rotations matrix, which may include a translation
+//   flip = If true, flip the anchor the opposite direction.  Default: false
+function named_anchor(name, pos, orient, spin, rot, flip, info) =
+  assert(num_defined([orient,spin])==0 || num_defined([rot,flip])==0, "Cannot mix orient or spin with rot or flip")
+  assert(num_defined([pos,rot])>0, "Must give pos or rot")
+  is_undef(rot) ? [name, pos, default(orient,UP), default(spin,0), if (info) info]
+ : 
+  let(
+      flip = default(flip,false),
+      pos = default(pos,apply(rot,CTR)),
+      rotpart = _force_rot(rot),
+      dummy = assert(approx(det4(rotpart),1), "Input rotation is not a rotation matrix"),
+      dir = flip ? apply(rotpart,DOWN)
+                 : apply(rotpart,UP),
+      rot = flip? affine3d_rot_by_axis(apply(rotpart,BACK),180)*rot
+                      : rot,
+      decode=rot_decode(rot(to=UP,from=dir)*_force_rot(rot)),
+      spin = decode[0]*sign(decode[1].z)
+  )
+  [name, pos, dir, spin, if (info) info];
+  
 
 // Function: attach_geom()
 // Synopsis: Returns the internal geometry description of an attachable object.
@@ -2732,7 +3417,7 @@ function named_anchor(name, pos, orient=UP, spin=0) = [name, pos, orient, spin];
 //   anchors = If given as a list of anchor points, allows named anchor points.
 //   two_d = If true, the attachable shape is 2D.  If false, 3D.  Default: false (3D)
 //   axis = The vector pointing along the axis of a geometry.  Default: UP
-//   override = Function that takes an anchor and returns a pair `[position,direction]` to use for that anchor to override the normal one.  You can also supply a lookup table that is a list of `[anchor, [position, direction]]` entries.  If the direction/position that is returned is undef then the default will be used.
+//   override = Function that takes an anchor and returns a pair `[position,direction,spin]` to use for that anchor to override the normal one.  You can also supply a lookup table that is a list of `[anchor, [position, direction,spin]]` entries.  If the direction/position/spin that is returned is undef then the default will be used.
 //
 // Example(NORENDER): Null/Point Shape
 //   geom = attach_geom();
@@ -2801,11 +3486,6 @@ function named_anchor(name, pos, orient=UP, spin=0) = [name, pos, orient, spin];
 //   geom = attach_geom(region=region, l=length, extent=false);
 //
 
-function _local_struct_val(struct, key)=
-    assert(is_def(key),"key is missing")
-    let(ind = search([key],struct)[0])
-    ind == [] ? undef : struct[ind][1];
-
 
 function attach_geom(
     size, size2,
@@ -2825,12 +3505,12 @@ function attach_geom(
     assert(is_list(anchors))
     assert(is_bool(two_d))
     assert(is_vector(axis))
+    let(
+        over_f = is_undef(override) ? function(anchor) [undef,undef,undef]
+               : is_func(override) ? override
+               : function(anchor) _local_struct_val(override,anchor)
+    )
     !is_undef(size)? (
-        let(
-            over_f = is_undef(override) ? function(anchor) [undef,undef,undef]
-                   : is_func(override) ? override
-                   : function(anchor) _local_struct_val(override,anchor)
-        )
         two_d? (
             let(
                 size2 = default(size2, size.x),
@@ -2853,17 +3533,17 @@ function attach_geom(
     ) : !is_undef(vnf)? (
         assert(is_vnf(vnf))
         assert(two_d == false)
-        extent? ["vnf_extent", vnf, cp, offset, anchors] :
-        ["vnf_isect", vnf, cp, offset, anchors]
+        extent? ["vnf_extent", vnf, over_f, cp, offset, anchors] 
+              : ["vnf_isect", vnf, over_f, cp, offset, anchors]
     ) : !is_undef(region)? (
         assert(is_region(region),2)
         let( l = default(l, h) )
         two_d==true
-          ? assert(is_undef(l))
+          ? assert(is_undef(l), "Cannot give l/h with region anchor types (when two_d is set)")
             extent==true
               ? ["rgn_extent", region, cp, offset, anchors]
               : ["rgn_isect",  region, cp, offset, anchors]
-          : assert(is_finite(l))
+          : assert(is_finite(l), "Must give l/h with extrusion anchor types (did you forget to set two_d?)")
             let(
                 shift = default(shift, [0,0]),
                 scale = is_num(scale)? [scale,scale] : default(scale, [1,1]),
@@ -2901,8 +3581,52 @@ function attach_geom(
             )
         )
     ) :
-    ["point", cp, offset, anchors];
+    two_d?     ["point2d", cp, offset, anchors]
+    : ["point", cp, offset, anchors];
 
+
+// Function: define_part()
+// Synopsis: Creates an attachable part data structure.
+// Topics: Attachments
+// See Also: attachable()
+// Usage:
+//   part = define_part(name, geom, [inside=], [T=]);
+// Description:
+//   Create a named attachable part that can be passed in the `parts` parameter of {{attachable()}}
+//   and then selected using {{attach_part()}}.
+// Arguments:
+//   name = name of part
+//   geom = geometry of part produced by {{attach_geom()}}
+//   ---
+//   inside = if true, reverse the attachment direction for children.  Default: false
+//   T = Transformation to apply to children.  Default: IDENT
+// Example(3D): This example shows how to create a custom object with two different parts that are both transformed away from the origin.  The basic object is two cylinders with a cube shaped attachment geometry that doesn't match the object very well.  The "left" and "right" parts attach to each of the two cylinders.  
+//   module twocyl(d, sep, h, ang=20) 
+//   {
+//      parts = [
+//                define_part("left", attach_geom(r=d/2,h=h), T=left(sep/2)*yrot(-ang)),
+//                define_part("right", attach_geom(r=d/2,h=h), T=right(sep/2)*yrot(ang)),
+//              ];
+//      attachable(size=[sep+d,d,h], parts=parts){
+//        union(){
+//            left(sep/2) yrot(-ang) cyl(d=d,h=h);
+//            right(sep/2) yrot(ang) cyl(d=d,h=h);
+//        }
+//        children();
+//      }  
+//   }
+//   twocyl(d=10,sep=30,h=10){
+//     attach(TOP,TOP) cuboid(3);
+//     color("pink")attach_part("left")attach(TOP,BOT) cuboid(3);
+//     color("green")attach_part("right")attach(TOP,BOT) cuboid(3);    
+//   }
+
+function define_part(name, geom, inside=false, T=IDENT) =
+  assert(is_string(name), "name must be a string")
+  assert(_is_geometry(geom), "geometry appears invalid")
+  assert(is_bool(inside), "inside must be boolean")
+  assert(is_matrix(T,4), "T must be a 4x4 transformation matrix")
+  [name, geom, inside, T];
 
 
 
@@ -2923,7 +3647,7 @@ function attach_geom(
 function _attach_geom_2d(geom) =
     let( type = geom[0] )
     type == "trapezoid" || type == "ellipse" ||
-    type == "rgn_isect" || type == "rgn_extent";
+    type == "rgn_isect" || type == "rgn_extent" || type=="point2d";
 
 
 /// Internal Function: _attach_geom_size()
@@ -2936,6 +3660,7 @@ function _attach_geom_2d(geom) =
 function _attach_geom_size(geom) =
     let( type = geom[0] )
     type == "point"? [0,0,0] :
+    type == "point2d"? [0,0] :
     type == "prismoid"? ( //size, size2, shift, axis
         let(
             size=geom[1], size2=geom[2], shift=point2d(geom[3]),
@@ -3102,67 +3827,55 @@ function _attach_geom_edge_path(geom, edge) =
 ///   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 ///   geom = The geometry description of the shape.
 ///   p = If given as a VNF, path, or point, applies the affine3d transformation matrix to it and returns the result.
+
 function _attach_transform(anchor, spin, orient, geom, p) =
-    assert(is_undef(anchor) || is_vector(anchor) || is_string(anchor), str("Got: ",anchor))
-    assert(is_undef(spin)   || is_vector(spin,3) || is_num(spin), str("Got: ",spin))
-    assert(is_undef(orient) || is_vector(orient,3), str("Got: ",orient))
+    assert(is_undef(anchor) || is_vector(anchor) || is_string(anchor), str("Invalid anchor: ",anchor))
+    assert(is_undef(spin) || is_finite(spin), str("Invalid spin: ",spin))
+    assert(is_undef(orient) || is_vector(orient,3), str("Invalid orient: ",orient))
     let(
-        anchor = default(anchor, CENTER),
-        
-        spin   = default(spin,   0),
-        orient = default(orient, UP),
+        anchor=default(anchor,CENTER),
+        spin=default(spin,0),
+        orient=default(orient,UP),
         two_d = _attach_geom_2d(geom),
-        m = ($attach_to != undef)? (
+        m = is_def($attach_to) ?   // $attach_to is the attachment point on this object
+              (                       // which will attach to the parent
+                   let(                           
+                        anch = _find_anchor($attach_to, geom),
+                        // if $anchor_override is set it defines the object position anchor (but note not direction or spin).  
+                        // Otherwise we use the provided anchor for the object.  
+                        pos = is_undef($anchor_override) ? anch[1]
+                            : _find_anchor(_make_anchor_legal($anchor_override,geom),geom)[1]
+                   )
+                   two_d?
+                     affine3d_zrot(spin)  
+                        * rot(to=FWD, from=point3d(anch[2])) 
+                        * affine3d_translate(point3d(-pos))
+                 :
+                   affine3d_yrot(180)
+                      * affine3d_zrot(-anch[3]-spin)
+                      * rot(from=anch[2],to=UP)
+                      * affine3d_translate(point3d(-pos))
+              )
+          :
             let(
-                anch = _find_anchor($attach_to, geom),
-                pos = anch[1]
-            ) two_d? (
-                assert(two_d && is_num(spin))
-                affine3d_zrot(spin) *
-                rot(to=FWD, from=point3d(anch[2])) *
-                affine3d_translate(point3d(-pos))
-            ) : (
-                assert(is_num(spin) || is_vector(spin,3))
-                let(
-                    ang = vector_angle(anch[2], DOWN),
-                    axis = vector_axis(anch[2], DOWN),
-                    ang2 = (anch[2]==UP || anch[2]==DOWN)? 0 : 180-anch[3],
-                    axis2 = rot(p=axis,[0,0,ang2])
-                )
-                affine3d_rot_by_axis(axis2,ang) * (
-                    is_num(spin)? affine3d_zrot(ang2+spin) : (
-                        affine3d_zrot(spin.z) *
-                        affine3d_yrot(spin.y) *
-                        affine3d_xrot(spin.x) *
-                        affine3d_zrot(ang2)
-                    )
-                ) * affine3d_translate(point3d(-pos))
-            )
-        ) : (
-            let(
+                anchor = is_undef($attach_alignment) ? anchor
+                       : two_d? _make_anchor_legal(zrot(-spin,$attach_alignment),geom)
+                       : _make_anchor_legal(rot(spin, from=UP,to=orient,reverse=true,p=$attach_alignment),geom),
                 pos = _find_anchor(anchor, geom)[1]
-            ) two_d? (
-                assert(two_d && is_num(spin))
-                affine3d_zrot(spin) *
-                affine3d_translate(point3d(-pos))
-            ) : (
-                assert(is_num(spin) || is_vector(spin,3))
+            )
+            two_d? affine3d_zrot(spin) * affine3d_translate(point3d(-pos))
+            :
                 let(
-                    axis = vector_axis(UP,orient),
+                    axis = vector_axis(UP,orient),    // Returns BACK if orient is UP
                     ang = vector_angle(UP,orient)
                 )
-                affine3d_rot_by_axis(axis,ang) * (
-                    is_num(spin)? affine3d_zrot(spin) : (
-                        affine3d_zrot(spin.z) *
-                        affine3d_yrot(spin.y) *
-                        affine3d_xrot(spin.x)
-                    )
-                ) * affine3d_translate(point3d(-pos))
-            )
-        )
-    ) is_undef(p)? m :
-    is_vnf(p)? [(p==EMPTY_VNF? p : apply(m, p[0])), p[1]] :
-    apply(m, p);
+                affine3d_rot_by_axis(axis,ang) 
+                    * affine3d_zrot(spin)  
+                    * affine3d_translate(point3d(-pos))
+    )
+    is_undef(p)? m
+  : is_vnf(p) && p==[[],[]] ? p 
+  : apply(m, p);
 
 
 function _get_cp(geom) =
@@ -3203,11 +3916,6 @@ function _get_cp(geom) =
 
 
 
-function _force_anchor_2d(anchor) =
-  assert(anchor.y==0 || anchor.z==0, "Anchor for a 2D shape cannot be fully 3D.  It must have either Y or Z component equal to zero.")
-  anchor.y==0 ? [anchor.x,anchor.z] : point2d(anchor);
-
-
 /// Internal Function: _find_anchor()
 /// Usage:
 ///   anchorinfo = _find_anchor(anchor, geom);
@@ -3221,9 +3929,21 @@ function _force_anchor_2d(anchor) =
 /// Arguments:
 ///   anchor = Vector or named anchor string.
 ///   geom = The geometry description of the shape.
-function _find_anchor(anchor, geom) =
+
+function _three_edge_corner_dir(facevecs,edges) =
+      let(
+           v1 = vector_bisect(facevecs[0],facevecs[2]),
+           v2 = vector_bisect(facevecs[1],facevecs[2]),
+           p1 = plane_from_normal(rot(v=edges[0],a=90,p=v1)),
+           p2 = plane_from_normal(rot(v=edges[1],a=-90,p=v2)),
+           line = plane_intersection(p1,p2),
+           v3 = unit(line[1]-line[0],UP)
+       )
+       unit(v3,UP);
+
+function _find_anchor(anchor, geom)=
     is_string(anchor)? (
-          anchor=="origin"? [anchor, CENTER, UP, 0]
+          anchor=="origin"? [anchor, CENTER, UP, 0]    // Ok that this returns 3d anchor in the 2d case?
         : let(
               anchors = last(geom),
               found = search([anchor], anchors, num_returns_per_match=1)[0]
@@ -3249,8 +3969,10 @@ function _find_anchor(anchor, geom) =
         let(all_comps_good = [for (c=anchor) if (c!=sign(c)) 1]==[])
         assert(all_comps_good, "All components of an anchor for a cuboid/prismoid must be -1, 0, or 1")
         let(
-            size=geom[1], size2=geom[2],
-            shift=point2d(geom[3]), axis=point3d(geom[4]),
+            size=geom[1],
+            size2=geom[2],
+            shift=point2d(geom[3]),
+            axis=point3d(geom[4]),
             override = geom[5](anchor)
         )
         let(
@@ -3263,56 +3985,117 @@ function _find_anchor(anchor, geom) =
             axy = point2d(anch),
             bot = point3d(v_mul(point2d(size )/2, axy), -h/2),
             top = point3d(v_mul(point2d(size2)/2, axy) + shift, h/2),
+            edge = top-bot,
             pos = point3d(cp) + lerp(bot,top,u) + offset,
-            vecs = anchor==CENTER? [UP]
-              : [
-                    if (anch.x!=0) unit(rot(from=UP, to=[(top-bot).x,0,max(0.01,h)], p=[axy.x,0,0]), UP),
-                    if (anch.y!=0) unit(rot(from=UP, to=[0,(top-bot).y,max(0.01,h)], p=[0,axy.y,0]), UP),
+               // Find vectors of the faces involved in the anchor
+            facevecs = 
+                [
+                    if (anch.x!=0) unit(rot(from=UP, to=[edge.x,0,max(0.01,h)], p=[axy.x,0,0]), UP),
+                    if (anch.y!=0) unit(rot(from=UP, to=[0,edge.y,max(0.01,h)], p=[0,axy.y,0]), UP),
                     if (anch.z!=0) unit([0,0,anch.z],UP)
                 ],
-            vec2 = anchor==CENTER? UP
-              : len(vecs)==1? unit(vecs[0],UP)
-              : len(vecs)==2? vector_bisect(vecs[0],vecs[1])
-              : let(
-                    v1 = vector_bisect(vecs[0],vecs[2]),
-                    v2 = vector_bisect(vecs[1],vecs[2]),
-                    p1 = plane_from_normal(yrot(90,p=v1)),
-                    p2 = plane_from_normal(xrot(-90,p=v2)),
-                    line = plane_intersection(p1,p2),
-                    v3 = unit(line[1]-line[0],UP) * anch.z
-                )
-                unit(v3,UP),
-            vec = default(override[1],rot(from=UP, to=axis, p=vec2)),
-            pos2 = default(override[0],rot(from=UP, to=axis, p=pos))
-        ) [anchor, pos2, vec, default(override[2],oang)]
-    ) : type == "conoid"? ( //r1, r2, l, shift
-        assert(anchor.z == sign(anchor.z), "The Z component of an anchor for a cylinder/cone must be -1, 0, or 1")
+            dir = anch==CENTER? UP
+                : len(facevecs)==1? unit(facevecs[0],UP)
+                : len(facevecs)==2? vector_bisect(facevecs[0],facevecs[1])
+                : _three_edge_corner_dir(facevecs,[FWD,LEFT])*anch.z,            
+            edgedir = len(facevecs)!=2 ? undef
+                    : rot(from=UP,to=axis,p=unit(cross(facevecs[0], facevecs[1]))), 
+            edgeang = len(facevecs)==2 ? 180-vector_angle(facevecs[0], facevecs[1]) : undef,
+            edgelen = anch.z==0 ? norm(edge)
+                    : anch.z>0 ? abs([size2.y,size2.x]*axy)
+                    : abs([size.y,size.x]*axy),
+            endvecs = len(facevecs)!=2 ? undef
+                    : anch.z==0 ? [DOWN, UP]
+                    : let(
+                          raxy = zrot(-90,axy),
+                          bot1 = point3d(v_mul(point2d(size )/2, raxy), -h/2),
+                          top1 = point3d(v_mul(point2d(size2)/2, raxy) + shift, h/2),
+                          edge1 = top1-bot1,
+                          vec1 = (raxy.x!=0) ? unit(rot(from=UP, to=[edge1.x,0,max(0.01,h)], p=[raxy.x,0,0]), UP)
+                               :               unit(rot(from=UP, to=[0,edge1.y,max(0.01,h)], p=[0,raxy.y,0]), UP),
+                          raxy2 = zrot(90,axy),
+                          bot2 = point3d(v_mul(point2d(size )/2, raxy2), -h/2),
+                          top2 = point3d(v_mul(point2d(size2)/2, raxy2) + shift, h/2),
+                          edge2 = top2-bot2,
+                          vec2 = (raxy2.y!=0) ? unit(rot(from=UP, to=[edge.x,0,max(0.01,h)], p=[raxy2.x,0,0]), UP)
+                               :               unit(rot(from=UP, to=[0,edge.y,max(0.01,h)], p=[0,raxy2.y,0]), UP)
+                      )
+                      [vec1,vec2],
+            final_dir = default(override[1],anch==CENTER?UP:rot(from=UP, to=axis, p=dir)),
+            final_pos = default(override[0],rot(from=UP, to=axis, p=pos)),
+
+            // If the anchor is an edge anchor and not horizontal we point spin UP
+            // If the anchor is horizontal edge we point spin clockwise:
+            //     cross product of UP with the edge direction will point OUT if we are on top and edge direction
+            //     is correct.  We check if it points out by comparing to the final_dir which points out at that edge,
+            //     with a correction for top/bottom (anchor.z).  
+            // Otherwise use the standard BACK/UP definition
+            // The precomputed oang value seems to be wrong, at least when axis!=UP
+
+            spin = is_def(edgedir) && !approx(edgedir.z,0) ? _compute_spin(final_dir, edgedir * (edgedir*UP>0?1:-1))
+                 : is_def(edgedir) ? _compute_spin(final_dir,
+                                                   edgedir * (approx(unit(cross(UP,edgedir)),unit([final_dir.x,final_dir.y,0])*anchor.z) ? 1 : -1))
+                 : _compute_spin(final_dir, final_dir==DOWN || final_dir==UP ? BACK : UP)
+        ) [anchor, final_pos, final_dir, default(override[2],spin),
+           if (is_def(edgeang)) [["edge_angle",edgeang],["edge_length",edgelen], ["vec", endvecs]]]
+    ) : type == "conoid"? ( //r1, r2, l, shift, axis
         let(
-            rr1=geom[1], rr2=geom[2], l=geom[3],
-            shift=point2d(geom[4]), axis=point3d(geom[5]),
+            rr1=geom[1],
+            rr2=geom[2],
+            length=geom[3],
+            shift=point2d(geom[4]),
+            axis=point3d(geom[5]),
             r1 = is_num(rr1)? [rr1,rr1] : point2d(rr1),
             r2 = is_num(rr2)? [rr2,rr2] : point2d(rr2),
             anch = rot(from=axis, to=UP, p=anchor),
+            axisname = axis==UP ? "Z"
+                     : axis==RIGHT ? "X"
+                     : axis==BACK ? "Y"
+                     : "",
+            dummy = assert(anch.z == sign(anch.z), str("The ",axisname," component of an anchor for the cylinder/cone must be -1, 0, or 1")),
             offset = rot(from=axis, to=UP, p=offset),
             u = (anch.z+1)/2,
+            // Returns [point,tangent_dir]
+            solve_ellipse = function (r,dir) approx(dir,[0,0]) ? [[0,0],[0,0]]
+                                            : let(
+                                                  x = r.x*dir.x*r.y / sqrt(dir.x^2*r.y^2+dir.y^2*r.x^2),
+                                                  y = r.x*dir.y*r.y / sqrt(dir.x^2*r.y^2+dir.y^2*r.x^2)
+                                             )
+                                             [[x,y], unit([y*r.x^2,-x*r.y^2],CTR)],
+            on_center = approx(point2d(anch), [0,0]),
+            botdata = solve_ellipse(r1,point2d(anch)),
+            topdata = solve_ellipse(r2,point2d(anch)),
+            bot = point3d(botdata[0], -length/2),
+            top = move(shift,point3d(topdata[0], length/2)),
+            tangent = lerp(botdata[1],topdata[1],u), 
+            normal = [-tangent.y,tangent.x],
             axy = unit(point2d(anch),[0,0]),
-            bot = point3d(v_mul(r1,axy), -l/2),
-            top = point3d(v_mul(r2,axy)+shift, l/2),
+            obot = point3d(v_mul(r1,axy), -length/2),
+            otop = point3d(v_mul(r2,axy)+shift, length/2),
             pos = point3d(cp) + lerp(bot,top,u) + offset,
-            sidevec = rot(from=UP, to=top==bot?UP:top-bot, p=point3d(axy)),
+            sidevec = rot(from=UP, to=top==bot?UP:top-bot, p=point3d(normal)),
             vvec = anch==CENTER? UP : unit([0,0,anch.z],UP),
-            vec = anch==CENTER? CENTER :
-                approx(axy,[0,0])? unit(anch,UP) :
-                approx(anch.z,0)? sidevec :
-                unit((sidevec+vvec)/2,UP),
+            vec = on_center? unit(anch,UP)
+                : approx(anch.z,0)? sidevec
+                : unit((sidevec+vvec)/2,UP),
             pos2 = rot(from=UP, to=axis, p=pos),
-            vec2 = anch==CENTER? UP : rot(from=UP, to=axis, p=vec)
-        ) [anchor, pos2, vec2, oang]
+            vec2 = anch==CENTER? UP : rot(from=UP, to=axis, p=vec),
+               // Set spin for top/bottom to be clockwise
+            spin = anch.z!=0 && (!approx(anch.x,0) || !approx(anch.y,0)) ? _compute_spin(vec2,rot(from=UP,to=axis,p=point3d(tangent)*anch.z))
+                 : anch.z==0 && norm(anch)>EPSILON ? _compute_spin(vec2, (approx(vec2,DOWN) || approx(vec2,UP))?BACK:UP)
+                 : oang
+        ) [anchor, pos2, vec2, spin]
     ) : type == "point"? (
         let(
             anchor = unit(point3d(anchor),CENTER),
             pos = point3d(cp) + point3d(offset),
             vec = unit(anchor,UP)
+        ) [anchor, pos, vec, oang]
+    ) : type == "point2d"? (
+        let(
+            anchor = unit(_force_anchor_2d(anchor), [0,0]),
+            pos = point2d(cp) + point2d(offset),
+            vec = unit(anchor,BACK)
         ) [anchor, pos, vec, oang]
     ) : type == "spheroid"? ( //r
         let(
@@ -3323,8 +4106,11 @@ function _find_anchor(anchor, geom) =
             vec = unit(v_mul(r,anchor),UP)
         ) [anchor, pos, vec, oang]
     ) : type == "vnf_isect"? ( //vnf
-        let( vnf=geom[1] )
-        approx(anchor,CTR)? [anchor, [0,0,0], UP, 0] :
+        let(
+            vnf=geom[1],
+            override = geom[2](anchor)
+        )                                                   // CENTER anchors anchor on cp, "origin" anchors on [0,0]
+        approx(anchor,CTR)? [anchor, default(override[0],cp),default(override[1],UP),default(override[2], 0)] :     
         vnf==EMPTY_VNF? [anchor, [0,0,0], unit(anchor), 0] :
         let(
             eps = 1/2048,
@@ -3371,19 +4157,105 @@ function _find_anchor(anchor, geom) =
             n = unit(sum(unorms)),
             oang = approx(point2d(n), [0,0])? 0 : atan2(n.y, n.x) + 90
         )
-        [anchor, pos, n, oang]
+        [anchor, default(override[0],pos),default(override[1], n),default(override[2], oang)]
     ) : type == "vnf_extent"? ( //vnf
-        let( vnf=geom[1] )
-        approx(anchor,CTR)? [anchor, [0,0,0], UP, 0] :
+        let(
+            vnf=geom[1],
+            override = geom[2](anchor)
+        )                                                   // CENTER anchors anchor on cp, "origin" anchors on [0,0]
+        approx(anchor,CTR)? [anchor, default(override[0],cp),default(override[1],UP),default(override[2], 0)] :     
         vnf==EMPTY_VNF? [anchor, [0,0,0], unit(anchor,UP), 0] :
         let(
             rpts = apply(rot(from=anchor, to=RIGHT) * move(point3d(-cp)), vnf[0]),
             maxx = max(column(rpts,0)),
-            idxs = [for (i = idx(rpts)) if (approx(rpts[i].x, maxx)) i],
-            avep = sum(select(rpts,idxs))/len(idxs),
-            mpt = approx(point2d(anchor),[0,0])? [maxx,0,0] : avep,
-            pos = point3d(cp) + rot(from=RIGHT, to=anchor, p=mpt)
-        ) [anchor, pos, anchor, oang]
+
+            idxmax = [for (i = idx(rpts)) approx(rpts[i].x, maxx)],
+            idxs = [for (i = idx(rpts)) if(approx(rpts[i].x, maxx)) i],
+            veflist=[
+                     for(face=vnf[1])
+                       let(
+                           facemax = [for(vertind=face) if (idxmax[vertind]) vertind],
+                           flip = facemax[0]==face[0] && facemax[1]==last(face)
+                       )
+                       [
+                         if (len(facemax)==1) facemax else [],
+                         if (len(facemax)==2) (flip ? reverse(facemax):facemax) else [],
+                         if (len(facemax)>2) facemax else []
+                       ]],
+            vlist = [for(i=idx(veflist)) if (veflist[i][0]!=[]) veflist[i][0]],
+            elist = [for(i=idx(veflist)) if (veflist[i][1]!=[] && !approx(rpts[veflist[i][1][0]],rpts[veflist[i][1][1]])) veflist[i][1]],
+            flist = [for(i=idx(veflist)) if (veflist[i][2]!=[])  veflist[i][2]],
+            faceinfo = [for(face=flist) let(poly=select(vnf[0],face)) [polygon_area(poly), centroid(poly)]],  //[ area, centroid]
+            facearea = len(faceinfo)==0 ? 0 : sum(column(faceinfo,0)),
+            basic_spin = _compute_spin(anchor, v_abs(anchor)==UP ? BACK: UP),
+            res = len(flist)>0 && !approx(facearea,0) ?
+                      let(
+                          center = column(faceinfo,0)*column(faceinfo,1)/facearea
+                      )
+                      [center,anchor,basic_spin]
+                : len(elist)==2 ?  // One edge (which appears twice, once in each direction)
+                      let(
+                          edge = select(vnf[0],elist[0]),
+                          center = mean(edge),
+                          edgefaces = _vnf_find_edge_faces(vnf,elist), //unique([for(e=elist) each _vnf_find_edge_faces(vnf,e)]),
+                          facenormals = [for(face=edgefaces) polygon_normal(select(vnf[0],vnf[1][face]))],
+                          direction = unit(mean(facenormals)),
+                          projnormals = project_plane(point4d(cross(facenormals[0],facenormals[1])), facenormals),
+                          ang = 180- posmod(v_theta(projnormals[1])-v_theta(projnormals[0]),360),
+                          horiz_face = [for(i=[0:1]) if (approx(v_abs(facenormals[i]),UP)) i],  // index of horizontal face, at most one exists
+                          spin = horiz_face==[] ?
+                                     let(
+                                         edgedir = edge[1]-edge[0],
+                                         nz = [for(i=[0:2]) if (!approx(edgedir[i],0)) i],
+                                         flip = edgedir[last(nz)] < 0 ? -1 : 1
+                                     )
+                                     _compute_spin(direction, flip*edgedir)
+                                  :
+                                     let(  // Determine whether the edge is the right or wrong direction compared to the horizongal face
+                                           // which will determine what clockwise means so we can assign spin
+                                         face = select(vnf[1],edgefaces[horiz_face[0]]),
+                                         endptidx=search(column(elist,0),face),
+                                         hedge = elist[endptidx[0]!=[] ? 0:1],
+                                         edgedir = deltas(select(vnf[0],hedge))[0],
+                                         flip = select(face,flatten(endptidx)[0]+1)== hedge[1] ? 1 : -1
+                                     )
+                                     _compute_spin(direction, flip*edgedir)
+                      )
+                      [center,direction,spin,[["edge_angle",ang],["edge_length",norm(edge[1]-edge[0])]]]
+                : len(elist)>2 ?   // multiple edges, which must be coplanar, use average of edge endpoints
+                      let(
+                           plist = select(vnf[0],flatten(edge)),
+                           center = mean(plist)
+                      )
+                      [center,anchor,basic_spin]
+                : len(vlist)==0 ? assert(false,"Cannot find anchor on the VNF")
+                : let(
+                      vlist = flatten(vlist),
+                      uind = unique_approx_indexed(select(vnf[0],vlist)),
+                      ulist = select(vlist,uind)
+                  )
+                  len(ulist)>1 ?   // Multiple vertices: return average
+                      let(
+                           center = mean(select(vnf[0],ulist))
+                      )
+                      [center, anchor, basic_spin]
+                : let(    // one vertex case
+                      vuniq = unique(vlist),
+                      vertices = vnf[0],
+                      faces = vnf[1],
+                      cornerfaces = _vnf_find_corner_faces(vnf,vuniq),    // faces = [3,9,12] indicating which faces
+                      normals = [for(faceind=cornerfaces) polygon_normal(select(vertices, faces[faceind]))],
+                      angles = [for(faceind=cornerfaces)
+                                  let(
+                                       thisface = faces[faceind],
+                                       vind = flatten(search(vuniq,thisface))[0]
+                                  )
+                                  vector_angle(select(vertices, select(thisface,vind-1,vind+1)))
+                               ],
+                             direc = unit(angles*normals)
+                   )
+                   [vnf[0][ulist[0]], direc, atan2(direc.y,direc.x)+90]
+        ) [anchor, default(override[0],res[0]),default(override[1],res[1]),default(override[2],res[2]),if (len(res)==3) res[2]]        
     ) : type == "trapezoid"? ( //size, size2, shift, override
         let(all_comps_good = [for (c=anchor) if (c!=sign(c)) 1]==[])
         assert(all_comps_good, "All components of an anchor for a rectangle/trapezoid must be -1, 0, or 1")
@@ -3423,7 +4295,7 @@ function _find_anchor(anchor, geom) =
             anchor = _force_anchor_2d(anchor),
             rgn = force_region(move(-point2d(cp), p=geom[1]))
         )
-        approx(anchor,[0,0])? [anchor, [0,0,0], BACK, 0] :
+        approx(anchor,[0,0])? [anchor, cp, BACK, 0] :     // CENTER anchors anchor on cp, "origin" anchors on [0,0]
         let(
             isects = [
                 for (path=rgn, t=triplet(path,true)) let(
@@ -3447,15 +4319,25 @@ function _find_anchor(anchor, geom) =
         ) [anchor, pos, vec, 0]
     ) : type == "rgn_extent"? ( //region
         let( anchor = _force_anchor_2d(anchor) )
-        approx(anchor,[0,0])? [anchor, [0,0,0], BACK, 0] :
+        approx(anchor,[0,0])? [anchor, cp, BACK, 0] :   // CENTER anchors anchor on cp, "origin" anchors on [0,0]
         let(
             rgn = force_region(geom[1]),
-            rpts = rot(from=anchor, to=RIGHT, p=flatten(rgn)),
+            indexed_pts = [for(i=idx(rgn), j=idx(rgn[i])) [i,j,rgn[i][j]]],
+            rpts = rot(from=anchor, to=RIGHT, p=column(indexed_pts,2)), 
             maxx = max(column(rpts,0)),
-            ys = [for (pt=rpts) if (approx(pt.x, maxx)) pt.y],
+            index = [for (i=idx(rpts)) if (approx(rpts[i].x, maxx)) i],
+            ys = [for (i=index) rpts[i].y],
             midy = (min(ys)+max(ys))/2,
-            pos = rot(from=RIGHT, to=anchor, p=[maxx,midy])
-        ) [anchor, pos, unit(anchor,BACK), 0]
+            pos = rot(from=RIGHT, to=anchor, p=[maxx,midy]),
+            dir = len(ys) > 1 ? [unit(anchor)]
+                : let(
+                       path = rgn[indexed_pts[index[0]][0]],
+                       ctr = indexed_pts[index[0]][1],
+                       corner = select(path, [ctr-1,ctr,ctr+1]),
+                       normal = unit(unit(corner[0]-corner[1])+unit(corner[2]-corner[1]))
+                  )
+                  [is_polygon_clockwise(path) ? -normal : normal, vector_angle(corner)]
+        ) [anchor, pos, dir[0], 0, if(len(dir)>1) [["corner_angle",dir[1]]]]
     ) : type=="extrusion_extent" || type=="extrusion_isect" ? (  // extruded region
         assert(in_list(anchor.z,[-1,0,1]), "The Z component of an anchor for an extruded 2D shape must be -1, 0, or 1.")
         let(
@@ -3694,7 +4576,7 @@ module expose_anchors(opacity=0.2) {
 // See Also: generic_airplane(), anchor_arrow(), show_anchors(), expose_anchors(), frame_ref()
 // Usage:
 //   show_transform_list(tlist, [s]);
-//   show_transform_list(tlist) {CHILDREN};
+//   show_transform_list(tlist) CHILDREN;
 // Description:
 //   Given a list of transformation matrices, shows the position and orientation of each one.
 //   A line is drawn from each transform position to the next one, and an orientation indicator is
@@ -4212,5 +5094,400 @@ module _show_cube_faces(faces, size=20, toplabel,botlabel) {
    }
    color("yellow",0.7) cuboid(size=size);
 }
+
+
+
+/// Internal utility function
+
+function _force_rot(T) =
+   [for(i=[0:3])
+       [for(j=[0:3]) j<3 ? T[i][j] :
+                     i==3 ? 1
+                       : 0]];
+
+function _local_struct_val(struct, key)=
+    assert(is_def(key),"key is missing")
+    let(ind = search([key],struct)[0])
+    ind == [] ? undef : struct[ind][1];
+
+
+function _force_anchor_2d(anchor) =
+  is_undef(anchor) || len(anchor)==2 || is_string(anchor) ? anchor :
+  assert(anchor.y==0 || anchor.z==0, "Anchor for a 2D shape cannot be fully 3D.  It must have either Y or Z component equal to zero.")
+  anchor.y==0 ? [anchor.x,anchor.z] : point2d(anchor);
+
+// Compute spin angle based on a anchor direction and desired spin direction
+// anchor_dir assumed to be a unit vector; no assumption on spin_dir
+// Takes the component of the spin direction perpendicular to the anchor
+// direction and gives the spin angle that achieves it.  
+function _compute_spin(anchor_dir, spin_dir) =
+   let(
+        native_dir = rot(from=UP, to=anchor_dir, p=BACK),
+        spin_dir = spin_dir - (spin_dir*anchor_dir)*anchor_dir,  // component of spin_dir perpendicular to anchor_dir
+        dummy = assert(!approx(spin_dir,[0,0,0]),"spin direction is parallel to anchor"),
+        angle = vector_angle(native_dir,spin_dir),
+        sign = cross(native_dir,spin_dir)*anchor_dir<0 ? -1 : 1
+   )
+   sign*angle;
+
+        
+// Compute canonical edge direction so that edge is either Z+, Y+ or X+ in that order
+function _canonical_edge(edge) =
+  let(
+       nz = [for(i=[0:2]) if (!approx(edge[i],0)) i],
+       flip = edge[last(nz)] < 0 ? -1 : 1
+  )
+  flip * edge;
+
+
+
+// Section: Attachable Descriptions for Operating on Attachables or Restoring a Previous State
+
+// Function: parent()
+// Topics: Transforms, Attachments, Descriptions
+// See Also: restore(), parent_part()
+// Synopsis: Returns a description (transformation state and attachment geometry) of the parent
+// Usage:
+//   PARENT() let( desc = parent() ) CHILDREN;
+// Usage: in development releases only
+//   PARENT() { desc=parent(); CHILDREN; }
+// Description:
+//   Returns a description of the closest attachable ancestor in the geometry tree, along with the current transformation.  You can use this
+//   description to create new objects based on the described object or perform computations based on the described object.  You can also use it to
+//   restore the context of the parent object and transformation state using {{restore()}}.  Note that with OpenSCAD 2021.01 you need to use `let` for
+//   this function to work, and the definition of the variable is scoped to the children of the let module.
+//   (In development versions the use of let is no longer necessary.)  Note that if OpenSCAD displays any warnings
+//   related to transformation operations then the transformation that parent() returns is likely to be incorrect, even if OpenSCAD
+//   continues to run and produces a valid result.  
+function parent() =
+    let(
+        geom = default($parent_geom, attach_geom([0,0,0]))
+    )                 
+    [$transform, geom];
+
+
+
+// Function: parent_part()
+// Topics: Transforms, Attachments, Descriptions
+// See Also: restore(), parent()
+// Synopsis: Returns a description (transformation state and attachment geometry) of a part defined by the parent
+// Usage:
+//   PARENT() let( desc = parent_part(name) ) CHILDREN;
+// Usage: in development releases only
+//   PARENT() { desc=parent_part(name); CHILDREN; }
+// Description:
+//   Returns a description of the parent part with the specified name.  You can use this
+//   description to create new objects based on the described object or perform computations based on the described object.  You can also use it to
+//   restore the context of the parent object and transformation state using {{restore()}}.  Note that with OpenSCAD 2021.01 you need to use `let` for
+//   this function to work, and the definition of the variable is scoped to the children of the let module.
+//   (In development versions the use of let is no longer necessary.)  Note that if OpenSCAD displays any warnings
+//   related to transformation operations then the transformation that parent_part() returns is likely to be incorrect, even if OpenSCAD
+//   continues to run and produces a valid result.
+// Example(3D): This example defines an object with two parts and then uses `parent_part()` to create a {{prism_connector()}} between the two parts of the object.
+//   $fn=48;
+//   module twocyl(d, sep, h, ang=20) 
+//   {
+//      parts = [
+//                define_part("left", attach_geom(r=d/2,h=h),
+//                                    T=left(sep/2)*yrot(-ang)),
+//                define_part("right", attach_geom(r=d/2,h=h),
+//                                     T=right(sep/2)*yrot(ang)),
+//              ];
+//      attachable(size=[sep+d,d,h], parts=parts){
+//        union(){
+//            left(sep/2) yrot(-ang) cyl(d=d,h=h);
+//            right(sep/2) yrot(ang) cyl(d=d,h=h);
+//        }
+//        children();
+//      }  
+//   }
+//   twocyl(d=10,sep=20,h=10) 
+//     prism_connector(circle(r=2,$fn=32),
+//                     parent_part("left"), RIGHT,
+//                     parent_part("right"), LEFT,
+//                     fillet=1);
+
+function parent_part(name) =
+    assert(!is_undef($parent_parts), "Parent does not exist or does not have any parts")
+    let(
+        ind = search([name], $parent_parts, 1,0)[0]
+    )
+    assert(ind!=[], str("Parent does not have a part named ",name))    
+    [$transform * $parent_parts[ind][3], $parent_parts[ind][1]];
+
+
+// Module: restore()
+// Synopsis: Restores transformation state and attachment geometry from a description
+// Topics: Transforms, Attachments, Descriptions
+// See Also: parent()
+// Usage:
+//   restore([desc]) CHILDREN;
+// Description:
+//   Restores the transformation and parent geometry contained in the specified description which you obtained with {{parent()}}.  
+//   If you don't give a description then restores the global world coordinate system with a zero size cuboid object as the parent.
+// Arguments:
+//   desc = saved description to restore.  Default: restore to world coordinates
+// Example(3D):  The pink cube is a child of the green cube, but {{restore()}} restores the state to the yellow parent cube, so the pink cube attaches to the yellow cube
+//  left(5) cuboid(10)
+//    let(save_pt = parent())
+//    attach(RIGHT,BOT) recolor("green") cuboid(3)
+//    restore(save_pt)
+//      attach(FWD,BOT) recolor("pink") cuboid(3);
+
+module restore(desc)
+{
+   req_children($children);
+   if (is_undef(desc)){
+     T = matrix_inverse($transform);
+     $parent_geom = attach_geom([0,0,0]);
+     multmatrix(T) children();
+   }
+   else{
+     check=assert(is_description(desc), "Invalid description");
+     T = linear_solve($transform, desc[0]);
+     $parent_geom = desc[1];
+     multmatrix(T) children();
+   }
+}
+
+// Function: desc_point()
+// Synopsis: Computes the location in the current context of an anchor point from an attachable description
+// Topics: Descriptions, Attachments
+// See Also: parent(), desc_dist()
+// Usage:
+//   point = desc_point(desc,[p],[anchor]);
+// Description:
+//   Computes the coordinates of the specified point or anchor point in the given description relative to the current transformation state.
+// Arguments:
+//   desc = Description to use to get the point
+//   p = Point or point list to transform.  Default: CENTER (if anchor not given)
+//   ---
+//   anchor = Anchor point (only one) that you want to extract.  Default: CENTER
+// Example(3D): In this example we translate away from the parent object and then compute points on that object.  Note that with OpenSCAD 2021.01 you must use union() or alternatively place the pt1 and pt2 assignments in a let() statement.  This is not necessary in development versions.  
+//  cuboid(10) let(desc=parent())
+//    right(12) up(27)
+//      union(){
+//        pt1 = desc_point(desc,anchor=TOP+BACK+LEFT);
+//        pt2 = desc_point(desc,anchor=TOP+FWD+RIGHT);
+//        stroke([pt1,pt2,CENTER], closed=true, width=.5,color="red");
+//      }
+// Example(3D): Here we compute the point on the parent so we can draw a line anchored on the child object that connects to a computed point on the parent
+//  cuboid(10) let(desc=parent())
+//    attach(FWD,BOT) cuboid([3,3,7])
+//    attach(TOP+BACK+RIGHT, BOT)
+//    stroke([[0,0,0], desc_point(desc,anchor=TOP+FWD+RIGHT)],width=.5,color="red");
+function desc_point(desc, p, anchor) =
+    is_undef(desc) ?
+       assert(is_undef(anchor), "Cannot give anchor withot desc")
+       let(
+            T = matrix_inverse($transform)
+       )
+       apply(T, default(p,UP))
+  : assert(is_description(desc), "Invalid description")
+    assert(num_defined([anchor,p])<2, "Cannot give both anchor and p")
+    let (
+         T = linear_solve($transform, desc[0]),
+         p = is_def(p) ? p
+           :  let(anch = _find_anchor(anchor, desc[1]))
+              anch[1]
+    )
+    apply(T, p);
+
+
+// Function: desc_dir()
+// Synopsis: Computes the direction in the current context of a direction or anchor in a description's context
+// Topics: Descriptions, Attachment
+// See Also: parent(), desc_point()
+// Usage:
+//   dir = desc_anchor(desc,[dir], [anchor]);
+// Description:
+//   Computes the direction in the current context of a direction in the context of the description.  You can specify
+//   the direction by giving a direction vector, or you can give an anchor that will be interpreted from the description.
+//   If you don't give a description then the direction is computed relative to global world coordinates; in this case you
+//   cannot give an anchor as the direction.  
+// Arguments:
+//   desc = Description to use.  Default: use the global world coordinate system
+//   dir = Direction or list of directions to use.  Default: UP (if anchor is not given)
+//   ---
+//   anchor = Anchor (only one) to get the direction from.
+// Example(3D): Here we don't give a description so the reference is to the global world coordinate system, and we don't give a direction, so the default of UP applies.  This lets the cylinder be placed so it is horizontal in world coordinates.  
+//   prismoid(20,10,h=15)
+//     attach(RIGHT,BOT) cuboid([4,4,15])
+//     position(TOP) cyl(d=12,h=5,orient=desc_dir(),anchor=BACK);
+// Example(3D,VPR=[78.1,0,76.1]): Here we use the description of the prismoid, which lets us place the rod so that it is oriented in the direction of the prismoid's face. 
+//   prismoid(20,10,h=15) let(pris=parent())
+//      attach(RIGHT,BOT) cuboid([4,4,15])
+//      position(TOP) cyl(d=2,h=15,orient=desc_dir(pris,anchor=FWD),anchor=LEFT);
+function desc_dir(desc, dir, anchor) =
+    is_undef(desc) ?
+       assert(is_undef(anchor), "Cannot give anchor without desc")
+       let(
+            T = matrix_inverse($transform)
+       )
+       move(-apply(T,CENTER), apply(T, default(dir,UP)))
+  :
+    assert(is_description(desc), "Invalid description")
+    assert(num_defined([dir,anchor])<2, "Cannot give both dir and anchor")
+    let(
+         T = linear_solve($transform, desc[0]),
+         dir = is_def(dir) ? dir
+             : let(
+                   anch = _find_anchor(anchor, desc[1])
+               )
+               anch[2]
+    )
+    move(-apply(T,CENTER),apply(T, dir));
+
+function desc_attach(desc, anchor=UP, p, reverse=false) =
+    assert(is_description(desc), "Invalid description")
+    let(
+         T = linear_solve($transform, desc[0]),
+         anch = _find_anchor(anchor,desc[1]),
+         centerpoint = apply(T,CENTER),
+         pos = apply(T, anch[1]),
+         y = apply(T*rot(from=UP,to=anch[2])*zrot(anch[3]),BACK)-centerpoint,
+         z = apply(T,anch[2])-centerpoint
+    )
+    reverse ? frame_map(z=z,y=y,reverse=true, p=move(-pos,p))
+            : move(pos,frame_map(z=z,y=y, p=p));
+
+
+// Function: desc_dist()
+// Synopsis: Computes the distance between two points specified by attachable descriptions
+// Topics: Descriptions, Attachments
+// See Also: parent(), desc_point()
+// Usage:
+//   dist = desc_dist(desc1,anchor1,desc2,anchor2);
+//   dest = desc_dist(desc1=, desc2=, [anchor1=], [anchor2=]);
+// Description:
+//   Computes the distance between two points specified using attachable descriptions and optional anchor
+//   points.  If you omit the anchor point(s) then the computation uses the CENTER anchor.
+// Arguments:
+//   desc1 = First description
+//   anchor1 = Anchor for first description
+//   desc2 = Second description
+//   anchor2 = Anchor for second description
+// Example(3D): Computes the distance between a point on each cube. 
+//  cuboid(10) let(desc=parent()) {
+//      color("red")attach(TOP+LEFT+FWD) sphere(r=0.75,$fn=12);
+//      right(15) cuboid(10) {
+//        color("red") attach(TOP+RIGHT+BACK) sphere(r=0.75,$fn=12);
+//        echo(desc_dist(parent(),TOP+RIGHT+BACK, desc, TOP+LEFT+FWD));  // Prints 26.9258
+//      }
+//  }
+
+function desc_dist(desc1,anchor1=CENTER, desc2, anchor2=CENTER)=
+   assert(is_description(desc1),"Invalid description: desc1")
+   assert(is_description(desc2),"Invalid description: desc2")
+   let(
+         anch1 = _find_anchor(anchor1, desc1[1]),
+         anch2 = _find_anchor(anchor2, desc2[1]),         
+         Tinv = matrix_inverse($transform),
+         T1 = Tinv*desc1[0],
+         T2 = Tinv*desc2[0],
+         pt1 = apply(T1,anch1[1]),
+         pt2 = apply(T2,anch2[1])
+    )
+    norm(pt1-pt2);
+
+// Function: transform_desc()
+// Synopsis: Applies a transformation matrix to a description
+// Topics: Descriptions, Attachments
+// See Also: parent()
+// Usage:
+//   new_desc = transform_desc(T, desc);
+// Description:
+//   Applies a transformation matrix to a description, producing a new transformed description as
+//   output.  The transformation matrix can be produced using any of the usual transform commands.
+//   The resulting description is as if it was produced from an object that had the transformation
+//   applied.  You can also give a list of transformation matrices, in which case the output is
+//   a list of descriptions.  
+// Arguments:
+//   T = transformation or list of transformations to apply (a 4x4 matrix or list of them)
+//   desc = description to transform
+
+function transform_desc(T,desc) =
+    assert(is_description(desc), "Invalid description")
+    is_consistent(T, ident(4)) ? [for(t=T) [t*desc[0], desc[1]]]
+  : is_matrix(T,4,4) ? [T*desc[0], desc[1]]
+  : assert(false,"T must be a 4x4 matrix or list of 4x4 matrices");
+
+
+// Module: desc_copies()
+// Synopsis: Places copies according to a list of transformation matrices and supplies descriptions for the copies.
+// SynTags: MatList, Trans
+// Topics: Transformations, Distributors, Copiers, Descriptions
+// See Also: line_copies(), move_copies(), xcopies(), ycopies(), zcopies(), grid_copies(), xflip_copy(), yflip_copy(), zflip_copy(), mirror_copy()
+// Usage:
+//   desc_copies(transforms) CHILDREN;
+// Description:
+//   Makes a copy of the children and applies each matrix in the list of transformation matrices.
+//   This is equivalent to running `multmatrix()` over all the transformations for the children.
+//   This function provides a method for working with descriptions of the whole set of copies by
+//   making all of their descriptions available to the children.  This functionality will primarly
+//   be useful when the transformation consists only of translations and rotations and hence
+//   does not change the size or shape of the children.  If you change the shape of the objects, care
+//   is required to ensure that the descriptions match correctly. 
+//   .
+//   In a child object you obtain its description using {{parent()}} as usual.  Once you have
+//   that description you can also access descriptions of the other objects, assuming they have
+//   identical geometry.  (The geometry can vary if you make your object conditional on `$idx` for example.)
+//   To get the next object use `$next()` and to get the previous one use `$prev()`.  You can also
+//   get an arbitrary object description by index using `$desc(i)`.  You can use these descriptions
+//   with {{prism_connector()}} to create prisms between the corresponding objects.
+//   .
+//   Note that in OpenSCAD version 2021.01 you cannot directly call `$next` or the other `$` functions.
+//   You have to write `let(next=$next)` and then you can use the `next()` function.  Similar steps
+//   are necessary for the other functions.  In development versions you can directly invoke `$next()`
+//   and the other functions.  
+//   .
+//   The descriptions are made available through function literals provided in the `$` variables.  The
+//   available functions are
+//   * $next([di], [desc]): Returns the description of the next object, or if `di` is given, the object `di` steps forward.  The indexing wraps around.
+//   * $prev([di], [desc]): Returns the description of the previous object, or if `di` is given, the object `di` steps before.  The indexing wraps around.
+//   * $desc(i, [desc]): Returns a description of the object with index `i`.  Indexing does **not** wrap around.  
+//   All of these functions have an optional `desc` parameter, which is the description that will be transformed to produce the next, previous, or indexed
+//   description.  By default `desc` is set to {{parent()}}, but you may wish to use a different description if you have objects that vary.
+//   .
+//   See the last examples in {{prism_connector()}} for examples using this module.  
+// Arguments:
+//   transforms = list of transformation matrices to apply to the children
+// Side Effects:
+//   `$count` is set to the number of transformations
+//   `$idx` is set to the index number of the current transformation
+//   `$is_last` is set to true if this is the last copy and false otherwise
+//   `$next()` is set to a function literal that produces the next description (see above)
+//   `$prev()` is set to a function literal that produces the previous description (see above)
+//   `$desc()` is set to a function literal that produces the description at a specified index (see above)
+
+module desc_copies(transforms)
+{
+  $count=len(transforms);
+  for(i=idx(transforms))
+     let(
+          $idx=i,
+          $is_last = i==len(transforms)-1,
+          $desc = function(i,desc) transform_desc(transforms[i]*matrix_inverse(transforms[i]),default(desc,parent())),
+          $next = function(di=1,desc) transform_desc(select(transforms,i+di)*matrix_inverse(transforms[i]), default(desc,parent())),
+          $prev = function(di=1,desc) transform_desc(select(transforms,i-di)*matrix_inverse(transforms[i]), default(desc,parent()))
+     )
+     multmatrix(transforms[i])children();
+}       
+
+           
+// Function: is_description()
+// Synopsis: Check if its argument is a descriptioni
+// Topics: Descriptions
+// Usage:
+//   bool = is_description(desc);
+// Description:
+//   Returns true if the argument appears to be a description.  
+// Arguments:
+//   desc = argument to check
+function is_description(desc) =
+  is_list(desc) && len(desc)==2 && is_matrix(desc[0],4,4) && is_list(desc[1]) && is_string(desc[1][0]);
+
+
+
 
 // vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4 nowrap

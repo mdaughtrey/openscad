@@ -9,6 +9,9 @@
 //////////////////////////////////////////////////////////////////////
 
 
+function _is_liststr(s) = is_list(s) || is_str(s);
+
+
 // Section: Extracting substrings
 
 // Function: substr()
@@ -25,12 +28,13 @@
 //   pos = starting index of substring, or vector of first and last position.  Default: 0
 //   len = length of substring, or omit it to get the rest of the string.  If len is zero or less then the emptry string is returned.
 // Example:
-//   substr("abcdefg",3,3);     // Returns "def"
-//   substr("abcdefg",2);       // Returns "cdefg"
-//   substr("abcdefg",len=3);   // Returns "abc"
-//   substr("abcdefg",[2,4]);   // Returns "cde"
-//   substr("abcdefg",len=-2);  // Returns ""
+//   s1=substr("abcdefg",3,3);     // Returns "def"
+//   s2=substr("abcdefg",2);       // Returns "cdefg"
+//   s3=substr("abcdefg",len=3);   // Returns "abc"
+//   s4=substr("abcdefg",[2,4]);   // Returns "cde"
+//   s5=substr("abcdefg",len=-2);  // Returns ""
 function substr(str, pos=0, len=undef) =
+    assert(is_string(str))
     is_list(pos) ? _substr(str, pos[0], pos[1]-pos[0]+1) :
     len == undef ? _substr(str, pos, len(str)-pos) :
     _substr(str,pos,len);
@@ -54,7 +58,6 @@ function _substr(str,pos,len,substr="") =
 //   len = The number of characters of suffix to get.
 function suffix(str,len) =
     len>=len(str)? str : substr(str, len(str)-len,len);
-
 
 
 // Section: String Searching
@@ -81,21 +84,23 @@ function suffix(str,len) =
 //   all = set to true to return all matches as a list.  Overrides last.  Default: false
 //   start = index where the search starts
 // Example:
-//   str_find("abc123def123abc","123");   // Returns 3
-//   str_find("abc123def123abc","b");     // Returns 1
-//   str_find("abc123def123abc","1234");  // Returns undef
-//   str_find("abc","");                  // Returns 0
-//   str_find("abc123def123", "123", start=4);     // Returns 9
-//   str_find("abc123def123abc","123",last=true);  // Returns 9
-//   str_find("abc123def123abc","b",last=true);    // Returns 13
-//   str_find("abc123def123abc","1234",last=true); // Returns undef
-//   str_find("abc","",last=true);                 // Returns 3
-//   str_find("abc123def123", "123", start=8, last=true));  // Returns 3
-//   str_find("abc123def123abc","123",all=true);   // Returns [3,9]
-//   str_find("abc123def123abc","b",all=true);     // Returns [1,13]
-//   str_find("abc123def123abc","1234",all=true);  // Returns []
-//   str_find("abc","",all=true);                  // Returns [0,1,2]
+//   a=str_find("abc123def123abc","123");   // Returns 3
+//   b=str_find("abc123def123abc","b");     // Returns 1
+//   c=str_find("abc123def123abc","1234");  // Returns undef
+//   d=str_find("abc","");                  // Returns 0
+//   e=str_find("abc123def123", "123", start=4);     // Returns 9
+//   f=str_find("abc123def123abc","123",last=true);  // Returns 9
+//   g=str_find("abc123def123abc","b",last=true);    // Returns 13
+//   h=str_find("abc123def123abc","1234",last=true); // Returns undef
+//   i=str_find("abc","",last=true);                 // Returns 3
+//   j=str_find("abc123def123", "123", start=8, last=true));  // Returns 3
+//   k=str_find("abc123def123abc","123",all=true);   // Returns [3,9]
+//   l=str_find("abc123def123abc","b",all=true);     // Returns [1,13]
+//   m=str_find("abc123def123abc","1234",all=true);  // Returns []
+//   n=str_find("abc","",all=true);                  // Returns [0,1,2]
 function str_find(str,pattern,start=undef,last=false,all=false) =
+    assert(_is_liststr(str), "str must be a string or list")
+    assert(_is_liststr(pattern), "pattern must be a string or list")
     all? _str_find_all(str,pattern) :
     let( start = first_defined([start,last?len(str)-len(pattern):0]) )
     pattern==""? start :
@@ -131,19 +136,21 @@ function _str_find_all(str,pattern) =
 //   str = String to search
 //   start = Starting index for search in str
 //   pattern = String pattern to search for
-// Examples:
-//   substr_match("abcde",2,"cd");   // Returns true
-//   substr_match("abcde",2,"cx");   // Returns false
-//   substr_match("abcde",2,"cdef"); // Returns false
-//   substr_match("abcde",-2,"cd");  // Returns false
-//   substr_match("abcde",19,"cd");  // Returns false
-//   substr_match("abc",1,"");       // Returns true
+// Example:
+//   a=substr_match("abcde",2,"cd");   // Returns true
+//   b=substr_match("abcde",2,"cx");   // Returns false
+//   c=substr_match("abcde",2,"cdef"); // Returns false
+//   d=substr_match("abcde",-2,"cd");  // Returns false
+//   e=substr_match("abcde",19,"cd");  // Returns false
+//   f=substr_match("abc",1,"");       // Returns true
 
 //
 //    This is carefully optimized for speed.  Precomputing the length
 //    cuts run time in half when the string is long.  Two other string
 //    comparison methods were slower.
 function substr_match(str,start,pattern) =
+     assert(_is_liststr(str), "str must be a string or list")
+     assert(_is_liststr(pattern), "pattern must be a string or list")
      len(str)-start <len(pattern)? false
    : _substr_match_recurse(str,start,pattern,len(pattern));
 
@@ -160,16 +167,16 @@ function _substr_match_recurse(str,sindex,pattern,plen,pindex=0,) =
 // Usage:
 //    bool = starts_with(str,pattern);
 // Description:
-//    Returns true if the input string `str` starts with the specified string pattern, `pattern`.
-//    Otherwise returns false.
+//    Returns true if the input string (or list) `str` starts with the specified string (or list) pattern, `pattern`.
+//    Otherwise returns false.  (If `str` is not a string or list then always returns false.)
 // Arguments:
 //   str = String to search.
 //   pattern = String pattern to search for.
 // Example:
-//   starts_with("abcdef","abc");  // Returns true
-//   starts_with("abcdef","def");  // Returns false
-//   starts_with("abcdef","");     // Returns true
-function starts_with(str,pattern) = substr_match(str,0,pattern);
+//   b1=starts_with("abcdef","abc");  // Returns true
+//   b2=starts_with("abcdef","def");  // Returns false
+//   b3=starts_with("abcdef","");     // Returns true
+function starts_with(str,pattern) = _is_liststr(str) && substr_match(str,0,pattern);
 
 
 // Function: ends_with()
@@ -179,16 +186,16 @@ function starts_with(str,pattern) = substr_match(str,0,pattern);
 // Usage:
 //    bool = ends_with(str,pattern);
 // Description:
-//    Returns true if the input string `str` ends with the specified string pattern, `pattern`.
-//    Otherwise returns false.
+//    Returns true if the input string (or list) `str` ends with the specified string (or list) pattern, `pattern`.
+//    Otherwise returns false.  (If `str` is not a string or list then always returns false.)
 // Arguments:
 //   str = String to search.
 //   pattern = String pattern to search for.
 // Example:
-//   ends_with("abcdef","def");  // Returns true
-//   ends_with("abcdef","de");   // Returns false
-//   ends_with("abcdef","");     // Returns true
-function ends_with(str,pattern) = substr_match(str,len(str)-len(pattern),pattern);
+//   b1=ends_with("abcdef","def");  // Returns true
+//   b2=ends_with("abcdef","de");   // Returns false
+//   b3=ends_with("abcdef","");     // Returns true
+function ends_with(str,pattern) = _is_liststr(str) && substr_match(str,len(str)-len(pattern),pattern);
 
 
 
@@ -213,12 +220,12 @@ function ends_with(str,pattern) = substr_match(str,len(str)-len(pattern),pattern
 //   sep = a string or list of strings to use for the separator
 //   keep_nulls = boolean value indicating whether to keep null strings in the output list.  Default: true
 // Example:
-//   str_split("abc+def-qrs*iop","*-+");     // Returns ["abc", "def", "qrs", "iop"]
-//   str_split("abc+*def---qrs**iop+","*-+");// Returns ["abc", "", "def", "", "", "qrs", "", "iop", ""]
-//   str_split("abc      def"," ");          // Returns ["abc", "", "", "", "", "", "def"]
-//   str_split("abc      def"," ",keep_nulls=false);  // Returns ["abc", "def"]
-//   str_split("abc+def-qrs*iop",["+","-","*"]);     // Returns ["abc", "def", "qrs", "iop"]
-//   str_split("abc+def-qrs*iop",["-","+","*"]);     // Returns ["abc+def", "qrs*iop", "", ""]
+//   s1=str_split("abc+def-qrs*iop","*-+");     // Returns ["abc", "def", "qrs", "iop"]
+//   s2=str_split("abc+*def---qrs**iop+","*-+");// Returns ["abc", "", "def", "", "", "qrs", "", "iop", ""]
+//   s3=str_split("abc      def"," ");          // Returns ["abc", "", "", "", "", "", "def"]
+//   s4=str_split("abc      def"," ",keep_nulls=false); // Returns ["abc", "def"]
+//   s5=str_split("abc+def-qrs*iop",["+","-","*"]);     // Returns ["abc", "def", "qrs", "iop"]
+//   s6=str_split("abc+def-qrs*iop",["-","+","*"]);     // Returns ["abc+def", "qrs*iop", "", ""]
 function str_split(str,sep,keep_nulls=true) =
     !keep_nulls ? _remove_empty_strs(str_split(str,sep,keep_nulls=true)) :
     is_list(sep) ? _str_split_recurse(str,sep,i=0,result=[]) :
@@ -258,9 +265,10 @@ function _remove_empty_strs(list) =
 //   list = list of strings to concatenate
 //   sep = separator string to insert.  Default: ""
 // Example:
-//   str_join(["abc","def","ghi"]);        // Returns "abcdefghi"
-//   str_join(["abc","def","ghi"], " + ");  // Returns "abc + def + ghi"
+//   s1=str_join(["abc","def","ghi"]);         // Returns "abcdefghi"
+//   s2=str_join(["abc","def","ghi"], " + ");  // Returns "abc + def + ghi"
 function str_join(list,sep="",_i=0, _result="") =
+    assert(is_list(list))
     _i >= len(list)-1 ? (_i==len(list) ? _result : str(_result,list[_i])) :
     str_join(list,sep,_i+1,str(_result,list[_i],sep));
 
@@ -277,22 +285,22 @@ function str_join(list,sep="",_i=0, _result="") =
 //   Takes a string `s` and strips off all leading and/or trailing characters that exist in string `c`.
 //   By default strips both leading and trailing characters.  If you set start or end to true then
 //   it will strip only the leading or trailing characters respectively.  If you set start
-//   or end to false then it will strip only lthe trailing or leading characters.
+//   or end to false then it will strip only the trailing or leading characters.
 // Arguments:
 //   s = The string to strip leading or trailing characters from.
 //   c = The string of characters to strip.
 //   start = if true then strip leading characters
 //   end = if true then strip trailing characters
 // Example:
-//   str_strip("--##--123--##--","#-");  // Returns: "123"
-//   str_strip("--##--123--##--","-");   // Returns: "##--123--##"
-//   str_strip("--##--123--##--","#");   // Returns: "--##--123--##--"
-//   str_strip("--##--123--##--","#-",end=true);  // Returns: "--##--123"
-//   str_strip("--##--123--##--","-",end=true);   // Returns: "--##--123--##"
-//   str_strip("--##--123--##--","#",end=true);   // Returns: "--##--123--##--"
-//   str_strip("--##--123--##--","#-",start=true); // Returns: "123--##--"
-//   str_strip("--##--123--##--","-",start=true);  // Returns: "##--123--##--"
-//   str_strip("--##--123--##--","#",start=true);  // Returns: "--##--123--##--"
+//   s1=str_strip("--##--123--##--","#-");  // Returns: "123"
+//   s2=str_strip("--##--123--##--","-");   // Returns: "##--123--##"
+//   s3=str_strip("--##--123--##--","#");   // Returns: "--##--123--##--"
+//   s4=str_strip("--##--123--##--","#-",end=true);   // Returns: "--##--123"
+//   s5=str_strip("--##--123--##--","-",end=true);    // Returns: "--##--123--##"
+//   s6=str_strip("--##--123--##--","#",end=true);    // Returns: "--##--123--##--"
+//   s7=str_strip("--##--123--##--","#-",start=true); // Returns: "123--##--"
+//   s8=str_strip("--##--123--##--","-",start=true);  // Returns: "##--123--##--"
+//   s9=str_strip("--##--123--##--","#",start=true);  // Returns: "--##--123--##--"
 
 function _str_count_leading(s,c,_i=0) =
     (_i>=len(s)||!in_list(s[_i],[each c]))? _i :
@@ -329,6 +337,10 @@ function str_strip(s,c,start,end) =
 //   length = length to pad to
 //   char = character to pad with.  Default: " " (space)
 //   left = if true, pad on the left side.  Default: false
+// Example:
+//   s1=str_pad("hello", 10, "*");            // Returns: "hello*****"
+//   s2=str_pad("hello", 10, "*", left=true); // Returns: "*****hello"
+
 function str_pad(str,length,char=" ",left=false) =
   assert(is_str(str))
   assert(is_str(char) && len(char)==1, "char must be a single character string")
@@ -341,14 +353,22 @@ function str_pad(str,length,char=" ",left=false) =
 
 
 // Function: str_replace_char()
-// Synopsis: Replace given chars in a string with another substring.
+// Synopsis: Replace specified character in a string with a string.
 // Topics: Strings
 // See Also: suffix(), str_find(), substr_match(), starts_with(), ends_with(), str_split(), str_join(), str_strip()
 // Usage:
 //   newstr = str_replace_char(str, char, replace);
 // Description:
-//   Replace every occurence of `char` in the input string with the string `replace` which
-//   can be any string.
+//   Replace every occurence of `char` (a single character string) in the input string
+//   with the string `replace` which can be any string.
+// Arguments:
+//   str = string to process
+//   char = single character string to search for
+//   replace = string that replaces all copies of `char`
+// Example:
+//   s1 = str_replace_char("abcdcba","c","_123_");     // Returns: "ab123d123ba"
+//   s2 = str_replace_char(" s t r i n g ", " ", "");  // Returns: "string"
+
 function str_replace_char(str,char,replace) =
    assert(is_str(str))
    assert(is_str(char) && len(char)==1, "Search pattern 'char' must be a single character string")
@@ -368,8 +388,9 @@ function str_replace_char(str,char,replace) =
 // Arguments:
 //   str = String to convert.
 // Example:
-//   downcase("ABCdef");   // Returns "abcdef"
+//   s=downcase("ABCdef");   // Returns "abcdef"
 function downcase(str) =
+    assert(is_string(str))
     str_join([for(char=str) let(code=ord(char)) code>=65 && code<=90 ? chr(code+32) : char]);
 
 
@@ -385,8 +406,9 @@ function downcase(str) =
 // Arguments:
 //   str = String to convert.
 // Example:
-//   upcase("ABCdef");   // Returns "ABCDEF"
+//   s=upcase("ABCdef");   // Returns "ABCDEF"
 function upcase(str) =
+    assert(is_string(str))
     str_join([for(char=str) let(code=ord(char)) code>=97 && code<=122 ? chr(code-32) : char]);
 
 
@@ -402,8 +424,12 @@ function upcase(str) =
 //    Produce a random string of length `n`.  If you give a string `charset` then the
 //    characters of the random string are drawn from that list, weighted by the number
 //    of times each character appears in the list.  If you do not give a character set
-//    then the string is generated with characters ranging from 0 to z (based on
+//    then the string is generated with characters ranging from "0" to "z" (based on
 //    character code).
+// Arguments:
+//    n = number of characters to produce
+//    charset = string to draw the characters from.  Default: characters from "0" to "z".
+//    seed = random number seed
 function rand_str(n, charset, seed) =
   is_undef(charset)? str_join([for(c=rand_int(48,122,n,seed)) chr(c)])
                    : str_join([for(i=rand_int(0,len(charset)-1,n,seed)) charset[i]]);
@@ -436,12 +462,13 @@ function rand_str(n, charset, seed) =
 //   parse_int("CEDE", 16);   // Returns 52958
 //   parse_int("");           // Returns 0
 function parse_int(str,base=10) =
-    str==undef ? undef :
-    len(str)==0 ? 0 :
-    let(str=downcase(str))
-    str[0] == "-" ? -_parse_int_recurse(substr(str,1),base,len(str)-2) :
-    str[0] == "+" ?  _parse_int_recurse(substr(str,1),base,len(str)-2) :
-    _parse_int_recurse(str,base,len(str)-1);
+    str==undef ? undef
+  : assert(is_str(str))
+    len(str)==0 ? 0
+  : let(str=downcase(str))
+    str[0] == "-" ? -_parse_int_recurse(substr(str,1),base,len(str)-2)
+  : str[0] == "+" ?  _parse_int_recurse(substr(str,1),base,len(str)-2)
+  : _parse_int_recurse(str,base,len(str)-1);
 
 function _parse_int_recurse(str,base,i) =
     let(
@@ -471,14 +498,15 @@ function _parse_int_recurse(str,base,i) =
 //   parse_float("7.342e-4"); // Returns 0.0007342
 //   parse_float("");         // Returns 0
 function parse_float(str) =
-    str==undef ? undef :
-    len(str) == 0 ? 0 :
-    in_list(str[1], ["+","-"]) ? (0/0) : // Don't allow --3, or +-3
-    str[0]=="-" ? -parse_float(substr(str,1)) :
-    str[0]=="+" ?  parse_float(substr(str,1)) :
-    let(esplit = str_split(str,"eE") )
-    len(esplit)==2 ? parse_float(esplit[0]) * pow(10,parse_int(esplit[1])) :
-    let( dsplit = str_split(str,["."]))
+    str==undef ? undef
+  : assert(is_str(str))
+    len(str) == 0 ? 0
+  : in_list(str[1], ["+","-"]) ? (0/0)  // Don't allow --3, or +-3
+  : str[0]=="-" ? -parse_float(substr(str,1))
+  : str[0]=="+" ?  parse_float(substr(str,1))
+  : let(esplit = str_split(str,"eE") )
+    len(esplit)==2 ? parse_float(esplit[0]) * pow(10,parse_int(esplit[1]))
+  : let( dsplit = str_split(str,["."]))
     parse_int(dsplit[0])+parse_int(dsplit[1])/pow(10,len(dsplit[1]));
 
 
@@ -520,7 +548,8 @@ function parse_float(str) =
 //   parse_frac("2 1/4",mixed=false);      // Returns nan
 function parse_frac(str,mixed=true,improper=true,signed=true) =
     str == undef ? undef
-  : len(str)==0 ? 0
+  : assert(is_str(str))
+    len(str)==0 ? 0
   : str[0]==" " ? NAN
   : signed && str[0]=="-" ? -parse_frac(substr(str,1),mixed=mixed,improper=improper,signed=false)
   : signed && str[0]=="+" ?  parse_frac(substr(str,1),mixed=mixed,improper=improper,signed=false)
@@ -547,11 +576,14 @@ function parse_frac(str,mixed=true,improper=true,signed=true) =
 // Description:
 //   Converts a string to a number.  The string can be either a fraction (two integers separated by a "/") or a floating point number.
 //   Returns NaN if the conversion fails.
+// Arguments:
+//   str = string to process
 // Example:
 //   parse_num("3/4");    // Returns 0.75
 //   parse_num("3.4e-2"); // Returns 0.034
 function parse_num(str) =
     str == undef ? undef :
+    assert(is_str(str))
     let( val = parse_frac(str) )
     val == val ? val :
     parse_float(str);
@@ -756,6 +788,7 @@ function _format_matrix(M, sig=4, sep=1, eps=1e-9) =
 //   format("{:-10s}{:.3f}", ["plecostamus",27.43982]);  // Returns: "plecostamus27.440"
 //   format("{:-10.9s}{:.3f}", ["plecostamus",27.43982]);  // Returns: "plecostam 27.440"
 function format(fmt, vals) =
+    assert(is_str(fmt))
     let(
         parts = str_split(fmt,"{")
     ) str_join([

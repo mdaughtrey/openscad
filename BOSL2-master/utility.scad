@@ -748,8 +748,9 @@ function get_radius(r1, r2, r, d1, d2, d, dflt) =
 //   same way that OpenSCAD expands short vectors in some contexts, e.g. cube(10) or rotate([45,90]).  
 //   If `v` is a scalar, and `dflt==undef`, returns `[v, v, v]`.
 //   If `v` is a scalar, and `dflt!=undef`, returns `[v, dflt, dflt]`.
-//   If `v` is a vector and dflt is defined, returns the first 3 items, with any missing values replaced by `dflt`.
-//   If `v` is a vector and dflt is undef, returns the first 3 items, with any missing values replaced by 0.
+//   if `v` is a list of length 3 or more then returns `v`
+//   If `v` is a list and dflt is defined, returns a length 3 list by padding with `dflt`
+//   If `v` is a list and dflt is undef, returns a length 3 list by padding with 0
 //   If `v` is `undef`, returns `undef`.
 // Arguments:
 //   v = Value to return vector from.
@@ -874,6 +875,22 @@ module deprecate(new_name)
 {
    echo(str("***** Module ",parent_module(1),"() has been replaced by ",new_name,"() and will be removed in a future version *****"));
 }   
+
+
+
+// Module: echo_viewport()
+// Synopsis: Display the current viewport parameters. 
+// Usage:
+//   echo_viewport();
+// Description:
+//   Display the current viewport parameters so that they can be pasted into examples for the wiki.
+//   The viewport should have a 4:3 aspect ratio to ensure proper framing of the object.  
+
+module echo_viewport()
+{
+    echo(format("VPR=[{:.2f},{:.2f},{:.2f}],VPD={:.2f},VPT=[{:.2f},{:.2f},{:.2f}]", [each $vpr, $vpd, each $vpt]));
+}    
+
 
 
 // Section: Testing Helpers
@@ -1045,7 +1062,7 @@ module shape_compare(eps=1/1024) {
 // Description:
 //   Returns true if the `state` value indicates the current loop should continue.  This is useful
 //   when using C-style for loops to iteratively calculate a value.  Used with `loop_while()` and
-//   `loop_done()`.  See [Looping Helpers](section-looping-helpers) for an example.
+//   `loop_done()`.  See [Looping Helpers](utility.scad#section-c-style-for-loop-helpers) for an example.
 // Arguments:
 //   state = The loop state value.
 function looping(state) = state < 2;
@@ -1061,7 +1078,7 @@ function looping(state) = state < 2;
 //   Given the current `state`, and a boolean `continue` that indicates if the loop should still be
 //   continuing, returns the updated state value for the the next loop.  This is useful when using
 //   C-style for loops to iteratively calculate a value.  Used with `looping()` and `loop_done()`.
-//   See [Looping Helpers](section-looping-helpers) for an example.
+//   See [Looping Helpers](utility.scad#section-c-style-for-loop-helpers) for an example.
 // Arguments:
 //   state = The loop state value.
 //   continue = A boolean value indicating whether the current loop should progress.
@@ -1079,7 +1096,7 @@ function loop_while(state, continue) =
 // Description:
 //   Returns true if the `state` value indicates the loop is finishing.  This is useful when using
 //   C-style for loops to iteratively calculate a value.  Used with `looping()` and `loop_while()`.
-//   See [Looping Helpers](#5-looping-helpers) for an example.
+//   See [Looping Helpers](utility.scad#section-c-style-for-loop-helpers) for an example.
 // Arguments:
 //   state = The loop state value.
 function loop_done(state) = state > 0;
