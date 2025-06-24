@@ -166,7 +166,8 @@ module forViewing()
 
 module forPrinting()
 {
-   upper_clip();
+//   upper_clip();
+   clip();
 }
 
 scale(ViewScale)

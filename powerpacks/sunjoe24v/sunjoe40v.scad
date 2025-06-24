@@ -48,6 +48,47 @@ module forViewing()
     up(200) right(450) battery_clip();
 }
 
+module clip()
+{
+    module cutout(a=LEFT,d=0,l=0)
+    {
+        conv_hull() 
+            cuboid([1000+l+d,100+d,101],anchor=a)
+            position(RIGHT) fwd(50+d/2)
+            cyl(r=25+d/2,100,$fn=96,anchor=LEFT);
+    }
+    diff() {
+        cuboid([3000,2650,200], rounding=200,edges="Z")
+        {
+//            tag("remove")
+//            {
+//                *attach(LEFT+BOT) cuboid([3000,300,300]);
+//                *attach(LEFT+BOT,norot=1) cuboid([2480,2050,160],anchor=LEFT+BOT)
+//                *attach(LEFT+TOP,norot=1) cuboid([2480,2360,230],anchor=LEFT+BOT);
+//                // Sprung tab cutout
+//                *attach(LEFT+TOP,norot=1) right(230) cuboid([750,850,290],anchor=TOP+LEFT);
+//                // PCB cutouts
+//                *attach(RIGHT+BOT,norot=1) left(200) back(1570/2) cuboid([760,70,460],anchor=RIGHT+BOT+BACK)
+//                *attach(BOT+RIGHT,norot=1) cuboid([200,70,100],anchor=LEFT+BOT);
+//                *attach(RIGHT+BOT,norot=1) left(200) fwd(1570/2) cuboid([760,70,460],anchor=RIGHT+BOT+BACK)
+//                *attach(BOT+RIGHT,norot=1) cuboid([200,70,100],anchor=LEFT+BOT);
+//            }
+          // Upper clip back
+          attach(TOP+RIGHT,norot=1) back(2105/2) left(200) cuboid([976,86,135], anchor=BACK+RIGHT+BOT);
+          attach(TOP+RIGHT,norot=1) back(2105/2) left(1730) cuboid([1000,86,135], anchor=BACK+RIGHT+BOT)
+          attach(TOP+LEFT+BACK,norot=1) cuboid([2780,160,100], anchor=BOT+BACK+LEFT);
+
+          // Upper clip front
+          attach(TOP+RIGHT,norot=1) fwd(2105/2) left(200) cuboid([976,86,135], anchor=FRONT+RIGHT+BOT);
+          attach(TOP+RIGHT,norot=1) fwd(2105/2) left(1730) cuboid([1000,86,135], anchor=FRONT+RIGHT+BOT)
+          attach(TOP+LEFT+FRONT,norot=1) cuboid([2780,160,100], anchor=BOT+FRONT+LEFT);
+
+*            position(RIGHT+BOT) housing_3pin();
+        }
+    }
+}
+
+
 module forPrinting()
 {
     clip();
@@ -56,6 +97,6 @@ module forPrinting()
 scale(ViewScale)
 {
 //    model_boost_buck_converter();
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 }

@@ -1,7 +1,10 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 include <../BOSL2-master/std.scad>
 
-model_cables=1;
+$fn=96;
+
+model_cables=0;
+model_u_connectors=1;
 
 // module modname(anchor=CENTER,spin=0,orient=UP)
 // {
@@ -28,6 +31,27 @@ module model_usb_connector(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
+module model_usb_u_connector(anchor=CENTER,spin=0,orient=UP)
+{
+    module model_usb_connector_()
+    {
+        recolor("black")
+        cuboid([1112, 573, 253], rounding=50)
+        {
+            position(TOP+RIGHT) left(129) cuboid([234, 430, 284], rounding=100, edges="Z", anchor=BOT+RIGHT);
+            position(TOP+LEFT) right(116) cuboid([205, 430, 50], rounding=100, edges="Z", anchor=BOT+LEFT)
+            recolor("silver")
+            position(BOT) model_usb_connector(anchor=BACK, spin=90, orient=LEFT);
+        }
+    }
+    attachable(anchor,spin,orient,size=[1112, 573, 253+284])
+    {
+        up(253/2) down((253+284)/2)
+        model_usb_connector_();
+        children();
+    }
+}
+
 module model_usb_switch(anchor=CENTER,spin=0,orient=UP)
 {
     module model_usb_switch_()
@@ -40,50 +64,50 @@ module model_usb_switch(anchor=CENTER,spin=0,orient=UP)
             // Connectors
             recolor("silver")
             {
-                attach(LEFT+BACK+TOP, norot=1) right(387) back(40) model_usb_connector(anchor=LEFT+BACK+BOT)
-                if (model_cables)
-                {
-                    attach(BACK, norot=1) fwd(306) model_usb_cable(anchor=FRONT);
-                }
-                attach(RIGHT+BACK+TOP, norot=1) left(387) back(40) model_usb_connector(anchor=RIGHT+BACK+BOT)
-                if (model_cables)
-                {
-                    attach(BACK, norot=1) fwd(306) model_usb_cable(anchor=FRONT);
-                }
-                attach(LEFT+FRONT+TOP, norot=1) right(387) fwd(40) model_usb_connector(anchor=LEFT+FRONT+BOT);
-                attach(RIGHT+FRONT+TOP, norot=1) left(387) fwd(40) model_usb_connector(anchor=RIGHT+FRONT+BOT);
+                position(LEFT+BACK+TOP) right(387) back(40) model_usb_connector(anchor=LEFT+BACK+BOT);
+//                if (model_cables)
+//                {
+//                    position(BACK) fwd(306) model_usb_cable(anchor=FRONT);
+//                }
+                position(RIGHT+BACK+TOP) left(387) back(40) model_usb_connector(anchor=RIGHT+BACK+BOT);
+//                if (model_cables)
+//                {
+//                    position(BACK) fwd(306) model_usb_cable(anchor=FRONT);
+//                }
+                position(LEFT+FRONT+TOP) right(387) fwd(40) model_usb_connector(anchor=LEFT+FRONT+BOT);
+                position(RIGHT+FRONT+TOP) left(387) fwd(40) model_usb_connector(anchor=RIGHT+FRONT+BOT);
             }
             // Chips
             recolor("black")
             {
                 // USBC Adjacent
-                attach(LEFT+BACK+TOP, norot=1) right(115) fwd(252) cuboid([100, 169, 85], anchor=LEFT+BACK+BOT)
-                attach(RIGHT+BOT, norot=1) right(20) cuboid([113, 125, 55], anchor=LEFT+BOT);
-                attach(RIGHT+BACK+TOP, norot=1) left(115) fwd(252) cuboid([100, 169, 85], anchor=RIGHT+BACK+BOT)
-                attach(LEFT+BOT, norot=1) left(20) cuboid([113, 125, 55], anchor=RIGHT+BOT);
+                position(LEFT+BACK+TOP) right(115) fwd(252) cuboid([100, 169, 85], anchor=LEFT+BACK+BOT)
+                position(RIGHT+BOT) right(20) cuboid([113, 125, 55], anchor=LEFT+BOT);
+                position(RIGHT+BACK+TOP) left(115) fwd(252) cuboid([100, 169, 85], anchor=RIGHT+BACK+BOT)
+                position(LEFT+BOT) left(20) cuboid([113, 125, 55], anchor=RIGHT+BOT);
 
                 // Centerline
-                attach(BACK+TOP, norot=1) fwd(125) cuboid([120, 120, 30], anchor=BACK+BOT);
-                attach(BACK+TOP+LEFT, norot=1) fwd(560) right(885) cuboid([180, 100, 50], anchor=BACK+BOT+LEFT);
-                attach(BACK+TOP+RIGHT, norot=1) fwd(560) left(885) cuboid([180, 100, 50], anchor=BACK+BOT+RIGHT);
-                attach(BACK+TOP, norot=1) fwd(940) cuboid([176, 139, 40], anchor=BACK+BOT);
+                position(BACK+TOP) fwd(125) cuboid([120, 120, 30], anchor=BACK+BOT);
+                position(BACK+TOP+LEFT) fwd(560) right(885) cuboid([180, 100, 50], anchor=BACK+BOT+LEFT);
+                position(BACK+TOP+RIGHT) fwd(560) left(885) cuboid([180, 100, 50], anchor=BACK+BOT+RIGHT);
+                position(BACK+TOP) fwd(940) cuboid([176, 139, 40], anchor=BACK+BOT);
 
                 // Right
-                attach(RIGHT+BACK+TOP, norot=1) left(367) fwd(785) cuboid([290, 250, 73], anchor=BOT+BACK+RIGHT);
+                position(RIGHT+BACK+TOP) left(367) fwd(785) cuboid([290, 250, 73], anchor=BOT+BACK+RIGHT);
 
                 // Left
-                attach(LEFT+BACK+TOP, norot=1) right(77) fwd(800) cuboid([120, 52, 45], anchor=LEFT+BACK+BOT)
-                attach(RIGHT+BACK+BOT, norot=1) right(137) cuboid([170, 202, 55], anchor=LEFT+BACK+BOT);
-                attach(LEFT+BACK+TOP, norot=1) right(77) fwd(1050) cuboid([120, 52, 45], anchor=LEFT+BACK+BOT)
-                attach(RIGHT+BACK+BOT, norot=1) right(137) cuboid([170, 202, 55], anchor=LEFT+BACK+BOT);
-                attach(LEFT+FRONT+TOP, norot=1) right(115) back(227) cuboid([200, 187, 60], anchor=LEFT+FRONT+BOT);
+                position(LEFT+BACK+TOP) right(77) fwd(800) cuboid([120, 52, 45], anchor=LEFT+BACK+BOT)
+                position(RIGHT+BACK+BOT) right(137) cuboid([170, 202, 55], anchor=LEFT+BACK+BOT);
+                position(LEFT+BACK+TOP) right(77) fwd(1050) cuboid([120, 52, 45], anchor=LEFT+BACK+BOT)
+                position(RIGHT+BACK+BOT) right(137) cuboid([170, 202, 55], anchor=LEFT+BACK+BOT);
+                position(LEFT+FRONT+TOP) right(115) back(227) cuboid([200, 187, 60], anchor=LEFT+FRONT+BOT);
 
                 // Button
-                attach(FRONT+TOP, norot=1) back(143) recolor("silver") cuboid([237, 237, 167], anchor=BOT+FRONT)
-                attach(TOP, norot=1) recolor("black") cyl(d=135, h=150, anchor=BOT);
+                position(FRONT+TOP) back(143) recolor("silver") cuboid([237, 237, 167], anchor=BOT+FRONT)
+                position(TOP) recolor("black") cyl(d=135, h=150, anchor=BOT);
 
                 // Holes
-                tag(rmtag) attach(RIGHT+FRONT+TOP, norot=1)
+                tag(rmtag) position(RIGHT+FRONT+TOP)
                 ycopies(spacing=100, n=8) left(170) back(390+350) cyl(d=35, h=48, anchor=TOP);
             }
         
@@ -105,11 +129,13 @@ module model_usb_cable(anchor=CENTER,spin=0,orient=UP)
         recolor("silver)")
         model_usb_connector()
         recolor("grey")
-        attach(BACK, norot=1)
+        position(BACK)
         cuboid([487, 715, 256], rounding=50, except=[FRONT, BACK], anchor=FRONT)
         recolor("black")
-        attach(BACK, norot=1)
-        cuboid([487, 390, 256], rounding=50, except=[FRONT, BACK], anchor=FRONT);
+        position(BACK)
+        cuboid([487, 390, 256], rounding=50, except=[FRONT, BACK], anchor=FRONT)
+        recolor("grey")
+        position(BACK) cyl(d=175, l=1000, orient=FRONT,anchor=TOP);
     }
     
     attachable(anchor,spin,orient,size=[487, 1411, 256])
@@ -122,15 +148,28 @@ module model_usb_cable(anchor=CENTER,spin=0,orient=UP)
 }
 
 
-module case()
+module models()
 {
+    left(2190/2+120) model_usb_switch()
+    {
+        position(RIGHT+FRONT) down(110) fwd(90) left(280) model_usb_u_connector(spin=-90,orient=BACK,anchor=LEFT+BACK);
+        position(LEFT+BACK) fwd(250) up(111) right(320) model_usb_cable(anchor=FRONT+LEFT);
+        position(RIGHT+BACK) fwd(250) up(111) left(320) model_usb_cable(anchor=FRONT+RIGHT);
+    }
+    right(2190/2+120) model_usb_switch()
+    {
+        position(RIGHT+BACK) down(110) back(90) left(280) model_usb_u_connector(spin=90,orient=FRONT,anchor=LEFT+FRONT);
+        position(LEFT+BACK) fwd(250) up(111) right(320) model_usb_cable(anchor=FRONT+LEFT);
+        position(LEFT+FRONT) down(110) fwd(90) right(280) model_usb_u_connector(spin=-90,orient=BACK,anchor=LEFT+FRONT);
+        position(RIGHT+FRONT) back(250) up(111) left(320) model_usb_cable(anchor=FRONT+LEFT,spin=180);
+    }
 }
 
 module forViewing()
 {
 //    model_usb_cable();
-    model_usb_switch();
-//    model_usb_connector();
+    models();
+//    model_usb_u_connector();
 }
 
 module forPrinting()
