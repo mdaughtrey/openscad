@@ -1,10 +1,12 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 include <../BOSL2-master/std.scad>
+include <../models/model_rpi_pico.scad>
 
 $fn=96;
 
 model_cables=0;
 model_u_connectors=1;
+model_usb_switch=1;
 
 // module modname(anchor=CENTER,spin=0,orient=UP)
 // {
@@ -17,6 +19,7 @@ model_u_connectors=1;
 //         children();
 //     }
 // }
+
 
 module model_usb_connector(anchor=CENTER,spin=0,orient=UP)
 {
@@ -150,26 +153,60 @@ module model_usb_cable(anchor=CENTER,spin=0,orient=UP)
 
 module models()
 {
-    left(2190/2+120) model_usb_switch()
+    down(300) recolor("blue") cuboid([4500,4500,200], rounding=300, edges="Z");
+    model_rpi_pico(spin=-90)
     {
-        position(RIGHT+FRONT) down(110) fwd(90) left(280) model_usb_u_connector(spin=-90,orient=BACK,anchor=LEFT+BACK);
-        position(LEFT+BACK) fwd(250) up(111) right(320) model_usb_cable(anchor=FRONT+LEFT);
-        position(RIGHT+BACK) fwd(250) up(111) left(320) model_usb_cable(anchor=FRONT+RIGHT);
-    }
-    right(2190/2+120) model_usb_switch()
-    {
-        position(RIGHT+BACK) down(110) back(90) left(280) model_usb_u_connector(spin=90,orient=FRONT,anchor=LEFT+FRONT);
-        position(LEFT+BACK) fwd(250) up(111) right(320) model_usb_cable(anchor=FRONT+LEFT);
-        position(LEFT+FRONT) down(110) fwd(90) right(280) model_usb_u_connector(spin=-90,orient=BACK,anchor=LEFT+FRONT);
-        position(RIGHT+FRONT) back(250) up(111) left(320) model_usb_cable(anchor=FRONT+LEFT,spin=180);
+        position(FRONT+LEFT) fwd(200) model_usb_switch(anchor=RIGHT+BACK,spin=90)
+        {
+            position(RIGHT+FRONT) down(110) fwd(90) left(280) model_usb_u_connector(spin=-90,orient=BACK,anchor=LEFT+BACK);
+            position(LEFT+BACK) fwd(250) up(111) right(320) model_usb_cable(anchor=FRONT+LEFT);
+            position(RIGHT+BACK) fwd(250) up(111) left(320) model_usb_cable(anchor=FRONT+RIGHT);
+        }
+        position(LEFT+BACK) back(200) model_usb_switch(anchor=LEFT+BACK,spin=90)
+        {
+            position(RIGHT+BACK) down(110) back(90) left(280) model_usb_u_connector(spin=90,orient=FRONT,anchor=LEFT+FRONT);
+            position(LEFT+BACK) fwd(250) up(111) right(320) model_usb_cable(anchor=FRONT+LEFT);
+            position(LEFT+FRONT) down(110) fwd(90) right(280) model_usb_u_connector(spin=-90,orient=BACK,anchor=LEFT+FRONT);
+            position(RIGHT+FRONT) back(250) up(111) left(320) model_usb_cable(anchor=FRONT+LEFT,spin=180);
+        }
     }
 }
+
+module usb_switch_bracket(anchor=CENTER,spin=0,orient=UP)
+{
+    module usb_switch_bracket_()
+    {
+        if (model_usb_switch)
+        {
+            up(100)
+            model_usb_switch();
+        }
+        masktag="cvc5";
+        intersect(masktag)
+        {
+            rect_tube(isize=[2190-100,1808-100], size=[2190+100,1808+100], h=100)
+            {
+                tag("keep") position(BACK+BOT) fwd(10) cuboid([2190+70, 30, 350], anchor=BACK+BOT);
+                position(TOP) rect_tube(isize=[2190+20,1808+20], size=[2190+100,1808+100], h=48,anchor=BOT)
+                tag(masktag)
+                position(TOP) grid_copies(n=2, spacing=[2190-300, 1808-300]) cuboid([370, 370, 149], anchor=TOP);
+            }
+        }
+    }
+    attachable(anchor,spin,orient,size=[2190, 1808, 48+125])
+    {
+        usb_switch_bracket_();
+        children();
+    }
+}
+
 
 module forViewing()
 {
 //    model_usb_cable();
-    models();
+//    models();
 //    model_usb_u_connector();
+    usb_switch_bracket();
 }
 
 module forPrinting()
