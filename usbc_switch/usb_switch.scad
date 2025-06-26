@@ -6,7 +6,8 @@ $fn=96;
 
 model_cables=0;
 model_u_connectors=1;
-model_usb_switch=1;
+model_usb_switch=0;
+model_rpi_pico=0;
 
 // module modname(anchor=CENTER,spin=0,orient=UP)
 // {
@@ -172,9 +173,9 @@ module models()
     }
 }
 
-module usb_switch_bracket(anchor=CENTER,spin=0,orient=UP)
+module usb_switch_mount(anchor=CENTER,spin=0,orient=UP)
 {
-    module usb_switch_bracket_()
+    module usb_switch_mount_()
     {
         if (model_usb_switch)
         {
@@ -182,23 +183,149 @@ module usb_switch_bracket(anchor=CENTER,spin=0,orient=UP)
             model_usb_switch();
         }
         masktag="cvc5";
+        rmtag="vti5a";
+        diff(rmtag)
         intersect(masktag)
         {
-            rect_tube(isize=[2190-100,1808-100], size=[2190+100,1808+100], h=100)
+            rect_tube(isize=[2190-100,1808-100], size=[2190+100,1808+80], h=100)
             {
-                tag("keep") position(BACK+BOT) fwd(10) cuboid([2190+70, 30, 350], anchor=BACK+BOT);
-                position(TOP) rect_tube(isize=[2190+20,1808+20], size=[2190+100,1808+100], h=48,anchor=BOT)
+                // Back wall
+                position(BACK+BOT) cuboid([2190+100, 30, 350], anchor=BACK+BOT)
+                {
+                    tag(rmtag) position(BACK+LEFT) back(1) right(430) up(37) cuboid([363, 32, 145],
+                        rounding=50, except=[FRONT, BACK], anchor=BACK+LEFT);
+                    tag(rmtag) position(BACK+RIGHT) back(1) left(430) up(37) cuboid([363, 32, 145],
+                        rounding=50, except=[FRONT, BACK], anchor=BACK+RIGHT);
+                }
+
+                // Front wall
+                position(FRONT+BOT) cuboid([2190+100, 30, 220], anchor=FRONT+BOT)
+                {
+                    tag(rmtag) position(BACK+LEFT+BOT) back(1) right(430) up(137) cuboid([363, 32, 145],
+                        rounding=50, except=[FRONT, BACK], anchor=BACK+LEFT+BOT);
+                    tag(rmtag) position(BACK+RIGHT+BOT) back(1) left(430) up(137) cuboid([363, 32, 145],
+                        rounding=50, except=[FRONT, BACK], anchor=BACK+RIGHT+BOT);
+                }
+                
+                position(TOP) rect_tube(isize=[2190+20,1808], size=[2190+100,1808+100], h=48,anchor=BOT);
                 tag(masktag)
-                position(TOP) grid_copies(n=2, spacing=[2190-300, 1808-300]) cuboid([370, 370, 149], anchor=TOP);
+                {
+                    position(BOT+LEFT+BACK) move([-10,0,0]) cuboid([2190+100, 370, 350], anchor=BOT+LEFT+BACK);
+                    position(BOT+LEFT+FRONT) move([-10,0,0]) cuboid([2190+100, 370, 350], anchor=BOT+LEFT+FRONT);
+//#grid_copies(n=2, spacing=[2190-300, 1808-300]) cuboid([370, 370, 149], anchor=TOP);
+                }
             }
         }
+        // Base
+        rect_tube(isize=[2190-150,1808-150], size=[2190+100,1808+80], h=50, anchor=TOP);
     }
-    attachable(anchor,spin,orient,size=[2190, 1808, 48+125])
+    attachable(anchor,spin,orient,size=[2190, 1808, 175+50])
     {
-        usb_switch_bracket_();
+        up(50)
+        down(225/2)
+        usb_switch_mount_();
         children();
     }
 }
+
+module usb_switch_mount_a(anchor=CENTER,spin=0,orient=UP)
+{
+    module usb_switch_mount_a_()
+    {
+        usb_switch_mount()
+        if (model_u_connectors)
+        {
+            position(LEFT+BOT+BACK) move([280, 90+300, 50])
+            model_usb_u_connector(orient=FRONT, spin=90, anchor=BACK+LEFT);
+        }
+        position(LEFT+BOT+BACK) right(200) cuboid([50, 720, 1200], anchor=FRONT+LEFT+BOT)
+        position(LEFT+BACK) cuboid([750, 50, 1200], anchor=LEFT+BACK)
+        position(RIGHT+BACK) cuboid([50, 720, 1200], anchor=RIGHT+BACK);
+    }
+    attachable(anchor,spin,orient,size=[2190, 1808, 48+125])
+    {
+        usb_switch_mount_a_();
+        children();
+    }
+}
+
+module usb_switch_mount_b(anchor=CENTER,spin=0,orient=UP)
+{
+    module usb_switch_mount_b_()
+    {
+        usb_switch_mount()
+        if (model_u_connectors)
+        {
+            position(RIGHT+BOT+FRONT) move([-280, -90-300, 50])
+            model_usb_u_connector(orient=BACK, spin=-90, anchor=BACK+LEFT);
+        }
+        position(RIGHT+BOT+FRONT) left(200) cuboid([50, 720, 1200], anchor=BACK+RIGHT+BOT)
+        position(RIGHT+FRONT) cuboid([750, 50, 1200], anchor=RIGHT+FRONT)
+        position(LEFT+FRONT) cuboid([50, 720, 1200], anchor=LEFT+FRONT);
+    }
+    attachable(anchor,spin,orient,size=[2190, 1808, 48+125])
+    {
+        usb_switch_mount_b_();
+        children();
+    }
+}
+
+module rpi_pico_mount(anchor=CENTER,spin=0,orient=UP)
+{
+    module rpi_pico_mount_()
+    {
+        rpi_l = rpi_pico_pcb_length;
+        rpi_w = rpi_pico_pcb_width;
+        if (model_rpi_pico)
+        {
+            up(170)
+            model_rpi_pico();
+        }
+        masktag="cvc5aa";
+        rmtag="vti5aa";
+        diff(rmtag)
+        intersect(masktag)
+        {
+            rect_tube(isize=[rpi_l-100,rpi_w-100], size=[rpi_l+140, rpi_w+80], h=100)
+            {
+                // Connector wall
+                position(LEFT+BOT) cuboid([30, rpi_w+80, 300], anchor=LEFT+BOT)
+                {
+                    tag(rmtag) position(LEFT) left(1) up(50) cuboid([363, 32, 145],
+                        rounding=50, except=[FRONT, BACK], anchor=BACK, spin=90);
+                    *tag(rmtag) position(BACK+RIGHT) back(1) left(430) up(37) cuboid([363, 32, 145],
+                        rounding=50, except=[FRONT, BACK], anchor=BACK+RIGHT);
+                }
+
+                // Front wall
+                *position(FRONT+BOT) cuboid([2190+100, 30, 220], anchor=FRONT+BOT)
+                {
+                    tag(rmtag) position(BACK+LEFT+BOT) back(1) right(430) up(137) cuboid([363, 32, 145],
+                        rounding=50, except=[FRONT, BACK], anchor=BACK+LEFT+BOT);
+                    tag(rmtag) position(BACK+RIGHT+BOT) back(1) left(430) up(137) cuboid([363, 32, 145],
+                        rounding=50, except=[FRONT, BACK], anchor=BACK+RIGHT+BOT);
+                }
+                
+                position(TOP) rect_tube(isize=[rpi_l+10,rpi_w+20], size=[rpi_l+140, rpi_w+80], h=40, anchor=BOT);
+                tag(masktag)
+                {
+                    position(BOT+LEFT+BACK) move([-10,0,0]) cuboid([370, rpi_w+80, 350], anchor=BOT+LEFT+BACK);
+                    position(BOT+RIGHT+BACK) move([10,0,0]) cuboid([370, rpi_w+80, 350], anchor=BOT+RIGHT+BACK);
+//                    position(BOT+LEFT+FRONT) move([-10,0,0]) cuboid([2190+100, 370, 350], anchor=BOT+LEFT+FRONT);
+//#grid_copies(n=2, spacing=[2190-300, 1808-300]) cuboid([370, 370, 149], anchor=TOP);
+                }
+            }
+        }
+        // Base
+        rect_tube(isize=[rpi_l-150,rpi_w-150], size=[rpi_l+140,rpi_w+80], h=50, anchor=TOP);
+    }
+    attachable(anchor,spin,orient,size=[2190, 1808, 48+125])
+    {
+        rpi_pico_mount_();
+        children();
+    }
+}
+
 
 
 module forViewing()
@@ -206,7 +333,9 @@ module forViewing()
 //    model_usb_cable();
 //    models();
 //    model_usb_u_connector();
-    usb_switch_bracket();
+//    usb_switch_mount_a();
+//    usb_switch_mount_b();
+//    rpi_pico_mount();
 }
 
 module forPrinting()
