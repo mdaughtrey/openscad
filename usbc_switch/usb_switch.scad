@@ -9,6 +9,9 @@ model_u_connectors=1;
 model_usb_switch=0;
 model_rpi_pico=0;
 
+usb_switch_mount_x = 2190+100;
+usb_switch_mount_y = 1808+80;
+
 // module modname(anchor=CENTER,spin=0,orient=UP)
 // {
 //     module modname_()
@@ -173,6 +176,7 @@ module models()
     }
 }
 
+
 module usb_switch_mount(anchor=CENTER,spin=0,orient=UP)
 {
     module usb_switch_mount_()
@@ -187,10 +191,10 @@ module usb_switch_mount(anchor=CENTER,spin=0,orient=UP)
         diff(rmtag)
         intersect(masktag)
         {
-            rect_tube(isize=[2190-100,1808-100], size=[2190+100,1808+80], h=100)
+            rect_tube(isize=[2190-100,1808-100], size=[usb_switch_mount_x, usb_switch_mount_y], h=100)
             {
                 // Back wall
-                position(BACK+BOT) cuboid([2190+100, 30, 350], anchor=BACK+BOT)
+                position(BACK+BOT) cuboid([usb_switch_mount_x, 30, 350], anchor=BACK+BOT)
                 {
                     tag(rmtag) position(BACK+LEFT) back(1) right(430) up(37) cuboid([363, 32, 145],
                         rounding=50, except=[FRONT, BACK], anchor=BACK+LEFT);
@@ -199,7 +203,7 @@ module usb_switch_mount(anchor=CENTER,spin=0,orient=UP)
                 }
 
                 // Front wall
-                position(FRONT+BOT) cuboid([2190+100, 30, 220], anchor=FRONT+BOT)
+                position(FRONT+BOT) cuboid([usb_switch_mount_x, 30, 220], anchor=FRONT+BOT)
                 {
                     tag(rmtag) position(BACK+LEFT+BOT) back(1) right(430) up(137) cuboid([363, 32, 145],
                         rounding=50, except=[FRONT, BACK], anchor=BACK+LEFT+BOT);
@@ -207,19 +211,19 @@ module usb_switch_mount(anchor=CENTER,spin=0,orient=UP)
                         rounding=50, except=[FRONT, BACK], anchor=BACK+RIGHT+BOT);
                 }
                 
-                position(TOP) rect_tube(isize=[2190+20,1808], size=[2190+100,1808+100], h=48,anchor=BOT);
+                position(TOP) rect_tube(isize=[2190+20,1808], size=[usb_switch_mount_x,1808+100], h=48,anchor=BOT);
                 tag(masktag)
                 {
-                    position(BOT+LEFT+BACK) move([-10,0,0]) cuboid([2190+100, 370, 350], anchor=BOT+LEFT+BACK);
-                    position(BOT+LEFT+FRONT) move([-10,0,0]) cuboid([2190+100, 370, 350], anchor=BOT+LEFT+FRONT);
+                    position(BOT+LEFT+BACK) move([-10,0,0]) cuboid([usb_switch_mount_x, 370, 350], anchor=BOT+LEFT+BACK);
+                    position(BOT+LEFT+FRONT) move([-10,0,0]) cuboid([usb_switch_mount_x, 370, 350], anchor=BOT+LEFT+FRONT);
 //#grid_copies(n=2, spacing=[2190-300, 1808-300]) cuboid([370, 370, 149], anchor=TOP);
                 }
             }
         }
         // Base
-        rect_tube(isize=[2190-150,1808-150], size=[2190+100,1808+80], h=50, anchor=TOP);
+        rect_tube(isize=[2190-150,1808-150], size=[usb_switch_mount_x,usb_switch_mount_y], h=50, anchor=TOP);
     }
-    attachable(anchor,spin,orient,size=[2190, 1808, 175+50])
+    attachable(anchor,spin,orient,size=[usb_switch_mount_x, usb_switch_mount_y, 225])
     {
         up(50)
         down(225/2)
@@ -233,10 +237,24 @@ module usb_switch_mount_a(anchor=CENTER,spin=0,orient=UP)
     module usb_switch_mount_a_()
     {
         usb_switch_mount()
-        if (model_u_connectors)
         {
-            position(LEFT+BOT+BACK) move([280, 90+300, 50])
-            model_usb_u_connector(orient=FRONT, spin=90, anchor=BACK+LEFT);
+            position(BOT+LEFT) back(50) cuboid([100,usb_switch_mount_y+100,1200], anchor=BOT+RIGHT, rounding=100, edges=[LEFT+FRONT, LEFT+BACK])
+                position(RIGHT+BACK) cuboid([250, 100, 1200] ,anchor=LEFT+BACK);
+
+            rmtag = "q24v9r";
+            diff(rmtag)
+            position(BOT+BACK+RIGHT) right(100) cuboid([1400, 100, 1200], rounding=100, edges=[BACK+RIGHT], anchor=RIGHT+BOT)
+            {
+                position(FRONT+RIGHT+TOP) cuboid([100, 400, 1200], anchor=BACK+RIGHT+TOP);
+                tag(rmtag) position(BACK+RIGHT+BOT) back(1) left(350) up(100) cuboid([700, 102, 300],
+                    rounding=50, except=[FRONT, BACK], anchor=BACK+RIGHT+BOT);
+            }
+
+            if (model_u_connectors)
+            {
+                position(LEFT+BOT+BACK) move([280, 90+300, 50])
+                model_usb_u_connector(orient=FRONT, spin=90, anchor=BACK+LEFT);
+            }
         }
         position(LEFT+BOT+BACK) right(200) cuboid([50, 720, 1200], anchor=FRONT+LEFT+BOT)
         position(LEFT+BACK) cuboid([750, 50, 1200], anchor=LEFT+BACK)
@@ -254,10 +272,23 @@ module usb_switch_mount_b(anchor=CENTER,spin=0,orient=UP)
     module usb_switch_mount_b_()
     {
         usb_switch_mount()
-        if (model_u_connectors)
         {
-            position(RIGHT+BOT+FRONT) move([-280, -90-300, 50])
-            model_usb_u_connector(orient=BACK, spin=-90, anchor=BACK+LEFT);
+            rmtag = "q27v9r";
+            diff(rmtag)
+            position(BOT+BACK) cuboid([usb_switch_mount_x+200, 100, 1200], rounding=100, edges=[LEFT+BACK,RIGHT+BACK], anchor=FRONT+BOT)
+            {
+                position(FRONT+LEFT+TOP) cuboid([100, 400, 1200], anchor=BACK+LEFT+TOP);
+                position(FRONT+RIGHT+TOP) cuboid([100, usb_switch_mount_y+100, 1200], anchor=BACK+RIGHT+TOP,rounding=100,edges=[FRONT+RIGHT])
+                position(FRONT+LEFT) cuboid([300, 100, 1200], anchor=RIGHT+FRONT);
+                *tag(rmtag) position(BACK+RIGHT+BOT) back(1) left(350) up(100) cuboid([700, 102, 300],
+                    rounding=50, except=[FRONT, BACK], anchor=BACK+RIGHT+BOT);
+            }
+
+            if (model_u_connectors)
+            {
+                position(RIGHT+BOT+FRONT) move([-280, -90-300, 50])
+                model_usb_u_connector(orient=BACK, spin=-90, anchor=BACK+LEFT);
+            }
         }
         position(RIGHT+BOT+FRONT) left(200) cuboid([50, 720, 1200], anchor=BACK+RIGHT+BOT)
         position(RIGHT+FRONT) cuboid([750, 50, 1200], anchor=RIGHT+FRONT)
@@ -291,14 +322,14 @@ module rpi_pico_mount(anchor=CENTER,spin=0,orient=UP)
                 // Connector wall
                 position(LEFT+BOT) cuboid([30, rpi_w+80, 300], anchor=LEFT+BOT)
                 {
-                    tag(rmtag) position(LEFT) left(1) up(50) cuboid([363, 32, 145],
+                    tag(rmtag) position(LEFT+BOT) left(1) up(200) cuboid([363, 32, 145],
                         rounding=50, except=[FRONT, BACK], anchor=BACK, spin=90);
                     *tag(rmtag) position(BACK+RIGHT) back(1) left(430) up(37) cuboid([363, 32, 145],
                         rounding=50, except=[FRONT, BACK], anchor=BACK+RIGHT);
                 }
 
                 // Front wall
-                *position(FRONT+BOT) cuboid([2190+100, 30, 220], anchor=FRONT+BOT)
+                *position(FRONT+BOT) cuboid([usb_switch_mount_x, 30, 220], anchor=FRONT+BOT)
                 {
                     tag(rmtag) position(BACK+LEFT+BOT) back(1) right(430) up(137) cuboid([363, 32, 145],
                         rounding=50, except=[FRONT, BACK], anchor=BACK+LEFT+BOT);
@@ -311,7 +342,7 @@ module rpi_pico_mount(anchor=CENTER,spin=0,orient=UP)
                 {
                     position(BOT+LEFT+BACK) move([-10,0,0]) cuboid([370, rpi_w+80, 350], anchor=BOT+LEFT+BACK);
                     position(BOT+RIGHT+BACK) move([10,0,0]) cuboid([370, rpi_w+80, 350], anchor=BOT+RIGHT+BACK);
-//                    position(BOT+LEFT+FRONT) move([-10,0,0]) cuboid([2190+100, 370, 350], anchor=BOT+LEFT+FRONT);
+//                    position(BOT+LEFT+FRONT) move([-10,0,0]) cuboid([usb_switch_mount_x, 370, 350], anchor=BOT+LEFT+FRONT);
 //#grid_copies(n=2, spacing=[2190-300, 1808-300]) cuboid([370, 370, 149], anchor=TOP);
                 }
             }
@@ -326,13 +357,24 @@ module rpi_pico_mount(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
+module lower()
+{
+    left(1700)
+    usb_switch_mount_a();
+    fwd(500)
+    rpi_pico_mount(spin=-90);
+    right(1700)
+    usb_switch_mount_b();
+}
 
 
 module forViewing()
 {
+    lower();
 //    model_usb_cable();
 //    models();
 //    model_usb_u_connector();
+//    usb_switch_mount(anchor=LEFT);
 //    usb_switch_mount_a();
 //    usb_switch_mount_b();
 //    rpi_pico_mount();
@@ -345,4 +387,5 @@ module forPrinting()
 scale(ViewScale)
 {
     forViewing();
+//    forPrinting();
 }
