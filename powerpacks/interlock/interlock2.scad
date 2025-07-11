@@ -85,7 +85,7 @@ module slider()
     intersection() {
     diff()  {
         cuboid([1800,1780,100],rounding=100,edges="Z") {
-            tag("remove") right(200) position(LEFT) cuboid([2000,400,101],rounding=100,edges="Z",anchor=LEFT);
+            *tag("remove") #right(200) position(LEFT) cuboid([2000,400,101],rounding=100,edges="Z",anchor=LEFT);
             tag("remove") right(200) back(550) position(LEFT) cuboid([2200,300,101],rounding=100,edges="Z",anchor=LEFT);
             tag("remove") right(200) fwd(550) position(LEFT) cuboid([2200,300,101],rounding=100,edges="Z",anchor=LEFT);
             tag("remove") position(BACK+LEFT) right(200) cutout(d=-20,a=BACK+LEFT);
@@ -115,8 +115,8 @@ module forViewing()
 
 module forPrinting()
 {
-    base();
-    *right(2500)
+//    base();
+//    *right(2500)
     slider();
 }
 

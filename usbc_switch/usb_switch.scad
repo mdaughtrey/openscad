@@ -1,6 +1,7 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 include <../BOSL2-master/std.scad>
 include <../models/model_rpi_pico.scad>
+include <../models/model_esp_wroom_32.scad>
 include <cableloop.scad>
 
 $fn=96;
@@ -9,7 +10,8 @@ model_cables=0;
 model_u_connectors=0;
 model_usb_switch=0;
 model_rpi_pico=0;
-development_jig=1;
+model_esp32=-1;
+development_jig=0;
 
 usb_switch_mount_x = 2190+100;
 usb_switch_mount_y = 1808+80;
@@ -255,7 +257,7 @@ module usb_switch_mount_a(anchor=CENTER,spin=0,orient=UP)
             {
                 rmtag = "q24v9r";
                 diff(rmtag)
-                #position(BOT+BACK+RIGHT) right(100) cuboid([1450, 100, 1200], rounding=100, edges=[BACK+RIGHT], anchor=RIGHT+BOT+FRONT)
+                position(BOT+BACK+RIGHT) right(100) cuboid([1450, 100, 1200], rounding=100, edges=[BACK+RIGHT], anchor=RIGHT+BOT+FRONT)
                 {
                     position(FRONT+RIGHT+TOP) cuboid([100, 110, 1200], anchor=BACK+RIGHT+TOP);
                     tag(rmtag) position(BACK+RIGHT+BOT) back(1) left(350) up(100) cuboid([700, 102, 300],
@@ -284,6 +286,76 @@ module usb_switch_mount_a(anchor=CENTER,spin=0,orient=UP)
         down(600)
         
         usb_switch_mount_a_();
+        children();
+    }
+}
+
+module mount_a_cage(anchor=CENTER,spin=0,orient=UP)
+{
+    module mount_a_cage_()
+    {
+        rmtag="54qv4r";
+        diff(rmtag)
+        rect_tube(size=[usb_switch_mount_x-20, usb_switch_mount_y-110], wall=100, h=100)
+        {
+            position(LEFT+BACK+BOT) cuboid([200,100,900],anchor=TOP+LEFT+BACK);
+            position(RIGHT+BACK+BOT) cuboid([200,100,900],anchor=TOP+RIGHT+BACK);
+            position(LEFT+FRONT+BOT) cuboid([150,200,900],anchor=TOP+LEFT+FRONT);
+            position(RIGHT+FRONT+BOT) cuboid([100,200,900],anchor=TOP+RIGHT+FRONT)
+            position(FRONT+LEFT+TOP) cuboid([300,40,830],anchor=TOP+FRONT+RIGHT);
+            position(FRONT+TOP+LEFT) right(100)  cuboid([1889,40,930],anchor=BACK+TOP+LEFT)
+            tag(rmtag) 
+            {
+                position(BOT+LEFT+FRONT) right(310) cuboid([363, 41, 145], rounding=50, edges="Y", anchor=FRONT+LEFT)
+                position(RIGHT) right(700) cuboid([363, 41, 145], rounding=50, edges="Y", anchor=LEFT);
+            }
+        }
+    }
+    
+    attachable(anchor,spin,orient,size=[
+        usb_switch_mount_x-20,
+        usb_switch_mount_y-20,
+        1000])
+    {
+        down(100)
+        up(500)
+        back(20)
+        mount_a_cage_();
+        children();
+    }
+}
+
+module mount_b_cage(anchor=CENTER,spin=0,orient=UP)
+{
+    module mount_b_cage_()
+    {
+        rmtag="54qv4s";
+        diff(rmtag)
+        rect_tube(size=[usb_switch_mount_x-20, usb_switch_mount_y-100], wall=100, h=100)
+        {
+            position(LEFT+BACK+BOT) cuboid([200,100,900],anchor=TOP+LEFT+BACK);
+            position(RIGHT+BACK+BOT) cuboid([200,100,900],anchor=TOP+RIGHT+BACK);
+            position(LEFT+FRONT+BOT) cuboid([150,200,900],anchor=TOP+LEFT+FRONT);
+            position(RIGHT+FRONT+BOT) cuboid([100,200,900],anchor=TOP+RIGHT+FRONT);
+            //position(FRONT+LEFT+TOP) cuboid([300,40,830],anchor=TOP+FRONT+RIGHT);
+            position(FRONT+TOP+LEFT) right(310)  cuboid([860,40,930],anchor=BACK+TOP+LEFT)
+            tag(rmtag) 
+            {
+                position(BOT+LEFT+FRONT) right(120) fwd(1) cuboid([363, 42, 145], rounding=50, edges="Y", anchor=FRONT+LEFT);
+//                position(RIGHT) right(700) cuboid([363, 41, 145], rounding=50, edges="Y", anchor=LEFT);
+            }
+        }
+    }
+    
+    attachable(anchor,spin,orient,size=[
+        usb_switch_mount_x-20,
+        usb_switch_mount_y-20,
+        1000])
+    {
+        down(100)
+        up(500)
+        back(20)
+        mount_b_cage_();
         children();
     }
 }
@@ -409,22 +481,59 @@ module rpi_pico_mount(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
+
+module higher()
+{
+    thickness=100;
+    rmtag="bmn234";
+    diff(rmtag)
+    cuboid([4300, 6200, thickness], rounding=400, edges="Z")
+    {
+        tag(rmtag)
+        {
+            // Screw #8 x 3/4
+            position(LEFT+BACK+BOT) right(300) fwd(300) cyl(d=100, h=thickness,anchor=BOT);
+            position(LEFT+FRONT+BOT) right(300) back(300) cyl(d=100, h=thickness,anchor=BOT);
+            position(RIGHT+FRONT+BOT) left(300) back(300) cyl(d=100, h=thickness,anchor=BOT);
+            position(RIGHT+BACK+BOT) left(300) fwd(1400) cyl(d=100, h=thickness,anchor=BOT);
+        }
+
+        position(TOP) right(5050/2) cuboid([100, 1000, 600], anchor=BOT+LEFT)
+        position(BOT+RIGHT) cuboid([1000, 1000, thickness], anchor=TOP+RIGHT);
+
+        position(TOP) left(5050/2) cuboid([100, 1000, 600], anchor=BOT+RIGHT)
+        position(BOT+LEFT) cuboid([1000, 1000, thickness], anchor=TOP+LEFT);
+
+        position(BOT) back(4350/2)  cuboid([1000, 100, 600], anchor=BOT+FRONT);
+        position(BOT) fwd(4350/2)  cuboid([1000, 100, 600], anchor=BOT+BACK);
+
+        tag(rmtag)
+        position(TOP) xcopies(spacing=300, n=6) 
+        cuboid([100,3000,thickness],anchor=TOP)
+        {
+            position(TOP+BACK) cyl(d=100,h=thickness,anchor=TOP);
+            position(TOP+FRONT) cyl(d=100,h=thickness,anchor=TOP);
+        }
+    }
+}
+
 module lower()
 {
-    rpi_pico_mount()
+    //rpi_pico_mount()
+    esp_wroom_32_mount()
     {
         if (development_jig)
         {
             position(FRONT+BOT) cuboid([1000, 100, 100], anchor=BOT+BACK);
             position(BACK+BOT) cuboid([1000, 100, 100], anchor=BOT+FRONT);
         }
-        position(LEFT+BOT+FRONT) back(50) left(800) usb_switch_mount_a(spin=90,anchor=RIGHT+BACK+BOT);
-        position(LEFT+BOT+BACK) fwd(50) left(780) usb_switch_mount_b(spin=90,anchor=LEFT+BACK+BOT);
+        position(LEFT+BOT+FRONT) back(50) left(720) usb_switch_mount_a(spin=90,anchor=RIGHT+BACK+BOT);
+        position(LEFT+BOT+BACK) fwd(50) left(680) usb_switch_mount_b(spin=90,anchor=LEFT+BACK+BOT);
 //        position(BACK) left(200) fwd(600) up(250) cableloop(spin=90);
         *position(BOT) recolor("blue") left(500) cuboid([4300, 5000, 50], rounding=400, edges="Z", anchor=BOT);
         if (!development_jig)
         {
-            position(BOT) left(500) cuboid([4300, 5800, 50], rounding=400, edges="Z", anchor=BOT)
+            position(BOT) left(500) cuboid([4300, 6200, 50], rounding=400, edges="Z", anchor=BOT)
             {
                 // Screw #8 x 3/4
                 position(LEFT+BACK+BOT) right(300) fwd(300) 
@@ -492,12 +601,97 @@ module model_usb_chassis_connector(anchor=CENTER,spin=0,orient=UP)
 }
 
 
+module esp_wroom_32_mount(anchor=CENTER,spin=0,orient=UP)
+{
+    module esp_wroom_32_mount_()
+    {
+        if(model_esp32)
+        {
+            up(250)
+            model_esp_wroom_32();
+        }
+        rmtag="f1re1c";
+        diff(rmtag)
+        rect_tube(isize=[1920,1120],wall=70,h=300)
+        {
+            // Rear Shroud
+            position(TOP+RIGHT) cuboid([100,1260,300],anchor=TOP+LEFT)
+            position(TOP+RIGHT) cuboid([40,1260,850],anchor=BOT+RIGHT)
+            {
+                position(FRONT+LEFT) cuboid([332,40,850],anchor=RIGHT+FRONT)
+                position(LEFT+BACK+TOP) cuboid([40,400,1150],anchor=TOP+BACK+RIGHT);
+                position(BACK+LEFT) cuboid([332,40,850],anchor=RIGHT+BACK)
+                position(LEFT+FRONT+TOP) cuboid([40,400,1150],anchor=TOP+FRONT+RIGHT);
+            }
+
+            position(TOP+LEFT) cuboid([100,1260,300],anchor=TOP+RIGHT)
+            position(LEFT+TOP) cuboid([29,1260,850],anchor=LEFT+BOT)
+            tag(rmtag) position(BOT+LEFT) left(1) down(30) cuboid([32, 450, 300], rounding=50, edges="X",anchor=LEFT+BOT);
+
+            position(BOT) cuboid([1920+340,1260,50],anchor=TOP);
+            tag(rmtag)
+            position(TOP+BACK) up(1) back(1) cuboid([1300,1262,300],anchor=TOP+BACK);
+        }
+    }
+    attachable(anchor,spin,orient,size=[1920+340,1260,350])
+    {
+        up(50) down(175)
+        esp_wroom_32_mount_();
+        children();
+    }
+}
+
+module esp_mount_cage(anchor=CENTER,spin=0,orient=UP)
+{
+    module esp_mount_cage_()
+    {
+        rmtag="5444v4s";
+        height=760;
+        diff(rmtag)
+        rect_tube(osize=[1130, 2100], wall=100, h=100)
+        {
+            position(LEFT+BACK+BOT) cuboid([150,100,height-100],anchor=TOP+LEFT+BACK);
+            position(RIGHT+BACK+BOT) cuboid([150,100,height-100],anchor=TOP+RIGHT+BACK);
+            position(LEFT+FRONT+BOT) cuboid([150,100,height-100],anchor=TOP+LEFT+FRONT);
+            position(RIGHT+FRONT+BOT) cuboid([150,100,height-100],anchor=TOP+RIGHT+FRONT);
+            //position(FRONT+LEFT+TOP) cuboid([300,40,830],anchor=TOP+FRONT+RIGHT);
+//            *position(FRONT+TOP+LEFT) right(320)  cuboid([1350,40,890],anchor=BACK+TOP+LEFT)
+//            *tag(rmtag) 
+//            {
+//                position(BOT+LEFT+FRONT) right(90) fwd(1) cuboid([363, 42, 145], rounding=50, edges="Y", anchor=FRONT+LEFT);
+////                position(RIGHT) right(700) cuboid([363, 41, 145], rounding=50, edges="Y", anchor=LEFT);
+//            }
+        }
+    }
+    
+    attachable(anchor,spin,orient,size=[
+        model_esp_wroom_32_x-20,
+        model_esp_wroom_32_y-20,
+        1000])
+    {
+        esp_mount_cage_();
+        children();
+    }
+}
+
 module forViewing()
 {
+//    esp_wroom_32_mount(anchor=BOT+LEFT+BACK);
+//    esp_wroom_32_mount();
 //    model_usb_chassis_connector();
 //    minipc_mount();
 //    cableloop();
     lower();
+    up(1200)
+    left(500)
+    higher();
+//    recolor("blue")
+//    position(TOP+LEFT)
+//    fwd(1820) left(160) up(30) zrot(90)
+//    mount_a_cage(anchor=BOT);
+//    recolor("red")
+//    back(1820) left(160) up(30) zrot(90)
+//    mount_b_cage(anchor=BOT);
 //    model_usb_cable();
 //    models();
 //    model_usb_u_connector();
@@ -509,10 +703,15 @@ module forViewing()
 
 module forPrinting()
 {
+//    mount_a_cage();
+//    mount_b_cage();
+//    esp_mount_cage();
+    higher();
+//    minipc_mount();
 }
 
 scale(ViewScale)
 {
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 }

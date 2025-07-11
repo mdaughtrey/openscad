@@ -139,8 +139,8 @@ module upper_clip()
         }
         cyl(r=1100,h=100,$fn=96) cuboid([1100,2000,100], anchor=RIGHT);
     }
-    up(50) left(500) tube(ir=100,or=210,h=100,$fn=96,anchor=BOT);
-    up(50) right(500) tube(ir=100,or=200,h=100,$fn=96,anchor=BOT);
+    up(50) left(600) tube(ir=100,or=220,h=200,$fn=96,anchor=BOT);
+    up(50) right(400) tube(ir=100,or=220,h=200,$fn=96,anchor=BOT);
     diff() {
         right(300) cuboid([2400,1580+270,100],rounding=100,edges="Z")
         tag("remove") left(50) position(RIGHT) cuboid([400,800,101],rounding=100,edges="Z");
@@ -201,6 +201,6 @@ module forPrinting()
 scale(ViewScale)
 {
 //    model_boost_buck_converter();
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 }
