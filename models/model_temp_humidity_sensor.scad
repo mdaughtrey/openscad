@@ -1,7 +1,7 @@
 include <../BOSL2-master/std.scad>
 
-model_temp_humidity_sensor_x = 615;
-model_temp_humidity_sensor_y = 445;
+model_temp_humidity_sensor_x = 715;
+model_temp_humidity_sensor_y = 545;
 model_temp_humidity_sensor_z = 125;
 
 module model_temp_humidity_sensor(anchor=CENTER,spin=0,orient=UP)
