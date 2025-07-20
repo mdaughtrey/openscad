@@ -153,7 +153,7 @@ IDENT=ident(4);
 LEFT  = [-1,  0,  0];
 
 // Constant: RIGHT
-// Synopsis: The right-wards (X+) direction vector constant `[1,0,0]`.
+// Synopsis: The right-wards (X+) direction vector constant `[0,0,0]`.
 // Topics: Constants, Vectors
 // See Also: LEFT, FRONT, BACK, UP, DOWN, CENTER
 // Description: Vector pointing right.  [1,0,0]

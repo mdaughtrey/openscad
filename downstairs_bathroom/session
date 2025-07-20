@@ -27,6 +27,7 @@ noremap <NL> j
 noremap  k
 noremap  l
 snoremap  "_c
+vnoremap ,e :e =expand("%:p:h") . "/" 
 nnoremap ,o :.GBrowse
 nnoremap <silent> ,  :noh
 noremap ,c :bd
@@ -39,7 +40,6 @@ nmap ,y :History:
 nnoremap <silent> ,e :FZF -m
 nnoremap <silent> ,b :Buffers
 noremap ,te :tabe =expand("%:p:h") . "/" 
-vnoremap ,e :e =expand("%:p:h") . "/" 
 onoremap ,e :e =expand("%:p:h") . "/" 
 nnoremap ,. :lcd %:p:h
 nnoremap ,sc :CloseSession
@@ -76,6 +76,7 @@ nmap gc <Plug>Commentary
 xmap gc <Plug>Commentary
 nnoremap n nzzzv
 noremap ss :mksession! session
+nnoremap <SNR>128_: :=v:count ? v:count : ''
 nnoremap <SNR>114_: :=v:count ? v:count : ''
 xnoremap <silent> <Plug>NetrwBrowseXVis :call netrw#BrowseXVis()
 nnoremap <silent> <Plug>NetrwBrowseX :call netrw#BrowseX(netrw#GX(),netrw#CheckIfRemote(netrw#GX()))
@@ -159,6 +160,7 @@ onoremap <silent> <Plug>(GitGutterTextObjectInnerPending) :call gitgutter#hunk
 nmap <silent> <Plug>CommentaryUndo :echoerr "Change your <Plug>CommentaryUndo map to <Plug>Commentary<Plug>Commentary"
 nnoremap <C-H> h
 xnoremap <C-H> h
+nnoremap <SNR>116_: :=v:count ? v:count : ''
 onoremap <C-H> h
 noremap <C-L> l
 noremap <C-K> k
@@ -221,6 +223,7 @@ set visualbell
 set wildignore=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite,*node_modules/,*.o,*.obj,.git,*.rbc,*.pyc,__pycache__
 set wildmenu
 set wildmode=list:longest,list:full
+set window=61
 let s:so_save = &g:so | let s:siso_save = &g:siso | setg so=0 siso=0 | setl so=-1 siso=-1
 let v:this_session=expand("<sfile>:p")
 silent only
@@ -234,17 +237,18 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +27 chrome_pipe_cover.scad
-badd +8 NERD_tree_win_1
-badd +47 offset_pipe.scad
-badd +217 ~/dev/openscad/BOSL2-master/threading.scad
-badd +1 .
+badd +1 offset_pipe_for_bottle_trap.scad
+badd +35 shims.scad
+badd +29 light_switch_cover.scad
+badd +1 offset_pipe.scad
+badd +207 ~/dev/openscad/BOSL2-master/screws.scad
+badd +1 chrome_pipe_cover.scad
 argglobal
 %argdel
 $argadd chrome_pipe_cover.scad
-edit chrome_pipe_cover.scad
+edit offset_pipe_for_bottle_trap.scad
 argglobal
-balt NERD_tree_win_1
+balt shims.scad
 let s:cpo_save=&cpo
 set cpo&vim
 imap <buffer> <silent> <C-G>g <Plug>delimitMateJumpMany
@@ -407,12 +411,12 @@ setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 33 - ((32 * winheight(0) + 36) / 72)
+let s:l = 100 - ((25 * winheight(0) + 35) / 71)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 33
-normal! $
+keepjumps 100
+normal! 035|
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0
   silent exe 'bwipe ' . s:wipebuf
