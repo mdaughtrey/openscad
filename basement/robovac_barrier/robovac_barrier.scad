@@ -358,7 +358,46 @@ module bookshelf_mount(anchor=CENTER,spin=0,orient=UP)
         children();
     }
 }
-
+ 
+module bookshelf_mount_v2(anchor=CENTER,spin=0,orient=UP)
+{
+    module bookshelf_mount_v2_()
+    {
+        cuboid([630,300,2000])
+        {
+            *position(RIGHT+BOT+FRONT) cuboid([800,300,1000], anchor=LEFT+BOT+FRONT);
+            position(RIGHT+TOP+FRONT) cuboid([300,1530,1000], anchor=LEFT+TOP+FRONT,
+                rounding=100, edges=[TOP+RIGHT])
+            position(BOT+RIGHT+BACK) cuboid([500,1530,300], anchor=LEFT+BACK+BOT,
+                rounding=100, edges=[BACK+RIGHT,TOP+RIGHT])
+            position(BOT+RIGHT+BACK) cuboid([300,730,1000], anchor=TOP+RIGHT+BACK,
+                rounding=100, edges=[BACK+RIGHT]);
+            position(LEFT+TOP+FRONT) cuboid([300,1530,1000], anchor=RIGHT+TOP+FRONT,
+                rounding=100, edges=[TOP+LEFT,BOT+LEFT]);
+            position(LEFT+BACK+TOP) left(300) cuboid([3000,300,810], anchor=BACK+LEFT+TOP,
+                rounding=100, edges=[TOP+LEFT,TOP+RIGHT])
+            {
+                position(BOT+BACK) cuboid([3000,1000,300],anchor=BACK+TOP,
+                    rounding=100,edges=[BOT+LEFT,BOT+RIGHT,FRONT])
+                *position(TOP+FRONT) cuboid([3000,300,300],anchor=BOT+FRONT,
+                    rounding=100,edges=[TOP+FRONT,RIGHT+FRONT,LEFT+FRONT]);
+                *position(TOP+FRONT) back(1) cuboid([3000,300,300], anchor=TOP+BACK, rounding=100,
+                     edges=[TOP+FRONT,LEFT+FRONT,RIGHT+FRONT,TOP+LEFT,TOP+RIGHT]);
+                *position(BOT+FRONT) back(1) cuboid([3000,300,300], anchor=BOT+BACK, rounding=100,
+                     edges=[BOT+FRONT,LEFT+FRONT,RIGHT+FRONT,BOT+LEFT,BOT+RIGHT]);
+            }
+        }
+///        position(BACK+TOP+RIGHT) cuboid([930,300,1000], anchor=RIGHT+TOP+FRONT);
+    }
+    attachable(anchor,spin,orient,size=[3000,2130,2000])
+    {
+        right(615) left(3000/2)
+        back(450) fwd(2130/2)
+        bookshelf_mount_v2_();
+        children();
+    }
+}
+ 
 
 module case()
 {
@@ -367,15 +406,16 @@ module case()
 module forViewing()
 {
 //    active_axle();
-    assembled();
+//    assembled();
 ///    winch_assembly_mount();
 //    motor_mount();
 //    shaft_spacer();
 //    reel();
-    *recolor("cyan")
-    model_bookshelf()
-    recolor("green")
-    position(LEFT+FRONT+BOT) bookshelf_mount();
+///    recolor("cyan")
+ ///   model_bookshelf()
+  //  recolor("green")
+    //position(LEFT+FRONT+BOT) bookshelf_mount();
+    bookshelf_mount_v2();
 }
 
 module forPrinting()
@@ -386,6 +426,6 @@ module forPrinting()
 
 scale(ViewScale)
 {
-//    forViewing();
-   forPrinting();
+    forViewing();
+//   forPrinting();
 }
