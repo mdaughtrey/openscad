@@ -163,9 +163,9 @@ module shaft_mount(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
-module reel(anchor=CENTER,spin=0,orient=UP)
+module reel0(anchor=CENTER,spin=0,orient=UP)
 {
-    module reel_()
+    module reel0_()
     {
         rmtag="caqer534qw4";
         diff(rmtag)
@@ -174,15 +174,37 @@ module reel(anchor=CENTER,spin=0,orient=UP)
             position(BOT) tag(rmtag) down(1) cyl(d=240,h=1202,anchor=BOT,$fn=6);
             tag(rmtag) right(650) xrot(-45) cyl(d=100,h=350);
             position(TOP) tube(od=1005,wall=100,h=100,anchor=BOT);
-            *position(TOP) tube(id=1010,wall=100,h=1000,anchor=BOT)
-            position(TOP) cyl(d=2000,h=100,anchor=BOT);
         }
     }
     attachable(anchor,spin,orient,d=2000,h=1200)
     {
         up(50)
         down(600)
-        reel_();
+        reel0_();
+        children();
+    }
+}
+
+module reel1(anchor=CENTER,spin=0,orient=UP)
+{
+    module reel1_()
+    {
+        rmtag="caqer534qw4";
+        diff(rmtag)
+        cyl(d=2000,h=100)
+        {
+            position(BOT) tag(rmtag) down(1) cyl(d=240,h=1202,anchor=BOT,$fn=6);
+            *tag(rmtag) right(650) xrot(-45) cyl(d=100,h=350);
+            *position(TOP) tube(od=1005,wall=100,h=100,anchor=BOT);
+            position(TOP) tube(id=1010,wall=100,h=1000,anchor=BOT)
+            *position(TOP) cyl(d=2000,h=100,anchor=BOT);
+        }
+    }
+    attachable(anchor,spin,orient,d=2000,h=1200)
+    {
+        up(50)
+        down(600)
+        reel1_();
         children();
     }
 }
@@ -410,12 +432,12 @@ module forViewing()
 ///    winch_assembly_mount();
 //    motor_mount();
 //    shaft_spacer();
-//    reel();
+    reel1();
 ///    recolor("cyan")
  ///   model_bookshelf()
   //  recolor("green")
     //position(LEFT+FRONT+BOT) bookshelf_mount();
-    bookshelf_mount_v2();
+//    bookshelf_mount_v2();
 }
 
 module forPrinting()
