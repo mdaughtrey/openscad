@@ -432,12 +432,12 @@ module forViewing()
 ///    winch_assembly_mount();
 //    motor_mount();
 //    shaft_spacer();
-    reel1();
+//    reel1();
 ///    recolor("cyan")
  ///   model_bookshelf()
   //  recolor("green")
     //position(LEFT+FRONT+BOT) bookshelf_mount();
-//    bookshelf_mount_v2();
+    bookshelf_mount_v2();
 }
 
 module forPrinting()
