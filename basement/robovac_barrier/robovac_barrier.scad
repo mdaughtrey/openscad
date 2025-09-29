@@ -346,6 +346,60 @@ module model_bookshelf(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
+module button_holder(anchor=CENTER,spin=0,orient=UP)
+{
+    module button_holder_()
+    {
+        rect_tube(isize=[560,560],size=[800,800],h=40)
+        {
+            position(TOP) rect_tube(size=[800,800], wall=50,h=500,anchor=BOT);
+            position(BOT) rect_tube(size=[800,800], wall=50,h=300,anchor=TOP)
+            position(LEFT+BOT) rect_tube(isize=[780,3560],wall=100,h=800,orient=FRONT,anchor=FRONT+RIGHT)
+            position(RIGHT+BACK) fwd(1600) left(50) tube(od=400,wall=50,h=1000,orient=BACK,anchor=TOP+LEFT);
+        }
+    }
+    attachable(anchor,spin,orient,size=[560,560,1000])
+    {
+        button_holder_();
+        children();
+    }
+}
+
+module endsensor_support(anchor=CENTER,spin=0,orient=UP)
+{
+    module endsensor_support_()
+    {
+        rmtag="vv2qr12q";
+        diff(rmtag)
+        cuboid([2100,480,1300])
+        {
+            position(TOP+RIGHT+FRONT) back(1) down(120) cuboid([1500,300,2300],anchor=RIGHT+TOP+BACK,rounding=100,edges=[RIGHT+FRONT,LEFT+FRONT]);
+            position(TOP+RIGHT+BACK) fwd(1) down(120) cuboid([1300,300,2300],anchor=RIGHT+TOP+FRONT,rounding=100,edges=[RIGHT+BACK]);
+
+            position(LEFT+FRONT+TOP) down(120)  cuboid([300, 630, 3180],anchor=TOP+LEFT+BACK,rounding=100,edges=[FRONT+RIGHT])
+            position(FRONT+TOP+LEFT) cuboid([950,300,3180],anchor=RIGHT+TOP+FRONT,rounding=100,edges=[FRONT+LEFT])
+            {
+                position(LEFT+BACK+TOP) back(1) cuboid([300,1000,3180],anchor=FRONT+LEFT+TOP,rounding=100,edges=[BACK+LEFT,BACK+RIGHT]);
+                tag(rmtag) fwd(1) position(BOT+FRONT) up(500) right(150) cuboid([560,302,560],anchor=FRONT+BOT)
+                    position(FRONT) back(40) cuboid([600,302,600],anchor=FRONT);
+                position(BOT+FRONT) back(1) up(375) right(150) rect_tube(size=[800,800], wall=50,h=300,orient=FRONT,anchor=BOT+FRONT);
+            }
+            
+            position(RIGHT+FRONT+BOT) left(1320) cuboid([300,1200,300],anchor=FRONT+RIGHT+BOT,rounding=100,edges=[BACK+RIGHT])
+            position(BACK+BOT) cuboid([300,600,600],anchor=BACK+TOP,rounding=100,edges=[BACK+RIGHT]);
+        }
+        // cuboid([600,1200,2000])
+        //position(BOT+RIGHT+FRONT) cuboid([2000,480,1000],anchor=LEFT+FRONT+BOT);
+    }
+    attachable(anchor,spin,orient,size=[3080,2000,2000])
+    {
+        back(600) fwd(1000)
+        right(300) left(3080/2)
+        endsensor_support_();
+        children();
+    }
+}
+
 module bookshelf_mount(anchor=CENTER,spin=0,orient=UP)
 {
     module bookshelf_mount_()
@@ -420,9 +474,32 @@ module bookshelf_mount_v2(anchor=CENTER,spin=0,orient=UP)
     }
 }
  
-
-module case()
+module button_top(anchor=CENTER,spin=0,orient=UP)
 {
+    module button_top_()
+    {
+        cuboid([670,670,100],rounding=100,edges=[BOT,"Z"])
+        {
+            depth = 150;
+            xoffset = 24;
+            yoffset = 24;
+            xdim = 55;
+            ydim = 95;
+            // Cross
+            position(TOP) down(1) right(xoffset) back(yoffset) cuboid([xdim,ydim,150],anchor=BOT+LEFT+FRONT);
+            position(TOP) down(1) left(xoffset) back(yoffset) cuboid([xdim,ydim,150],anchor=BOT+RIGHT+FRONT);
+            position(TOP) down(1) right(xoffset) fwd(yoffset) cuboid([xdim,ydim,150],anchor=BOT+LEFT+BACK);
+            position(TOP) down(1) left(xoffset) fwd(yoffset) cuboid([xdim,ydim,150],anchor=BOT+RIGHT+BACK);
+
+            // Outer
+            position(TOP) down(1) rect_tube(size=[670,670],h=depth,wall=40,irounding=80,rounding=100,anchor=BOT);
+        }
+    }
+    attachable(anchor,spin,orient,size=[620,620,500])
+    {
+        button_top_();
+        children();
+    }
 }
 
 module forViewing()
@@ -433,21 +510,24 @@ module forViewing()
 //    motor_mount();
 //    shaft_spacer();
 //    reel1();
-///    recolor("cyan")
- ///   model_bookshelf()
-  //  recolor("green")
-    //position(LEFT+FRONT+BOT) bookshelf_mount();
-    bookshelf_mount_v2();
+//    recolor("cyan")
+//    right(1730) back(200) down(650)
+//   endsensor_support();
+//  //  recolor("green")
+//    //position(LEFT+FRONT+BOT) bookshelf_mount();
+//    bookshelf_mount_v2();
+    button_top();
 }
 
 module forPrinting()
 {
-//    winch_assembly_mount(anchor=LEFT+TOP+FRONT);
-    bookshelf_mount();
+///    winch_assembly_mount();
+//    bookshelf_mount_v2();
+   endsensor_support();
 }
 
 scale(ViewScale)
 {
-    forViewing();
+  forViewing();
 //   forPrinting();
 }
