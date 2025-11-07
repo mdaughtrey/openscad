@@ -38,7 +38,7 @@ module insert(anchor=CENTER,spin=0,orient=UP,num_boards=1)
 {
     module insert_()
     {
-        cuboid([120,950,200+120*num_boards],rounding=40,edges="Z")
+        cuboid([120,950,100+120*num_boards],rounding=40,edges="Z")
         position(TOP) cuboid([300,1100,150],rounding=80,edges="Z",anchor=BOT);
     }
     attachable(anchor,spin,orient,size=[300,1100,200+120*num_boards])
@@ -60,6 +60,10 @@ module board_clip(anchor=CENTER,spin=0,orient=UP,length=2030,num_boards=1)
             tag(rmtag) position(BACK) back(1) cuboid([1140,102,330],rounding=80,edges="Y",anchor=BACK);
             tag(rmtag) position(FRONT) fwd(1) cuboid([1010,102,128],rounding=50,edges="Y",anchor=FRONT);
             position(BACK+RIGHT) fwd(50) wire_holder(anchor=FRONT+RIGHT);
+            position(BACK+LEFT) up(650) right(600) yrot(-90+19) rect_tube(isize=[100,50],wall=100,h=1000,anchor=FRONT)
+                position(LEFT+TOP) tag(rmtag) left(1) cuboid([102,40,1000],anchor=LEFT+TOP);
+            position(BACK+LEFT) down(650) right(600) yrot(90-19) rect_tube(isize=[100,50],wall=100,h=1000,anchor=FRONT)
+                position(LEFT+TOP) tag(rmtag) left(1) cuboid([102,40,1000],anchor=LEFT+TOP);
         }
     }
 
@@ -78,8 +82,8 @@ module wire_holder(anchor=CENTER,spin=0,orient=UP)
         rmtag="vqwcrweq";
         diff(rmtag)
         {
-            rect_tube(isize=[100,100],h=310,wall=100)
-            tag(rmtag) position(LEFT+TOP) left(1) up(1) cuboid([102,55,312],anchor=LEFT+TOP);
+            rect_tube(isize=[100,100],h=410,wall=100)
+            tag(rmtag) position(BACK+TOP) back(1) up(1) cuboid([40,102,412],anchor=BACK+TOP+LEFT);
         }
     }
     attachable(anchor,spin,orient,size=[300,300,310])
@@ -103,8 +107,10 @@ module forViewing()
 
 module forPrinting()
 {
-    insert(num_boards=2);
-//    board_clip(num_boards=2,length=3000);
+///    insert(num_boards=2);
+    insert(num_boards=1);
+//    board_clip(num_boards=1,length=2000);
+///    board_clip(num_boards=2,length=3000);
 }
 
 scale(ViewScale)

@@ -6,15 +6,16 @@ TBF_SHORT = 2;
 TBF_LONG = 4;
 
 // Garage Opening
-GARAGE_OPENING_X = 120;
+GARAGE_OPENING_X = 96;
 GARAGE_OPENING_Y = 3;
 GARAGE_OPENING_Z = 84;
 
 // Gaps
-GDOOR_FRAME_GAP_SIDE = 1;
-GDOOR_FRAME_GAP_TOP = 1;
+GDOOR_FRAME_GAP_SIDE = 0.5;
+GDOOR_FRAME_GAP_TOP = 0.5;
 GDOOR_FRAME_GAP_BOTTOM = 1;
-GDOOR_FRAME_GAP_BETWEEN = 1;
+GDOOR_FRAME_GAP_BETWEEN = 0.5;
+DOOR_HEIGHT = GARAGE_OPENING_Z-GDOOR_FRAME_GAP_TOP-GDOOR_FRAME_GAP_BOTTOM;
 
 // Door Width
 GDOOR_X = (GARAGE_OPENING_X - (GDOOR_FRAME_GAP_SIDE*2) - GDOOR_FRAME_GAP_BETWEEN)/2;
@@ -31,18 +32,6 @@ module model_garage(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
-module right_door(anchor=CENTER,spin=0,orient=UP)
-{
-    module right_door_()
-    {
-    }
-    attachable(anchor,spin,orient,size=[10,10,10])
-    {
-        right_door_();
-        children();
-    }
-}
-
 module door_frame(anchor=CENTER,spin=0,orient=UP, 
     width, height, long, short)
 {
@@ -53,7 +42,7 @@ module door_frame(anchor=CENTER,spin=0,orient=UP,
             position(LEFT+BACK+BOT) cuboid([long, short, height-(long*2)], anchor=LEFT+BACK+TOP);
             position(RIGHT+BACK+BOT) cuboid([long, short, height-(long*2)], anchor=RIGHT+BACK+TOP)
             {
-                position(BACK+LEFT) cuboid([width-(short*2), short, long], anchor=RIGHT+BACK);
+                position(BACK+LEFT) cuboid([width-(long*2), short, long], anchor=RIGHT+BACK);
                 position(BOT+BACK+RIGHT) cuboid([width, short, long], anchor=RIGHT+BACK+TOP);
             }
         }
@@ -66,82 +55,39 @@ module door_frame(anchor=CENTER,spin=0,orient=UP,
     }
 }
 
-module left_door0(anchor=CENTER,spin=0,orient=UP)
+module door(anchor=CENTER,spin=0,orient=UP,bevel=0)
 {
-    door_height = GARAGE_OPENING_Z-1;
     trim_short = 0.25;
     trim_long = 6;
-    module left_door_()
+    module door_()
     {
-        cuboid([GDOOR_X, TBF_SHORT, TBF_LONG])
+        rmtag = "v2q3rc";
+        diff(rmtag)
+        door_frame(width=GDOOR_X, height=DOOR_HEIGHT-4,short=TBF_SHORT,long=TBF_LONG)
         {
-            position(LEFT+BACK+BOT) cuboid([TBF_LONG, TBF_SHORT, door_height-(TBF_LONG*2)], anchor=LEFT+BACK+TOP);
-            position(RIGHT+BACK+BOT) cuboid([TBF_LONG, TBF_SHORT, door_height-(TBF_LONG*2)], anchor=RIGHT+BACK+TOP)
+            if (bevel == LEFT)
             {
-                position(BACK+LEFT) cuboid([GDOOR_X-(TBF_SHORT*2), TBF_SHORT, TBF_LONG], anchor=RIGHT+BACK);
-                position(BOT+BACK+RIGHT) cuboid([GDOOR_X, TBF_SHORT, TBF_LONG], anchor=RIGHT+BACK+TOP);
+                tag(rmtag) position(TOP+LEFT) zrot(-45) cuboid([TBF_SHORT/2,TBF_SHORT*2,DOOR_HEIGHT-3.9], anchor=TOP+RIGHT);
+            }
+            if (bevel == RIGHT)
+            {
+                tag(rmtag) position(TOP+RIGHT) zrot(45) cuboid([TBF_SHORT/2,TBF_SHORT*2,DOOR_HEIGHT-3.9], anchor=TOP+LEFT);
             }
             // Plywood
             recolor("brown")
-            position(FRONT+TOP) cuboid([GDOOR_X, 0.5, door_height], anchor=BACK+TOP)
+            position(FRONT+TOP) cuboid([GDOOR_X, 0.5, DOOR_HEIGHT], anchor=BACK+TOP)
             // LP Cover
             recolor("purple")
-            position(FRONT+TOP) cuboid([GDOOR_X, 0.25, door_height], anchor=BACK+TOP)
-            // Trim
-            recolor("black")
-            position(FRONT+TOP)
-            cuboid([GDOOR_X, trim_short, trim_long], anchor=BACK+TOP)
-            {
-                position(LEFT+BACK+BOT) cuboid([trim_long, trim_short, door_height-(trim_long*2)], anchor=LEFT+BACK+TOP);
-                position(RIGHT+BACK+BOT) cuboid([trim_long, trim_short, door_height-(trim_long*2)], anchor=RIGHT+BACK+TOP)
-                {
-                    position(BACK+LEFT) cuboid([GDOOR_X-(trim_long*2), trim_short, trim_long], anchor=RIGHT+BACK);
-                    position(BOT+BACK+RIGHT) cuboid([GDOOR_X, trim_short, trim_long], anchor=RIGHT+BACK+TOP);
-                }
-            }
-        }
-    }
-    attachable(anchor,spin,orient,size=[GDOOR_X,TBF_SHORT,door_height])
-    {
-        up(door_height/2)
-        left_door_();
-        children();
-    }
-}
-
-module left_door(anchor=CENTER,spin=0,orient=UP)
-{
-    door_height = GARAGE_OPENING_Z-1;
-    trim_short = 0.25;
-    trim_long = 6;
-    module left_door_()
-    {
-        door_frame(width=GDOOR_X, height=GARAGE_OPENING_Z-1,short=TBF_SHORT,long=TBF_LONG)
-        {
-            // Plywood
-            recolor("brown")
-            position(FRONT+TOP) cuboid([GDOOR_X, 0.5, door_height], anchor=BACK+TOP)
-            // LP Cover
-            recolor("purple")
-            position(FRONT+TOP) cuboid([GDOOR_X, 0.25, door_height], anchor=BACK+TOP)
+            position(FRONT+TOP) cuboid([GDOOR_X, 0.25, DOOR_HEIGHT], anchor=BACK+TOP)
             // Trim
             recolor("black")
             position(FRONT)
-            door_frame(width=GDOOR_X, height=door_height, short=trim_short, long=trim_long);
-//            cuboid([GDOOR_X, trim_short, trim_long], anchor=BACK+TOP)
-//            {
-//                position(LEFT+BACK+BOT) cuboid([trim_long, trim_short, door_height-(trim_long*2)], anchor=LEFT+BACK+TOP);
-//                position(RIGHT+BACK+BOT) cuboid([trim_long, trim_short, door_height-(trim_long*2)], anchor=RIGHT+BACK+TOP)
-//                {
-//                    position(BACK+LEFT) cuboid([GDOOR_X-(trim_long*2), trim_short, trim_long], anchor=RIGHT+BACK);
-//                    position(BOT+BACK+RIGHT) cuboid([GDOOR_X, trim_short, trim_long], anchor=RIGHT+BACK+TOP);
-//                }
-//            }
+            door_frame(width=GDOOR_X, height=DOOR_HEIGHT, short=trim_short, long=trim_long);
         }
     }
-    attachable(anchor,spin,orient,size=[GDOOR_X,TBF_SHORT,door_height])
+    attachable(anchor,spin,orient,size=[GDOOR_X,TBF_SHORT,DOOR_HEIGHT])
     {
-        left_door_();
+        door_();
         children();
     }
 }
@@ -173,11 +119,6 @@ module all()
 {
 }
 
-module forViewing()
-{
-    garage_frame();
-}
-
 module forPrinting()
 {
     
@@ -189,8 +130,12 @@ module all()
 
 module forViewing()
 {
-//    garage_frame();
-    left_door();
+    garage_frame()
+    {
+        up(2) position(TOP+LEFT+FRONT) right(3+GDOOR_FRAME_GAP_SIDE) down(6+GDOOR_FRAME_GAP_TOP) door(anchor=TOP+LEFT+FRONT, bevel=RIGHT);
+        up(2) position(TOP+RIGHT+FRONT) left(3+GDOOR_FRAME_GAP_SIDE) down(6+GDOOR_FRAME_GAP_TOP) door(anchor=TOP+RIGHT+FRONT, bevel=LEFT);
+    }
+//    left_door();
 //    door_frame(width=GDOOR_X, height=GARAGE_OPENING_Z-1,short=TBF_SHORT,long=TBF_LONG);
 }
 

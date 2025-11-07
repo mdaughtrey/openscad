@@ -132,9 +132,9 @@ module case()
 module forViewing()
 {
 //    main_drain_flange();
-    //threadcap();
-    pipe();
-//    flange();
+//    threadcap();
+//    pipe();
+    flange();
 //    tube(od=1200,id=1100,l=1000)
 //    position(BOT)
 //    right(1500) flange(anchor=BOT);
