@@ -2,13 +2,13 @@ include <../../BOSL2-master/std.scad>
 
 // Units = inches
 // Two by Four
-TBF_SHORT = 2;
-TBF_LONG = 4;
+TBF_SHORT = 1.5;
+TBF_LONG = 3.5;
 
 // Garage Opening
 GARAGE_OPENING_X = 96;
 GARAGE_OPENING_Y = 3;
-GARAGE_OPENING_Z = 84;
+GARAGE_OPENING_Z = 92;
 
 // Gaps
 GDOOR_FRAME_GAP_SIDE = 0.5;
@@ -19,6 +19,10 @@ DOOR_HEIGHT = GARAGE_OPENING_Z-GDOOR_FRAME_GAP_TOP-GDOOR_FRAME_GAP_BOTTOM;
 
 // Door Width
 GDOOR_X = (GARAGE_OPENING_X - (GDOOR_FRAME_GAP_SIDE*2) - GDOOR_FRAME_GAP_BETWEEN)/2;
+
+echo("Door Frame Height ", DOOR_HEIGHT-4);
+echo("Door Frame Width ", GDOOR_X);
+echo("Door Panel Height ", DOOR_HEIGHT);
 
 module model_garage(anchor=CENTER,spin=0,orient=UP)
 {
