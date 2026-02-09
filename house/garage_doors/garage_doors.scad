@@ -41,12 +41,15 @@ module door_frame(anchor=CENTER,spin=0,orient=UP,
 {
     module door_frame_()
     {
+        recolor("lightgrey")
         cuboid([width, short, long], anchor=TOP)
         {
+            recolor("grey")
             position(LEFT+BACK+BOT) cuboid([long, short, height-(long*2)], anchor=LEFT+BACK+TOP);
             position(RIGHT+BACK+BOT) cuboid([long, short, height-(long*2)], anchor=RIGHT+BACK+TOP)
             {
                 position(BACK+LEFT) cuboid([width-(long*2), short, long], anchor=RIGHT+BACK);
+                recolor("darkgrey")
                 position(BOT+BACK+RIGHT) cuboid([width, short, long], anchor=RIGHT+BACK+TOP);
             }
         }
@@ -78,13 +81,13 @@ module door(anchor=CENTER,spin=0,orient=UP,bevel=0)
                 tag(rmtag) position(TOP+RIGHT) zrot(45) cuboid([TBF_SHORT/2,TBF_SHORT*2,DOOR_HEIGHT-3.9], anchor=TOP+LEFT);
             }
             // Plywood
-            recolor("brown")
+            *recolor("brown")
             position(FRONT+TOP) cuboid([GDOOR_X, 0.5, DOOR_HEIGHT], anchor=BACK+TOP)
             // LP Cover
-            recolor("purple")
+            *recolor("purple")
             position(FRONT+TOP) cuboid([GDOOR_X, 0.25, DOOR_HEIGHT], anchor=BACK+TOP)
             // Trim
-            recolor("black")
+            *recolor("black")
             position(FRONT)
             door_frame(width=GDOOR_X, height=DOOR_HEIGHT, short=trim_short, long=trim_long);
         }

@@ -82,7 +82,7 @@ module brace(anchor=CENTER,spin=0,orient=UP, connectors=[])
 {
     module brace_(connectors)
     {
-        shelf_mount_corner(connectors)
+        shelf_mount_corner(connectors=connectors)
         {
             for (c = [0:len(connectors)-1])
             {
@@ -236,11 +236,12 @@ module forViewing()
 
 module forPrinting()
 {
-    test_surround();
+//    test_surround();
+    brace(connectors=["UP", "DOWN"]);
 }
 
 scale(ViewScale)
 {
-    forViewing();
-//    forPrinting();
+//    forViewing();
+    forPrinting();
 }
