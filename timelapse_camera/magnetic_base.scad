@@ -25,18 +25,18 @@ module model_magnet(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
-module magnetic_base(anchor=CENTER,spin=0,orient=UP,angle=0)
+module magnetic_base(anchor=CENTER,spin=0,orient=UP,angle=0,turn=0)
 {
     module magnetic_base_()
     {
         rmtag="phv24";
         diff(rmtag)
-        cuboid([3000, 1000, 800], rounding=50, edges="Z")
+        cuboid([2500, 1000, 800], rounding=50, edges="Z")
         {
             tag(rmtag) position(BOT) up(50) cuboid([2380, 550, 200], anchor=BOT)
                 position(TOP) left(1) cuboid([3004, 570, 400], anchor=BOT)
                 position(TOP) down(1) cuboid([1300, 500, 202], anchor=BOT, rounding=50, edges="Z");
-            position(TOP) down(50) xrot(angle) rect_tube(isize=[1420, 825], wall=100, h=1000, anchor=BOT, rounding=50);
+            position(TOP) back(400) zrot(turn) down(50) xrot(angle) rect_tube(isize=[1420, 825], wall=100, h=1000, anchor=BOT, rounding=50);
             
 
         }
@@ -55,7 +55,7 @@ module case()
 
 module forViewing()
 {
-    magnetic_base(angle=20);
+    magnetic_base(angle=10, turn=-60);
 }
 
 module forPrinting()
