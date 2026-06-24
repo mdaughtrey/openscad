@@ -87,6 +87,7 @@ module spacer1(anchor=CENTER,spin=0,orient=UP)
 
 module spacer(anchor=CENTER,spin=0,orient=UP)
 {
+    space = 140;
     module spacer_()
     {
         rmtag="r41vrq";
@@ -94,8 +95,8 @@ module spacer(anchor=CENTER,spin=0,orient=UP)
         {
             for (hole_tx = pcb_holes)
             {
-                translate(hole_tx) cyl(d=240, h=pcb_z);
-                tag(rmtag) translate(hole_tx) cyl(d=120, h=pcb_z+2);
+                translate(hole_tx) cyl(d=240, h=space);
+                tag(rmtag) translate(hole_tx) cyl(d=120, h=space+2);
             }
             for (rod = rods)
             {
@@ -116,13 +117,13 @@ module spacer(anchor=CENTER,spin=0,orient=UP)
                     
                     angle = xlength == 0 ? -90 : ylength == 0 ? 0 : atan2(ylength, xlength);
                     translate(pcb_holes[origin])
-                    zrot(angle) cuboid([length, 100, pcb_z], anchor=LEFT);
+                    zrot(angle) cuboid([length, 100, space], anchor=LEFT);
                 }
             }
         }
 
     }
-    attachable(anchor,spin,orient,size=[pcb_x, pcb_y, pcb_z])
+    attachable(anchor,spin,orient,size=[pcb_x, pcb_y, space])
     {
         spacer_();
         children();
