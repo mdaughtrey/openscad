@@ -3,6 +3,10 @@ if &cp | set nocp | endif
 let s:cpo_save=&cpo
 set cpo&vim
 inoremap <silent> <expr> <C-F> llama#fim_inline(v:false, v:false)
+imap <Nul> <C-Space>
+inoremap <expr> <Up> pumvisible() ? "\" : "\<Up>"
+inoremap <expr> <S-Tab> pumvisible() ? "\" : "\<S-Tab>"
+inoremap <expr> <Down> pumvisible() ? "\" : "\<Down>"
 inoremap <C-C> 
 inoremap <silent> <C-Tab> =UltiSnips#ListSnippets()
 inoremap <silent> <Plug>(fzf-maps-i) :call fzf#vim#maps('i', 0)
@@ -13,21 +17,24 @@ inoremap <expr> <Plug>(fzf-complete-file) fzf#vim#complete#path("find . -path '*
 inoremap <expr> <Plug>(fzf-complete-path) fzf#vim#complete#path("find . -path '*/\.*' -prune -o -print | sed '1d;s:^..::'")
 inoremap <expr> <Plug>(fzf-complete-word) fzf#vim#complete#word()
 inoremap <silent> <Plug>(ale_complete) :ALEComplete
-inoremap <silent> <expr> <Plug>delimitMateS-BS delimitMate#WithinEmptyPair() ? "\<Del>" : "\<S-BS>"
-inoremap <silent> <Plug>delimitMateBS =delimitMate#BS()
 cnoremap <C-P> =expand("%:p:h") . "/" 
+map! <D-v> *
+vmap  :w !pbcopy
 snoremap <silent>  "_c
 nnoremap  h
 xnoremap  h
 onoremap  h
 xnoremap <silent> 	 :call UltiSnips#SaveLastVisualSelection()gvs
-snoremap <silent> 	 :call UltiSnips#ExpandSnippetOrJump()
+snoremap <silent> 	 :call UltiSnips#ExpandSnippet()
 nnoremap 	 gt
 noremap <NL> j
 noremap  k
 noremap  l
 snoremap  "_c
-vnoremap ,e :e =expand("%:p:h") . "/" 
+vmap  :!pbcopy
+nmap  :YcmCompleter GoToReferences
+nmap  :YcmCompleter GoTo
+nnoremap ,d :YcmShowDetailedDiagnostic
 nnoremap ,o :.GBrowse
 nnoremap <silent> ,  :noh
 noremap ,c :bd
@@ -40,6 +47,7 @@ nmap ,y :History:
 nnoremap <silent> ,e :FZF -m
 nnoremap <silent> ,b :Buffers
 noremap ,te :tabe =expand("%:p:h") . "/" 
+vnoremap ,e :e =expand("%:p:h") . "/" 
 onoremap ,e :e =expand("%:p:h") . "/" 
 nnoremap ,. :lcd %:p:h
 nnoremap ,sc :CloseSession
@@ -67,8 +75,8 @@ nnoremap N Nzzzv
 nnoremap <silent> T :tabnew
 noremap XX "+x
 noremap YY "+y
-xmap gx <Plug>NetrwBrowseXVis
-nmap gx <Plug>NetrwBrowseX
+xmap gx <Plug>(open-word-under-cursor)
+nmap gx <Plug>(open-word-under-cursor)
 nmap gcu <Plug>Commentary<Plug>Commentary
 nmap gcc <Plug>CommentaryLine
 omap gc <Plug>Commentary
@@ -76,10 +84,13 @@ nmap gc <Plug>Commentary
 xmap gc <Plug>Commentary
 nnoremap n nzzzv
 noremap ss :mksession! session
-nnoremap <SNR>128_: :=v:count ? v:count : ''
-nnoremap <SNR>114_: :=v:count ? v:count : ''
-xnoremap <silent> <Plug>NetrwBrowseXVis :call netrw#BrowseXVis()
-nnoremap <silent> <Plug>NetrwBrowseX :call netrw#BrowseX(netrw#GX(),netrw#CheckIfRemote(netrw#GX()))
+nnoremap <silent> <Plug>(YCMFindSymbolInDocument) :call youcompleteme#finder#FindSymbol( 'document' )
+nnoremap <silent> <Plug>(YCMFindSymbolInWorkspace) :call youcompleteme#finder#FindSymbol( 'workspace' )
+nnoremap <silent> <Plug>(YCMCallHierarchy) <Cmd>call youcompleteme#hierarchy#StartRequest( 'call' )
+nnoremap <silent> <Plug>(YCMTypeHierarchy) <Cmd>call youcompleteme#hierarchy#StartRequest( 'type' )
+nnoremap <SNR>116_: :=v:count ? v:count : ''
+xnoremap <Plug>(open-word-under-cursor) <ScriptCmd>vim9.Open(getregion(getpos('v'), getpos('.'), { type: mode() })->join())
+nnoremap <Plug>(open-word-under-cursor) <ScriptCmd>vim9.Open(GetWordUnderCursor())
 snoremap <C-R> "_c
 snoremap <silent> <C-H> "_c
 snoremap <silent> <Del> "_c
@@ -158,20 +169,28 @@ xnoremap <silent> <Plug>(GitGutterTextObjectInnerVisual) :call gitgutter#hunk#
 onoremap <silent> <Plug>(GitGutterTextObjectOuterPending) :call gitgutter#hunk#text_object(0)
 onoremap <silent> <Plug>(GitGutterTextObjectInnerPending) :call gitgutter#hunk#text_object(1)
 nmap <silent> <Plug>CommentaryUndo :echoerr "Change your <Plug>CommentaryUndo map to <Plug>Commentary<Plug>Commentary"
+nmap <C-[> :YcmCompleter GoToReferences
+nmap <C-]> :YcmCompleter GoTo
 nnoremap <C-H> h
 xnoremap <C-H> h
-nnoremap <SNR>116_: :=v:count ? v:count : ''
 onoremap <C-H> h
 noremap <C-L> l
 noremap <C-K> k
 noremap <C-J> j
+vmap <C-C> :w !pbcopy
+vmap <C-X> :!pbcopy
 nmap <silent> <F4> :TagbarToggle
 nnoremap <S-Tab> gT
 nnoremap <silent> <F3> :NERDTreeToggle
 nnoremap <silent> <F2> :NERDTreeFind
+xmap <BS> "-d
+vmap <D-x> "*d
+vmap <D-c> "*y
+vmap <D-v> "-d"*P
+nmap <D-v> "*P
 inoremap  
 inoremap <silent> <expr>  llama#fim_inline(v:false, v:false)
-inoremap <silent> 	 =UltiSnips#ExpandSnippetOrJump()
+inoremap <expr> 	 pumvisible() ? "\" : "\	"
 cnoremap  =expand("%:p:h") . "/" 
 cabbr mans ManS
 cabbr man Man
@@ -189,8 +208,8 @@ let &cpo=s:cpo_save
 unlet s:cpo_save
 set autoread
 set background=dark
-set backspace=indent,eol,start
-set completeopt=menuone,longest,popup
+set completeopt=preview,menuone
+set cpoptions=aAceFszB
 set expandtab
 set fileencodings=utf-8
 set fileformats=unix,dos,mac
@@ -205,25 +224,58 @@ set laststatus=2
 set modelines=10
 set mouse=a
 set mousemodel=popup
-set printoptions=paper:a4
 set ruler
-set runtimepath=~/.vim,~/plugged/nerdtree,~/plugged/vim-nerdtree-tabs,~/plugged/vim-commentary,~/plugged/vim-fugitive,~/plugged/vim-airline,~/plugged/vim-airline-themes,~/plugged/vim-gitgutter,~/plugged/grep.vim,~/plugged/CSApprox,~/plugged/delimitMate,~/plugged/tagbar,~/plugged/ale,~/plugged/indentLine,~/plugged/vim-bootstrap-updater,~/plugged/vim-rhubarb,~/plugged/llama.vim,~/.fzf,~/plugged/fzf.vim,~/plugged/vimproc.vim,~/plugged/vim-misc,~/plugged/vim-session,~/plugged/ultisnips,~/plugged/vim-snippets,~/plugged/split-manpage.vim,~/plugged/jedi-vim,~/plugged/requirements.txt.vim,/var/lib/vim/addons,/etc/vim,/usr/share/vim/vimfiles,/usr/share/vim/vim90,/usr/share/vim/vimfiles/after,/etc/vim/after,/var/lib/vim/addons/after,~/plugged/CSApprox/after,~/plugged/indentLine/after,~/plugged/ultisnips/after,~/plugged/jedi-vim/after,~/.vim/after
+set runtimepath=
+set runtimepath+=~/.vim
+set runtimepath+=~/.vim/pack/YouCompleteMe/opt/YouCompleteMe
+set runtimepath+=~/plugged/nerdtree
+set runtimepath+=~/plugged/vim-nerdtree-tabs
+set runtimepath+=~/plugged/vim-commentary
+set runtimepath+=~/plugged/vim-fugitive
+set runtimepath+=~/plugged/vim-airline
+set runtimepath+=~/plugged/vim-airline-themes
+set runtimepath+=~/plugged/vim-gitgutter
+set runtimepath+=~/plugged/grep.vim
+set runtimepath+=~/plugged/CSApprox
+set runtimepath+=~/plugged/tagbar
+set runtimepath+=~/plugged/ale
+set runtimepath+=~/plugged/indentLine
+set runtimepath+=~/plugged/vim-bootstrap-updater
+set runtimepath+=~/plugged/vim-rhubarb
+set runtimepath+=~/plugged/llama.vim
+set runtimepath+=~/.fzf
+set runtimepath+=~/plugged/fzf.vim
+set runtimepath+=~/plugged/vimproc.vim
+set runtimepath+=~/plugged/vim-misc
+set runtimepath+=~/plugged/vim-session
+set runtimepath+=~/plugged/ultisnips
+set runtimepath+=~/plugged/vim-snippets
+set runtimepath+=~/plugged/split-manpage.vim
+set runtimepath+=~/plugged/jedi-vim
+set runtimepath+=~/plugged/requirements.txt.vim
+set runtimepath+=/opt/homebrew/share/vim/vimfiles
+set runtimepath+=/opt/homebrew/share/vim/vim91
+set runtimepath+=/opt/homebrew/share/vim/vim91/pack/dist/opt/netrw
+set runtimepath+=/opt/homebrew/share/vim/vimfiles/after
+set runtimepath+=~/plugged/CSApprox/after
+set runtimepath+=~/plugged/indentLine/after
+set runtimepath+=~/plugged/ultisnips/after
+set runtimepath+=~/plugged/jedi-vim/after
+set runtimepath+=~/.vim/after
 set scrolloff=3
 set shiftwidth=4
+set shortmess=filnxtToOSc
 set showtabline=2
 set smartcase
 set smarttab
 set statusline=%F%m%r%h%w%=(%{&ff}/%Y)\ (line\ %l/%L,\ col\ %c)\\
-set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc
 set tabline=%!airline#extensions#tabline#get()
 set tabstop=4
 set title
 set titlestring=%F
 set visualbell
 set wildignore=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite,*node_modules/,*.o,*.obj,.git,*.rbc,*.pyc,__pycache__
-set wildmenu
 set wildmode=list:longest,list:full
-set window=61
 let s:so_save = &g:so | let s:siso_save = &g:siso | setg so=0 siso=0 | setl so=-1 siso=-1
 let v:this_session=expand("<sfile>:p")
 silent only
@@ -232,30 +284,15 @@ cd ~/dev/openscad/downstairs_bathroom
 if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
-if &shortmess =~ 'A'
-  set shortmess=aoOA
-else
-  set shortmess=aoO
-endif
-badd +1 offset_pipe_for_bottle_trap.scad
-badd +35 shims.scad
-badd +29 light_switch_cover.scad
-badd +1 offset_pipe.scad
-badd +207 ~/dev/openscad/BOSL2-master/screws.scad
-badd +1 chrome_pipe_cover.scad
+set shortmess+=aoO
+badd +0 offset_pipe_for_bottle_trap.scad
 argglobal
 %argdel
-$argadd chrome_pipe_cover.scad
+$argadd offset_pipe_for_bottle_trap.scad
 edit offset_pipe_for_bottle_trap.scad
 argglobal
-balt shims.scad
 let s:cpo_save=&cpo
 set cpo&vim
-imap <buffer> <silent> <C-G>g <Plug>delimitMateJumpMany
-imap <buffer> <S-Tab> <Plug>delimitMateS-Tab
-imap <buffer> <S-BS> <Plug>delimitMateS-BS
-imap <buffer> <C-H> <Plug>delimitMateBS
-imap <buffer> <BS> <Plug>delimitMateBS
 nmap <buffer> ,hp <Plug>(GitGutterPreviewHunk)
 nmap <buffer> ,hu <Plug>(GitGutterUndoHunk)
 nmap <buffer> ,hs <Plug>(GitGutterStageHunk)
@@ -266,17 +303,6 @@ xmap <buffer> ac <Plug>(GitGutterTextObjectOuterVisual)
 omap <buffer> ac <Plug>(GitGutterTextObjectOuterPending)
 xmap <buffer> ic <Plug>(GitGutterTextObjectInnerVisual)
 omap <buffer> ic <Plug>(GitGutterTextObjectInnerPending)
-imap <buffer> <silent> g <Plug>delimitMateJumpMany
-imap <buffer>  <Plug>delimitMateBS
-imap <buffer> " <Plug>delimitMate"
-imap <buffer> ' <Plug>delimitMate'
-imap <buffer> ( <Plug>delimitMate(
-imap <buffer> ) <Plug>delimitMate)
-imap <buffer> [ <Plug>delimitMate[
-imap <buffer> ] <Plug>delimitMate]
-imap <buffer> ` <Plug>delimitMate`
-imap <buffer> { <Plug>delimitMate{
-imap <buffer> } <Plug>delimitMate}
 let &cpo=s:cpo_save
 unlet s:cpo_save
 setlocal keymap=
@@ -297,11 +323,12 @@ setlocal cinscopedecls=public,protected,private
 setlocal cinwords=if,else,while,do,for,switch
 setlocal colorcolumn=
 setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
-setlocal commentstring=/*%s*/
+setlocal commentstring=//\ %s
 setlocal complete=.,w,b,u,t,i
+setlocal completefunc=
+setlocal completeopt=
 setlocal concealcursor=
 setlocal conceallevel=2
-setlocal completefunc=
 setlocal nocopyindent
 setlocal cryptmethod=
 setlocal nocursorbind
@@ -311,13 +338,16 @@ setlocal cursorlineopt=both
 setlocal define=
 setlocal dictionary=
 setlocal nodiff
+setlocal diffanchors=
 setlocal equalprg=
 setlocal errorformat=
+setlocal eventignorewin=
 setlocal expandtab
 if &filetype != 'openscad'
 setlocal filetype=openscad
 endif
 setlocal fillchars=
+setlocal findfunc=
 setlocal fixendofline
 setlocal foldcolumn=0
 setlocal foldenable
@@ -330,9 +360,10 @@ setlocal foldminlines=1
 setlocal foldnestmax=20
 setlocal foldtext=foldtext()
 setlocal formatexpr=
-setlocal formatoptions=tcq
 setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal formatoptions=tcq
 setlocal formatprg=
+setlocal grepformat=
 setlocal grepprg=
 setlocal iminsert=0
 setlocal imsearch=-1
@@ -341,8 +372,10 @@ setlocal includeexpr=
 setlocal indentexpr=
 setlocal indentkeys=0{,0},0),0],:,0#,!^F,o,O,e
 setlocal noinfercase
+setlocal isexpand=
 setlocal iskeyword=a-z,A-Z,48-57,_
 setlocal keywordprg=
+setlocal lhistory=10
 setlocal nolinebreak
 setlocal nolisp
 setlocal lispoptions=
@@ -405,25 +438,26 @@ setlocal varsofttabstop=
 setlocal vartabstop=
 setlocal virtualedit=
 setlocal wincolor=
+setlocal nowinfixbuf
 setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 100 - ((25 * winheight(0) + 35) / 71)
+let s:l = 137 - ((45 * winheight(0) + 30) / 60)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 100
-normal! 035|
+keepjumps 137
+normal! 0
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0
   silent exe 'bwipe ' . s:wipebuf
 endif
 unlet! s:wipebuf
 set winheight=1 winwidth=20
-set shortmess=filnxtToOS
+set shortmess=filnxtToOSc
 let s:sx = expand("<sfile>:p:r")."x.vim"
 if filereadable(s:sx)
   exe "source " . fnameescape(s:sx)

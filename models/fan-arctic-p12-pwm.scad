@@ -1,5 +1,3 @@
-ViewScale = [0.0254, 0.0254, 0.0254];
-
 module flange()
 {
     linear_extrude(198)
@@ -44,9 +42,3 @@ module artic_p12_pwm()
         flange();
     }
 }
-
-
-//scale(ViewScale)
-//{
-//    artic_p12_pwm();
-//}

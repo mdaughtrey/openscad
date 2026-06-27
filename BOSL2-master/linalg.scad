@@ -10,6 +10,10 @@
 // FileFootnotes: STD=Included in std.scad
 //////////////////////////////////////////////////////////////////////
 
+_BOSL2_LINALG = is_undef(_BOSL2_STD) && (is_undef(BOSL2_NO_STD_WARNING) || !BOSL2_NO_STD_WARNING) ?
+       echo("Warning: linalg.scad included without std.scad; dependencies may be missing\nSet BOSL2_NO_STD_WARNING = true to mute this warning.") true : true;
+
+
 // Section: Matrices
 //   The matrix, a rectangular array of numbers which represents a linear transformation,
 //   is the fundamental object in linear algebra.  In OpenSCAD a matrix is a list of lists of numbers
@@ -122,9 +126,9 @@ function is_rotation(A,dim,centered=false) =
 //    eps = numbers smaller than this display as zero.  Default: 1e-9
 function echo_matrix(M,description,sig=4,sep=1,eps=1e-9) =
   let(
-      horiz_line = chr(8213),
+      horiz_line = 8213,
       matstr = _format_matrix(M,sig=sig,sep=sep,eps=eps),
-      separator = str_join(repeat(horiz_line,10)),
+      separator = chr(repeat(horiz_line,10)),
       dummy=echo(str(separator,is_def(description) ? str("  ",description) : ""))
             [for(row=matstr) echo(row)]
   )
@@ -260,8 +264,11 @@ function diagonal_matrix(diag, offdiag=0) =
 // Description:
 //    Returns the transpose of the given input matrix.  The input can be a matrix with arbitrary entries or
 //    a numerical vector.  If you give a vector then transpose returns it unchanged.  
-//    When reverse=true, the transpose is done across to the secondary diagonal.  (See example below.)
+//    When reverse=true, the transpose is done across the secondary diagonal.  (See example below.)
 //    By default, reverse=false.
+// Arguments:
+//    M = matrix to transpose
+//    reverse = if true reflect across secondary diagonal.  Default: false
 // Example:
 //   M = [
 //       [1, 2, 3],
@@ -329,6 +336,48 @@ function transpose(M, reverse=false) =
     :  assert( is_vector(M), "Input to transpose must be a vector or list of lists.")
            M;
 
+// Function: swap_columns()
+// Synopsis: Swap two columns of a matrix
+// Topics: Linear Algebra, Matrices
+// See Also: submatrix(), block_matrix(), hstack(), flatten()
+// Usage:
+//    M = swap_columns(M, i, j);
+// Description:
+//    Returns a matrix where columns i and j are swapped.  The input must be a list of lists where each row has the same length.  
+// Arguments:
+//    M = matrix to transpose
+//    reverse = if true reflect across secondary diagonal.  Default: false
+// Example:
+//    M = [
+//          [1, 2, 3, 0, 1], 
+//          [4, 5, 6, 0, 1], 
+//          [7, 8, 9, 0, 1]
+//    ];
+//    S = swap_columns(M,1,3);
+//    // Returns
+//    // [  
+//    //   [1, 0, 3, 2, 1], 
+//    //   [4, 0, 6, 5, 1], 
+//    //   [7, 0, 9, 8, 1]
+//    // ]
+
+function swap_columns(M,i,j) =
+  assert( is_list(M) && len(M)>0, "Input to swap_columns must be a nonempty list")
+  assert( is_list(M[0]), "Input to swap_columns must be a list of lists")
+  let(
+      m=len(M),
+      n=len(M[0])
+  )  
+  assert( [for(row=M) if (!is_list(row) || len(row)!=n) 1]==[], "Input to swap_columns has inconsistent row lengths.")
+  [for(p=[0:m-1])
+      [for(q=[0:n-1])
+            q==i ? M[p][j]
+          : q==j ? M[p][i]
+          : M[p][q]
+      ]
+  ];
+
+
 
 // Function: outer_product()
 // Synopsis: Compute the outer product of two vectors. 
@@ -382,7 +431,7 @@ function submatrix_set(M,A,m=0,n=0) =
 //   A = hstack(M1, M2, M3)
 //   A = hstack([M1, M2, M3, ...])
 // Description:
-//   Constructs a matrix by horizontally "stacking" together compatible matrices or vectors.  Vectors are treated as columsn in the stack.
+//   Constructs a matrix by horizontally "stacking" together compatible matrices or vectors.  Vectors are treated as columns in the stack.
 //   This command is the inverse of `column`.  Note: strings given in vectors are broken apart into lists of characters.  Strings given
 //   in matrices are preserved as strings.  If you need to combine vectors of strings use {{list_to_matrix()}} as shown below to convert the
 //   vector into a column matrix.  Also note that vertical stacking can be done directly with concat.  
@@ -483,24 +532,48 @@ function block_matrix(M) =
 // Usage:
 //   solv = linear_solve(A,b,[pivot])
 // Description:
-//   Solves the linear system Ax=b.  If `A` is square and non-singular the unique solution is returned.  If `A` is overdetermined
+//   Solves the linear system Ax=b.  By default, uses the QR factorization, which is the slowest but most flexible
+//   solution method.  If `A` is square and non-singular the unique solution is returned.  If `A` is overdetermined
 //   the least squares solution is returned. If `A` is underdetermined, the minimal norm solution is returned.
 //   If `A` is rank deficient or singular then linear_solve returns `[]`.  If `b` is a matrix that is compatible with `A`
 //   then the problem is solved for the matrix valued right hand side and a matrix is returned.  Note that if you 
 //   want to solve Ax=b1 and Ax=b2 that you need to form the matrix `transpose([b1,b2])` for the right hand side and then
-//   transpose the returned value.  The solution is computed using QR factorization.  If `pivot` is set to true (the default) then
+//   transpose the returned value.  If `pivot` is set to true (the default) then
 //   pivoting is used in the QR factorization, which is slower but expected to be more accurate.
+//   .
+//   If `A` is a square matrix you can select `method="lu"` to use LU decomposition, which may be slightly faster than QR on small problems.
+//   .
+//   If `A` is symmetric and positive definite then `method="cholesky"` is faster than LU decomposition.
+//   (About 5x faster than LU decomposition on large problems.)
 // Arguments:
 //   A = Matrix describing the linear system, which need not be square
 //   b = right hand side for linear system, which can be a matrix to solve several cases simultaneously.  Must be consistent with A.
 //   pivot = if true use pivoting when computing the QR factorization.  Default: true
-function linear_solve(A,b,pivot=true) =
+//   method = Set to "qr", "lu" or "cholesky" to choose the solution method.  Default: "qr"
+function linear_solve(A,b,pivot=true,method="qr") =
     assert(is_matrix(A), "Input should be a matrix.")
+    assert(in_list(method,["qr","cholesky","lu"]))
     let(
         m = len(A),
         n = len(A[0])
     )
     assert(is_vector(b,m) || is_matrix(b,m),"Invalid right hand side or incompatible with the matrix")
+    method=="cholesky" ? let(
+                             U=cholesky(A,transpose=true)
+                         )
+                         is_undef(U) ? []
+                       :
+                         back_substitute(U,back_substitute(U,b,transpose=true))
+  : method=="lu" ? let(
+                        LUP = lu_factor(A)
+                   )
+                   is_undef(LUP) ? []
+                 :
+                   back_substitute(LUP[1],
+                                   back_substitute(LUP[0],
+                                                   select(b,LUP[2]),transpose=true)
+                   )
+  :
     let (
         qr = m<n? qr_factor(transpose(A),pivot) : qr_factor(A,pivot),
         maxdim = max(n,m),
@@ -619,29 +692,60 @@ function qr_factor(A, pivot=false) =
         n = len(A[0])
     )
     let(
-        qr = _qr_factor(A, Q=ident(m),P=ident(n), pivot=pivot, col=0, m = m, n = n),
-        Rzero = let( R = qr[1]) [
+        qr = _qr_factor(transpose(A), Q=ident(m),p=count(n), pivot=pivot, col=0, m = m, n = n),
+        Rzero = let( R = transpose(qr[1])) [
             for(i=[0:m-1]) [
                 let( ri = R[i] )
                 for(j=[0:n-1]) i>j ? 0 : ri[j]
             ]
         ]
-    ) [qr[0], Rzero, qr[2]];
+    ) [transpose(qr[0]), Rzero, _makeP(qr[2])];
 
-function _qr_factor(A,Q,P, pivot, col, m, n) =
-    col >= min(m-1,n) ? [Q,A,P] :
+
+
+// make permutation matrix, multiply on the right to permute columns
+function _makeP(p) =
+  [
+   for(i=[0:len(p)-1])
+     [for(j=[0:len(p)-1])
+        p[j]==i ? 1 : 0]];
+
+
+
+function _qr_factor(A, Q, p, pivot, col, m, n) =
+    col >= min(m-1, n) ? [Q, A, p] :
     let(
-        swap = !pivot ? 1
-             : _swap_matrix(n,col,col+max_index([for(i=[col:n-1]) sqr([for(j=[col:m-1]) A[j][i]])])),
-        A = pivot ? A*swap : A,
-        x = [for(i=[col:1:m-1]) A[i][col]],
-        alpha = (x[0]<=0 ? 1 : -1) * norm(x),
-        u = x - concat([alpha],repeat(0,m-1)),
-        v = alpha==0 ? u : u / norm(u),
-        Qc = ident(len(x)) - 2*outer_product(v,v),
-        Qf = [for(i=[0:m-1]) [for(j=[0:m-1]) i<col || j<col ? (i==j ? 1 : 0) : Qc[i-col][j-col]]]
+        swapind = !pivot ? undef
+                : col+max_index([for(i=[col:n-1]) norm(slice(A[i],col,m-1))]),
+        A = pivot ? list_swap(A,col,swapind) : A,
+        p = pivot ? list_swap(p,col,swapind) : p,
+        x = slice(A[col],col,m-1),
+        alpha = (x[0] <= 0 ? 1 : -1) * norm(x),
+        u = x - concat([alpha], repeat(0, len(x)-1)),
+        nrm = norm(u),
+        v = nrm == 0 ? u : u/nrm, 
+
+        // Apply H to submatrix of A: Hsub*Asub = Asub - 2*v*(v^T*Asub)
+        Asub = submatrix(A,[col:n-1],[col:m-1]),
+        vtA = Asub*v,
+        Asub_new = Asub - 2*outer_product(vtA,v),
+        // Write updated submatrix back into A
+        Anew = [for(j=[0:n-1])
+                  j < col ? A[j]
+                        : [
+                            for(i=[0:1:col-1]) A[j][i],
+                            each Asub_new[j-col]
+                            ]
+                  ],
+        // Accumulate Q: Q = Q*H = Q - 2*(Q*v)*v^T  (only columns col: matter)
+        Qvsub = v * slice(Q,col,-1),
+        Qnew =  [for(j=[0:m-1])
+                   j < col ? Q[j]
+                           : Q[j] - 2*Qvsub*v[j-col]]
     )
-    _qr_factor(Qf*A, Q*Qf, P*swap, pivot, col+1, m, n);
+    _qr_factor(Anew, Qnew, p, pivot, col+1, m, n);
+
+
 
 // Produces an n x n matrix that swaps column i and j (when multiplied on the right)
 function _swap_matrix(n,i,j) =
@@ -652,7 +756,64 @@ function _swap_matrix(n,i,j) =
    : x==y ? 1 : 0]];
 
 
+// Function: lu_factor()
+// Synopsis: Compute LU factorization of a matrix with pivoting.
+// Topics: Matrices, Linear Algebra
+// See Also: linear_solve(), linear_solve3(), matrix_inverse(), rot_inverse(), back_substitute(), cholesky()
+// Usage:
+//   lt_u_p = lu_factor(A);
+// Description:
+//   Calculates the LU factorization of the input matrix A with pivoting [LT,U,p].  This factorization can be
+//   used to solve linear systems of equations and is equivalent to Gaussian elimination.
+//   The factorization is `select(A,p) = transpose(LT) * U`. The permutation `p` is an index list, not a matrix.
+//   The LU decomposition only works on square,  nonsingular matrices.  If `A` is singular then returns undef.  
+                        
+function lu_factor(A) =
+   assert(is_matrix(A,square=true), "Input must be a square matrix." )
+   let(n=len(A))
+   _lu_factor([], A, count(n), 0);
 
+
+function _lu_factor(L,U,perm,k)=
+   let(
+       n = len(U)
+   )
+   k==n-1? [[each L,[each repeat(0,n-1),1]],U,perm]
+ :
+   let(
+       p = k==0 ? 0 : k + max_index([for(i=[k:n-1]) abs(U[i][k])]),
+       U = _swap_entries(U,p,k),
+       L = p==k ? L : L * _swap_matrix(n,p,k),
+       perm = _swap_entries(perm,p,k)
+   )
+   abs(U[k][k]) < _EPSILON ? undef
+ :
+  let(
+      Lnew = [ each L,
+               [each repeat(0,k),
+                1,
+                for(i=[k+1:n-1]) U[i][k] / U[k][k]
+               ]
+             ],
+      Unew = [for(i=[0:n-1])
+               i<=k ? U[i]
+                    : [for (j=[0:n-1])
+                             j<=k ? 0
+                                  : U[i][j] - Lnew[k][i] * U[k][j]
+                      ]
+             ]
+   )
+   _lu_factor(Lnew,Unew,perm,k+1);
+
+
+function _swap_entries(v,i,j) =
+  i==j ? v : 
+  [for(k=[0:len(v)-1]) k==i ? v[j]
+                  : k==j ? v[i]
+                  : v[k]
+  ];
+
+                        
 // Function: back_substitute()
 // Synopsis: Solve an upper triangular system, Rx=b.  
 // Topics: Matrices, Linear Algebra
@@ -698,29 +859,28 @@ function _back_substitute(R, b, x=[]) =
 //   The matrix L is lower triangular and `L * transpose(L) = A`.  If the A is
 //   not symmetric then an error is displayed.  If the matrix is symmetric but
 //   not positive definite then undef is returned.  
-function cholesky(A) =
+function cholesky(A,transpose=false) =
   assert(is_matrix(A,square=true),"A must be a square matrix")
   assert(is_matrix_symmetric(A),"Cholesky factorization requires a symmetric matrix")
-  _cholesky(A,ident(len(A)), len(A));
+  let (U=_cholesky(A))
+  transpose || is_undef(U) ? U : transpose(U);
 
-function _cholesky(A,L,n) = 
-    A[0][0]<0 ? undef :     // Matrix not positive definite
-    len(A) == 1 ? submatrix_set(L,[[sqrt(A[0][0])]], n-1,n-1):
+
+function _cholesky(A,j=0) =
+    let(n=len(A))
+    j==n ? A
+  :
     let(
-        i = n+1-len(A)
+       newrow = j==0 ? A[j]
+              : select(A[j],j,n-1) - ([[for(i=[0:j-1]) A[i][j]]] * submatrix(A,[0:j-1],[j:n-1]))[0]
     )
+    newrow[0]<=0 ? undef   // Matrix not positive definite
+  :
     let(
-        sqrtAii = sqrt(A[0][0]),
-        Lnext = [for(j=[0:n-1])
-                  [for(k=[0:n-1])
-                      j<i-1 || k<i-1 ?  (j==k ? 1 : 0)
-                     : j==i-1 && k==i-1 ? sqrtAii
-                     : j==i-1 ? 0
-                     : k==i-1 ? A[j-(i-1)][0]/sqrtAii
-                     : j==k ? 1 : 0]],
-        Anext = submatrix(A,[1:n-1], [1:n-1]) - outer_product(list_tail(A[0]), list_tail(A[0]))/A[0][0]
+       newA = [for(i=[0:n-1]) i!=j ? A[i]
+                                   : concat(repeat(0,j),newrow/sqrt(newrow[0]))]
     )
-    _cholesky(Anext,L*Lnext,n);
+    _cholesky(newA,j+1);
 
 
 // Section: Matrix Properties: Determinants, Norm, Trace

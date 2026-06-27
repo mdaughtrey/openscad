@@ -12,6 +12,10 @@
 // FileSummary: ISO (metric) and UTS screws and nuts.
 //////////////////////////////////////////////////////////////////////
 
+_BOSL2_SCREWS = is_undef(_BOSL2_STD) && (is_undef(BOSL2_NO_STD_WARNING) || !BOSL2_NO_STD_WARNING) ?
+       echo("Warning: screws.scad included without std.scad; dependencies may be missing\nSet BOSL2_NO_STD_WARNING = true to mute this warning.") true : true;
+
+
 include <structs.scad>
 include <threading.scad>
 include <screw_drive.scad>
@@ -846,6 +850,8 @@ module screw_hole(spec, head, thread, oversize, hole_oversize, head_oversize,
              bevel, bevel1, bevel2, blunt_start, blunt_start1, blunt_start2, 
              atype="screw",anchor=CENTER,spin=0, orient=UP)
 {
+   checkt = assert(thread != true || (!is_string(tolerance) || !in_list(downcase(tolerance),["tap","self tap"])),
+                   "Cannot specify thread=true with tolerance of \"tap\" or \"self tap\"");
    screwspec = _get_spec(spec, "screw_info", "screw_hole", 
                         thread=thread, head=head);
    bevel1 = first_defined([bevel1,bevel,false]);
@@ -855,7 +861,8 @@ module screw_hole(spec, head, thread, oversize, hole_oversize, head_oversize,
    default_counterbore = checkhead=="none" || starts_with(checkhead,"flat") ? 0 : true;
    counterbore = default(counterbore, default_counterbore);
    dummy = _validate_screw_spec(screwspec);
-   threaded = thread==true || (is_finite(thread) && thread>0) || (is_undef(thread) && struct_val(screwspec,"pitch")>0);
+   threaded = (thread==true || (is_finite(thread) && thread>0) || (is_undef(thread) && struct_val(screwspec,"pitch")>0)) &&
+                     (!is_string(tolerance) || !in_list(downcase(tolerance),["tap","self tap"]));
    oversize = force_list(oversize,2);
    hole_oversize = first_defined([hole_oversize, oversize[0],struct_val(screwspec,"shaft_oversize")]);
    head_oversize = first_defined([head_oversize, oversize[1],struct_val(screwspec,"head_oversize")]);
@@ -872,7 +879,7 @@ module screw_hole(spec, head, thread, oversize, hole_oversize, head_oversize,
      tolerance = default(tolerance, "normal");
      pitch = struct_val(screwspec,"pitch");
      dummy3 = assert((downcase(tolerance) != "tap" && downcase(tolerance)!="self tap") || pitch!=0,
-                     "\"tap\" clearance requires a pitch size, but pitch is set to zero");
+                     "\"tap\" and \"self tap\" clearances requires a pitch size, but pitch is set to zero or thread is false");
      // UTS clearances from ASME B18.2.8
      UTS_clearance = [
        [ // Close fit
@@ -2186,6 +2193,7 @@ function _screw_info_english(diam, threadcount, head, thread, drive) =
             ["#5", [   40,    44, undef]],
             ["#6", [   32,    40, undef]],
             ["#8", [   32,    36, undef]],
+            ["#9", [   24,    32, undef]],
             ["#10",[   24,    32, undef]],
             ["#12",[   24,    28,    32]],
             [1/4,  [   20,    28,    32]],
@@ -2450,6 +2458,7 @@ function _screw_info_english(diam, threadcount, head, thread, drive) =
                    ["#5", [  2,     undef, 0.148, 0.074, 0.027,   0.043,   0.122, 0.081, 0.018]], //ph#1 for undercut
                    ["#6", [  2,     10   , 0.168, 0.094, 0.029,   0.048,   0.140, 0.066, 0.025]],
                    ["#8", [  2,     15   , 0.182, 0.110, 0.030,   0.054,   0.168, 0.094, 0.029]],
+                   ["#9", [  2,     20   , 0.190, 0.117, 0.031,   0.057,   0.175, 0.102, 0.030]],
                    ["#10",[  2,     20   , 0.198, 0.124, 0.032,   0.060,   0.182, 0.110, 0.030]],
                    ["#12",[  3,     undef, 0.262, 0.144, 0.035,   0.067,   0.226, 0.110, 0.030]],
                    [1/4,  [  3,     27   , 0.276, 0.160, 0.036,   0.075,   0.244, 0.124, 0.032]],
@@ -2468,6 +2477,7 @@ function _screw_info_english(diam, threadcount, head, thread, drive) =
                    ["#4", [  1,     8    , 0.110, 0.070, 0.018,   0.039]],
                    ["#6", [  2,     10   , 0.148, 0.074, 0.027,   0.048]],
                    ["#8", [  2,     15   , 0.162, 0.090, 0.028,   0.054]],
+                   ["#9", [  2,     20   , 0.170, 0.097, 0.030,   0.057]],
                    ["#10",[  2,     20   , 0.178, 0.104, 0.030,   0.060]],
                    [1/4,  [  3,     27   , 0.240, 0.124, 0.033,   0.075]],
                    [5/16, [  4,     40   , 0.310, 0.157, 0.053,   0.084]],

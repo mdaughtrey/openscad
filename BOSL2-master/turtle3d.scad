@@ -8,6 +8,10 @@
 // FileGroup: Advanced Modeling
 // FileSummary: 3D turtle graphics for making paths or lists of transformations.
 //////////////////////////////////////////////////////////////////////
+
+_BOSL2_TURTLE3D = is_undef(_BOSL2_STD) && (is_undef(BOSL2_NO_STD_WARNING) || !BOSL2_NO_STD_WARNING) ?
+       echo("Warning: turtle3d.scad included without std.scad; dependencies may be missing\nSet BOSL2_NO_STD_WARNING = true to mute this warning.") true : true;
+
 include<structs.scad>
 
 // Section: Functions
@@ -31,10 +35,16 @@ function _rotpart(T) = [for(i=[0:3]) [for(j=[0:3]) j<3 || i==3 ? T[i][j] : 0]];
 // Description:
 //   Like the classic two dimensional turtle, the 3d turtle flies through space following a sequence
 //   of turtle graphics commands to generate either a sequence of transformations (suitable for input
-//   to {{sweep()}}) or a 3d path.  The turtle state keeps track of the position and orientation (including twist)
+//   to {{sweep()}}) or a 3d path.
+//   .
+//   The turtle state keeps track of the position and orientation (including twist)
 //   and scale of the turtle.  By default the turtle begins pointing along the X axis with the "right" direction
 //   along the -Y axis and the "up" direction aligned with the Z axis.  You can give a direction vector
-//   for the state input to change the starting direction.  Because of the complexity of object positioning
+//   for the state input to change the starting direction.  You can also give a transformation for the state.
+//   For example, if you want the turtle to start its trajectory at the coordinate [3,4,5] you could
+//   give `state=move([3,4,5])`.
+//   .
+//   Because of the complexity of object positioning
 //   in three space, some types of movement require compound commands.  These compound commands are lists that specify several operations
 //   all applied to one turtle step.  For example:  ["move", 4, "twist", 25] executes a twist while moving, and
 //   the command ["arc", 4, "grow", 2, "right", 45, "up", 30] turns to the right and up while also growing the object.
@@ -85,7 +95,9 @@ function _rotpart(T) = [for(i=[0:3]) [for(j=[0:3]) j<3 || i==3 ? T[i][j] : 0]];
 //     - a list of object transformations, the transformations that twist or scale the cross section as the turtle moves
 //     - the current movement step size (scalar)
 //     - the current default angle
-//     - the current default arcsteps  
+//     - the current default arcsteps
+//   .
+//   If `state` is the turtle's returned state then the transformation matrix at step i is `state[0][i]*state[1][i]`.  
 //   .
 //   Commands   |T | Arguments          | What it does
 //   ---------- |--| ------------------ | -------------------------------
@@ -163,7 +175,7 @@ function _rotpart(T) = [for(i=[0:3]) [for(j=[0:3]) j<3 || i==3 ? T[i][j] : 0]];
 //   the results are very strange if larger angles are permitted.)
 // Arguments:
 //   commands = List of turtle3d commands
-//   state = Starting turtle direction or full turtle state (from a previous call).  Default: RIGHT
+//   state = Starting turtle direction, starting turtle transformation (e.g. move(pt)), or full turtle state (from a previous call).  Default: RIGHT
 //   transforms = If true teturn list of transformations instead of points.  Default: false
 //   full_state = If true return full turtle state for continuing the path in subsequent turtle calls.  Default: false
 //   repeat = Number of times to repeat the command list.  Default: 1
@@ -423,6 +435,14 @@ function _rotpart(T) = [for(i=[0:3]) [for(j=[0:3]) j<3 || i==3 ? T[i][j] : 0]];
 //       color("blue")
 //         sweep(circle(torusr,$fn=24), torus);
 //   }
+// Example(3D,Med): This example shows chaining of several invocations using `full_state=true`.  We extract the end state from the first section and use it to put a star ring at that spot in the path.  
+//   state1 = turtle3d(["arcright", 25,17, ["move",20,"steps",25,"roll",55,"shrink", 2]],full_state=true);
+//   state2 = turtle3d(["arcleft", 20],state=state1,full_state=true);
+//   final = turtle3d(["move", 10], state=state2, transforms=true);
+//   multmatrix(last(state1[0])*last(state1[1]))
+//     color("red")stroke(star(n=5, r=8,ir=6));
+//   sweep(circle(r=6,$fn=5), final);
+
 
 /*
 turtle state: sequence of transformations ("path") so far
@@ -775,10 +795,12 @@ function _turtle3d_list_command(command,arcsteps,movescale, lastT,lastPre,index)
     )
     // At this point angle is nonzero if and only if a relative angle command (left, right, up down) was given,
     //               absangle is defined if and only if an absolute angle command was given
+
     assert(is_undef(absangle) || absangle!=0, str("Arc rotation with zero angle at index ",index))
     assert(angle==0 || is_undef(absangle), str("Mixed relative and absolute rotations at index ",index))
     assert(is_int(usersteps) && usersteps>=0, str("Steps value ",usersteps," invalid at index ",index))
     assert(is_undef(absangle) || !all_zero(projv), str("Rotation acts as twist, which does not produce a valid arc at index ",index))
+    assert(command[0]!="arc" || first_defined([absangle,angle])!=0, "\"arc\" given without specifying the type and angle of rotation of the arc")
     let(
         rollval = struct_val(keys,"roll"),
         rrollto = struct_val(keys,"rrollto"),
@@ -799,20 +821,19 @@ function _turtle3d_list_command(command,arcsteps,movescale, lastT,lastPre,index)
                     desired = rollto!=0 ? rollto : rrollto!=0 ? rrollto : lrollto,
                     dummy = assert(!approx(abs(unit(desired)*finaldir),1),
                                    str("\nRequested roll is impossible because roll direction is parallel to the turtle travel direction at index ",index)),
-                    fe=echo(finalup=finalup),
-                    
                     startang = _compute_spin(finaldir, finalup),
                     finalang = _compute_spin(finaldir, desired),
                     delta_ang = posmod(finalang-startang,360),
                     signed_ang = rrollto!=0 || delta_ang==0 ? delta_ang
                                : lrollto!=0 || delta_ang>180 ? delta_ang-360
                                : delta_ang
-,                    ffe=echo(signed_ang=signed_ang, startang=startang, finalang=finalang)
                ) signed_ang,
+        effective_angle = first_defined([absangle,angle]), 
         steps = usersteps==0 && command[0]=="move" && roll==0 && twist==0 ? 1
               : usersteps != 0 ? usersteps
               : arcsteps != 0 ? arcsteps
-              : ceil(segs(abs(radius)) * abs(first_defined([absangle,angle]))/360),
+              : radius>0 && effective_angle!=0 ? segs(radius,effective_angle)
+              : max($fn,5),
         // The next line computes a list of pairs [trans,pretrans] for the segment or arc
         result =  is_undef(absangle)
                   ? [for(n=[1:1:steps]) let(frac=n/steps)

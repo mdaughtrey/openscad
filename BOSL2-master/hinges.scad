@@ -8,6 +8,10 @@
 // FileSummary: Hinges and snap-locking hinged parts.  
 //////////////////////////////////////////////////////////////////////
 
+_BOSL2_HINGES = is_undef(_BOSL2_STD) && (is_undef(BOSL2_NO_STD_WARNING) || !BOSL2_NO_STD_WARNING) ?
+       echo("Warning: hinges.scad included without std.scad; dependencies may be missing\nSet BOSL2_NO_STD_WARNING = true to mute this warning.") true : true;
+
+
 include <rounding.scad>
 include <screws.scad>
 
@@ -107,7 +111,7 @@ include <screws.scad>
 //   cones to interlock the hinge segments.  The default cones are 45 degrees; you can set `in_place` to an
 //   angle from the vertical to adjust the cone angle.  (This means larger angles are pointier, and also less likely to print successfully.)
 //   Use `gap` to adjust the clearance in the hinge
-//   to get something that separates after printing.  When you adjust the cone hangle, higher angles result in a smaller
+//   to get something that separates after printing.  When you adjust the cone angle, higher angles result in a smaller
 //   clearance where the cones meet for the same gap size, so you can somewhat adjust the tightness of the hinge
 //   by changing the cone angle.  The default cone diameter, which is controlled by `pin_diam` is 1 unit smaller than the knuckle diameter, which should work well
 //   for larger hinges, but for small hinges you may want to specify a larger `pin_diam`.  
@@ -383,6 +387,7 @@ module knuckle_hinge(length, segs, offset, inner=false, arm_height=0, arm_angle=
         union(){}
     }
   }
+  default_tag("keep", do_tag=in_place != false && knuckle_clearance)
   attachable(anchor,spin,orient,
              size=[length,
                    arm_height+offset/tan(arm_angle)+knuckle_diam/2+knuckle_diam/2/sin(arm_angle),
@@ -458,7 +463,7 @@ module _knuckle_hinge_profile(offset, arm_height, arm_angle=45, knuckle_diam=4, 
         if (is_num(clear_top)) left(.1)fwd(clearance) rect([.1+clear_top, knuckle_diam+1+clearance], anchor=BOT+LEFT);
         if (is_def(clip)) fwd(clip) left(.1) rect([offset+knuckle_diam, ofs+round_bot+knuckle_diam+abs(clip)],anchor=BACK+LEFT);
       }
-      right(offset)ellipse(d=knuckle_diam,realign=true,circum=true);
+      right(offset)ellipse(d=knuckle_diam, circum=true);
     }
     if (is_num(pin_diam) && pin_diam>0){
       $fn = default(pin_fn,$fn);
@@ -466,7 +471,7 @@ module _knuckle_hinge_profile(offset, arm_height, arm_angle=45, knuckle_diam=4, 
         if (is_def(tearspin)){
           teardrop2d(d=pin_diam+2*get_slop(), realign=true, circum=true, spin=tearspin);
         }
-        else ellipse(d=pin_diam+2*get_slop(), realign=true, circum=true);
+        else ellipse(d=pin_diam+2*get_slop(), circum=true);
     }
   }
 } 

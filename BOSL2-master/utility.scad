@@ -9,7 +9,8 @@
 // FileFootnotes: STD=Included in std.scad
 //////////////////////////////////////////////////////////////////////
 
-
+_BOSL2_UTILIITY = is_undef(_BOSL2_STD) && (is_undef(BOSL2_NO_STD_WARNING) || !BOSL2_NO_STD_WARNING) ?
+       echo("Warning: utility.scad included without std.scad; dependencies may be missing\nSet BOSL2_NO_STD_WARNING = true to mute this warning.") true : true;
 
 // Section: Type Checking
 
@@ -772,17 +773,21 @@ function scalar_vec3(v, dflt) =
 // Topics: Geometry
 // See Also: circle(), cyl()
 // Usage:
-//   sides = segs(r);
+//   sides = segs(r, [angle]);
 // Description:
 //   Calculate the standard number of sides OpenSCAD would give a circle based on `$fn`, `$fa`, and `$fs`.
+//   If angle is given, calculate for an arc of the given angle.
 // Arguments:
-//   r = Radius of circle to get the number of segments for.
+//   r = Radius of circle/arc to get the number of segments for.
+//   angle = Angle of arc to get the get the number of segments for.
 // Example:
-//   $fn=12; sides=segs(10);  // Returns: 12
-//   $fa=2; $fs=3; sides=segs(10);  // Returns: 21
-function segs(r) = 
-    $fn>0? ($fn>3? $fn : 3) :
-    let( r = is_finite(r)? r : 0 )
+//   $fn=12; sides=segs(10);           // Returns: 12
+//   $fa=2; $fs=3; sides=segs(10);     // Returns: 21
+//   $fa=2; $fs=3; sides=segs(10,180); // Returns: 11
+function segs(r,angle) =
+    is_def(angle) ? ceil(segs(r)*abs(angle)/360-2e-15)  // 2e-15 needed in case angle is slightly large due to rounding error
+  : $fn>0? ($fn>3? $fn : 3)
+  : let( r = is_finite(r)? r : 0 )
     ceil(max(5, min(360/$fa, abs(r)*2*PI/$fs)));
 
 
@@ -952,7 +957,7 @@ module assert_approx(got, expected, info) {
 //   expected = The value that was expected.
 //   info = Extra info to print out to make the error clearer.
 // Example:
-//   assert_approx(3*9, 27, str("a=",3,", b=",9));
+//   assert_equal(3*9, 27, str("a=",3,", b=",9));
 module assert_equal(got, expected, info) {
     no_children($children);
     if (got != expected || (is_nan(got) && is_nan(expected))) {
@@ -982,7 +987,7 @@ module assert_equal(got, expected, info) {
 //   Returns the differential geometry if they are not quite the same shape and size.
 // Arguments:
 //   eps = The surface of the two shapes must be within this size of each other.  Default: 1/1024
-// Example:
+// Example(NORENDER):  (Example disabled because OpenSCAD bug prevents it from displaying)
 //   $fn=36;
 //   shape_compare() {
 //       sphere(d=100);

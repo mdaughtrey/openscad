@@ -1,12 +1,16 @@
 name: Checks
-on: [pull_request]
+on:
+  pull_request:
+  push:
+    branches: [master]
 
 jobs:
   Regressions:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install Required Libraries
       run: sudo apt-get install libfuse2
@@ -14,24 +18,52 @@ jobs:
     - name: Install OpenSCAD
       run: |
         cd $GITHUB_WORKSPACE
-        wget https://files.openscad.org/OpenSCAD-2021.01-x86_64.AppImage
+        wget -q https://github.com/openscad/openscad/releases/download/openscad-2021.01/OpenSCAD-2021.01-x86_64.AppImage
         sudo mv OpenSCAD-2021.01*-x86_64.AppImage /usr/local/bin/openscad
         sudo chmod +x /usr/local/bin/openscad
+
+    - name: Install openscad-test
+      run: pip install openscad-test
 
     - name: Run Regression Tests
       run: |
         cd $GITHUB_WORKSPACE
-        export OPENSCADPATH=$(dirname $GITHUB_WORKSPACE)
         ./scripts/run_tests.sh
+
+  FuncCoverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Check Function Test Coverage
+      run: |
+        cd $GITHUB_WORKSPACE
+        OUTPUT=$(python3 scripts/func_coverage.py)
+        echo "$OUTPUT"
+        # Extract coverage percentage
+        COVERAGE=$(echo "$OUTPUT" | grep "Total coverage:" | grep -oP '[0-9]+\.[0-9]+(?=%)')
+        echo "Coverage: ${COVERAGE}%"
+        # Fail if coverage dropped below 99%
+        python3 -c "
+        coverage = float('${COVERAGE}')
+        if coverage < 99.0:
+            print(f'::error::Function test coverage dropped to {coverage}% (minimum: 99%)')
+            exit(1)
+        else:
+            print(f'Coverage OK: {coverage}%')
+        "
 
   CheckTutorials:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Clone Wiki
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: BelfrySCAD/BOSL2.wiki
         path: BOSL2.wiki
@@ -43,12 +75,12 @@ jobs:
       run: sudo apt-get install python3-pip python3-dev python3-setuptools python3-pil libfuse2
 
     - name: Install OpenSCAD-DocsGen package.
-      run: sudo pip3 install openscad-docsgen
+      run: sudo pip3 install openscad-docsgen imageio
 
     - name: Install OpenSCAD
       run: |
         cd $GITHUB_WORKSPACE
-        wget https://files.openscad.org/OpenSCAD-2021.01-x86_64.AppImage
+        wget -q https://github.com/openscad/openscad/releases/download/openscad-2021.01/OpenSCAD-2021.01-x86_64.AppImage
         sudo mv OpenSCAD-2021.01*-x86_64.AppImage /usr/local/bin/openscad
         sudo chmod +x /usr/local/bin/openscad
 
@@ -67,12 +99,13 @@ jobs:
 
   CheckDocs:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Clone Wiki
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: BelfrySCAD/BOSL2.wiki
         path: BOSL2.wiki
@@ -84,12 +117,12 @@ jobs:
       run: sudo apt-get install python3-pip python3-dev python3-setuptools python3-pil libfuse2
 
     - name: Install OpenSCAD-DocsGen package.
-      run: sudo pip3 install openscad-docsgen
+      run: sudo pip3 install openscad-docsgen imageio
 
     - name: Install OpenSCAD
       run: |
         cd $GITHUB_WORKSPACE
-        wget https://files.openscad.org/OpenSCAD-2021.01-x86_64.AppImage
+        wget -q https://github.com/openscad/openscad/releases/download/openscad-2021.01/OpenSCAD-2021.01-x86_64.AppImage
         sudo mv OpenSCAD-2021.01*-x86_64.AppImage /usr/local/bin/openscad
         sudo chmod +x /usr/local/bin/openscad
 
@@ -99,4 +132,3 @@ jobs:
         echo "::add-matcher::.github/openscad_docsgen.json"
         export OPENSCADPATH=$(dirname $GITHUB_WORKSPACE)
         openscad-docsgen -Tmf
-

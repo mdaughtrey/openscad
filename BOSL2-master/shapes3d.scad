@@ -12,6 +12,10 @@
 // FileFootnotes: STD=Included in std.scad
 //////////////////////////////////////////////////////////////////////
 
+_BOSL2_SHAPES3D = is_undef(_BOSL2_STD) && (is_undef(BOSL2_NO_STD_WARNING) || !BOSL2_NO_STD_WARNING) ?
+       echo("Warning: shapes3d.scad included without std.scad; dependencies may be missing\nSet BOSL2_NO_STD_WARNING = true to mute this warning.") true : true;
+
+
 use <builtins.scad>
 
 
@@ -25,7 +29,7 @@ use <builtins.scad>
 // Usage: As Module (as in native OpenSCAD)
 //   cube(size, [center]);
 // Usage: With BOSL2 Attachment extensions
-//   cube(size, [center], [anchor=], [spin=], [orient=]) [ATTACHMENTS];
+//   cube(size, [center|anchor=], [spin=], [orient=]) [ATTACHMENTS];
 // Usage: As Function (BOSL2 extension)
 //   vnf = cube(size, ...);
 // Description:
@@ -33,12 +37,12 @@ use <builtins.scad>
 //   This module extends the built-in cube()` module by providing support for attachments and a function form.  
 //   When called as a function, returns a [VNF](vnf.scad) for a cube.
 // Arguments:
-//   size = The size of the cube.
-//   center = If given, overrides `anchor`.  A true value sets `anchor=CENTER`, false sets `anchor=FRONT+LEFT+BOTTOM`.
+//   size = The size of the cube.  Default: 1
+//   center = A true value sets `anchor=CENTER`, false sets `anchor=FRONT+LEFT+BOTTOM`.  Default: `anchor=CENTER`
 //   ---
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Example: Simple cube.
 //   cube(40);
 // Example: Rectangular cube.
@@ -57,8 +61,10 @@ use <builtins.scad>
 
 module cube(size=1, center, anchor, spin=0, orient=UP)
 {
+    dummy = assert(num_defined([center,anchor])<2, "\nCannot give both center and anchor");
     anchor = get_anchor(anchor, center, -[1,1,1], -[1,1,1]);
-    size = force_list(size,3);      // Native cube prints a warning and gives a unit cube when parameters are bogus
+    size = force_list(size,3);
+    dummy2 = assert(is_vector(size,3) && all_nonnegative(size), "\nsize must be a positive scalar or 3-vector.");
     attachable(anchor,spin,orient, size=is_vector(size,3)?size:[1,1,1]) {
         _cube(size, center=true);
         children();
@@ -69,7 +75,9 @@ function cube(size=1, center, anchor, spin=0, orient=UP) =
     let(
         size = force_list(size,3)
     )
-    assert(is_vector(size,3), "\nSize parameter cannot be converted to a 3-vector")
+    assert(is_undef(center) || is_bool(center), "\ncenter must be boolean.")
+    assert(num_defined([center,anchor])<2, "\nCannot give both center and anchor")
+    assert(is_vector(size,3), "\nSize parameter cannot be converted to a 3-vector.")
     assert(all_positive(size), "\nAll size components must be positive.")
     let(
         anchor = get_anchor(anchor, center, -[1,1,1], -[1,1,1]),
@@ -110,7 +118,7 @@ function cube(size=1, center, anchor, spin=0, orient=UP) =
 //   Creates a cube or cuboid object, with optional chamfering or rounding of edges and corners.
 //   You cannot mix chamfering and rounding: just one edge treatment with the same size applies to all selected edges.
 //   Negative chamfers and roundings can be applied to create external fillets, but they
-//   only apply to edges around the top or bottom faces.  If you specify an edge set other than "ALL"
+//   apply only to edges around the top or bottom faces.  If you specify an edge set other than "ALL"
 //   with negative roundings or chamfers then you will get an error.  See [Specifying Edges](attachments.scad#section-specifying-edges)
 //   for information on how to specify edge sets.
 // Arguments:
@@ -127,7 +135,7 @@ function cube(size=1, center, anchor, spin=0, orient=UP) =
 //   p2 = If given with `p1`, defines the cornerpoints of the cuboid.
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Example: Simple regular cube.
 //   cuboid(40);
 // Example: Cuboid with a corner at the origin
@@ -190,7 +198,7 @@ function cube(size=1, center, anchor, spin=0, orient=UP) =
 //   );
 // Example: Roundings and Chamfers can be as large as the full size of the cuboid, so long as the edges would not interfere.
 //   cuboid([40,20,10], rounding=20, edges=[FWD+RIGHT,BACK+LEFT]);
-// Example: Standard Connectors
+// Example: Standard anchors
 //   cuboid(40) show_anchors();
 
 module cuboid(
@@ -225,7 +233,10 @@ module cuboid(
             teardrop(r=r, l=l, cap_h=r, ang=teardrop, spin=90, orient=DOWN);
         } else if (is_finite(clip_angle)) {
             cap_h = r * sin(clip_angle);
-            down(r-cap_h) teardrop(r=r, l=l, cap_h=cap_h, ang=clip_angle, spin=90, orient=DOWN);
+            hull() {
+                teardrop(r=r, l=l, cap_h=cap_h, ang=clip_angle, spin=90, orient=DOWN);
+                down(r-cap_h) teardrop(r=r, l=l, cap_h=cap_h, ang=clip_angle, spin=90, orient=DOWN);
+            }
         } else {
             yrot(90) cyl(l=l, r=r);
         }
@@ -235,7 +246,10 @@ module cuboid(
             teardrop(r=r, l=l, cap_h=r, ang=teardrop, spin=0, orient=DOWN);
         } else if (is_finite(clip_angle)) {
             cap_h = r * sin(clip_angle);
-            down(r-cap_h) teardrop(r=r, l=l, cap_h=cap_h, ang=clip_angle, spin=0, orient=DOWN);
+            hull() {
+                teardrop(r=r, l=l, cap_h=cap_h, ang=clip_angle, spin=0, orient=DOWN);
+                down(r-cap_h) teardrop(r=r, l=l, cap_h=cap_h, ang=clip_angle, spin=0, orient=DOWN);
+            }
         } else {
             zrot(90) yrot(90) cyl(l=l, r=r);
         }
@@ -245,7 +259,10 @@ module cuboid(
             onion(r=r, cap_h=r, ang=teardrop, orient=DOWN);
         } else if (is_finite(clip_angle)) {
             cap_h = r * sin(clip_angle);
-            down(r-cap_h) onion(r=r, cap_h=cap_h, ang=clip_angle, orient=DOWN);
+            hull() {
+                onion(r=r, cap_h=cap_h, ang=clip_angle, orient=DOWN);
+                down(r-cap_h) onion(r=r, cap_h=cap_h, ang=clip_angle, orient=DOWN);
+            }
         } else {
             spheroid(r=r, style="octa", orient=DOWN);
         }
@@ -344,23 +361,23 @@ module cuboid(
         }
     }
     sizecheck = assert(num_defined([size,p1,p2])!=3, "\nCannot give size if p2 is given (did you forget brackets on the size argument?)")
-                assert(is_def(p1) || is_undef(p2), "If p2 is given you must also give p1");
+                assert(is_def(p1) || is_undef(p2), "\nIf p2 is given you must also give p1.");
     size = force_list(default(size,1),3);
     edges = _edges(edges, except=first_defined([except_edges,except]));
     teardrop = is_bool(teardrop)&&teardrop? 45 : teardrop;
     chamfer = approx(chamfer,0) ? undef : chamfer;
     rounding = approx(rounding,0) ? undef : rounding;
     checks =
-        assert(is_vector(size,3),"Size must be a scalar or 3-vector")
-        assert(all_nonnegative(size), "All components of size= must be >=0")
-        assert(is_undef(chamfer) || is_finite(chamfer),"chamfer must be a finite value")
-        assert(is_undef(rounding) || is_finite(rounding),"rounding must be a finite value")
-        assert(is_undef(rounding) || is_undef(chamfer), "Cannot specify nonzero value for both chamfer and rounding")
-        assert(teardrop==false || (is_finite(teardrop) && teardrop>0 && teardrop<=90), "teardrop must be either false or an angle number between 0 and 90")
-        assert(clip_angle==undef || (is_finite(clip_angle) && clip_angle>0 && clip_angle<=90), "clip_angle must be either false or an angle number between 0 and 90")
-        assert(!teardrop || clip_angle==undef, "teardrop= and clip_angle= are mutually exclusive features.")
-        assert(is_undef(p1) || is_vector(p1,3), "p1 must be a 3-vector")
-        assert(is_undef(p2) || is_vector(p2,3), "p2 must be a 3-vector")
+        assert(is_vector(size,3),"\n'size' must be a scalar or 3-vector.")
+        assert(all_nonnegative(size), "\nAll components of size= must be >=0.")
+        assert(is_undef(chamfer) || is_finite(chamfer),"\n'chamfer' must be a finite value.")
+        assert(is_undef(rounding) || is_finite(rounding),"\n'rounding' must be a finite value.")
+        assert(is_undef(rounding) || is_undef(chamfer), "\nCannot specify nonzero value for both chamfer and rounding.")
+        assert(teardrop==false || (is_finite(teardrop) && teardrop>0 && teardrop<=90), "\n'teardrop' must be either false or an angle number between 0 and 90.")
+        assert(clip_angle==undef || (is_finite(clip_angle) && clip_angle>0 && clip_angle<=90), "\nclip_angle must be either false or an angle number between 0 and 90.")
+        assert(!teardrop || clip_angle==undef, "\nteardrop= and clip_angle= are mutually exclusive features.")
+        assert(is_undef(p1) || is_vector(p1,3), "\np1 must be a 3-vector.")
+        assert(is_undef(p2) || is_vector(p2,3), "\np2 must be a 3-vector.")
         assert(is_bool(trimcorners));
     if (!is_undef(p1)) {
         if (!is_undef(p2)) {
@@ -400,9 +417,9 @@ module cuboid(
                 edges.x[3] + edges.y[0], edges.x[3] + edges.y[1]
             ) * rr;
             check =
-                assert(minx <= size.x, "Rounding or chamfering too large for cuboid size in the X axis.")
-                assert(miny <= size.y, "Rounding or chamfering too large for cuboid size in the Y axis.")
-                assert(minz <= size.z, "Rounding or chamfering too large for cuboid size in the Z axis.")
+                assert(minx <= size.x, "\nRounding or chamfering too large for cuboid size in the X axis.")
+                assert(miny <= size.y, "\nRounding or chamfering too large for cuboid size in the Y axis.")
+                assert(minz <= size.z, "\nRounding or chamfering too large for cuboid size in the Z axis.")
             ;
         }
         majrots = [[0,90,0], [90,0,0], [0,0,0]];
@@ -423,7 +440,7 @@ module cuboid(
                         }
                     }
                 } else if (chamfer<0) {
-                    checks = assert(edges == EDGES_ALL || edges[2] == [0,0,0,0], "Cannot use negative chamfer with Z aligned edges.");
+                    checks = assert(edges == EDGES_ALL || edges[2] == [0,0,0,0], "\nCannot use negative chamfer with Z aligned edges.");
                     ach = abs(chamfer);
                     cube(size, center=true);
 
@@ -510,10 +527,10 @@ module cuboid(
                         }
                     }
                 } else if (rounding<0) {
-                    checks = assert(edges == EDGES_ALL || edges[2] == [0,0,0,0], "Cannot use negative rounding with Z aligned edges.");
+                    checks = assert(edges == EDGES_ALL || edges[2] == [0,0,0,0], "\nCannot use negative rounding with Z aligned edges.");
                     ard = abs(rounding);
                     cube(size, center=true);
-
+                    $fn = quantup(segs(rounding),4);
                     // External-Rounding mask edges
                     difference() {
                         union() {
@@ -616,6 +633,11 @@ function cuboid(
 //   The anchors on the top and bottom faces have spin pointing back.  The anchors on the side faces have spin point UP.
 //   The anchors on the top and bottom edges also have anchors that point clockwise as viewed from outside the shapep.
 //   The anchors on the side edges and the corners have spin with positive Z component, pointing along the edge where the anchor is located.
+//   A degenerate prismoid with a line segment for the top or bottom has its top or bottom edge anchors set to provide an anchor for that top
+//   or bottom edge.  So for example, if the top is `[0,10]` then the top edge is parallel to the Y axis and you can anchor to that
+//   edge using the `TOP+RIGHT` or `TOP+LEFT` anchors; these anchors point in the direction that divides the edge in half and provide
+//   the `$edge_angle` and `$edge_length` values generally provided by edge anchors.  The UP or DOWN anchor is in the same location but always points
+//   in the Z direction and provides no edge data. 
 // Arguments:
 //   size1 = [width, length] of the bottom end of the prism.
 //   size2 = [width, length] of the top end of the prism.
@@ -632,7 +654,7 @@ function cuboid(
 //   chamfer2 = The chamfer size for the top of the vertical-ish edges of the prismoid.  If given as a list of four numbers, gives individual chamfers for each corner, in the order [X+Y+,X-Y+,X-Y-,X+Y-].
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `BOTTOM`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //
 // Example: Truncated Pyramid
 //   prismoid(size1=[35,50], size2=[20,30], h=20);
@@ -654,7 +676,7 @@ function cuboid(
 //   prismoid(size1=[100,75], h=30, xang=50, yang=70);
 // Example: Specifying top, height and angle, with asymmetric angles
 //   prismoid(size2=[100,75], h=30, xang=[50,60], yang=[70,40]);
-// Example: Specifying top, bottom and angle for X and using that to define height.  Note that giving yang here would likely give a conflicting height calculation, which is not allowed.  
+// Example: Specifying top, bottom and angle for X and using that to define height. Giving yang here would likely give a conflicting height calculation, which is not allowed.  
 //   prismoid(size1=[100,75], size2=[75,35], xang=50);
 // Example: The same as the previous example but we give a shift in Y.  Note that shift.x must be undef because you cannot give combine an angle with a shift, so a shift.x value would conflict with xang being defined.  
 //   prismoid(size1=[100,75], size2=[75,35], xang=50, shift=[undef,20]);
@@ -689,9 +711,14 @@ function cuboid(
 //           mask2d_roundover(h=5,mask_angle=$edge_angle);
 //       }
 //   }
-// Example(Spin,VPD=160,VPT=[0,0,10]): Standard Connectors
+// Example(Spin,VPD=160,VPT=[0,0,10]): Standard anchors
 //   prismoid(size1=[50,30], size2=[20,20], h=20, shift=[15,5])
 //       show_anchors();
+// Example(3D): When the top or bottom is degenerate, you can anchor to and round the degenerate edge by using either one of the edge anchors that correspond to that edge.  But note that {{edge_profile()}} does not work for this degenerate case.  We used `TOP+RIGHT` below as the anchor point, but `TOP+LEFT` produces an identical result.   
+//   diff()
+//   prismoid([10,14],[0,8], shift=[4,3], h=7)
+//     attach(TOP+RIGHT, FWD+LEFT, inside=true)
+//       rounding_edge_mask(r=2,l=$edge_length+6);
 
 module prismoid(
     size1=undef, size2=undef, h, shift=[undef,undef],
@@ -727,9 +754,9 @@ function prismoid(
     _return_dim=false
     
 ) =
-    assert(is_undef(shift) || is_num(shift) || len(shift)==2, "shift must be a number or list of length 2")
-    assert(is_undef(size1) || is_num(size1) || len(size1)==2, "size1 must be a number or list of length 2")
-    assert(is_undef(size2) || is_num(size2) || len(size2)==2, "size2 must be a number or list of length 2")  
+    assert(is_undef(shift) || is_num(shift) || len(shift)==2, "\nshift must be a number or list of length 2.")
+    assert(is_undef(size1) || is_num(size1) || len(size1)==2, "\nsize1 must be a number or list of length 2.")
+    assert(is_undef(size2) || is_num(size2) || len(size2)==2, "\nsize2 must be a number or list of length 2.")  
     let(
         xang = force_list(xang,2),
         yang = force_list(yang,2),
@@ -740,18 +767,18 @@ function prismoid(
         h=first_defined([l,h,length,height]),
         shift = force_list(shift,2)
     )
-    assert(xangOK, "prismoid angles must be scalar or 2-vector, strictly between 0 and 180")
-    assert(yangOK, "prismoid angles must be scalar or 2-vector, strictly between 0 and 180")
-    assert(xang==[undef,undef] || shift.x==undef, "Cannot specify xang and a shift.x value together")
-    assert(yang==[undef,undef] || shift.y==undef, "Cannot specify yang and a shift.y value together")
-    assert(all_positive([h]) || is_undef(h), "h must be a positive value")
+    assert(xangOK, "\nPrismoid angles must be scalar or 2-vector, strictly between 0 and 180.")
+    assert(yangOK, "\nPrismoid angles must be scalar or 2-vector, strictly between 0 and 180.")
+    assert(xang==[undef,undef] || shift.x==undef, "\nCannot specify xang and a shift.x value together.")
+    assert(yang==[undef,undef] || shift.y==undef, "\nCannot specify yang and a shift.y value together.")
+    assert(all_positive([h]) || is_undef(h), "\nh must be a positive value.")
     let(
         hx = _trapezoid_dims(h,size1.x,size2.x,shift.x,xang)[0],
         hy = _trapezoid_dims(h,size1.y,size2.y,shift.y,yang)[0]
     )
-    assert(num_defined([hx,hy])>0, "Height not given and specification does not determine prismoid height")
+    assert(num_defined([hx,hy])>0, "\nHeight not given and specification does not determine prismoid height.")
     assert(hx==undef || hy==undef || approx(hx,hy),
-           str("X and Y angle specifications give rise to conflicting height values ",hx," and ",hy))
+           str("\nX and Y angle specifications cause conflicting height values ",hx," and ",hy,"."))
     let(
         h = first_defined([hx,hy]),
         x_h_w1_w2_shift = _trapezoid_dims(h,size1.x,size2.x,shift.x,xang),
@@ -762,30 +789,30 @@ function prismoid(
         s2 = [x_h_w1_w2_shift[2], y_h_w1_w2_shift[2]],
         shift = [x_h_w1_w2_shift[3], y_h_w1_w2_shift[3]]
     )
-    assert(is_vector(s1,2), "Insufficient information to define prismoid")
-    assert(is_vector(s2,2), "Insufficient information to define prismoid")
-    assert(all_nonnegative(concat(s1,s2)),"Degenerate prismoid geometry")
-    assert(s1.x+s2.x>0 && s1.y+s2.y>0, "Degenerate prismoid geometry")
-    assert(is_num(rounding) || is_vector(rounding,4), "rounding must be a number or 4-vector")
-    assert(is_undef(rounding1) || is_num(rounding1) || is_vector(rounding1,4), "rounding1 must be a number or 4-vector")
-    assert(is_undef(rounding2) || is_num(rounding2) || is_vector(rounding2,4), "rounding2 must be a number or 4-vector")
-    assert(is_num(chamfer) || is_vector(chamfer,4), "chamfer must be a number or 4-vector")
-    assert(is_undef(chamfer1) || is_num(chamfer1) || is_vector(chamfer1,4), "chamfer1 must be a number or 4-vector")
-    assert(is_undef(chamfer2) || is_num(chamfer2) || is_vector(chamfer2,4), "chamfer2 must be a number or 4-vector")
+    assert(is_vector(s1,2), "\nInsufficient information to define prismoid.")
+    assert(is_vector(s2,2), "\nInsufficient information to define prismoid.")
+    assert(all_nonnegative(concat(s1,s2)),"\nDegenerate prismoid geometry.")
+    assert(s1.x+s2.x>0 && s1.y+s2.y>0, "\nDegenerate prismoid geometry.")
+    assert(is_num(rounding) || is_vector(rounding,4), "\nrounding must be a number or 4-vector.")
+    assert(is_undef(rounding1) || is_num(rounding1) || is_vector(rounding1,4), "\nrounding1 must be a number or 4-vector.")
+    assert(is_undef(rounding2) || is_num(rounding2) || is_vector(rounding2,4), "\nrounding2 must be a number or 4-vector.")
+    assert(is_num(chamfer) || is_vector(chamfer,4), "\nchamfer must be a number or 4-vector.")
+    assert(is_undef(chamfer1) || is_num(chamfer1) || is_vector(chamfer1,4), "\nchamfer1 must be a number or 4-vector.")
+    assert(is_undef(chamfer2) || is_num(chamfer2) || is_vector(chamfer2,4), "\nchamfer2 must be a number or 4-vector.")
     let(
         chamfer1=force_list(default(chamfer1,chamfer),4),
         chamfer2=force_list(default(chamfer2,chamfer),4),
         rounding1=force_list(default(rounding1,rounding),4),
         rounding2=force_list(default(rounding2,rounding),4)
     )
-    assert(all_nonnegative(chamfer1), "chamfer/chamfer1 must be non-negative")
-    assert(all_nonnegative(chamfer2), "chamfer/chamfer2 must be non-negative")
-    assert(all_nonnegative(rounding1), "rounding/rounding1 must be non-negative")
-    assert(all_nonnegative(rounding2), "rounding/rounding2 must be non-negative")        
+    assert(all_nonnegative(chamfer1), "\nchamfer/chamfer1 must be non-negative.")
+    assert(all_nonnegative(chamfer2), "\nchamfer/chamfer2 must be non-negative.")
+    assert(all_nonnegative(rounding1), "\nrounding/rounding1 must be non-negative.")
+    assert(all_nonnegative(rounding2), "\nrounding/rounding2 must be non-negative.")        
     assert(all_zero(v_mul(rounding1,chamfer1),0),
-           "rounding1 and chamfer1 (possibly inherited from rounding and chamfer) cannot both be nonzero at the same corner")
+           "\nrounding1 and chamfer1 (possibly inherited from rounding and chamfer) cannot both be nonzero at the same corner.")
     assert(all_zero(v_mul(rounding2,chamfer2),0),
-           "rounding2 and chamfer2 (possibly inherited from rounding and chamfer) cannot both be nonzero at the same corner")
+           "\nrounding2 and chamfer2 (possibly inherited from rounding and chamfer) cannot both be nonzero at the same corner.")
     let(
         rounding1 = default(rounding1, rounding),
         rounding2 = default(rounding2, rounding),
@@ -812,7 +839,7 @@ function prismoid(
 // Topics: Textures, Rounding, Chamfers, Shapes (3D), Attachable 
 // See Also: cyl(), rounded_prism(), texture(), linear_sweep(), EDGE(), FACE()
 // Usage: Normal prisms
-//   regular_prism(n, h|l=|height=|length=, r, [center=], [realign=]) [ATTACHMENTS];
+//   regular_prism(n, h|l=|height=|length=, r, [center=|anchor=], [realign=]) [ATTACHMENTS];
 //   regular_prism(n, h|l=|height=|length=, d=|id=|od=|ir=|or=|side=, ...) [ATTACHMENTS];
 //   regular_prism(n, h|l=|height=|length=, r1=|d1=|id1=|od1=|ir1=|or1=|side1=,r2=|d2=|id2=|od2=|ir2=|or2=|side2=, ...) [ATTACHMENTS];
 // Usage: Chamferred end prisms
@@ -839,18 +866,23 @@ function prismoid(
 //   .
 //   Anchors are based on the VNF of the prism.  Especially for tapered or shifted prisms, this may give unexpected anchor positions, such as top side anchors
 //   being located at the bottom of the shape, so confirm anchor positions before use.  
-//   Additional named face and edge anchors are located on the side faces and vertical edges of the prism.
+//   Additional named face and edge anchors are located on the side faces and edges of the prism.
 //   You can use `EDGE(i)`, `EDGE(TOP,i)` and `EDGE(BOT,i)` as a shorthand for accessing the named edge anchors, and `FACE(i)` for the face anchors.
-//   When you use `shift`, which moves the top face of the prism, the spin for the side face and edges anchors will align
-//   the child with the edge or face direction.  The "edge0" anchor identifies an edge located along the X+ axis, and then edges
+//   The "edge0" anchor identifies an edge located along the X+ axis, and then edges
 //   are labeled counting up in the clockwise direction.  Similarly "face0" is the face immediately clockwise from "edge0", and face
 //   labeling proceeds clockwise.  The top and bottom edge anchors label edges directly above and below the face with the same label.
-//   If you set `realign=true` then "face0" is oriented in the X+ direction.  
+//   If you set `realign=true` then "face0" has its normal pointing in the X+ direction.  
 //   .
-//   This module is very similar to {{cyl()}}.  It differs in the following ways:  you can specify side length or inner radius/diameter, you can apply roundings with
+//   This module is similar to {{cyl()}}.  It differs in the following ways:  you can specify side length or inner radius/diameter, you can apply roundings with
 //   different `$fn` than the number of prism faces, you can apply texture to the flat faces without forcing a high facet count,
 //   anchors are located on the true object instead of the ideal cylinder and you can anchor to the edges and faces.  Chamfers and roundings
-//   for this module are **always** evaluated relative to the faces of the prism and never at corners as is done by default in {{cyl()}}.  
+//   for this module are **always** evaluated relative to the faces of the prism and never at corners as is done by default in {{cyl()}}.
+//   .
+//   Fully specifying the shape requires a height and the radius at each end.  You can replace one of those three parameters with
+//   an angle.  If you give the height, angle, and one radius then the other radius is calculated so that the internal angle at the base of
+//   the prism is the specified angle.  If you give the angle and the radius at each end then the height is calculated so that the internal
+//   angle at one of the ends is the angle you specified. Which end gets the specified angle depends on the relative sizes of the ends
+//   and whether the angle is smaller or larger than 90 degrees.  
 // Named Anchors:
 //   "edge0", "edge1", etc. = Center of each side edge, spin pointing up along the edge.  Can access with EDGE(i)
 //   "face0", "face1", etc. = Center of each side face, spin pointing up.  Can access with FACE(i)
@@ -861,7 +893,7 @@ function prismoid(
 // Arguments:
 //   l / h / length / height = Length of prism
 //   r = Outer radius of prism.  
-//   center = If given, overrides `anchor`.  A true value sets `anchor=CENTER`, false sets `anchor=DOWN`.
+//   center = A true value sets `anchor=CENTER`, false sets `anchor=DOWN`.  Default is `anchor=CENTER`.
 //   ---
 //   r1/or1 = Outer radius of the bottom of prism
 //   r2/or2 = Outer radius of the top end of prism
@@ -877,6 +909,7 @@ function prismoid(
 //   side = Side length of prism faces
 //   side1 = Side length of prism faces at the bottom
 //   side2 = Side length of prism faces at the top
+//   ang = specify the prism angle instead of height or instead of the dimension at one of the two ends.  
 //   shift = [X,Y] amount to shift the center of the top end with respect to the center of the bottom end.
 //   chamfer = The size of the chamfers on the ends of the prism.  (Also see: `from_end=`)  Default: none.
 //   chamfer1 = The size of the chamfer on the bottom end of the prism.  (Also see: `from_end1=`)  Default: none.
@@ -890,11 +923,11 @@ function prismoid(
 //   rounding = The radius of the rounding on the ends of the prism.  Default: none.
 //   rounding1 = The radius of the rounding on the bottom end of the prism.
 //   rounding2 = The radius of the rounding on the top end of the prism.
-//   realign = If true, rotate the prism by half the angle of one face so that a face points in the X+ direction.  Default: false
+//   realign = If true, rotate the prism by half the angle of one face so that face0's normal points in the X+ direction.  Default: false
 //   teardrop = If given as a number, rounding around the bottom edge of the prism won't exceed this many degrees from vertical.  If true, the limit angle is 45 degrees.  Default: `false`
-//   clip_angle = If given as a number, rounding around the bottom edge of the prism won't exceed this many degrees from vertical, with the rounding stopping at the bottom of the prism.  Default: (no clipping)
+//   clip_angle = Clip the rounding arc at the bottom of the prism at this angle away from vertical, with a corner at the base of the cylinder and a smooth joint at the side.  An angle of 90 gives a complete circle and an angle of zero clips away the entire rounding.  Default: 90 (no clipping)
 //   texture = A texture name string, or a rectangular array of scalar height values (0.0 to 1.0), or a VNF tile that defines the texture to apply to vertical surfaces.  See {{texture()}} for what named textures are supported.
-//   tex_size = An optional 2D target size (2-vector or scalar) for the textures.  Actual texture sizes will be scaled somewhat to evenly fit the available surface. Default: `[5,5]`
+//   tex_size = An optional 2D target size (2-vector or scalar) for the textures.  Actual texture sizes are scaled somewhat to fit evenly on the available surface. Default: `[5,5]`
 //   tex_reps = If given instead of tex_size, a scalar or 2-vector giving the number of texture tile repetitions in the horizontal and vertical directions.
 //   tex_inset = If numeric, lowers the texture into the surface by the specified proportion, e.g. 0.5 would lower it half way into the surface.  If `true`, insets by exactly its full depth.  Default: `false`
 //   tex_rot = Rotate texture by specified angle, which must be a multiple of 90 degrees.  Default: 0
@@ -903,7 +936,7 @@ function prismoid(
 //   style = {{vnf_vertex_array()}} style used to triangulate heightfield textures.  Default: "min_edge"
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Example:  Simple prism
 //   regular_prism(5,r=10,h=25);
 // Example:  With end rounding
@@ -914,6 +947,14 @@ function prismoid(
 //   regular_prism(5,r=10,h=25,rounding=3,clip_angle=40,$fn=32);
 // Example:  By side length at bottom, inner radius at top, shallow chamfer
 //   regular_prism(7, side1=10, ir2=7, height=20,chamfer2=2,chamfang2=20);
+// Example:  By angle and base radius
+//   regular_prism(4, r1=10, height=7, ang=45);
+// Example:  By angle and top radius
+//   regular_prism(4, r2=10, height=7, ang=45);
+// Example:  By angle with height omitted; the specified 70 deg agle appears at the bottom in this case
+//   regular_prism(4, r1=10, r2=7, ang=70);
+// Example:  By angle with height omitted; we interchanged r1 and r2 and now the specified 70 deg angle is at the top
+//   regular_prism(4, r1=7, r2=10, ang=70);
 // Example: With shift
 //   regular_prism(4, d=12, h=10, shift=[12,7]);
 // Example: Attaching child to face
@@ -935,12 +976,12 @@ module regular_prism(n,
     h, r, center,
     l, length, height,
     r1,r2,ir,ir1,ir2,or,or1,or2,side,side1,side2, 
-    d, d1, d2,id,id1,id2,od,od1,od2,
+    d, d1, d2,id,id1,id2,od,od1,od2,ang,
     chamfer, chamfer1, chamfer2,
     chamfang, chamfang1, chamfang2,
     rounding, rounding1, rounding2,
     realign=false, shift=[0,0],
-    teardrop=false, clip_angle,
+    teardrop=false, clip_angle=90,
     from_end, from_end1, from_end2,
     texture, tex_size=[5,5], tex_reps,
     tex_inset=false, tex_rot=0,
@@ -951,7 +992,7 @@ module regular_prism(n,
 { 
     vnf_anchors_ovr = regular_prism(n=n,h=h,r=r,center=center, l=l,length=length,height=height,
                                   r1=r1,r2=r2,ir=ir,ir1=ir1,ir2=ir2,or=or,or1=or1,or2=or2,side=side,side1=side1,side2=side2,
-                                  d=d,d1=d1,d2=d2,id=id,id1=id1,id2=id2,od=od,od1=od1,od2=od2,
+                                  d=d,d1=d1,d2=d2,id=id,id1=id1,id2=id2,od=od,od1=od1,od2=od2,ang=ang,
                                   chamfer=chamfer, chamfer1=chamfer1, chamfer2=chamfer2,
                                   chamfang=chamfang,chamfang1=chamfang1,chamfang2=chamfang2,
                                   rounding=rounding,rounding1=rounding1, rounding2=rounding2,
@@ -974,12 +1015,12 @@ function regular_prism(n,
     h, r, center,
     l, length, height,
     r1,r2,ir,ir1,ir2,or,or1,or2,side,side1,side2, 
-    d, d1, d2,id,id1,id2,od,od1,od2,
+    d, d1, d2,id,id1,id2,od,od1,od2,ang,
     chamfer, chamfer1, chamfer2,
     chamfang, chamfang1, chamfang2,
     rounding, rounding1, rounding2,
     circum=false, realign=false, shift=[0,0],
-    teardrop=false, clip_angle,
+    teardrop=false, clip_angle=90,
     from_end, from_end1, from_end2,
     texture, tex_size=[5,5], tex_reps,
     tex_inset=false, tex_rot=0,
@@ -987,12 +1028,17 @@ function regular_prism(n,
     tex_taper, style,
     anchor, spin=0, orient=UP,_return_anchors=false
 ) = 
-    assert(is_integer(n) && n>2, "n must be an integer 3 or greater")
+    assert(is_integer(n) && n>2, "\nn must be an integer 3 or greater.")
+    assert(is_undef(center) || is_bool(center), "\ncenter must be boolean.")
+    assert(num_defined([anchor,center])<2, "\nCannot give both anchor and center")
     let(
         style = default(style,"min_edge"),
         tex_depth = default(tex_depth,1),
-        height = one_defined([l, h, length, height],"l,h,length,height"),
+        height = one_defined([l, h, length, height],"l,h,length,height",dflt=undef),
         sc = 1/cos(180/n),
+        rgen_def = num_defined([side,od,id,or,ir,r,d])==1,
+        r1def = num_defined([side1,od1,id1,or1,ir1,r1,d1])==1,
+        r2def = num_defined([side2,od2,id2,or2,ir2,r2,d2])==1,
         ir1 = u_mul(default(ir1,ir), sc),
         ir2 = u_mul(default(ir2,ir), sc),
         id1 = u_mul(default(id1,id), sc),
@@ -1010,14 +1056,33 @@ function regular_prism(n,
         r2 = get_radius(r1=ir2,r2=or2,r=default(r2,r),d=d2,d1=id2,d2=od2,dflt=side2),
         anchor = get_anchor(anchor,center,BOT,CENTER)
     )
-    assert(num_defined([side,od,id,or,ir])<=1, "Can only define one of side, id, od, ir, and or")
-    assert(is_finite(r1), "Must specify finite number for prism bottom radius / diameter / side length")
-    assert(is_finite(r2), "Must specify finite number for prism top radius / diameter / side length")
-    assert(is_finite(height), "l/h/length/height must be a finite number.")
-    assert(is_vector(shift,2), "shift must be a 2D vector.")
+
+    assert(is_undef(ang) || (is_finite(ang) && ang>0 && ang<180), "\nang must be a number between 0 and 180")
+    assert(num_defined([ang,shift]), "\nCannot give both shift and ang")
+    assert(is_undef(ang) || num_true([is_def(height), r1def, r2def])<3, "\nCannot give ang with specification for r1, r2 and height")
+    assert(num_defined([side,od,id,or,ir])<=1, "\nCan define only one of side, id, od, ir, and or.")
+    let(
+         hgiven = is_def(height),
+         height = !hgiven && is_def(ang) && r1def && r2def ?
+                       let(
+                         dr=r1-r2,
+                         height=abs(tan(ang)*dr)
+                       )
+                       height
+                : height
+    )
+    assert(is_finite(height), "\nl/h/length/height must be a finite number")
+    let(
+         r1 = !hgiven || is_undef(ang) || r1def || rgen_def ? r1 : u_add(r2,height/tan(ang)),
+         r2 = !hgiven || is_undef(ang) || r2def ? r2 : u_add(r1, - height/tan(ang))
+    )
+    assert(is_finite(r1), "\nMust specify finite number for prism bottom radius / diameter / side length.")
+    assert(is_finite(r2), "\nMust specify finite number for prism top radius / diameter / side length.")
+    assert(is_undef(ang) || (r1>0 && r2>0), "\nSpecified angle produces a negative radius")
+    assert(is_vector(shift,2), "\nshift must be a 2D vector.")
     let(
         vnf = any_defined([chamfer, chamfer1, chamfer2, rounding, rounding1, rounding2])
-            ? assert(is_undef(texture), "Cannot combine roundings or chamfers with texturing")
+            ? assert(is_undef(texture), "\nCannot combine roundings or chamfers with texturing.")
               let(
                   path = [
                            [0,-height/2],
@@ -1114,23 +1179,23 @@ function regular_prism(n,
 //   You can specify the size of the object by giving a `size` scalar or vector as is
 //   usual for a cube.  If you give a scalar, however, it applies only to the X and Y dimensions: the default is to create a thin tile, not a cube.  
 //   The Z size specifies the size of the shape **not** including the applied texture (in the same way that other textured objects work).
-//   If you omit the Z value then for regular textures, the default thickness will be 0.1 which provides a thin backing layer.  A zero thickness
+//   If you omit the Z value then for regular textures, the default thickness is 0.1, which provides a thin backing layer.  A zero thickness
 //   base layer can produce invalid geometry when the texture contacts the bottom layer, so some non-zero base is necessary.  If you use a positive `inset`
 //   then the texture actually sinks into its base, so the default is set to the 0.1 more than the inset depth.  To ensure a valid geometry, with a positive
 //   `inset` or a texture that has negative values you must select a thickness strictly **larger** than the depth the texture extends below zero.
 //   .
 //   Textures are meant to be between 0 and 1 so that `tex_depth` and `tex_inset` behave as expected.  If you have a custom textures that
-//   has a different range you can still use it directly, but you may find it more convenient to rescale a height map texture using {{fit_to_range()}]
+//   has a different range you can still use it directly, but you may find it more convenient to rescale a height map texture using {{fit_to_range()}}
 //   or a VNF texture using {{fit_to_box()}}.  
 //   .
 //   You can also specify a trapzoidal prism using parameters equivalent to those accepted by {{trapezoid()}}, with one change:  
 //   `ysize` specifies the width of the prism in the Y direction, and `h`, `height` or `thickness` are used to specify the height
-//   in the Z direction.  When you texture a trapezoid the texture will be scaled to the `w1` length if you specify it by size using `tex_size`.  The
-//   scaling transformation that maps the texture onto the trapezoid is not linear and will result in curvature of your texture.
+//   in the Z direction.  When you texture a trapezoid, the texture is scaled to the `w1` length if you specify it by size using `tex_size`.  The
+//   scaling transformation that maps the texture onto the trapezoid is not linear and results in curvature of your texture.
 //   .
-//   Two anchor types are available.  The default atype is "tex" which assumes you want to place the texture on another object using
+//   Two anchor types are available.  The default `atype` is "tex", which assumes you want to place the texture on another object using
 //   {{attach()}}.  It provides anchors that ignore the base object and place the BOTTOM anchor at the bottom of the texture.  The TOP anchor
-//   will be at the top face of the texture.  Note that if your texture doesn't span the range from [0,1] these anchors won't be correctly located. 
+//   is at the top face of the texture.  Note that if your texture doesn't span the range from [0,1] these anchors won't be correctly located. 
 //   For an inset texture, the "tex" anchors are all at the top of the texture.  This anchor type works with `attach(face,BOT)` where `face` is some
 //   face on a parent object that needs a texture. If you want to use the textured object directly the "std" anchors are probably more useful.
 //   These anchors are the usual anchors for the base object, ignoring the applied texture.  If you want the anchors to be on top of the texture,
@@ -1139,9 +1204,9 @@ function regular_prism(n,
 //   To aid in the application of inset anchors into parent objects with the module form, you can set `diff=true`, which causes the module
 //   to create a "remove" tagged cuboid or prism to carve out space for the texture so that inset textures are cut into the parent object.
 //   The texture itself is given a "keep" tag.  For this to work you must specify {{diff()}} above the parent; if you don't do that, the
-//   tags will be ignored and the tile will appear as a solid object with no texture visible.  The cutout object extends 0.1 units above the surface
+//   tags are ignored and the tile appears as a solid object with no texture visible.  The cutout object extends 0.1 units above the surface
 //   of the texture to prevent problems with exactly aligned faces.  The cutout does not extend out beyond the sides, so if the parent shape
-//   has the exact same dimensions as the texture tile, you will have exactly aligned faces along the edges.
+//   has the exact same dimensions as the texture tile, you have exactly aligned faces along the edges.
 //   .
 //   Most of the heightfield textures are designed to repeat in a way that requires one extra line of the texture to complete the pattern.
 //   The `tex_extra` parameter specifies the number of extra lines to repeat at the end of the texture and it defaults to 1 because most textures
@@ -1164,7 +1229,7 @@ function regular_prism(n,
 //   ang = Specify the front angle(s) of the trapezoidal prism.  Can give a scalar for an isosceles trapezoidal prism or a list of two angles, the left angle and right angle.  You must omit one of `h`, `w1`, or `w2` to allow the freedom to control the angles. 
 //   shift = Scalar value to shift the back of the trapezoidal prism along the X axis by.  Cannot be combined with ang.  Default: 0
 //   h / height / thickness = The thickness in the Z direction of the base that the texture sits on.  Default: 0.1 or for inset textures 0.1 more than the inset depth
-//   tex_size = An optional 2D target size (2-vector or scalar) for the textures.  Actual texture sizes will be scaled somewhat to evenly fit the available surface. Default: `[5,5]`
+//   tex_size = An optional 2D target size (2-vector or scalar) for the textures.  Actual texture sizes are scaled somewhat to fit evenly on the available surface. Default: `[5,5]`
 //   tex_reps = If given instead of tex_size, a scalar or 2-vector giving the integer number of texture tile repetitions in the horizontal and vertical directions.
 //   tex_inset = If numeric, lowers the texture into the surface by the specified proportion, e.g. 0.5 would lower it half way into the surface.  If `true`, insets by exactly its full depth.  Default: `false`
 //   tex_rot = Rotate texture by specified angle, which must be a multiple of 90 degrees.  Default: 0
@@ -1175,7 +1240,7 @@ function regular_prism(n,
 //   style = {{vnf_vertex_array()}} style used to triangulate heightfield textures.  Default: "min_edge"
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `BOTTOM` if `astyle` is "tex", `CENTER` otherwise
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Example(3D,NoScales,VPT=[-0.257402,0.467403,-0.648606],VPR=[46.6,0,16.6],VPD=29.2405): Basic textured tile
 //   textured_tile("trunc_diamonds", 10, tex_reps=[5,5]);
 // Example(3D,NoAxes,VPT=[-0.0852782,0.259593,0.139667],VPR=[58.5,0,345.1],VPD=36.0994): Attaching a tile to a cube
@@ -1193,7 +1258,7 @@ function regular_prism(n,
 // Example(3D,NoAxes,VPT=[5.86588,-0.107082,-0.311155],VPR=[17.2,0,9.6],VPD=32.4895): Tile shaped like a rhombic prism
 //   textured_tile("ribs", w1=10, w2=10, shift=4, ysize=7,
 //                 tex_reps=[5,1]);
-// Example(3D,NoAxes,VPT=[-0.487417,-0.398897,-0.143258],VPR=[10.2,0,12.4],VPD=26.3165): A tile shaped like a trapezoidal prism.  Note that trapezoidal tiles will always distort the texture, resulting in curves
+// Example(3D,NoAxes,VPT=[-0.487417,-0.398897,-0.143258],VPR=[10.2,0,12.4],VPD=26.3165): A tile shaped like a trapezoidal prism.  Note that trapezoidal tiles always distort the texture, resulting in curves
 //   textured_tile("diamonds", w1=10, w2=7, ysize=7, tex_reps=5);
 // Example(3D,NoAxes,VPT=[-0.0889877,-0.31974,0.554444],VPR=[22.1,0,22.2],VPD=32.4895): An inset trapezoidal tile placed into a cube
 //   diff()cuboid([10,10,2])
@@ -1207,7 +1272,7 @@ function regular_prism(n,
 //     textured_tile("trunc_ribs", 10, tex_reps=[5,1]);
 // Example(3D,NoAxes,VPT=[-0.212176,-0.651766,0.124004],VPR=[58.5,0,21.5],VPD=29.2405): It could be fixed by setting `tex_extra=2`, which would place an extra flat strip on the right.  But another option is to use the `tex_skip` parameter to trim the flat part from the left.  Note that we are also skipping in the y direction, but it doesn't make a difference for this texture, except that you need to have enough texture tiles to accommodate the skip, so we increased the Y reps value to 2.  You can also set `tex_skip` to a vector.
 //     textured_tile("trunc_ribs", 10, tex_reps=[5,2], tex_skip=1);
-// Example(3D,NoAxes): Textures can be used to place images onto objects.  Here we place a very simple image into a cube, leaving a border around the image.  
+// Example(3D,NoAxes): Textures can be used to place images onto objects.  Here we place a simple image into a cube, leaving a border around the image.  
 //     textured_tile("trunc_ribs", 10, tex_reps=[5,2], tex_skip=1);
 //      img = [
 //         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -1294,12 +1359,12 @@ function textured_tile(
     anchor, spin=0, orient=UP,
     _return_anchor=false
 ) =
-    assert(in_list(atype,["tex","std"]), "atype must be \"tex\" or \"std\"")
-    assert(is_undef(tex_reps) || is_int(tex_reps) || (all_integer(tex_reps) && len(tex_reps)==2), "tex_reps must be an integer or list of two integers")
+    assert(in_list(atype,["tex","std"]), "\natype must be \"tex\" or \"std\".")
+    assert(is_undef(tex_reps) || is_int(tex_reps) || (all_integer(tex_reps) && len(tex_reps)==2), "\ntex_reps must be an integer or list of two integers.")
     assert(is_undef(tex_size) || is_vector(tex_size,2) || is_finite(tex_size))
-    assert(num_defined([tex_size, tex_reps])==1, "Must give exactly one of tex_size and tex_reps")
-    assert(is_undef(size) || is_num(size) || is_vector(size,2) || is_vector(size,3), "size must be a 2-vector or 3-vector")
-    assert(is_undef(size) || num_defined([ysize,h, height, thickness, w1,w2,ang])==0, "Cannot combine size with any other dimensional specifications")
+    assert(num_defined([tex_size, tex_reps])==1, "\nMust give exactly one of tex_size and tex_reps.")
+    assert(is_undef(size) || is_num(size) || is_vector(size,2) || is_vector(size,3), "\n'size' must be a 2-vector or 3-vector.")
+    assert(is_undef(size) || num_defined([ysize,h, height, thickness, w1,w2,ang])==0, "\nCannot combine size with any other dimensional specifications.")
     let(
         anchor = default(anchor, atype=="tex" ? BOTTOM : CENTER), 
         inset = is_num(tex_inset)? tex_inset : tex_inset? 1 : 0,
@@ -1310,16 +1375,16 @@ function textured_tile(
                         assert(is_undef(w1) || is_finite(w1))
                         assert(is_undef(w2) || is_finite(w2))
                         assert(is_undef(ang) || is_finite(ang) || is_vector(ang,2))
-                        assert(num_defined([ysize, w1, w2, ang]) == 3, "Must give exactly 3 of the arguments ysize, w1, w2, and angle.")
+                        assert(num_defined([ysize, w1, w2, ang]) == 3, "\nMust give exactly 3 of the arguments ysize, w1, w2, and angle.")
                         assert(is_undef(shift) || is_finite(shift))
-                        assert(num_defined([shift,ang])<2, "Cannot specify shift and ang together")
+                        assert(num_defined([shift,ang])<2, "\nCannot specify shift and ang together.")
                         _trapezoid_dims(ysize,w1,w2,shift,ang),
         ysize=h_w1_w2_shift[0],
         w1=h_w1_w2_shift[1],
         w2=h_w1_w2_shift[2],
         shift=h_w1_w2_shift[3],
         height = is_def(size) ? default(size.z,default_thick) : one_defined([h,height,thickness],"h,height,thickness",dflt=default_thick),
-        size = is_def(size) ? is_num(size) ? [size,size,1] : point3d(size,1)        // We only use the x and y components of size
+        size = is_def(size) ? is_num(size) ? [size,size,1] : point3d(size,1)  // We use only the x and y components of size
              : [w1,ysize],
 
         texture = _get_texture(texture, tex_rot),
@@ -1337,14 +1402,14 @@ function textured_tile(
                         texsteps = [len(texture[0]), len(texture)], 
                         xn=tex_reps.x*texsteps.x+extra.x-skip.x,
                         yn=tex_reps.y*texsteps.y+extra.y-skip.y,
-                        checks = assert(yn>=2, "Skipped too many points in the y direction: decrease skip.y")
-                                 assert(xn>=2, "Skipped too many points in the x direction: decrease skip.x"),
+                        checks = assert(yn>=2, "\nSkipped too many points in the y direction: decrease skip.y")
+                                 assert(xn>=2, "\nSkipped too many points in the x direction: decrease skip.x"),
                         xpts=lerpn(-size.x/2,size.x/2,xn),
                         ypts=lerpn(size.y/2,-size.y/2,yn),
                         scaled_tex = tex_depth < 0 ? [for(row=texture) [for(p=row) -(1-p-inset)*tex_depth]]
                                                    : [for(row=texture) [for(p=row)  (p-inset)*tex_depth]],
                         check = [for(row=scaled_tex, p=row) if (p<=-height) p],
-                        dummy=assert(check==[], str("texture extends too far below zero (",min([each check,0]),") to fit entirely within height ",height)),
+                        dummy=assert(check==[], str("\nTexture extends too far below zero (",min([each check,0]),") to fit entirely within height ",height,".")),
                         pts=[for(y=idx(ypts))
                                [ [xpts[0],ypts[y],-height/2],
                                  for(x=idx(xpts))
@@ -1361,7 +1426,7 @@ function textured_tile(
                                   texture[1]
                                ],
                     minz = min(column(zadj_vnf[0],2)),
-                    dummy=assert(minz>-height/2, str("texture extends too far below zero (",minz-height/2,") to fit entirely within height ",height)),
+                    dummy=assert(minz>-height/2, str("\nTexture extends too far below zero (",minz-height/2,") to fit entirely within height ",height,".")),
                     
                     scaled_vnf = scale(scale, zadj_vnf), 
                     tiled_vnf = [for(i=[0:1:tex_reps.x-1], j=[0:1:tex_reps.y-1]) move([scale.x*i,scale.y*j], scaled_vnf)],
@@ -1442,9 +1507,9 @@ function textured_tile(
 // Topics: Shapes (3D), Attachable, VNF Generators
 // See Also: tube()
 // Usage: Typical Rectangular Tubes
-//   rect_tube(h, size, isize, [center], [shift]);
-//   rect_tube(h, size, wall=, [center=]);
-//   rect_tube(h, isize=, wall=, [center=]);
+//   rect_tube(h, size, isize, [center|anchor=], [shift]);
+//   rect_tube(h, size, wall=, [center=|anchor=]);
+//   rect_tube(h, isize=, wall=, [center=|anchor=]);
 // Usage: Tapering Rectangular Tubes
 //   rect_tube(h, size1=, size2=, wall=, ...);
 //   rect_tube(h, isize1=, isize2=, wall=, ...);
@@ -1471,23 +1536,25 @@ function textured_tile(
 //   outside  separately.
 //   .
 //   By default if you specify a chamfer or rounding then it applies as specified to the
-//   outside, and an inside rounding is calculated that will maintain constant width
+//   outside, and an inside rounding is calculated to maintain constant width
 //   if your wall thickness is uniform.  If the wall thickness is not uniform, the default
 //   inside rounding is calculated based on the smaller of the two wall thicknesses.
 //   Note that the values of the more specific chamfers and roundings inherit from the
 //   more general ones, so `rounding2` is determined from `rounding`.  The constant
-//   width default will apply when the inner rounding and chamfer are both undef.
+//   width default applies when the inner rounding and chamfer are both undef.
 //   You can give an inner chamfer or rounding as a list with undef entries if you want to specify
 //   some corner roundings and allow others to be computed.
 //   .
-//   Attachment to the rectangular tube will place objects on the **outside** of the tube.
+//   Attachment to the rectangular tube places objects on the **outside** of the tube.
 //   If you need to anchor to the inside of a tube, use {{attach_part()}} with the part name "inside"
-//   to switch goeomtry to the inside.  
+//   to switch goeomtry to the inside.
+// Attachable Parts:
+//   "inside" = The inside of the tube
 // Arguments:
 //   h/l/height/length = The height or length of the rectangular tube.  Default: 1
 //   size = The outer [X,Y] size of the rectangular tube.
 //   isize = The inner [X,Y] size of the rectangular tube.
-//   center = If given, overrides `anchor`.  A true value sets `anchor=CENTER`, false sets `anchor=UP`.
+//   center = A true value sets `anchor=CENTER`, false sets `anchor=DOWN`.  Default is `anchor=CENTER`.
 //   shift = [X,Y] amount to shift the center of the top end with respect to the center of the bottom end.
 //   ---
 //   wall = The thickness of the rectangular tube wall.
@@ -1509,7 +1576,7 @@ function textured_tile(
 //   ichamfer2 = The chamfer size for the inside top corner of the rectangular tube.
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `BOTTOM`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Examples:
 //   rect_tube(size=50, wall=5, h=30);
 //   rect_tube(size=[100,60], wall=5, h=30);
@@ -1599,7 +1666,9 @@ module rect_tube(
 ) {
     h = one_defined([h,l,length,height],"h,l,length,height");
     checks =
-        assert(is_num(h), "l or h argument required.")
+        assert(is_undef(center) || is_bool(center), "\ncenter must be boolean.")
+        assert(num_defined([anchor,center])<2, "\nCannot give both center and anchor")
+        assert(is_num(h), "\nl or h argument required.")
         assert(is_vector(shift,2));
     s1 = is_num(size1)? [size1, size1] :
         is_vector(size1,2)? size1 :
@@ -1635,37 +1704,37 @@ module rect_tube(
         undef;
     checks2 =
         assert(wall==undef || is_num(wall))
-        assert(size1!=undef, "Bad size/size1 argument.")
-        assert(size2!=undef, "Bad size/size2 argument.")
-        assert(isize1!=undef, "Bad isize/isize1 argument.")
-        assert(isize2!=undef, "Bad isize/isize2 argument.")
-        assert(isize1.x < size1.x, "Inner size is larger than outer size.")
-        assert(isize1.y < size1.y, "Inner size is larger than outer size.")
-        assert(isize2.x < size2.x, "Inner size is larger than outer size.")
-        assert(isize2.y < size2.y, "Inner size is larger than outer size.")
-        assert(is_num(rounding) || is_vector(rounding,4), "rounding must be a number or 4-vector")
-        assert(is_undef(rounding1) || is_num(rounding1) || is_vector(rounding1,4), "rounding1 must be a number or 4-vector")
-        assert(is_undef(rounding2) || is_num(rounding2) || is_vector(rounding2,4), "rounding2 must be a number or 4-vector")
-        assert(is_num(chamfer) || is_vector(chamfer,4), "chamfer must be a number or 4-vector")
-        assert(is_undef(chamfer1) || is_num(chamfer1) || is_vector(chamfer1,4), "chamfer1 must be a number or 4-vector")
-        assert(is_undef(chamfer2) || is_num(chamfer2) || is_vector(chamfer2,4), "chamfer2 must be a number or 4-vector")
-        assert(is_undef(irounding) || is_num(irounding) || (is_list(irounding) && len(irounding)==4), "irounding must be a number or 4-vector")
-        assert(is_undef(irounding1) || is_num(irounding1) || (is_list(irounding1) && len(irounding1)==4), "irounding1 must be a number or 4-vector")
-        assert(is_undef(irounding2) || is_num(irounding2) || (is_list(irounding2) && len(irounding2)==4), "irounding2 must be a number or 4-vector")      
-        assert(is_undef(ichamfer) || is_num(ichamfer) || (is_list(ichamfer) && len(ichamfer)==4), "ichamfer must be a number or 4-vector")
-        assert(is_undef(ichamfer1) || is_num(ichamfer1) || (is_list(ichamfer1) && len(ichamfer1)==4), "ichamfer1 must be a number or 4-vector")
-        assert(is_undef(ichamfer2) || is_num(ichamfer2) || (is_list(ichamfer2) && len(ichamfer2)==4), "ichamfer2 must be a number or 4-vector");
+        assert(size1!=undef, "\nBad size/size1 argument.")
+        assert(size2!=undef, "\nBad size/size2 argument.")
+        assert(isize1!=undef, "\nBad isize/isize1 argument.")
+        assert(isize2!=undef, "\nBad isize/isize2 argument.")
+        assert(isize1.x < size1.x, "\nInner size is larger than outer size.")
+        assert(isize1.y < size1.y, "\nInner size is larger than outer size.")
+        assert(isize2.x < size2.x, "\nInner size is larger than outer size.")
+        assert(isize2.y < size2.y, "\nInner size is larger than outer size.")
+        assert(is_num(rounding) || is_vector(rounding,4), "\nrounding must be a number or 4-vector.")
+        assert(is_undef(rounding1) || is_num(rounding1) || is_vector(rounding1,4), "\nrounding1 must be a number or 4-vector.")
+        assert(is_undef(rounding2) || is_num(rounding2) || is_vector(rounding2,4), "\nrounding2 must be a number or 4-vector.")
+        assert(is_num(chamfer) || is_vector(chamfer,4), "\nchamfer must be a number or 4-vector.")
+        assert(is_undef(chamfer1) || is_num(chamfer1) || is_vector(chamfer1,4), "\nchamfer1 must be a number or 4-vector.")
+        assert(is_undef(chamfer2) || is_num(chamfer2) || is_vector(chamfer2,4), "\nchamfer2 must be a number or 4-vector.")
+        assert(is_undef(irounding) || is_num(irounding) || (is_list(irounding) && len(irounding)==4), "\nirounding must be a number or 4-vector.")
+        assert(is_undef(irounding1) || is_num(irounding1) || (is_list(irounding1) && len(irounding1)==4), "\nirounding1 must be a number or 4-vector.")
+        assert(is_undef(irounding2) || is_num(irounding2) || (is_list(irounding2) && len(irounding2)==4), "\nirounding2 must be a number or 4-vector.")      
+        assert(is_undef(ichamfer) || is_num(ichamfer) || (is_list(ichamfer) && len(ichamfer)==4), "\nichamfer must be a number or 4-vector.")
+        assert(is_undef(ichamfer1) || is_num(ichamfer1) || (is_list(ichamfer1) && len(ichamfer1)==4), "\nichamfer1 must be a number or 4-vector.")
+        assert(is_undef(ichamfer2) || is_num(ichamfer2) || (is_list(ichamfer2) && len(ichamfer2)==4), "\nichamfer2 must be a number or 4-vector.");
     chamfer1=force_list(default(chamfer1,chamfer),4);
     chamfer2=force_list(default(chamfer2,chamfer),4);
     rounding1=force_list(default(rounding1,rounding),4);
     rounding2=force_list(default(rounding2,rounding),4);
     checks3 =
-        assert(all_nonnegative(chamfer1), "chamfer/chamfer1 must be non-negative")
-        assert(all_nonnegative(chamfer2), "chamfer/chamfer2 must be non-negative")
-        assert(all_nonnegative(rounding1), "rounding/rounding1 must be non-negative")
-        assert(all_nonnegative(rounding2), "rounding/rounding2 must be non-negative")        
-        assert(all_zero(v_mul(rounding1,chamfer1),0), "rounding1 and chamfer1 (possibly inherited from rounding and chamfer) cannot both be nonzero at the same corner")
-        assert(all_zero(v_mul(rounding2,chamfer2),0), "rounding2 and chamfer2 (possibly inherited from rounding and chamfer) cannot both be nonzero at the same corner");
+        assert(all_nonnegative(chamfer1), "\nchamfer/chamfer1 must be non-negative.")
+        assert(all_nonnegative(chamfer2), "\nchamfer/chamfer2 must be non-negative.")
+        assert(all_nonnegative(rounding1), "\nrounding/rounding1 must be non-negative.")
+        assert(all_nonnegative(rounding2), "\nrounding/rounding2 must be non-negative.")        
+        assert(all_zero(v_mul(rounding1,chamfer1),0), "\nrounding1 and chamfer1 (possibly inherited from rounding and chamfer) cannot both be nonzero at the same corner.")
+        assert(all_zero(v_mul(rounding2,chamfer2),0), "\nrounding2 and chamfer2 (possibly inherited from rounding and chamfer) cannot both be nonzero at the same corner.");
     irounding1_temp = force_list(default(irounding1,irounding),4);
     irounding2_temp = force_list(default(irounding2,irounding),4);    
     ichamfer1_temp = force_list(default(ichamfer1,ichamfer),4);
@@ -1677,12 +1746,12 @@ module rect_tube(
     checkconflict1 = [for(i=[0:3]) if (is_def(irounding1_temp[i]) && is_def(ichamfer1_temp[i]) && irounding1_temp[i]!=0 && ichamfer1_temp[i]!=0) 1]==[];
     checkconflict2 = [for(i=[0:3]) if (is_def(irounding2_temp[i]) && is_def(ichamfer2_temp[i]) && irounding2_temp[i]!=0 && ichamfer2_temp[i]!=0) 1]==[];
     checks4 =
-        assert(checksignr1, "irounding/irounding1 must be non-negative")
-        assert(checksignr2, "irounding/irounding2 must be non-negative")
-        assert(checksignc1, "ichamfer/ichamfer1 must be non-negative")
-        assert(checksignc2, "ichamfer/ichamfer2 must be non-negative")
-        assert(checkconflict1, "irounding1 and ichamfer1 (possibly inherited from irounding and ichamfer) cannot both be nonzero at the same corner")
-        assert(checkconflict2, "irounding2 and ichamfer2 (possibly inherited from irounding and ichamfer) cannot both be nonzero at the same corner");
+        assert(checksignr1, "\nirounding/irounding1 must be non-negative.")
+        assert(checksignr2, "\nirounding/irounding2 must be non-negative.")
+        assert(checksignc1, "\nichamfer/ichamfer1 must be non-negative.")
+        assert(checksignc2, "\nichamfer/ichamfer2 must be non-negative.")
+        assert(checkconflict1, "\nirounding1 and ichamfer1 (possibly inherited from irounding and ichamfer) cannot both be nonzero at the same corner.")
+        assert(checkconflict2, "\nirounding2 and ichamfer2 (possibly inherited from irounding and ichamfer) cannot both be nonzero at the same corner.");
     irounding1 = _rect_tube_rounding(1,irounding1_temp, rounding1, ichamfer1_temp, size1, isize1);
     irounding2 = _rect_tube_rounding(1,irounding2_temp, rounding2, ichamfer2_temp, size2, isize2);
     ichamfer1 = _rect_tube_rounding(1/sqrt(2),ichamfer1_temp, chamfer1, irounding1_temp, size1, isize1);
@@ -1730,9 +1799,9 @@ function rect_tube(
 // Topics: Shapes (3D), Attachable, VNF Generators
 // See also: prismoid(), rounded_prism(), pie_slice()
 // Usage: As Module
-//   wedge(size, [center], ...) [ATTACHMENTS];
+//   wedge(size, [center|anchor=], ...) [ATTACHMENTS];
 // Usage: As Function
-//   vnf = wedge(size, [center], ...);
+//   vnf = wedge(size, [center|anchor=], ...);
 //
 // Description:
 //   When called as a module, creates a 3D triangular wedge with the hypotenuse in the X+Z+ quadrant.
@@ -1743,17 +1812,17 @@ function rect_tube(
 //
 // Arguments:
 //   size = [width, thickness, height].  Default: [1,1,1]
-//   center = If given, overrides `anchor`.  A true value sets `anchor=CENTER`, false sets `anchor=UP`.
+//   center = A true value sets `anchor=CENTER`, false sets `anchor=FRONT+LEFT+BOTTOM`.  Default: anchor = `FRONT+LEFT+BOTTOM`
 //   ---
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `FRONT+LEFT+BOTTOM`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
-//
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Named Anchors:
 //   "hypot" = Center of angled wedge face, perpendicular to that face.
 //   "hypot_left" = Left side of angled wedge face, bisecting the angle between the left side and angled faces.
 //   "hypot_right" = Right side of angled wedge face, bisecting the angle between the right side and angled faces.
-//
+//   "top_edge" = Top edge anchor which, unlike the UP anchor, points in direction that bisects the edge, and provides `$edge_length` and `$edge_angle`.
+//   "bot_edge" = The bottom tip edge with an anchor direction that properly bisects the edge and the `$edge_length` and `$edge_angle` parameters set. 
 // Example: Centered
 //   wedge([20, 40, 15], center=true);
 // Example: *Non*-Centered
@@ -1766,11 +1835,19 @@ function rect_tube(
 // Example(3D,Med,VPR=[55.00,0.00,25.00],VPD=151.98,VPT=[2.30,-11.81,-5.66]): Named Anchors
 //   wedge([40, 80, 30], center=true)
 //       show_anchors(std=false);
+// Example(3D): Rounding the top of the wedge using the "top_edge" anchor
+//   $fn=32;
+//   diff()
+//     wedge([10,15,7])
+//       attach("top_edge", FWD+LEFT, inside=true)
+//       rounding_edge_mask(r=2, l=$edge_length+1);
 
 module wedge(size=[1, 1, 1], center, anchor, spin=0, orient=UP)
 {
     size = force_list(size,3);
-    check=assert(is_vector(size,3) && all_positive(size), "\nsize must be a positive scalar or 3-vector");
+    check=assert(is_vector(size,3) && all_positive(size), "\nsize must be a positive scalar or 3-vector.")
+          assert(is_undef(center) || is_bool(center), "\ncenter must be boolean.")
+          assert(num_defined([anchor,center])<2, "\nCannot give both anchor and center");
     anchor = get_anchor(anchor, center, -[1,1,1], -[1,1,1]);
     vnf = wedge(size, anchor="origin");
     spindir = unit([0,-size.y,size.z]);
@@ -1778,10 +1855,17 @@ module wedge(size=[1, 1, 1], center, anchor, spin=0, orient=UP)
     left_dir = unit(hypot_dir+LEFT);
     right_dir = unit(hypot_dir+RIGHT);
     hedge_spin=vector_angle(spindir,rot(from=UP,to=left_dir, p=BACK));
+    topedge_dir = [0, each unit(unit([size.z,size.y])+[-1,0])];
+    botedge_dir = [0, each unit(unit([size.z,size.y])+[0,-1])];    
     anchors = [
         named_anchor("hypot", CTR, hypot_dir, 180),
         named_anchor("hypot_left", [-size.x/2,0,0], left_dir,-hedge_spin),
         named_anchor("hypot_right", [size.x/2,0,0], right_dir,hedge_spin),
+        named_anchor("top_edge", [0,-size.y/2,size.z/2], topedge_dir, _compute_spin(topedge_dir,RIGHT),
+                     info=[["edge_angle",atan2(size.y,size.z)],["edge_length",size.x]]),
+        named_anchor("bot_edge", [0,size.y/2, -size.z/2], botedge_dir, _compute_spin(botedge_dir,RIGHT),
+                     info=[["edge_angle",atan2(size.z,size.y)],["edge_length",size.x]]), 
+                     
     ];
     attachable(anchor,spin,orient, size=size, anchors=anchors) {
         if (size.z > 0) {
@@ -1795,7 +1879,7 @@ module wedge(size=[1, 1, 1], center, anchor, spin=0, orient=UP)
 function wedge(size=[1,1,1], center, anchor, spin=0, orient=UP) =
     let(
         size = force_list(size,3),
-        check=assert(is_vector(size,3) && all_positive(size), "\nsize must be a positive scalar or 3-vector"),
+        check=assert(is_vector(size,3) && all_positive(size), "\nsize must be a positive scalar or 3-vector."),
         anchor = get_anchor(anchor, center, -[1,1,1], -[1,1,1]),
         pts = [
             [ 1,1,-1], [ 1,-1,-1], [ 1,-1,1],
@@ -1811,10 +1895,13 @@ function wedge(size=[1,1,1], center, anchor, spin=0, orient=UP) =
         left_dir = unit(hypot_dir+LEFT),
         right_dir = unit(hypot_dir+RIGHT),
         hedge_spin=vector_angle(spindir,rot(from=UP,to=left_dir, p=BACK)),
+        topedge_dir = [0, each unit(unit([size.z,size.y])+[-1,0])],
         anchors = [
             named_anchor("hypot", CTR, hypot_dir, 180),
             named_anchor("hypot_left", [-size.x/2,0,0], left_dir,-hedge_spin),
             named_anchor("hypot_right", [size.x/2,0,0], right_dir,hedge_spin),
+            named_anchor("top_edge", [0,-size.y/2,size.z/2], topedge_dir, _compute_spin(topedge_dir,RIGHT),
+                         info=[["edge_angle",atan2(size.y,size.z)],["edge_length",size.x]])
         ]
     )
     reorient(anchor,spin,orient, size=size, anchors=anchors, p=vnf);
@@ -1837,7 +1924,7 @@ function wedge(size=[1,1,1], center, anchor, spin=0, orient=UP) =
 //   ---
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Example:
 //   octahedron(size=40);
 // Example: Anchors
@@ -1857,7 +1944,7 @@ module octahedron(size=1, anchor=CENTER, spin=0, orient=UP) {
 function octahedron(size=1, anchor=CENTER, spin=0, orient=UP) =
     let(
         s = force_list(size,3)/2,
-        dummy=assert(is_vector(s,3) && all_positive(s), "\nsize must be a positive scalar or 3-vector"),
+        dummy=assert(is_vector(s,3) && all_positive(s), "\nsize must be a positive scalar or 3-vector."),
         vnf = [
             [ [0,0,s.z], [s.x,0,0], [0,s.y,0], [-s.x,0,0], [0,-s.y,0], [0,0,-s.z] ],
             [ [0,2,1], [0,3,2], [0,4,3], [0,1,4], [5,1,2], [5,2,3], [5,3,4], [5,4,1] ]
@@ -1878,28 +1965,28 @@ function octahedron(size=1, anchor=CENTER, spin=0, orient=UP) =
 //   cylinder(h, r=/d=, [center=]);
 //   cylinder(h, r1/d1=, r2/d2=, [center=]);
 // Usage: With BOSL2 anchoring and attachment extensions
-//   cylinder(h, r=/d=, [center=], [anchor=], [spin=], [orient=]) [ATTACHMENTS];
-//   cylinder(h, r1/d1=, r2/d2=, [center=], [anchor=], [spin=], [orient=]) [ATTACHMENTS];
+//   cylinder(h, r=/d=, [center=|anchor=], [spin=], [orient=]) [ATTACHMENTS];
+//   cylinder(h, r1/d1=, r2/d2=, [center=|anchor=], [spin=], [orient=]) [ATTACHMENTS];
 // Usage: As Function (BOSL2 extension)
 //   vnf = cylinder(h, r=/d=, ...);
 //   vnf = cylinder(h, r1/d1=, r2/d2=, ...);
 // Description:
 //   Creates a 3D cylinder or conic object.
 //   This modules extends the built-in `cylinder()` module by adding support for attachment and by adding a function version.   
-//   When called as a function, returns a [VNF](vnf.scad) for a cylinder.  
+//   When called as a function, returns a [VNF](vnf.scad) for a cylinder.  The defaults 
 // Arguments:
-//   h = The height of the cylinder.
-//   r1 = The bottom radius of the cylinder.  (Before orientation.)
-//   r2 = The top radius of the cylinder.  (Before orientation.)
-//   center = If given, overrides `anchor`.  A true value sets `anchor=CENTER`, false sets `anchor=BOTTOM`.  Default: false
+//   h = The height of the cylinder. Default: 1
+//   r1 = The bottom radius of the cylinder. Default: 1
+//   r2 = The top radius of the cylinder.  Default: 1
+//   center = A true value sets `anchor=CENTER`, false sets `anchor=BOTTOM`.  Default: false (`anchor=BOTTOM`)
 //   ---
-//   d1 = The bottom diameter of the cylinder.  (Before orientation.)
-//   d2 = The top diameter of the cylinder.  (Before orientation.)
+//   d1 = The bottom diameter of the cylinder. 
+//   d2 = The top diameter of the cylinder. 
 //   r = The radius of the cylinder.
 //   d = The diameter of the cylinder.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `BOTTOM`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Example: By Radius
 //   xdistribute(30) {
 //       cylinder(h=40, r=10);
@@ -1924,10 +2011,14 @@ function octahedron(size=1, anchor=CENTER, spin=0, orient=UP) =
 
 module cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP)
 {
+    dummy = assert(num_defined([anchor,center])<2, "\nCannot give both center and anchor.");
     anchor = get_anchor(anchor, center, BOTTOM, BOTTOM);
     r1 = get_radius(r1=r1, r=r, d1=d1, d=d, dflt=1);
     r2 = get_radius(r1=r2, r=r, d1=d2, d=d, dflt=1);
     h = default(h,1);
+    dummy2 = assert(is_finite(h) && h>0, "\nh must be a positive number.")
+             assert(is_finite(r1) && r1>=0, "\nr1 must be a non-negative number.")
+             assert(is_finite(r2) && r2>=0, "\nr2 must be a non-negative number.");
     attachable(anchor,spin,orient, r1=r1, r2=r2, l=h) {
         _cylinder(h=h, r1=r1, r2=r2, center=true);
         children();
@@ -1935,6 +2026,8 @@ module cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP)
 }
 
 function cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP) =
+    assert(is_undef(center) || is_bool(center), "\ncenter must be boolean.")
+    assert(num_defined([anchor,center])<2, "\nCannot give both center and anchor.")
     let(
         anchor = get_anchor(anchor, center, BOTTOM, BOTTOM),
         r1 = get_radius(r1=r1, r=r, d1=d1, d=d, dflt=1),
@@ -1956,32 +2049,25 @@ function cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP) =
 
 
 // Function&Module: cyl()
-// Synopsis: Creates an attachable cylinder with roundovers and chamfering.
+// Synopsis: Creates an attachable cylinder with roundovers, chamfering or texturing.
 // SynTags: Geom, VNF
 // Topics: Cylinders, Textures, Rounding, Chamfers
 // See Also: regular_prism(), texture(), rotate_sweep(), cylinder()
 // Usage: Normal Cylinders
-//   cyl(l|h|length|height, r, [center], [circum=], [realign=]) [ATTACHMENTS];
+//   cyl(l|h|length|height, r, [r2], [center|anchor=], [circum=], [realign=]) [ATTACHMENTS];
 //   cyl(l|h|length|height, d=, ...) [ATTACHMENTS];
-//   cyl(l|h|length|height, r1=, r2=, ...) [ATTACHMENTS];
-//   cyl(l|h|length|height, d1=, d2=, ...) [ATTACHMENTS];
+//   cyl(l|h|length|height, r1=|d1=, r2=|d2=, ...) [ATTACHMENTS];
 //
 // Usage: Chamferred Cylinders
-//   cyl(l|h|length|height, r|d, chamfer=, [chamfang=], [from_end=], ...);
-//   cyl(l|h|length|height, r|d, chamfer1=, [chamfang1=], [from_end=], ...);
-//   cyl(l|h|length|height, r|d, chamfer2=, [chamfang2=], [from_end=], ...);
-//   cyl(l|h|length|height, r|d, chamfer1=, chamfer2=, [chamfang1=], [chamfang2=], [from_end=], ...);
+//   cyl(..., chamfer=, [chamfang=], [from_end=], ...);
+//   cyl(..., [chamfer1=], [chamfer2=], [chamfang1=], [chamfang2=], [from_end=], ...);
 //
 // Usage: Rounded End Cylinders
-//   cyl(l|h|length|height, r|d, rounding=, [teardrop=], [clip_angle=], ...);
-//   cyl(l|h|length|height, r|d, rounding1=, [teardrop=], [clip_angle=], ...);
-//   cyl(l|h|length|height, r|d, rounding2=, [teardrop=], [clip_angle=], ...);
-//   cyl(l|h|length|height, r|d, rounding1=, rounding2=, [teardrop=], [clip_angle=], ...);
+//   cyl(..., rounding=, [teardrop=], [clip_angle=], ...);
+//   cyl(..., [rounding1=], [rounding2=], [teardrop=], [clip_angle=], ...);
 //
 // Usage: Textured Cylinders
-//   cyl(l|h|length|height, r|d, texture=, [tex_size=]|[tex_reps=], [tex_depth=], [tex_rot=], [tex_samples=], [style=], [tex_taper=], [tex_inset=], ...);
-//   cyl(l|h|length|height, r1=, r2=, texture=, [tex_size=]|[tex_reps=], [tex_depth=], [tex_rot=], [tex_samples=], [style=], [tex_taper=], [tex_inset=], ...);
-//   cyl(l|h|length|height, d1=, d2=, texture=, [tex_size=]|[tex_reps=], [tex_depth=], [tex_rot=], [tex_samples=], [style=], [tex_taper=], [tex_inset=], ...);
+//   cyl(..., texture=, [tex_size=]|[tex_reps=], [tex_depth=], [tex_rot=], [tex_samples=], [style=], [tex_taper=], [tex_inset=], ...);
 //
 // Usage: Called as a function to get a VNF
 //   vnf = cyl(...);
@@ -1989,11 +2075,11 @@ function cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP) =
 // Description:
 //   Creates cylinders in various anchorings and orientations, with optional rounding, chamfers, or textures.
 //   You can use `h` and `l` interchangably, and all variants allow specifying size by either `r`|`d`,
-//   or `r1`|`d1` and `r2`|`d2`.  Note: the chamfers and rounding cannot be cumulatively longer than
+//   or `r1`|`d1` and `r2`|`d2`.  The chamfers and rounding cannot be cumulatively longer than
 //   the cylinder or cone's sloped side.  The more specific parameters like chamfer1 or rounding2 override the more
-//   general ones like chamfer or rounding, so if you specify `rounding=3, chamfer2=3` you will get a chamfer at the top and
-//   rounding at the bottom.  You can specify extra height at either end for use with difference(); the extra height is ignored by
-//   anchoring.
+//   general ones like chamfer or rounding, so if you specify `rounding=3, chamfer2=3` you get a chamfer at the top and
+//   rounding at the bottom.  You can specify extra height at either end (e.g. with `extra=`) for use with difference(); the extra
+//   height is ignored by anchoring.
 //   .
 //   You can apply a texture to the cylinder using the usual texture parameters.   
 //   See [Texturing](skin.scad#section-texturing) for more details on how textures work.  
@@ -2001,10 +2087,20 @@ function cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP) =
 //   effect are ignored.  To create a textured prism with a specified number of flat facets use {{regular_prism()}}.  Anchors for cylinders
 //   appear on the ideal cylinder, not on actual discretized shape the module produces. For anchors on the shape surface, use {{regular_prism()}}.  
 //   .
-//   Note that when chamfering or rounding, the angle of chamfers is done at the face of the facets of the shape.
+//   When chamfering or rounding, the angle of chamfers is done at the face of the facets of the shape.
 //   If `circum=false` (the default) then the radius or chamfer length is measured at the corner of the shape.  If `circum=true`
 //   then the radius or chamfer length applies in the more usual way in the center of a facet.  For cylinders with a large `$fn`
-//   the difference between these two things is negligible, but it can be quite sigificant when `$fn` is small.  
+//   the difference between these two things is negligible, but it can be quite sigificant when `$fn` is small.
+//   This means that when `circum=false` the size of chamfers and roundings (and whether they fit) can depend on current `$fn`.
+//   .
+//   When the `realign` parameter is false the shape's has an edge aligned with the X+ axis. 
+//   If `realign` is true then a face is aligned with the X+ axis.  By default
+//   `realign` is false when `circum` is false and true if `circum` is true.  This means that when `$fn` is a multiple of four the approximate cylinder always
+//   has exactly correct dimensions on the X and Y axes regardless of the setting for circum, and it also means that cylinders match "octa"
+//   style spheroids on any of the coordinate planes. 
+//   .
+//   If you use the positional parameters, this module has an inconsistency with the native {{cylinder()}} module.  The `cylinder()` module
+//   has a default of `r2=1` so `cylinder(10,5)` produces a cone with radius 1 at the top, but `cyl()` defaults to a right angle cylinder in this case.  
 // Figure(2D,Big,NoAxes,VPR = [0, 0, 0], VPT = [0,0,0], VPD = 82): Chamfers on cones can be tricky.  This figure shows chamfers of the same size and same angle, A=30 degrees.  Note that the angle is measured on the inside, and produces a quite different looking chamfer at the top and bottom of the cone.  Straight black arrows mark the size of the chamfers, which may not even appear the same size visually.  When you do not give an angle, the triangle that is cut off will be isoceles, like the triangle at the top, with two equal angles.
 //  color("lightgray")
 //  projection()
@@ -2019,7 +2115,7 @@ function cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP) =
 //      stroke(arc(cp=[2,10], angle=[0,-30], n=20, r=5), width=.18, endcaps="arrow2");
 //      stroke(arc(cp=[12,-10], angle=[0,30], n=20, r=5), width=.18, endcaps="arrow2");
 //  }
-// Figure(2D,Big,NoAxes,VPR = [0, 0, 0], VPT = [0,0,0], VPD = 82): The cone in this example is narrow but has the same slope.  With negative chamfers, the angle A=30 degrees is on the outside.  The chamfers are again quite different looking.  As before, the default will feature two congruent angles, and in this case it happens at the bottom of the cone but not the top.  The straight arrows again show the size of the chamfer.
+// Figure(2D,Big,NoAxes,VPR = [0, 0, 0], VPT = [0,0,0], VPD = 82): The cone in this example is narrow but has the same slope.  With negative chamfers, the angle A=30 degrees is on the outside.  The chamfers are again quite different looking.  As before, the default features two congruent angles, and in this case it happens at the bottom of the cone but not the top.  The straight arrows again show the size of the chamfer.
 //  r1=10-7.5;r2=20-7.5;
 //  color("lightgray")
 //  projection()
@@ -2037,7 +2133,7 @@ function cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP) =
 // Arguments:
 //   l / h / length / height = Length of cylinder along oriented axis.  Default: 1
 //   r = Radius of cylinder.  Default: 1
-//   center = If given, overrides `anchor`.  A true value sets `anchor=CENTER`, false sets `anchor=DOWN`.
+//   center = A true value sets `anchor=CENTER`, false sets `anchor=DOWN`.
 //   ---
 //   r1 = Radius of the negative (X-, Y-, Z-) end of cylinder.
 //   r2 = Radius of the positive (X+, Y+, Z+) end of cylinder.
@@ -2060,14 +2156,14 @@ function cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP) =
 //   rounding2 = The radius of the rounding on the top end of the cylinder.
 //   extra = Add extra height at both ends that is invisible to anchoring for use with differencing.  Default: 0
 //   extra1 = Add extra height to the bottom end
-//   extra2 = Add extra height to the top end.  
-//   realign = If true, rotate the cylinder by half the angle of one face.
+//   extra2 = Add extra height to the top end.
+//   realign = If false a vertical edge is aligned to the X+ axis.  If true a vertical face is aligned to the X+ axis.  Default: false if `circum=false` and true if `circum=true`
 //   teardrop = If given as a number, rounding around the bottom edge of the cylinder won't exceed this many degrees from horizontal.  If true, the limit angle is 45 degrees.  Default: `false`
-//   clip_angle = If given as a number, rounding around the bottom edge of the cylinder won't exceed this many degrees from horizontal, with the rounding stopping at the bottom of the cylinder.  Default: (no clipping)
+//   clip_angle = Clip the rounding arc at the bottom of the cylinder at this angle away from vertical, with a corner at the base of the cylinder and a smooth joint at the side.  An angle of 90 gives a complete circle and an angle of zero clips away the entire rounding.  Default: 90 (no clipping)
 //   texture = A texture name string, or a rectangular array of scalar height values (0.0 to 1.0), or a VNF tile that defines the texture to apply to vertical surfaces.  See {{texture()}} for what named textures are supported.
-//   tex_size = An optional 2D target size (2-vector or scalar) for the textures.  Actual texture sizes will be scaled somewhat to evenly fit the available surface. Default: `[5,5]`
+//   tex_size = An optional 2D target size (2-vector or scalar) for the textures.  Actual texture sizes are scaled somewhat to fit evenly on the available surface. Default: `[5,5]`
 //   tex_reps = If given instead of tex_size, a scalar or 2-vector giving the integer number of texture tile repetitions in the horizontal and vertical directions.
-//   tex_inset = If numeric, lowers the texture into the surface by the specified proportion, e.g. 0.5 would lower it half way into the surface.  If `true`, insets by exactly its full depth.  Default: `false`
+//   tex_inset = If numeric, lowers the texture into the surface by the specified proportion, e.g. 0.5 would lower it halfway into the surface.  If `true`, insets by exactly its full depth.  Default: `false`
 //   tex_rot = Rotate texture by specified angle, which must be a multiple of 90 degrees.  Default: 0
 //   tex_depth = Specify texture depth; if negative, invert the texture.  Default: 1.  
 //   tex_samples = Minimum number of "bend points" to have in VNF texture tiles.  Default: 8
@@ -2075,21 +2171,17 @@ function cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP) =
 //   style = {{vnf_vertex_array()}} style used to triangulate heightfield textures.  Default: "min_edge"
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
-//
-//
-// Example: By Radius
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+// Example: By radius
 //   xdistribute(30) {
 //       cyl(l=40, r=10);
 //       cyl(l=40, r1=10, r2=5);
 //   }
-//
-// Example: By Diameter
+// Example: By diameter
 //   xdistribute(30) {
 //       cyl(l=40, d=25);
 //       cyl(l=40, d1=25, d2=10);
 //   }
-//
 // Example: Chamferring
 //   xdistribute(60) {
 //       // Shown Left to right.
@@ -2097,16 +2189,12 @@ function cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP) =
 //       cyl(l=40, d=40, chamfer=7, chamfang=30, from_end=false);
 //       cyl(l=40, d=40, chamfer=7, chamfang=30, from_end=true);
 //   }
-//
 // Example: Rounding
 //   cyl(l=40, d=40, rounding=10);
-//
 // Example(VPD=175;VPR=[90,0,0]): Teardrop Bottom Rounding
 //   cyl(l=40, d=40, rounding=10, teardrop=true);
-//
 // Example(VPD=175;VPR=[90,0,0]): Clipped Bottom Rounding
 //   cyl(l=40, d=40, rounding=10, clip_angle=40);
-//
 // Example: Heterogenous Chamfers and Rounding
 //   ydistribute(80) {
 //       // Shown Front to Back.
@@ -2114,63 +2202,50 @@ function cylinder(h, r1, r2, center, r, d, d1, d2, anchor, spin=0, orient=UP) =
 //       cyl(l=40, d=40, chamfer2=5, orient=UP);
 //       cyl(l=40, d=40, chamfer1=12, rounding2=10, orient=UP);
 //   }
-//
 // Example: Putting it all together
 //   cyl(
 //       l=20, d1=25, d2=15,
 //       chamfer1=5, chamfang1=60,
 //       from_end=true, rounding2=5
 //   );
-//
-// Example: External Chamfers
+// Example: External chamfers
 //   cyl(l=50, r=30, chamfer=-5, chamfang=30, $fa=1, $fs=1);
-//
 // Example: External Roundings
 //   cyl(l=50, r=30, rounding1=-5, rounding2=5, $fa=1, $fs=1);
-//
 // Example(Med): Standard Connectors
 //   xdistribute(40) {
 //       cyl(l=30, d=25) show_anchors();
 //       cyl(l=30, d1=25, d2=10) show_anchors();
 //   }
-//
 // Example: Texturing with heightfield diamonds
 //   cyl(h=40, r=20, texture="diamonds", tex_size=[5,5]);
-//
 // Example: Texturing with heightfield pyramids
 //   cyl(h=40, r1=20, r2=15,
 //       texture="pyramids", tex_size=[5,5],
 //       style="convex");
-//
 // Example: Texturing with heightfield truncated pyramids
 //   cyl(h=40, r1=20, r2=15, chamfer=5,
 //       texture="trunc_pyramids",
 //       tex_size=[5,5], style="convex");
-//
 // Example: Texturing with VNF tile "dots"
 //   cyl(h=40, r1=20, r2=15, rounding=9,
 //       texture="dots", tex_size=[5,5],
 //       tex_samples=6);
-//
 // Example: Texturing with VNF tile "bricks_vnf"
 //   cyl(h=50, r1=25, r2=20, shift=[0,10], rounding1=-10,
 //       texture="bricks_vnf", tex_size=[10,10],
 //       tex_depth=0.5, style="concave");
-//
 // Example: No Texture Taper
 //   cyl(d1=25, d2=20, h=30, rounding=5,
 //       texture="trunc_ribs", tex_size=[5,1]);
-//
 // Example: Taper Texure at Extreme Ends
 //   cyl(d1=25, d2=20, h=30, rounding=5,
 //       texture="trunc_ribs", tex_taper=0,
 //       tex_size=[5,1]);
-//
 // Example: Taper Texture over First and Last 10%
 //   cyl(d1=25, d2=20, h=30, rounding=5,
 //       texture="trunc_ribs", tex_taper=0.1,
 //       tex_size=[5,1]);
-//
 // Example(3D,Med,NoAxes): Making a Clay Pattern Roller
 //   tex = [
 //       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
@@ -2219,7 +2294,7 @@ function _cyl_path(
     chamfang, chamfang1, chamfang2,
     rounding, rounding1, rounding2,
     from_end, from_end1, from_end2,
-    teardrop=false, clip_angle, n, noscale=false
+    teardrop=false, clip_angle=90, n, noscale=false
 ) =
     let(
         scale= is_def(n) ? cos(180/n) : 1, 
@@ -2233,15 +2308,17 @@ function _cyl_path(
         round1 = first_defined([rounding1, if (is_undef(chamfer1)) rounding, 0]),
         round2 = first_defined([rounding2, if (is_undef(chamfer2)) rounding, 0]),
         checks1 =
-            assert(is_finite(_chamf1), "chamfer1 must be a finite number if given.")
-            assert(is_finite(_chamf2), "chamfer2 must be a finite number if given.")
-            assert(is_finite(chang1) && chang1>0, "chamfang1 must be a positive number if given.")
-            assert(is_finite(chang2) && chang2>0, "chamfang2 must be a positive number if given.")
-            assert(chang1<90+sign(_chamf1)*vang, "chamfang1 must be smaller than the cone face angle")
-            assert(chang2<90-sign(_chamf2)*vang, "chamfang2 must be smaller than the cone face angle")
-            assert(num_defined([chamfer1,rounding1])<2, "cannot define both chamfer1 and rounding1")
-            assert(num_defined([chamfer2,rounding2])<2, "cannot define both chamfer2 and rounding2")
-            assert(num_defined([chamfer,rounding])<2, "cannot define both chamfer and rounding")                                
+            assert(is_finite(_chamf1), "\nchamfer1 must be a finite number if given.")
+            assert(is_finite(_chamf2), "\nchamfer2 must be a finite number if given.")
+            assert(is_finite(chang1) && chang1>0, "\nchamfang1 must be a positive number if given.")
+            assert(is_finite(chang2) && chang2>0, "\nchamfang2 must be a positive number if given.")
+            assert(chang1<90+sign(_chamf1)*vang, "\nchamfang1 must be smaller than the cone face angle.")
+            assert(chang2<90-sign(_chamf2)*vang, "\nchamfang2 must be smaller than the cone face angle.")
+            assert(num_defined([chamfer1,rounding1])<2, "\nCannot define both chamfer1 and rounding1.")
+            assert(num_defined([chamfer2,rounding2])<2, "\nCannot define both chamfer2 and rounding2.")
+            assert(num_defined([chamfer,rounding])<2, "\nCannot define both chamfer and rounding.")
+            assert(is_finite(clip_angle) && clip_angle>=-vang && clip_angle<=90,
+                   str("\nclip_angle must less than 90 and more than the base angle from vertical (",-vang,")"))
             undef,
         unscale = noscale ? scale : 1, 
         chamf1r = !_chamf1? 0
@@ -2256,81 +2333,86 @@ function _cyl_path(
         chamf2l = !_chamf2? 0
                 : _fromend2? abs(_chamf2)
                 : abs(law_of_sines(a=_chamf2, A=180-chang2-(90+sign(_chamf2)*vang), B=chang2)),
-        facelen = adj_ang_to_hyp(l, abs(vang)),
-
-        roundlen1 = round1 >= 0 ? round1/tan(45-vang/2)
-                                : round1/tan(45+vang/2),
-        roundlen2 = round2 >=0 ? round2/tan(45+vang/2)
-                               : round2/tan(45-vang/2),
-        dy1 = abs(_chamf1 ? chamf1l : round1 ? roundlen1 : 0), 
-        dy2 = abs(_chamf2 ? chamf2l : round2 ? roundlen2 : 0),
-
         td_ang = teardrop == true? 45
                : teardrop == false? 90
                : assert(is_finite(teardrop))
                  assert(teardrop>=0 && teardrop<=90)
                  teardrop,
-        clip_ang = clip_angle == undef? 90
-                 : assert(is_finite(clip_angle))
-                   assert(clip_angle>=0 && clip_angle<=90)
-                   clip_angle
+        roundlen1 = round1 >= 0 ? round1/tan(45-vang/2)
+                                : round1/tan(45+vang/2),
+        roundlen2 = round2 >=0 ? round2/tan(45+vang/2)
+                               : round2/tan(45-vang/2),
+        dy1 = abs(_chamf1 ? chamf1l : round1 ? roundlen1*sin(clip_angle) : 0), 
+        dy2 = abs(_chamf2 ? chamf2l : round2 ? roundlen2 : 0)
     ) 
-    assert(is_finite(round1), "rounding1 must be a number if given.")
-    assert(is_finite(round2), "rounding2 must be a number if given.")
-    assert(chamf1r/scale <= r1, "chamfer1 is larger than the r1 radius of the cylinder.")
-    assert(chamf2r/scale <= r2, "chamfer2 is larger than the r2 radius of the cylinder.")
-    assert(roundlen1*unscale/scale <= r1, "size of rounding1 is larger than the r1 radius of the cylinder.")
-    assert(roundlen2*unscale/scale <= r2, "size of rounding2 is larger than the r2 radius of the cylinder.")
-    assert(dy1+dy2 <= facelen, "Chamfers/roundings don't fit on the cylinder/cone.  They exceed the length of the cylinder/cone face.")
-    assert(td_ang==90 || clip_ang==90, "teardrop= and clip_angle= are mutually exclusive options.")
-    [
-       if (!approx(chamf1r,0))
-           each [
-               [r1-chamf1r/scale, -l/2], // + [-chamf1r/scale,0],//polar_to_xy(chamf1r,180)),
-               [r1, -l/2] + xscale(1/scale,polar_to_xy(chamf1l,90+vang)),
-           ]
-       else if (!approx(round1,0) && td_ang < 90)
-           each xscale(1/scale,_teardrop_corner(r=round1*unscale, corner=[[r1*scale-2*roundlen1,-l/2],[r1*scale,-l/2],[r2*scale,l/2]], ang=td_ang))
-       else if (!approx(round1,0) && clip_ang < 90)
-           each xscale(1/scale,_clipped_corner(r=round1*unscale, corner=[[r1*scale-2*roundlen1,-l/2],[r1*scale,-l/2],[r2*scale,l/2]], ang=clip_ang))
-       else if (!approx(round1,0) && td_ang >= 90)
-           each xscale(1/scale,arc(r=abs(round1*unscale), corner=[[r1*scale-2*roundlen1,-l/2],[r1*scale,-l/2],[r2*scale,l/2]]))
-       else [r1,-l/2],
-
-       if (is_finite(chamf2r) && !approx(chamf2r,0))
-           each [
-               [r2, l/2] + xscale(1/scale,polar_to_xy(chamf2l,270+vang)),
-               [r2-chamf2r/scale, l/2]
-           ]
-       else if (is_finite(round2) && !approx(round2,0))
-           each xscale(1/scale,arc(r=abs(round2*unscale), corner=[[r1*scale,-l/2],[r2*scale,l/2],[r2*scale-2*roundlen2,l/2]]))
-       else [r2,l/2],
-    ];
-
+    assert(is_finite(round1), "\nrounding1 must be a number if given.")
+    assert(is_finite(round2), "\nrounding2 must be a number if given.")
+    assert(chamf1r/scale <= r1, "\nchamfer1 is larger than the r1 radius of the cylinder.")
+    assert(chamf2r/scale <= r2, "\nchamfer2 is larger than the r2 radius of the cylinder.")
+    assert(td_ang==90 || clip_angle==90, "\nteardrop= and clip_angle= are mutually exclusive options.")
+    let(
+        bottom = !approx(chamf1r,0) ?
+                     [
+                      [r1-chamf1r/scale, -l/2], // + [-chamf1r/scale,0],//polar_to_xy(chamf1r,180)),
+                      [r1, -l/2] + xscale(1/scale,polar_to_xy(chamf1l,90+vang)),
+                     ]
+               : !approx(round1,0) && td_ang < 90 ?
+                     xscale(1/scale,_teardrop_corner(r=round1*unscale, corner=[[r1*scale-2*roundlen1,-l/2],[r1*scale,-l/2],[r2*scale,l/2]], ang=td_ang))
+               : !approx(round1,0) && clip_angle < 90 ?
+                     xscale(1/scale,_clipped_corner(r=round1*unscale, corner=[[r1*scale-2*roundlen1,-l/2],[r1*scale,-l/2],[r2*scale,l/2]], ang=clip_angle))
+               : !approx(round1,0) && clip_angle > -vang ? 
+                     xscale(1/scale,arc(r=abs(round1*unscale), corner=[[r1*scale-2*roundlen1,-l/2],[r1*scale,-l/2],[r2*scale,l/2]]))
+               : [[r1,-l/2]],
+        top = !approx(chamf2r,0) ?
+                     [
+                      [r2, l/2] + xscale(1/scale,polar_to_xy(chamf2l,270+vang)),
+                      [r2-chamf2r/scale, l/2]
+                     ]
+            : !approx(round2,0) ?
+                     xscale(1/scale,arc(r=abs(round2*unscale), corner=[[r1*scale,-l/2],[r2*scale,l/2],[r2*scale-2*roundlen2,l/2]]))
+            : [[r2,l/2]]
+    )
+    assert(bottom[0].x>=0, str("\nHorizontal size of rounding1 is larger (by ",-bottom[0].x,") than the r1 radius of the cylinder."))
+    assert(last(bottom).y<=top[0].y, str("Chamfers/roundings don't fit on the cylinder. Together they exceed the cylinder height by ",last(bottom).y-top[0].y))
+    assert(last(top).x>=0, str("\nSize of rounding2 is larger (by ",-last(top).x,") than the r2 radius of the cylinder."))
+    deduplicate(concat(bottom,top));
 
 
 function cyl(
-    h, r, center,
-    l, r1, r2,
+    h, r, r2, center,
+    l, r1, 
     d, d1, d2,
     length, height,
     chamfer, chamfer1, chamfer2,
     chamfang, chamfang1, chamfang2,
     rounding, rounding1, rounding2,
-    circum=false, realign=false, shift=[0,0],
-    teardrop=false, clip_angle,
+    circum=false, realign, shift=[0,0],
+    teardrop=false, clip_angle=90,
     from_end, from_end1, from_end2,
     texture, tex_size=[5,5], tex_reps, tex_counts,
     tex_inset=false, tex_rot=0,
-    tex_scale, tex_depth, tex_samples, length, height, 
+    tex_scale, tex_depth, tex_samples, 
     tex_taper, style, tex_style,
     extra, extra1, extra2, 
     anchor, spin=0, orient=UP
 ) =
-    assert(num_defined([style,tex_style])<2, "In cyl() the 'tex_style' parameter has been replaced by 'style'.  You cannot give both.")
-    assert(num_defined([tex_reps,tex_counts])<2, "In cyl() the 'tex_counts' parameter has been replaced by 'tex_reps'.  You cannot give both.")    
-    assert(num_defined([tex_scale,tex_depth])<2, "In cyl() the 'tex_scale' parameter has been replaced by 'tex_depth'.  You cannot give both.")
     let(
+        legacy = is_bool(r2) && is_undef(center),
+        edummy = !legacy?0:
+          echo("You gave a boolean value for r2.  Assuming you gave this value as the 3rd positional parameter.")
+          echo("cyl() has changed and has parameters (height, r, r2, center) for improved consistency with")
+          echo("cylinder().  Support for the legacy calling style cyl(height, r, center) will be eliminated")
+          echo("and this will become an error."),
+        center = legacy ? r2 : center
+    )
+    assert(is_bool(circum))
+    assert(is_undef(center) || is_bool(center), "\ncenter must be boolean.")
+    assert(num_defined([center,anchor])<2, "\nCannot give both center and anchor")
+    assert(num_defined([style,tex_style])<2, "\nIn cyl() the 'tex_style' parameter has been replaced by 'style'. You cannot give both.")
+    assert(num_defined([tex_reps,tex_counts])<2, "\nIn cyl() the 'tex_counts' parameter has been replaced by 'tex_reps'. You cannot give both.")    
+    assert(num_defined([tex_scale,tex_depth])<2, "\nIn cyl() the 'tex_scale' parameter has been replaced by 'tex_depth'. You cannot give both.")
+    let(
+        realign = default(realign,circum),
         style = is_def(tex_style)? echo("In cyl() the 'tex_style' parameter is deprecated and has been replaced by 'style'")tex_style
               : default(style,"min_edge"),
         tex_reps = is_def(tex_counts)? echo("In cyl() the 'tex_counts' parameter is deprecated and has been replaced by 'tex_reps'")tex_counts
@@ -2339,7 +2421,7 @@ function cyl(
                   : default(tex_depth,1),
         l = one_defined([l, h, length, height],"l,h,length,height",dflt=1),
         _r1 = get_radius(r1=r1, r=r, d1=d1, d=d, dflt=1),
-        _r2 = get_radius(r1=r2, r=r, d1=d2, d=d, dflt=1),
+        _r2 = get_radius(r1=legacy ? undef : r2, r=r, d1=d2, d=d, dflt=1),
         sides = segs(max(_r1,_r2)),
         sc = circum? 1/cos(180/sides) : 1,
         r1 = _r1 * sc,
@@ -2348,14 +2430,15 @@ function cyl(
         extra1 = first_defined([extra1,extra,0]),
         extra2 = first_defined([extra2,extra,0])
     )
-    assert(all_nonnegative([extra1,extra2]), "extra/extra1/extra2 must be positive")
-    assert(is_finite(l), "l/h/length/height must be a finite number.")
-    assert(is_finite(r1) && r1>=0, "r/r1/d/d1 must be a non-negative number.")
-    assert(is_finite(r2) && r2>=0, "r2 or d2 must be a non-negative number.")
-    assert(is_vector(shift,2), "shift must be a 2D vector.")
+    assert(is_bool(realign))
+    assert(all_nonnegative([extra1,extra2]), "\nextra/extra1/extra2 must be positive.")
+    assert(is_finite(l), "\nl/h/length/height must be a finite number.")
+    assert(is_finite(r1) && r1>=0, "\nr/r1/d/d1 must be a non-negative number.")
+    assert(is_finite(r2) && r2>=0, "\nr2 or d2 must be a non-negative number.")
+    assert(is_vector(shift,2), "\nshift must be a 2D vector.")
     let(
         vnf = !any_defined([chamfer, chamfer1, chamfer2, rounding, rounding1, rounding2, texture, extra1, extra2])
-          ? cylinder(h=l+extra1+extra2, r1=r1, r2=r2, center=true, $fn=sides)
+          ? zrot(circum?180/sides/2:0,cylinder(h=l+extra1+extra2, r1=r1, r2=r2, center=true, $fn=sides))
           : let(
                  cpath = _cyl_path(r1, r2, l, 
                                    chamfer, chamfer1, chamfer2,
@@ -2414,48 +2497,62 @@ function _clipped_corner(r, corner, ang=45) =
             assert(is_finite(ang)),
         vec1 = unit(corner[0] - corner[1]),
         vec2 = unit(corner[2] - corner[1]),
-        off = r * (1-cos(ang)) * rot(90, p=vec1),
+        off = r * (1-cos(90-ang)) * rot(90, p=vec1),
         line1 = [corner[0], corner[1]] + [off, off],
         line2 = [corner[1], corner[2]],
         corn_pt = line_intersection(line1,line2),
         cp = circle_2tangents(abs(r), [line1[0],corn_pt,line2[1]])[0],
-        vec3 = rot(sign(r)*(90+ang), p=vec1),
+        vec3 = rot(sign(r)*(180-ang), p=vec1),
         vec4 = rot(-sign(r)*90, p=vec2),
         dang = vector_angle(vec3,vec4),
         path = arc(r=abs(r), cp=cp, start=v_theta(vec3), angle=sign(r)*dang)
     ) path;
 
 
+
 module cyl(
-    h, r, center,
-    l, r1, r2,
+    h, r, r2, center,
+    l, r1, 
     d, d1, d2,
+    length, height,
     chamfer, chamfer1, chamfer2,
     chamfang, chamfang1, chamfang2,
     rounding, rounding1, rounding2,
-    circum=false, realign=false, shift=[0,0],
-    teardrop=false, clip_angle,
+    circum=false, realign, shift=[0,0],
+    teardrop=false, clip_angle=90,
     from_end, from_end1, from_end2,
     texture, tex_size=[5,5], tex_reps, tex_counts,
     tex_inset=false, tex_rot=0,
-    tex_scale, tex_depth, tex_samples, length, height, 
+    tex_scale, tex_depth, tex_samples, 
     tex_taper, style, tex_style,
     extra, extra1, extra2, 
     anchor, spin=0, orient=UP
 ) {
+    legacy = is_bool(r2) && is_undef(center);
+    edummy = !legacy?0:
+      echo("You gave a boolean value for r2.  Assuming you gave this value as the 3rd positional parameter.")
+      echo("cyl() has changed and has parameters (height, r, r2, center) for improved consistency with")
+      echo("cylinder().  Support for the legacy calling style cyl(height, r, center) will be eliminated")
+      echo("and this will become an error.");
+    center = legacy ? r2 : center;
+    realign = assert(is_bool(circum))
+              default(realign,circum);
     dummy=
-      assert(num_defined([style,tex_style])<2, "In cyl() the 'tex_style' parameters has been replaced by 'style'.  You cannot give both.")
-      assert(num_defined([tex_reps,tex_counts])<2, "In cyl() the 'tex_counts' parameters has been replaced by 'tex_reps'.  You cannot give both.")
-      assert(num_defined([tex_scale,tex_depth])<2, "In cyl() the 'tex_scale' parameter has been replaced by 'tex_depth'.  You cannot give both.");
-    style = is_def(tex_style)? echo("In cyl() the 'tex_style' parameter is deprecated and has been replaced by 'style'")tex_style
+      assert(is_bool(realign))
+      assert(num_defined([anchor,center])<2, "\nCannot give both `anchor` and `center` to cyl()")
+      assert(is_undef(center) || is_bool(center), "\ncenter must be boolean")
+      assert(num_defined([style,tex_style])<2, "\nIn cyl() the 'tex_style' parameters has been replaced by 'style'. You cannot give both.")
+      assert(num_defined([tex_reps,tex_counts])<2, "\nIn cyl() the 'tex_counts' parameters has been replaced by 'tex_reps'. You cannot give both.")
+      assert(num_defined([tex_scale,tex_depth])<2, "\nIn cyl() the 'tex_scale' parameter has been replaced by 'tex_depth'. You cannot give both.");
+    style = is_def(tex_style)? echo("In cyl() the 'tex_style' parameter is deprecated and has been replaced by 'style'.") tex_style
           : default(style,"min_edge");
-    tex_reps = is_def(tex_counts)? echo("In cyl() the 'tex_counts' parameter is deprecated and has been replaced by 'tex_reps'")tex_counts
+    tex_reps = is_def(tex_counts)? echo("In cyl() the 'tex_counts' parameter is deprecated and has been replaced by 'tex_reps'.")tex_counts
              : tex_reps;
-    tex_depth = is_def(tex_scale)? echo("In rotate_sweep() the 'tex_scale' parameter is deprecated and has been replaced by 'tex_depth'")tex_scale
+    tex_depth = is_def(tex_scale)? echo("In rotate_sweep() the 'tex_scale' parameter is deprecated and has been replaced by 'tex_depth'.")tex_scale
               : default(tex_depth,1);
     l = one_defined([l, h, length, height],"l,h,length,height",dflt=1);
     _r1 = get_radius(r1=r1, r=r, d1=d1, d=d, dflt=1);
-    _r2 = get_radius(r1=r2, r=r, d1=d2, d=d, dflt=1);
+    _r2 = get_radius(r1=legacy ? undef : r2, r=r, d1=d2, d=d, dflt=1);
     sides = segs(max(_r1,_r2));
     sc = circum? 1/cos(180/sides) : 1;
     r1 = _r1 * sc;
@@ -2463,13 +2560,14 @@ module cyl(
     anchor = get_anchor(anchor,center,BOT,CENTER);
     skmat = down(l/2) * skew(sxz=shift.x/l, syz=shift.y/l) * up(l/2);
     attachable(anchor,spin,orient, r1=r1, r2=r2, l=l, shift=shift) {
-        multmatrix(skmat)
-        zrot(realign? 180/sides : 0) {
+        multmatrix(skmat) {
             if (!any_defined([chamfer, chamfer1, chamfer2, rounding, rounding1, rounding2, texture, extra1, extra2, extra])) {
-                cylinder(h=l, r1=r1, r2=r2, center=true, $fn=sides);
+                zrot(realign? 180/sides : 0) {
+                    cylinder(h=l, r1=r1, r2=r2, center=true, $fn=sides);
+                }
             } else {
                 vnf = cyl(
-                    l=l, r1=_r1, r2=_r2, center=true,  circum=circum,
+                    l=l, r1=_r1, r2=_r2, center=true,  circum=circum, realign=realign,
                     chamfer=chamfer, chamfer1=chamfer1, chamfer2=chamfer2,
                     chamfang=chamfang, chamfang1=chamfang1, chamfang2=chamfang2,
                     rounding=rounding, rounding1=rounding1, rounding2=rounding2,
@@ -2491,251 +2589,340 @@ module cyl(
 
 
 
-// Module: xcyl()
-// Synopsis: creates a cylinder oriented along the X axis.
-// SynTags: Geom
+// Function&Module: xcyl()
+// Synopsis: Creates a cylinder oriented along the X axis.
+// SynTags: Geom, VNF
 // Topics: Cylinders, Textures, Rounding, Chamfers
 // See Also: texture(), rotate_sweep(), cyl()
-// Description:
-//   Creates an attachable cylinder with roundovers and chamfering oriented along the X axis.
-//
 // Usage: Typical
 //   xcyl(l|h|length|height, r|d=, [anchor=], ...) [ATTACHMENTS];
 //   xcyl(l|h|length|height, r1=|d1=, r2=|d2=, [anchor=], ...) [ATTACHMENTS];
-//
-// Arguments:
-//   l / h / length / height = Length of cylinder along oriented axis. Default: 1
-//   r = Radius of cylinder.  Default: 1
-//   ---
-//   r1 = Optional radius of left (X-) end of cylinder.
-//   r2 = Optional radius of right (X+) end of cylinder.
-//   d = Optional diameter of cylinder. (use instead of `r`)
-//   d1 = Optional diameter of left (X-) end of cylinder.
-//   d2 = Optional diameter of right (X+) end of cylinder.
-//   circum = If true, cylinder should circumscribe the circle of the given size.  Otherwise inscribes.  Default: `false`
-//   chamfer = The size of the chamfers on the ends of the cylinder.  Default: none.
-//   chamfer1 = The size of the chamfer on the left end of the cylinder.  Default: none.
-//   chamfer2 = The size of the chamfer on the right end of the cylinder.  Default: none.
-//   chamfang = The angle in degrees of the chamfers on the ends of the cylinder.
-//   chamfang1 = The angle in degrees of the chamfer on the left end of the cylinder.
-//   chamfang2 = The angle in degrees of the chamfer on the right end of the cylinder.
-//   from_end = If true, chamfer is measured from the end of the cylinder, instead of inset from the edge.  Default: `false`.
-//   rounding = The radius of the rounding on the ends of the cylinder.  Default: none.
-//   rounding1 = The radius of the rounding on the left end of the cylinder.
-//   rounding2 = The radius of the rounding on the right end of the cylinder.
-//   realign = If true, rotate the cylinder by half the angle of one face.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
-//
-// Example: By Radius
+// Description:
+//   Creates an attachable cylinder with roundovers, chamfering, and optional texture, oriented along the X axis.
+//   .
+//   Used as a function, this is a shortcut for `cyl()` with `orient=RIGHT`, but otherwise using the same arguments excluding `orient`, which is not accepted.
+//   Used as a module, the difference from cyl() is in the anchors, which don't get reoriented with the cylinder but maintain
+//   the orientations you specify.
+//   For example, top and right anchors on xcyl() are on the top curved surface and the right (positive x) end,
+//   respectively, whereas with cyl() these anchors are associated with the top end and right side.
+//   .
+//   See {{cyl()}} for more detailed usage and arguments.  The `realign` parameter is referenced to the Z- axis.  
+// Example: By radius. The cone shows anchor arrows for `TOP` and `RIGHT`.
 //   ydistribute(50) {
 //       xcyl(l=35, r=10);
-//       xcyl(l=35, r1=15, r2=5);
+//       xcyl(l=35, r1=15, r2=5) {
+//           attach(TOP) anchor_arrow();
+//           attach(RIGHT) anchor_arrow();
+//       }
 //   }
-//
-// Example: By Diameter
+// Example: By diameter
 //   ydistribute(50) {
 //       xcyl(l=35, d=20);
 //       xcyl(l=35, d1=30, d2=10);
 //   }
 
 function xcyl(
-    h, r, d, r1, r2, d1, d2, l, 
+    h, r, center,
+    l, r1, r2,
+    d, d1, d2,
+    length, height,
     chamfer, chamfer1, chamfer2,
     chamfang, chamfang1, chamfang2,
     rounding, rounding1, rounding2,
-    circum=false, realign=false, from_end=false, length, height,
-    anchor=CENTER, spin=0, orient=UP
-) = no_function("xcyl");
+    circum=false, realign=false, shift=[0,0],
+    teardrop=false, clip_angle=90,
+    from_end, from_end1, from_end2,
+    texture, tex_size=[5,5], tex_reps, tex_counts,
+    tex_inset=false, tex_rot=0,
+    tex_scale, tex_depth, tex_samples, 
+    tex_taper, style, tex_style,
+    extra, extra1, extra2, 
+    anchor, spin=0
+) = let(
+    r1 = get_radius(r1=r1, r=r, d1=d1, d=d, dflt=1),
+    r2 = get_radius(r1=r2, r=r, d1=d2, d=d, dflt=1),
+    l = one_defined([l,h,length,height],"l,h,length,height",1),
+    vnf=cyl(h=h, r=r, center=center,
+        l=l, r1=r1, r2=r2,
+        d=d, d1=d1, d2=d2,
+        length=length, height=height,
+        chamfer=chamfer, chamfer1=chamfer1, chamfer2=chamfer2,
+        chamfang=chamfang, chamfang1=chamfang1, chamfang2=chamfang2,
+        rounding=rounding, rounding1=rounding1, rounding2=rounding2,
+        circum=circum, realign=realign, shift=shift,
+        teardrop=teardrop, clip_angle=clip_angle,
+        from_end=from_end, from_end1=from_end1, from_end2=from_end2,
+        texture=texture, tex_size=tex_size, tex_reps=tex_reps, tex_counts=tex_counts,
+        tex_inset=tex_inset, tex_rot=tex_rot,
+        tex_scale=tex_scale, tex_depth=tex_depth, tex_samples=tex_samples,
+        tex_taper=tex_taper, style=style, tex_style=tex_style,
+        extra=extra, extra1=extra1, extra2=extra2, 
+        anchor=CENTER, spin=0, orient=RIGHT)
+    ) reorient(anchor, spin, UP, p=vnf, r1=r1, r2=r2, l=l, axis=RIGHT);
 
 module xcyl(
-    h, r, d, r1, r2, d1, d2, l, 
+    h, r, center,
+    l, r1, r2,
+    d, d1, d2,
+    length, height,
     chamfer, chamfer1, chamfer2,
     chamfang, chamfang1, chamfang2,
     rounding, rounding1, rounding2,
-    circum=false, realign=false, from_end=false, length, height,
-    anchor=CENTER, spin=0, orient=UP
+    circum=false, realign, shift=[0,0],
+    teardrop=false, clip_angle=90,
+    from_end, from_end1, from_end2,
+    texture, tex_size=[5,5], tex_reps, tex_counts,
+    tex_inset=false, tex_rot=0,
+    tex_scale, tex_depth, tex_samples,
+    tex_taper, style, tex_style,
+    extra, extra1, extra2, 
+    anchor=CENTER, spin=0
 ) {
     r1 = get_radius(r1=r1, r=r, d1=d1, d=d, dflt=1);
     r2 = get_radius(r1=r2, r=r, d1=d2, d=d, dflt=1);
     l = one_defined([l,h,length,height],"l,h,length,height",1);
-    attachable(anchor,spin,orient, r1=r1, r2=r2, l=l, axis=RIGHT) {
+    attachable(anchor,spin,orient=UP, r1=r1, r2=r2, l=l, axis=RIGHT) {
         cyl(
+            center=center,
             l=l, r1=r1, r2=r2,
             chamfer=chamfer, chamfer1=chamfer1, chamfer2=chamfer2,
             chamfang=chamfang, chamfang1=chamfang1, chamfang2=chamfang2,
             rounding=rounding, rounding1=rounding1, rounding2=rounding2,
-            circum=circum, realign=realign, from_end=from_end,
-            anchor=CENTER, orient=RIGHT
+            circum=circum, realign=realign, shift=shift,
+            teardrop=teardrop, clip_angle=clip_angle,
+            from_end=from_end, from_end1=from_end1, from_end2=from_end2,
+            texture=texture, tex_size=tex_size, tex_reps=tex_reps, tex_counts=tex_counts,
+            tex_inset=tex_inset, tex_rot=tex_rot,
+            tex_scale=tex_scale, tex_depth=tex_depth, tex_samples=tex_samples,
+            tex_taper=tex_taper, style=style, tex_style=tex_style,
+            extra=extra, extra1=extra1, extra2=extra2, 
+            anchor=CENTER, spin=0, orient=RIGHT
         );
         children();
     }
 }
 
 
-// Module: ycyl()
+// Function&Module: ycyl()
 // Synopsis: Creates a cylinder oriented along the y axis.
-// SynTags: Geom
+// SynTags: Geom, VNF
 // Topics: Cylinders, Textures, Rounding, Chamfers
 // See Also: texture(), rotate_sweep(), cyl()
-// Description:
-//   Creates an attachable cylinder with roundovers and chamfering oriented along the y axis.
-//
 // Usage: Typical
 //   ycyl(l|h|length|height, r|d=, [anchor=], ...) [ATTACHMENTS];
 //   ycyl(l|h|length|height, r1=|d1=, r2=|d2=, [anchor=], ...) [ATTACHMENTS];
-//
-// Arguments:
-//   l / h / length / height = Length of cylinder along oriented axis. (Default: `1.0`)
-//   r = Radius of cylinder.
-//   ---
-//   r1 = Radius of front (Y-) end of cone.
-//   r2 = Radius of back (Y+) end of one.
-//   d = Diameter of cylinder.
-//   d1 = Diameter of front (Y-) end of one.
-//   d2 = Diameter of back (Y+) end of one.
-//   circum = If true, cylinder should circumscribe the circle of the given size.  Otherwise inscribes.  Default: `false`
-//   chamfer = The size of the chamfers on the ends of the cylinder.  Default: none.
-//   chamfer1 = The size of the chamfer on the front end of the cylinder.  Default: none.
-//   chamfer2 = The size of the chamfer on the back end of the cylinder.  Default: none.
-//   chamfang = The angle in degrees of the chamfers on the ends of the cylinder.
-//   chamfang1 = The angle in degrees of the chamfer on the front end of the cylinder.
-//   chamfang2 = The angle in degrees of the chamfer on the back end of the cylinder.
-//   from_end = If true, chamfer is measured from the end of the cylinder, instead of inset from the edge.  Default: `false`.
-//   rounding = The radius of the rounding on the ends of the cylinder.  Default: none.
-//   rounding1 = The radius of the rounding on the front end of the cylinder.
-//   rounding2 = The radius of the rounding on the back end of the cylinder.
-//   realign = If true, rotate the cylinder by half the angle of one face.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
-//
-// Example: By Radius
+// Description:
+//   Creates an attachable cylinder with roundovers, chamfering, and optional texture, oriented along the Y axis.
+//   .
+//   Used as a function, this is a shortcut for `cyl()` with `orient=BACK`, but otherwise using the same arguments excluding `orient`, which is not accepted.
+//   Used as a module, the difference from cyl() is in the anchors, which don't get reoriented with the cylinder but maintain
+//   the orientations you specify.
+//   For example, top and right anchors on ycyl() are on the top and right of the curved cylinder surface,
+//   respectively, whereas with cyl() these anchors are associated with the top end and right side.
+//   .
+//   See {{cyl()}} for more detailed usage and arguments.  
+// Example: By radius. The cone shows anchor arrows for `TOP` and `RIGHT`.
 //   xdistribute(50) {
 //       ycyl(l=35, r=10);
-//       ycyl(l=35, r1=15, r2=5);
+//       ycyl(l=35, r1=15, r2=5) {
+//           attach(TOP) anchor_arrow();
+//           attach(RIGHT) anchor_arrow();
+//       }
 //   }
-//
-// Example: By Diameter
+// Example: By diameter
 //   xdistribute(50) {
 //       ycyl(l=35, d=20);
 //       ycyl(l=35, d1=30, d2=10);
 //   }
 
 function ycyl(
-    h, r, d, r1, r2, d1, d2, l,
+    h, r, center,
+    l, r1, r2,
+    d, d1, d2,
+    length, height,
     chamfer, chamfer1, chamfer2,
     chamfang, chamfang1, chamfang2,
     rounding, rounding1, rounding2,
-    circum=false, realign=false, from_end=false,height,length,
-    anchor=CENTER, spin=0, orient=UP
-) = no_function("ycyl");
+    circum=false, realign=false, shift=[0,0],
+    teardrop=false, clip_angle=90,
+    from_end, from_end1, from_end2,
+    texture, tex_size=[5,5], tex_reps, tex_counts,
+    tex_inset=false, tex_rot=0,
+    tex_scale, tex_depth, tex_samples, length, height, 
+    tex_taper, style, tex_style,
+    extra, extra1, extra2, 
+    anchor, spin=0
+) = let(
+    r1 = get_radius(r1=r1, r=r, d1=d1, d=d, dflt=1),
+    r2 = get_radius(r1=r2, r=r, d1=d2, d=d, dflt=1),
+    l = one_defined([l,h,length,height],"l,h,length,height",1),
+    vnf=cyl(h=h, r=r, center=center,
+        l=l, r1=r1, r2=r2,
+        d=d, d1=d1, d2=d2,
+        length=length, height=height,
+        chamfer=chamfer, chamfer1=chamfer1, chamfer2=chamfer2,
+        chamfang=chamfang, chamfang1=chamfang1, chamfang2=chamfang2,
+        rounding=rounding, rounding1=rounding1, rounding2=rounding2,
+        circum=circum, realign=realign, shift=shift,
+        teardrop=teardrop, clip_angle=clip_angle,
+        from_end=from_end, from_end1=from_end1, from_end2=from_end2,
+        texture=texture, tex_size=tex_size, tex_reps=tex_reps, tex_counts=tex_counts,
+        tex_inset=tex_inset, tex_rot=tex_rot,
+        tex_scale=tex_scale, tex_depth=tex_depth, tex_samples=tex_samples,
+        tex_taper=tex_taper, style=style, tex_style=tex_style,
+        extra=extra, extra1=extra1, extra2=extra2, 
+        anchor=CENTER, spin=0, orient=BACK)
+    ) reorient(anchor, spin, UP, p=vnf, r1=r1, r2=r2, l=l, axis=BACK);
+
 
 
 module ycyl(
-    h, r, d, r1, r2, d1, d2, l,
+    h, r, center,
+    l, r1, r2,
+    d, d1, d2,
+    length, height,
     chamfer, chamfer1, chamfer2,
     chamfang, chamfang1, chamfang2,
     rounding, rounding1, rounding2,
-    circum=false, realign=false, from_end=false,height,length,
-    anchor=CENTER, spin=0, orient=UP
+    circum=false, realign, shift=[0,0],
+    teardrop=false, clip_angle=90,
+    from_end, from_end1, from_end2,
+    texture, tex_size=[5,5], tex_reps, tex_counts,
+    tex_inset=false, tex_rot=0,
+    tex_scale, tex_depth, tex_samples,
+    tex_taper, style, tex_style,
+    extra, extra1, extra2, 
+    anchor, spin=0
 ) {
     r1 = get_radius(r1=r1, r=r, d1=d1, d=d, dflt=1);
     r2 = get_radius(r1=r2, r=r, d1=d2, d=d, dflt=1);
     l = one_defined([l,h,length,height],"l,h,length,height",1);
-    attachable(anchor,spin,orient, r1=r1, r2=r2, l=l, axis=BACK) {
+    attachable(anchor,spin,orient=UP, r1=r1, r2=r2, l=l, axis=BACK) {
         cyl(
+            center=center,
             l=l, r1=r1, r2=r2,
             chamfer=chamfer, chamfer1=chamfer1, chamfer2=chamfer2,
             chamfang=chamfang, chamfang1=chamfang1, chamfang2=chamfang2,
             rounding=rounding, rounding1=rounding1, rounding2=rounding2,
-            circum=circum, realign=realign, from_end=from_end,
-            anchor=CENTER, orient=BACK
+            circum=circum, realign=realign, shift=shift,
+            teardrop=teardrop, clip_angle=clip_angle,
+            from_end=from_end, from_end1=from_end1, from_end2=from_end2,
+            texture=texture, tex_size=tex_size, tex_reps=tex_reps, tex_counts=tex_counts,
+            tex_inset=tex_inset, tex_rot=tex_rot,
+            tex_scale=tex_scale, tex_depth=tex_depth, tex_samples=tex_samples,
+            tex_taper=tex_taper, style=style, tex_style=tex_style,
+            extra=extra, extra1=extra1, extra2=extra2, 
+            anchor=CENTER, spin=0, orient=BACK
         );
         children();
     }
 }
 
 
-
 // Module: zcyl()
-// Synopsis: Creates a cylinder oriented along the Z axis.
-// SynTags: Geom
+// Synopsis: Creates a cylinder oriented along the y axis.
+// SynTags: Geom, VNF
 // Topics: Cylinders, Textures, Rounding, Chamfers
 // See Also: texture(), rotate_sweep(), cyl()
-// Description:
-//   Creates an attachable cylinder with roundovers and chamfering oriented along the Z axis.
-//
 // Usage: Typical
-//   zcyl(l|h|length|height, r|d=, [anchor=],...) [ATTACHMENTS];
-//   zcyl(l|h|length|height, r1=|d1=, r2=|d2=, [anchor=],...);
-//
-// Arguments:
-//   l / h / length / height = Length of cylinder along oriented axis. (Default: 1.0)
-//   r = Radius of cylinder.
-//   ---
-//   r1 = Radius of front (Y-) end of cone.
-//   r2 = Radius of back (Y+) end of one.
-//   d = Diameter of cylinder.
-//   d1 = Diameter of front (Y-) end of one.
-//   d2 = Diameter of back (Y+) end of one.
-//   circum = If true, cylinder should circumscribe the circle of the given size.  Otherwise inscribes.  Default: `false`
-//   chamfer = The size of the chamfers on the ends of the cylinder.  Default: none.
-//   chamfer1 = The size of the chamfer on the bottom end of the cylinder.  Default: none.
-//   chamfer2 = The size of the chamfer on the top end of the cylinder.  Default: none.
-//   chamfang = The angle in degrees of the chamfers on the ends of the cylinder.
-//   chamfang1 = The angle in degrees of the chamfer on the bottom end of the cylinder.
-//   chamfang2 = The angle in degrees of the chamfer on the top end of the cylinder.
-//   from_end = If true, chamfer is measured from the end of the cylinder, instead of inset from the edge.  Default: `false`.
-//   rounding = The radius of the rounding on the ends of the cylinder.  Default: none.
-//   rounding1 = The radius of the rounding on the bottom end of the cylinder.
-//   rounding2 = The radius of the rounding on the top end of the cylinder.
-//   realign = If true, rotate the cylinder by half the angle of one face.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
-//
-// Example: By Radius
+//   zcyl(l|h|length|height, r|d=, [anchor=], ...) [ATTACHMENTS];
+//   zcyl(l|h|length|height, r1=|d1=, r2=|d2=, [anchor=], ...) [ATTACHMENTS];
+// Description:
+//   Pass-through to [cyl()]. Creates an attachable cylinder with roundovers, chamfering, and optional texture, oriented along the Z axis.
+//   .
+//   This is a shortcut for `cyl()` with `orient=UP` (which is also the default for [cyl()]), but otherwise using the same arguments excluding `orient`, which is not accepted. Unlike `xcyl()` and `ycyl()`, anchoring for `zcyl()` works the same as for `cyl()`.
+//   .
+//   See [cyl()] for more detailed usage and arguments.
+// Example: By radius. The cone shows anchor arrows for `TOP` and `RIGHT`, which for `zcyl()` work the same as for `cyl()`.
 //   xdistribute(50) {
 //       zcyl(l=35, r=10);
-//       zcyl(l=35, r1=15, r2=5);
+//       zcyl(l=35, r1=15, r2=5) {
+//           attach(TOP) anchor_arrow();
+//           attach(RIGHT) anchor_arrow();
+//       }
 //   }
-//
-// Example: By Diameter
+// Example: By diameter
 //   xdistribute(50) {
 //       zcyl(l=35, d=20);
 //       zcyl(l=35, d1=30, d2=10);
 //   }
 
 function zcyl(
-    h, r, d, r1, r2, d1, d2, l,
+    h, r, center,
+    l, r1, r2,
+    d, d1, d2,
+    length, height,
     chamfer, chamfer1, chamfer2,
     chamfang, chamfang1, chamfang2,
     rounding, rounding1, rounding2,
-    circum=false, realign=false, from_end=false, length, height,
-    anchor=CENTER, spin=0, orient=UP
-) = no_function("zcyl");
+    circum=false, realign=false, shift=[0,0],
+    teardrop=false, clip_angle=90,
+    from_end, from_end1, from_end2,
+    texture, tex_size=[5,5], tex_reps, tex_counts,
+    tex_inset=false, tex_rot=0,
+    tex_scale, tex_depth, tex_samples, length, height, 
+    tex_taper, style, tex_style,
+    extra, extra1, extra2, 
+    anchor, spin=0
+) = let(
+    r1 = get_radius(r1=r1, r=r, d1=d1, d=d, dflt=1),
+    r2 = get_radius(r1=r2, r=r, d1=d2, d=d, dflt=1),
+    l = one_defined([l,h,length,height],"l,h,length,height",1),
+    vnf=cyl(h=h, r=r, center=center,
+        l=l, r1=r1, r2=r2,
+        d=d, d1=d1, d2=d2,
+        length=length, height=height,
+        chamfer=chamfer, chamfer1=chamfer1, chamfer2=chamfer2,
+        chamfang=chamfang, chamfang1=chamfang1, chamfang2=chamfang2,
+        rounding=rounding, rounding1=rounding1, rounding2=rounding2,
+        circum=circum, realign=realign, shift=shift,
+        teardrop=teardrop, clip_angle=clip_angle,
+        from_end=from_end, from_end1=from_end1, from_end2=from_end2,
+        texture=texture, tex_size=tex_size, tex_reps=tex_reps, tex_counts=tex_counts,
+        tex_inset=tex_inset, tex_rot=tex_rot,
+        tex_scale=tex_scale, tex_depth=tex_depth, tex_samples=tex_samples,
+        tex_taper=tex_taper, style=style, tex_style=tex_style,
+        extra=extra, extra1=extra1, extra2=extra2, 
+        anchor=CENTER, spin=0, orient=UP)
+    ) reorient(anchor, spin, UP, p=vnf, r1=r1, r2=r2, l=l, axis=UP);
+
 
 module zcyl(
-    h, r, d, r1, r2, d1, d2, l,
+    h, r, center,
+    l, r1, r2,
+    d, d1, d2,
     chamfer, chamfer1, chamfer2,
     chamfang, chamfang1, chamfang2,
     rounding, rounding1, rounding2,
-    circum=false, realign=false, from_end=false, length, height,
-    anchor=CENTER, spin=0, orient=UP
+    circum=false, realign, shift=[0,0],
+    teardrop=false, clip_angle=90,
+    from_end, from_end1, from_end2,
+    texture, tex_size=[5,5], tex_reps, tex_counts,
+    tex_inset=false, tex_rot=0,
+    tex_scale, tex_depth, tex_samples, length, height, 
+    tex_taper, style, tex_style,
+    extra, extra1, extra2, 
+    anchor, spin=0
 ) {
     r1 = get_radius(r1=r1, r=r, d1=d1, d=d, dflt=1);
     r2 = get_radius(r1=r2, r=r, d1=d2, d=d, dflt=1);
     l = one_defined([l,h,length,height],"l,h,length,height",1);
-    attachable(anchor,spin,orient, r1=r1, r2=r2, l=l) {
+    attachable(anchor,spin,orient=UP, r1=r1, r2=r2, l=l) {
         cyl(
+            center=center,
             l=l, r1=r1, r2=r2,
             chamfer=chamfer, chamfer1=chamfer1, chamfer2=chamfer2,
             chamfang=chamfang, chamfang1=chamfang1, chamfang2=chamfang2,
             rounding=rounding, rounding1=rounding1, rounding2=rounding2,
-            circum=circum, realign=realign, from_end=from_end,
-            anchor=CENTER
+            circum=circum, realign=realign, shift=shift,
+            teardrop=teardrop, clip_angle=clip_angle,
+            from_end=from_end, from_end1=from_end1, from_end2=from_end2,
+            texture=texture, tex_size=tex_size, tex_reps=tex_reps, tex_counts=tex_counts,
+            tex_inset=tex_inset, tex_rot=tex_rot,
+            tex_scale=tex_scale, tex_depth=tex_depth, tex_samples=tex_samples,
+            tex_taper=tex_taper, style=style, tex_style=tex_style,
+            extra=extra, extra1=extra1, extra2=extra2, 
+            anchor=CENTER, spin=0, orient=UP
         );
         children();
     }
@@ -2752,13 +2939,19 @@ module zcyl(
 //   wall thickness.
 //   .
 //   Chamfering and rounding lengths are measured based on the corners of the object except for the inner diameter when `circum=true`, in
-//   which case chamfers and roundings are measured from the facets.  This only matters when `$fn` is small.  
+//   which case chamfers and roundings are measured from the facets.  This matters only when `$fn` is small.
 //   .
-//   Attachment to the tube will place objects on the **outside** of the tube.
+//   Attachment to the tube places objects on the **outside** of the tube.
 //   If you need to anchor to the inside of a tube, use {{attach_part()}} with the part name "inside"
-//   to switch goeomtry to the inside.  
+//   to switch goeomtry to the inside.
+//   .
+//   When the `realign` parameter is false the inner and outer cylinders each have an edge aligned with the X+ axis. 
+//   If `realign` is true then the inner and outer cylindres each have a face is aligned with the X+ axis.  By default
+//   `realign` is false when `circum` is false and true if `circum` is true.  This means that when `$fn` is a multiple of four the approximate cylinder always
+//   has exactly correct dimensions on the X and Y axes regardless of the setting for circum, and it also means that cylinders match "octa"
+//   style spheroids on any of the coordinate planes. 
 // Usage: Basic cylindrical tube, specifying inner and outer radius or diameter
-//   tube(h|l, or, ir, [center], [realign=], [anchor=], [spin=],[orient=]) [ATTACHMENTS];
+//   tube(h|l, or, ir, [center|anchor=], [realign=], [spin=],[orient=]) [ATTACHMENTS];
 //   tube(h|l, od=, id=, ...)  [ATTACHMENTS];
 // Usage: Specify wall thickness
 //   tube(h|l, or|od=|ir=|id=, wall=, ...) [ATTACHMENTS];
@@ -2768,11 +2961,13 @@ module zcyl(
 // Usage: Rounded and chamfered tubes
 //   tube(..., [rounding=], [irounding=], [orounding=], [rounding1=], [rounding2=], [irounding1=], [irounding2=], [orounding1=], [orounding2=], [teardrop=], [clip_angle=]);
 //   tube(..., [chamfer=], [ichamfer=], [ochamfer=], [chamfer1=], [chamfer2=], [ichamfer1=], [ichamfer2=], [ochamfer1=], [ochamfer2=]);
+// Attachable Parts:
+//   "inside" = The inside of the tube
 // Arguments:
 //   h / l / height / length = height of tube. Default: 1
 //   or = Outer radius of tube. Default: 1
 //   ir = Inner radius of tube.
-//   center = If given, overrides `anchor`.  A true value sets `anchor=CENTER`, false sets `anchor=DOWN`.
+//   center = A true value sets `anchor=CENTER`, false sets `anchor=DOWN`.  Default: `anchor=CENTER`
 //   ---
 //   od = Outer diameter of tube.
 //   id = Inner diameter of tube.
@@ -2786,7 +2981,7 @@ module zcyl(
 //   id1 = Inner diameter of bottom of tube.
 //   id2 = Inner diameter of top of tube.
 //   ifn = Set the number of facets on the inside of the tube.
-//   circum = If true, the tube hole will circumscribe the circle of the given size.  Otherwise inscribes.  Default: `false`
+//   circum = If true, the tube hole circumscribes the circle of the given size.  Otherwise inscribes.  Default: `false`
 //   shift = [X,Y] amount to shift the center of the top end with respect to the center of the bottom end.
 //   rounding = The radius of the rounding on the ends of the tube.  Default: none.
 //   rounding1 = The radius of the rounding on the bottom end of the tube.
@@ -2809,10 +3004,11 @@ module zcyl(
 //   ochamfer2 = The size of the chamfer on the top outside end of the tube.
 //   teardrop = If given as a number, rounding around the bottom edges won't exceed this many degrees from the endcap, altering to a chamfer at that angle.  If true, the limit angle is 45 degrees.  Default: `false`
 //   clip_angle = If given as a number, rounding around the bottom edges won't exceed this many degrees from the endcap, with the rounding stopping at the bottom of the shape.  Default: (no clipping)
-//   realign = If true, rotate the inner and outer parts tube by half the angle of one face so that a face is aligned at the X+ axis.  Default: False
+//   realign = If false a vertical edge is aligned to the X+ axis.  If true a vertical face is aligned to the X+ axis. The inner and out parts of the tube are always aligned the same way.  Default: false if `circum=false` and true if `circum=true`
+//   realign = If true, rotate the inner and outer parts tube by half the angle of one face so that a face is aligned at the X+ axis.  Default: false if `circum=false` and true if `circum=true`
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //
 // Example: These all Produce the Same Tube
 //   tube(h=30, or=40, wall=5);
@@ -2866,7 +3062,7 @@ function tube(
     od, id, wall,
     or1, or2, od1, od2,
     ir1, ir2, id1, id2,
-    realign=false, l, length, height,
+    realign, l, length, height,
     anchor, spin=0, orient=UP, orounding1,irounding1,orounding2,irounding2,rounding1,rounding2,rounding,
     ochamfer1,ichamfer1,ochamfer2,ichamfer2,chamfer1,chamfer2,chamfer,irounding,ichamfer,orounding,ochamfer,
     teardrop=false, clip_angle, shift=[0,0],
@@ -2880,12 +3076,14 @@ module tube(
     od, id, wall,
     or1, or2, od1, od2,
     ir1, ir2, id1, id2,
-    realign=false, l, length, height,
+    realign, l, length, height,
     anchor, spin=0, orient=UP, orounding1,irounding1,orounding2,irounding2,rounding1,rounding2,rounding,
     ochamfer1,ichamfer1,ochamfer2,ichamfer2,chamfer1,chamfer2,chamfer,irounding,ichamfer,orounding,ochamfer,
-    teardrop=false, clip_angle, shift=[0,0],
+    teardrop=false, clip_angle=90, shift=[0,0],
     ifn, rounding_fn, circum=false
 ) {
+    realign = assert(is_bool(circum))
+              default(realign,circum);
     h = one_defined([h,l,height,length],"h,l,height,length",dflt=1);
     orr1 = get_radius(r1=or1, r=or, d1=od1, d=od, dflt=undef);
     orr2 = get_radius(r1=or2, r=or, d1=od2, d=od, dflt=undef);
@@ -2897,23 +3095,26 @@ module tube(
     ir1 = default(irr1, u_sub(orr1,wall));
     ir2 = default(irr2, u_sub(orr2,wall));
     checks =
-        assert(is_vector(shift,2), "shift must be a 2D vector.")
-        assert(all_defined([r1, r2, ir1, ir2]), "Must specify two of inner radius/diam, outer radius/diam, and wall width.")
-        assert(num_defined([rounding,chamfer])<2, "Cannot give both rounding and chamfer")
-        assert(num_defined([irounding,ichamfer])<2, "Cannot give both irounding and ichamfer")
-        assert(num_defined([orounding,ochamfer])<2, "Cannot give both orounding and ochamfer")
-        assert(num_defined([rounding1,chamfer1])<2, "Cannot give both rounding1 and chamfer1")
-        assert(num_defined([irounding1,ichamfer1])<2, "Cannot give both irounding1 and ichamfern")
-        assert(num_defined([orounding1,ochamfer1])<2, "Cannot give both orounding1 and ochamfer1")
-        assert(num_defined([rounding2,chamfer2])<2, "Cannot give both rounding2 and chamfer2")
-        assert(num_defined([irounding2,ichamfer2])<2, "Cannot give both irounding2 and ichamfern")
-        assert(num_defined([orounding2,ochamfer2])<2, "Cannot give both orounding2 and ochamfer2");
+        assert(is_bool(realign))      
+        assert(is_undef(center) || is_bool(center), "\ncenter must be boolean.")
+        assert(num_defined([anchor,center])<2, "\nCannot give both anchor and center.")
+        assert(is_vector(shift,2), "\n'shift' must be a 2D vector.")
+        assert(all_defined([r1, r2, ir1, ir2]), "\nMust specify two of inner radius/diam, outer radius/diam, and wall width.")
+        assert(num_defined([rounding,chamfer])<2, "\nCannot give both rounding and chamfer.")
+        assert(num_defined([irounding,ichamfer])<2, "\nCannot give both irounding and ichamfer.")
+        assert(num_defined([orounding,ochamfer])<2, "\nCannot give both orounding and ochamfer.")
+        assert(num_defined([rounding1,chamfer1])<2, "\nCannot give both rounding1 and chamfer1.")
+        assert(num_defined([irounding1,ichamfer1])<2, "\nCannot give both irounding1 and ichamfern.")
+        assert(num_defined([orounding1,ochamfer1])<2, "\nCannot give both orounding1 and ochamfer1.")
+        assert(num_defined([rounding2,chamfer2])<2, "\nCannot give both rounding2 and chamfer2.")
+        assert(num_defined([irounding2,ichamfer2])<2, "\nCannot give both irounding2 and ichamfern.")
+        assert(num_defined([orounding2,ochamfer2])<2, "\nCannot give both orounding2 and ochamfer2.");
     names = ["irounding","orounding","rounding","irounding1","irounding2","orounding1","orounding2",
              "ichamfer","ochamfer","chamfer","ichamfer1","ichamfer2","ochamfer1","ochamfer2"];
     vals =  [irounding,orounding,rounding,irounding1,irounding2,orounding1,orounding2,
              ichamfer,ochamfer,chamfer,ichamfer1,ichamfer2,ochamfer1,ochamfer2];
     bad = [for(i=idx(names)) if (is_def(vals[i]) && !is_finite(vals[i])) i];
-    checks2 = assert(bad==[],str("Rounding/chamfer parameters must be numbers.  The following are invalid: ",
+    checks2 = assert(bad==[],str("\nRounding/chamfer parameters must be numbers. The following are invalid: ",
                                  select(names,bad)));
     findval = function (factor,vlist,i=0)
          i>=len(vlist) || is_def(vlist[i][1]) ? undef
@@ -2930,10 +3131,10 @@ module tube(
 
     /*  This is too restrictive, at least on cones 
     dummy = 
-      assert( first_defined([irounding1,ichamfer1,0])+first_defined([orounding1,ochamfer1,0]) <= r1-ir1, "Chamfer/rounding doesn't fit at bottom")
-      assert( first_defined([irounding2,ichamfer2,0])+first_defined([orounding2,ochamfer2,0]) <= r2-ir2, "Chamfer/rounding doesn't fit at top")
-      assert( -first_defined([irounding1,ichamfer1,0])<ir1, "Negative inside chamfer/rounding doesn't fit at bottom")
-      assert( -first_defined([irounding2,ichamfer2,0])<ir1, "Negative inside chamfer/rounding doesn't fit at top");
+      assert( first_defined([irounding1,ichamfer1,0])+first_defined([orounding1,ochamfer1,0]) <= r1-ir1, "\nChamfer/rounding doesn't fit at bottom.")
+      assert( first_defined([irounding2,ichamfer2,0])+first_defined([orounding2,ochamfer2,0]) <= r2-ir2, "\nChamfer/rounding doesn't fit at top.")
+      assert( -first_defined([irounding1,ichamfer1,0])<ir1, "\nNegative inside chamfer/rounding doesn't fit at bottom.")
+      assert( -first_defined([irounding2,ichamfer2,0])<ir1, "\nNegative inside chamfer/rounding doesn't fit at top.");
     */
 
     anchor = get_anchor(anchor, center, BOT, CENTER);
@@ -2946,8 +3147,8 @@ module tube(
 
     
     morecheck=
-        assert(adj_ir1 <= r1, "Inner radius is larger than outer radius.")
-        assert(adj_ir2 <= r2, "Inner radius is larger than outer radius.");
+        assert(adj_ir1 <= r1, "\nInner radius is larger than outer radius.")
+        assert(adj_ir2 <= r2, "\nInner radius is larger than outer radius.");
 
 
     $fn = default(rounding_fn,$fn);
@@ -3008,7 +3209,7 @@ module tube(
 //   h / l / height / length = height of pie slice.
 //   r = radius of pie slice.
 //   ang = pie slice angle in degrees.
-//   center = If given, overrides `anchor`.  A true value sets `anchor=CENTER`, false sets `anchor=UP`.
+//   center = A true value sets `anchor=CENTER`, false sets `anchor=DOWN`.  Default: `anchor=CENTER`
 //   ---
 //   r1 = bottom radius of pie slice.
 //   r2 = top radius of pie slice.
@@ -3017,7 +3218,7 @@ module tube(
 //   d2 = top diameter of pie slice.
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //
 // Example: Cylindrical Pie Slice
 //   pie_slice(ang=45, l=20, r=30);
@@ -3034,6 +3235,9 @@ module pie_slice(
     r1, r2, d, d1, d2, l, length, height,
     anchor, spin=0, orient=UP
 ) {
+    dummy =
+      assert(is_undef(center) || is_bool(center), "\ncenter must be boolean.")
+      assert(num_defined([anchor,center])<2,"\nCannot give both anchor and center.");
     l = one_defined([l, h,height,length],"l,h,height,length",dflt=1);
     r1 = get_radius(r1=r1, r=r, d1=d1, d=d, dflt=10);
     r2 = get_radius(r1=r2, r=r, d1=d2, d=d, dflt=10);
@@ -3070,7 +3274,7 @@ function pie_slice(
                     h = lerp(-l/2,l/2,u),
                     r = lerp(r1,r2,u)
                 ) [
-                    for (theta = [0:step:ang+EPSILON])
+                    for (theta = [0:step:ang+_EPSILON])
                         cylindrical_to_xyz(r,theta,h),
                     [0,0,h]
                 ]
@@ -3105,7 +3309,7 @@ function pie_slice(
 //   d = Diameter of the sphere.
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Example: By Radius
 //   sphere(r=50);
 // Example: By Diameter
@@ -3121,6 +3325,7 @@ function pie_slice(
 
 module sphere(r, d, anchor=CENTER, spin=0, orient=UP) {
     r = get_radius(r=r, d=d, dflt=1);
+    dummy = assert(is_finite(r) && r>=0, "\nr must be a non-negative number.");
     attachable(anchor,spin,orient, r=r) {
             _sphere(r=r);
             children();
@@ -3160,16 +3365,19 @@ function sphere(r, d, anchor=CENTER, spin=0, orient=UP) =
 //   a circumscribing polyhedron, we use the dual polyhedron of the basic form.  The dual of a polyhedron is
 //   a new polyhedron whose vertices are obtained from the faces of the parent polyhedron.
 //   The "orig" and "align" forms are duals of each other.  If you request a circumscribing polyhedron in
-//   these styles then the polyhedron will look the same as the default inscribing form.  But for the other
+//   these styles then the polyhedron looks the same as the default inscribing form.  But for the other
 //   styles, the duals are completely different from their parents, and from each other.  Generation of the circumscribed versions (duals)
-//   for "octa" and "icosa" is fast if you use the module form but can be very slow (several minutes) if you use the functional
+//   for "octa" and "icosa" is fast if you use the module form but can be slow (several minutes) if you use the functional
 //   form and choose a large $fn value.
 //   .
 //   With style="align", the circumscribed sphere has its maximum radius on the X and Y axes
 //   but is undersized on the Z axis.  With style="octa" the circumscribed sphere has faces at each axis, so
 //   the radius on the axes is equal to the specified radius, which is the *minimum* radius of the circumscribed sphere.
-//   The same thing is true for style="icosa" when $fn is a multiple of 10.  This would enable you to create spherical
+//   The same thing is true for style="icosa" when $fn is a multiple of 10. This enables you to create spherical
 //   holes with guaranteed on-axis dimensions.
+//   .
+//   The "octa" style has the property that it blends neatly with a cylinder of the same $fn along any of the coordinate axes.
+//   This is true for both the regular and circumscribed "octa" spheroid.  
 // Arguments:
 //   r = Radius of the spheroid.
 //   style = The style of the spheroid's construction. One of "orig", "aligned", "stagger", "octa", or "icosa".  Default: "aligned"
@@ -3178,7 +3386,7 @@ function sphere(r, d, anchor=CENTER, spin=0, orient=UP) =
 //   circum = If true, the approximate sphere circumscribes the true sphere of the requested size.  Otherwise inscribes.  Note that for some styles, the circumscribed sphere looks different than the inscribed sphere.  Default: false (inscribes)
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Example: By Radius
 //   spheroid(r=50);
 // Example: By Diameter
@@ -3193,12 +3401,20 @@ function sphere(r, d, anchor=CENTER, spin=0, orient=UP) =
 //   spheroid(d=100, style="stagger", circum=true, $fn=10);
 // Example: style="octa", octahedral based tesselation.  In this style, $fn is quantized to a multiple of 4.
 //   spheroid(d=100, style="octa", $fn=10);
-// Example: style="octa", with circum=true, produces mostly very irregular hexagonal faces
+// Example: style="octa", with circum=true, produces mostly irregular hexagonal faces
 //   spheroid(d=100, style="octa", circum=true, $fn=16);
 // Example: style="icosa", icosahedral based tesselation.  In this style, $fn is quantized to a multiple of 5.
 //   spheroid(d=100, style="icosa", $fn=10);
 // Example: style="icosa", circum=true.  This style has hexagons and 12 pentagons, similar to (but not the same as) a soccer ball.
 //   spheroid(d=100, style="icosa", circum=true, $fn=10);
+// Example: Joining "octa" style spheroid to a x-aligned cylinder
+//   $fn=16;
+//   spheroid(r=10, style="octa");
+//   xcyl(r=10, h=15, anchor=RIGHT);
+// Example: Joining "octa" style spheroid to a x-aligned cylinder with `circum=true`.  Here the sphere is green and the cylinder a tiny bit oversized to prevent z-fighting where the faces of the cylinder and sphere overlap.  
+//   $fn=16;
+//   color("lightblue")spheroid(r=10, style="octa", circum=true);
+//   xcyl(r=10.01, h=15, anchor=RIGHT, circum=true);
 // Example: Anchoring
 //   spheroid(d=100, anchor=FRONT);
 // Example: Spin
@@ -3210,7 +3426,7 @@ function sphere(r, d, anchor=CENTER, spin=0, orient=UP) =
 // Example: Called as Function
 //   vnf = spheroid(d=100, style="icosa");
 //   vnf_polyhedron(vnf);
-// Example: With "orig" the circumscribing sphere has the same form.  The green sphere is a tiny bit oversized so it pokes through the low points in the circumscribed sphere with low $fn.  This demonstrates that these spheres are in fact circumscribing.
+// Example: With "orig" the circumscribing sphere has the same form.  The green sphere has a very high `$fn` so it is very close to spherical, and it is a tiny bit oversized so it pokes through the low points in the circumscribed sphere with low `$fn`.  An equal sized green dot in the middle of every face demonstrates that these spheres are in fact circumscribing.
 //   color("green")spheroid(r=10.01, $fn=256);
 //   spheroid(r=10, style="orig", circum=true, $fn=16);
 // Example: With "aligned" the same is true: the circumscribing sphere is also aligned, if $fn is divisible by 4.
@@ -3242,7 +3458,7 @@ module spheroid(r, style="aligned", d, circum=false, dual=false, anchor=CENTER, 
             scale(r) rotate(180) rotate_extrude(convexity=2,$fn=sides) polygon(path);
         }
         // Don't now how to construct faces for these efficiently, so use hull_points, which
-        // is very much faster than using hull() as happens in the spheroid() function
+        // is much faster than using hull() as happens in the spheroid() function
         else if (circum && (style=="octa" || style=="icosa")) {
             orig_sphere = spheroid(r,style,circum=false);
             dualvert = _dual_vertices(orig_sphere);
@@ -3272,12 +3488,172 @@ function _dual_vertices(vnf) =
   ];
 
 
+function _vector_planes_intersection(A, B, C, D) =
+    let(
+        // Normal vectors to the planes containing each great circle
+        n1 = cross(A, B),
+        n2 = cross(C, D),
+
+        // The intersection line direction
+        line_dir = cross(n1, n2),
+        line_len = norm(line_dir),
+
+        // Normalize to get point on unit sphere
+        isect = line_dir / line_len
+    )
+    isect;
+
+
+function _make_octa_sphere(r) =
+let(
+    // Get number of triangles on each side of each octants.
+    subdivs = quantup(segs(r),4)/4,
+
+    pts = [
+        for (row = [subdivs:-1:0]) [
+            for (col = [0:1:subdivs-row])
+            let(
+                // row corresponds to x index, col to y index
+                z_idx = row,
+                y_idx = col,
+                x_idx = subdivs - row - col,
+
+                yu = 90 * y_idx / subdivs,
+                zu = 90 * z_idx / subdivs,
+
+                ycos = cos(yu),
+                ysin = sin(yu),
+                zcos = cos(zu),
+                zsin = sin(zu),
+
+                // Special cases: edges
+                pt = (x_idx == 0) ? [0, zcos, zsin] :  // Y-Z edge
+                     (y_idx == 0) ? [zcos, 0, zsin] :  // X-Z edge
+                     (z_idx == 0) ? [ycos, ysin, 0] :  // X-Y edge
+
+                     // Interior points
+                     let(
+                         yu2 = 90 - yu,
+                         xu2 = 90 * (subdivs - x_idx) / subdivs,
+
+                         ysin2 = sin(yu2),
+                         ycos2 = cos(yu2),
+                         xsin2 = sin(xu2),
+                         xcos2 = cos(xu2),
+
+                         // For the arc with constant z-ratio (in the "z-plane")
+                         // This arc goes from the X-Z edge to the Y-Z edge
+                         // At the X-Z edge (y=0), we have the point at z_idx
+                         xz_edge_pt = [zcos, 0, zsin],
+                         // At the Y-Z edge (x=0), we have the point at z_idx
+                         yz_edge_pt = [0, zcos, zsin],
+
+                         // For the arc with constant y-ratio (in the "y-plane")
+                         // This arc goes from the X-Y edge to the Y-Z edge
+                         // At the X-Y edge (z=0), we have the point at y_idx
+                         xy_edge_pt = [ycos, ysin, 0],
+                         // At the Y-Z edge (x=0), we have the point at y_idx
+                         yz_edge_pt2 = [0, ycos2, ysin2],
+
+                         // For the arc with constant x-ratio (in the "x-plane")
+                         // This arc goes from the X-Y edge to the X-Z edge
+                         // At the X-Y edge (z=0), we have the point at x_idx
+                         xy_edge_pt2 = [xcos2, xsin2, 0],
+                         // At the X-Z edge (y=0), we have the point at x_idx
+                         xz_edge_pt2 = [xcos2, 0, xsin2],
+
+                         // Find all three intersections
+                         int_z_y = _vector_planes_intersection(xz_edge_pt, yz_edge_pt, xy_edge_pt, yz_edge_pt2),
+                         int_z_x = _vector_planes_intersection(xz_edge_pt, yz_edge_pt, xy_edge_pt2, xz_edge_pt2),
+                         int_y_x = _vector_planes_intersection(xy_edge_pt, yz_edge_pt2, xy_edge_pt2, xz_edge_pt2),
+
+                         // Average and normalize
+                         isect = unit(int_z_y + int_z_x + int_y_x)
+                     )
+                     isect
+            )
+            pt
+        ]
+    ] * r,
+    rows = [
+        [ pts[0][0] ],
+
+        for (row = [1:1:subdivs]) [
+            for (a = [0:90:359])
+            each zrot(a, p=select(pts[row], [0:1:row-1]))
+        ],
+
+        for (row = [subdivs-1:-1:1]) [
+            for (a = [0:90:359])
+            each zrot(a, p=zflip(p=select(pts[row], [0:1:row-1])))
+        ],
+
+        [ zflip(p=pts[0][0]) ]
+    ],
+    verts = flatten(rows),
+    offsets = cumsum([0, for (row = rows) len(row)]),
+    faces = [
+        for (i = [0:1:len(rows[1])-1])
+            let(
+                l1 = len(rows[1]),
+                o1 = offsets[1]
+            )
+            [i+o1, 0, (i+1)%l1+o1],
+
+        for (j = [1:1:subdivs-1])
+            let(
+                l1 = len(rows[j]),
+                l2 = len(rows[j+1]),
+                o1 = offsets[j],
+                o2 = offsets[j+1],
+                q1 = len(rows[j])/4,
+                q2 = len(rows[j+1])/4
+            )
+            for (n = [0:1:3])
+                each [
+                    [o2+q2*n, o1+q1*n, o2+(q2*n+1)%l2],
+                    for (i = [0:1:q1-1]) each [
+                        [o2+(i+q2*n+1)%l2, o1+(i+q1*n+1)%l1, o2+(i+q2*n+2)%l2],
+                        [o2+(i+q2*n+1)%l2, o1+(i+q1*n)%l1, o1+(i+q1*n+1)%l1]
+                    ]
+                ],
+
+        for (j = [subdivs:1:2*subdivs-2])
+            let(
+                l1 = len(rows[j]),
+                l2 = len(rows[j+1]),
+                o1 = offsets[j],
+                o2 = offsets[j+1],
+                q1 = len(rows[j])/4,
+                q2 = len(rows[j+1])/4
+            )
+            for (n = [0:1:3])
+                each [
+                    [o2+q2*n, o1+q1*n, o1+(q1*n+1)%l1],
+                    for (i = [0:1:q1-2]) each [
+                        [o2+(i+q2*n)%l2, o1+(i+q1*n+1)%l1, o2+(i+q2*n+1)%l2],
+                        [o1+(i+q1*n+2)%l1, o2+(i+q2*n+1)%l2, o1+(i+q1*n+1)%l1]
+                    ]
+                ],
+
+        for (i = [0:1:3])
+            let(
+                row = len(rows) -2,
+                l1 = len(rows[row]),
+                o1 = offsets[row],
+                o2 = offsets[row+1]
+            )
+            [o2, o1+i, o1+(i+1)%l1]
+    ]
+) [verts, faces];
+
+
 function spheroid(r, style="aligned", d, circum=false, anchor=CENTER, spin=0, orient=UP) =
+    assert(in_list(style, ["orig", "aligned", "stagger", "octa", "icosa"]))
     let(
         r = get_radius(r=r, d=d, dflt=1),
         hsides = segs(r),
         vsides = max(2,ceil(hsides/2)),
-        octa_steps = round(max(4,hsides)/4),
         icosa_steps = round(max(5,hsides)/5),
         stagger = style=="stagger"
      )
@@ -3302,6 +3678,10 @@ function spheroid(r, style="aligned", d, circum=false, anchor=CENTER, spin=0, or
               faces = hull(dualvert)
          )
          [reorient(anchor,spin,orient, r=r, p=dualvert), faces]
+     :
+     style=="octa" ?
+         let( vnf = _make_octa_sphere(r) )
+         reorient(anchor,spin,orient, r=r, p=vnf)
      :
      style=="icosa" ?    // subdivide faces of an icosahedron and project them onto a sphere
          let(
@@ -3358,19 +3738,6 @@ function spheroid(r, style="aligned", d, circum=false, anchor=CENTER, spin=0, or
                                    spherical_to_xyz(r, theta, phi),
                            spherical_to_xyz(r, 0, 180)
                          ]
-              : style=="octa"?
-                      let(
-                           meridians = [
-                                        1,
-                                        for (i = [1:1:octa_steps]) i*4,
-                                        for (i = [octa_steps-1:-1:1]) i*4,
-                                        1,
-                                       ]
-                      )
-                      [
-                       for (i=idx(meridians), j=[0:1:meridians[i]-1])
-                           spherical_to_xyz(r, j*360/meridians[i], i*180/(len(meridians)-1))
-                      ]
               : assert(in_list(style,["orig","aligned","stagger","octa","icosa"])),
         lv = len(verts),
         faces = circum && style=="stagger" ?
@@ -3412,52 +3779,16 @@ function spheroid(r, style="aligned", d, circum=false, anchor=CENTER, spin=0, or
                                  ]
                            )
                      ]
-              : style=="orig"? [
-                                [for (i=[0:1:hsides-1]) hsides-i-1],
-                                [for (i=[0:1:hsides-1]) lv-hsides+i],
-                                for (i=[0:1:vsides-2], j=[0:1:hsides-1])
-                                    each [
-                                          [(i+1)*hsides+j, i*hsides+j, i*hsides+(j+1)%hsides],
-                                          [(i+1)*hsides+j, i*hsides+(j+1)%hsides, (i+1)*hsides+(j+1)%hsides],
-                                    ]
-                               ]
-              : /*style=="octa"?*/
-                     let(
-                         meridians = [
-                                      0, 1,
-                                      for (i = [1:1:octa_steps]) i*4,
-                                      for (i = [octa_steps-1:-1:1]) i*4,
-                                      1,
-                                     ],
-                         offs = cumsum(meridians),
-                         pc = last(offs)-1,
-                         os = octa_steps * 2
-                     )
-                     [
-                      for (i=[0:1:3]) [0, 1+(i+1)%4, 1+i],
-                      for (i=[0:1:3]) [pc-0, pc-(1+(i+1)%4), pc-(1+i)],
-                      for (i=[1:1:octa_steps-1])
-                          let(m = meridians[i+2]/4)
-                          for (j=[0:1:3], k=[0:1:m-1])
-                              let(
-                                  m1 = meridians[i+1],
-                                  m2 = meridians[i+2],
-                                  p1 = offs[i+0] + (j*m1/4 + k+0) % m1,
-                                  p2 = offs[i+0] + (j*m1/4 + k+1) % m1,
-                                  p3 = offs[i+1] + (j*m2/4 + k+0) % m2,
-                                  p4 = offs[i+1] + (j*m2/4 + k+1) % m2,
-                                  p5 = offs[os-i+0] + (j*m1/4 + k+0) % m1,
-                                  p6 = offs[os-i+0] + (j*m1/4 + k+1) % m1,
-                                  p7 = offs[os-i-1] + (j*m2/4 + k+0) % m2,
-                                  p8 = offs[os-i-1] + (j*m2/4 + k+1) % m2
-                              )
-                              each [
-                                    [p1, p4, p3],
-                                    if (k<m-1) [p1, p2, p4],
-                                    [p5, p7, p8],
-                                    if (k<m-1) [p5, p8, p6],
-                                   ],
-                     ]
+              : style=="orig"?
+                  [
+                      [for (i=[0:1:hsides-1]) hsides-i-1],
+                      [for (i=[0:1:hsides-1]) lv-hsides+i],
+                      for (i=[0:1:vsides-2], j=[0:1:hsides-1]) each [
+                          [(i+1)*hsides+j, i*hsides+j, i*hsides+(j+1)%hsides],
+                          [(i+1)*hsides+j, i*hsides+(j+1)%hsides, (i+1)*hsides+(j+1)%hsides],
+                      ]
+                  ]
+              : assert(in_list(style,["orig","aligned","stagger","octa","icosa"]))
     ) [reorient(anchor,spin,orient, r=r, p=verts), faces];
 
 
@@ -3516,7 +3847,7 @@ function spheroid(r, style="aligned", d, circum=false, anchor=CENTER, spin=0, or
 // Arguments:
 //   r_maj = major radius of torus ring. (use with 'r_min', or 'd_min')
 //   r_min = minor radius of torus ring. (use with 'r_maj', or 'd_maj')
-//   center = If given, overrides `anchor`.  A true value sets `anchor=CENTER`, false sets `anchor=DOWN`.
+//   center = A true value sets `anchor=CENTER`, false sets `anchor=DOWN`.  Default: `anchor=CENTER`
 //   ---
 //   d_maj  = major diameter of torus ring. (use with 'r_min', or 'd_min')
 //   d_min = minor diameter of torus ring. (use with 'r_maj', or 'd_maj')
@@ -3525,7 +3856,7 @@ function spheroid(r, style="aligned", d, circum=false, anchor=CENTER, spin=0, or
 //   od = outer diameter of the torus. (use with 'ir' or 'id')
 //   id = inside diameter of the torus. (use with 'or' or 'od')
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //
 // Example:
 //   // These all produce the same torus.
@@ -3547,6 +3878,9 @@ module torus(
     or, od, ir, id,
     anchor, spin=0, orient=UP
 ) {
+    dummy =
+      assert(is_undef(center) || is_bool(center), "\ncenter must be boolean.")
+      assert(num_defined([anchor,center])<2,"\nCannot give both anchor and center");
     _or = get_radius(r=or, d=od, dflt=undef);
     _ir = get_radius(r=ir, d=id, dflt=undef);
     _r_maj = get_radius(r=r_maj, d=d_maj, dflt=undef);
@@ -3555,17 +3889,17 @@ module torus(
         is_finite(_ir) && is_finite(_or)? (_or + _ir)/2 :
         is_finite(_ir) && is_finite(_r_min)? (_ir + _r_min) :
         is_finite(_or) && is_finite(_r_min)? (_or - _r_min) :
-        assert(false, "Bad Parameters");
+        assert(false, "\nBad parameters.");
     min_rad = is_finite(_r_min)? _r_min :
         is_finite(_ir)? (maj_rad - _ir) :
         is_finite(_or)? (_or - maj_rad) :
-        assert(false, "Bad Parameters");
+        assert(false, "\nBad parameters.");
     anchor = get_anchor(anchor, center, BOT, CENTER);
     attachable(anchor,spin,orient, r=(maj_rad+min_rad), l=min_rad*2) {
         rotate_extrude(convexity=4) {
-            right_half(s=min_rad*2, planar=true)
-                right(maj_rad)
-                    circle(r=min_rad);
+            if (min_rad <= maj_rad) right(maj_rad) circle(r=min_rad);
+            else right_half(s=2*(maj_rad+min_rad), planar=true)
+                   right(maj_rad) circle(r=min_rad);
         }
         children();
     }
@@ -3577,7 +3911,9 @@ function torus(
     d_maj, d_min,
     or, od, ir, id,
     anchor, spin=0, orient=UP
-) = let(
+) = assert(num_defined([anchor,center])<2,"\nCannot give both anchor and center")
+    assert(is_undef(center) || is_bool(center), "\ncenter must be boolean.")
+    let(
     _or = get_radius(r=or, d=od, dflt=undef),
     _ir = get_radius(r=ir, d=id, dflt=undef),
     _r_maj = get_radius(r=r_maj, d=d_maj, dflt=undef),
@@ -3586,11 +3922,11 @@ function torus(
         is_finite(_ir) && is_finite(_or)? (_or + _ir)/2 :
         is_finite(_ir) && is_finite(_r_min)? (_ir + _r_min) :
         is_finite(_or) && is_finite(_r_min)? (_or - _r_min) :
-        assert(false, "Bad Parameters"),
+        assert(false, "\nBad parameters."),
     min_rad = is_finite(_r_min)? _r_min :
         is_finite(_ir)? (maj_rad - _ir) :
         is_finite(_or)? (_or - maj_rad) :
-        assert(false, "Bad Parameters"),
+        assert(false, "\nBad parameters."),
     anchor = get_anchor(anchor, center, BOT, CENTER),
     maj_sides = segs(maj_rad+min_rad),
     maj_step = 360 / maj_sides,
@@ -3600,7 +3936,7 @@ function torus(
         right_half(p=right(maj_rad, p=circle(r=min_rad)))[0],
     profile = xrot(90, p=path3d(xyprofile)),
     vnf = vnf_vertex_array(
-        points=[for (a=[0:maj_step:360-EPSILON]) zrot(a, p=profile)],
+        points=[for (a=[0:maj_step:360-_EPSILON]) zrot(a, p=profile)],
         caps=false, col_wrap=true, row_wrap=true, reverse=true
     )
 ) reorient(anchor,spin,orient, r=(maj_rad+min_rad), l=min_rad*2, p=vnf);
@@ -3615,8 +3951,8 @@ function torus(
 //   Makes a teardrop extrusion along the Y axis, which is useful for 3D printable holes.
 //   Optional chamfers can be added with positive or negative distances.  A positive distance
 //   specifies the amount to inset the chamfer along the front/back faces of the shape.
-//   The chamfer will extend the same y distance into the shape.  If the radii are the same
-//   then the chamfer will be a 45 degree chamfer, but in other cases it will not.
+//   The chamfer extends the same y distance into the shape.  If the radii are the same
+//   then the chamfer will be a 45° chamfer, but in other cases it will not.
 //   With caps, the chamfer must not be so big that it makes the cap height illegal.
 //   Similarly the chamfer cannot be larger than `bot_corner` if it is set, and if you do
 //   set chamfer exactly equal to bottom corner, then `$fn` must be even if `realign` is false
@@ -3639,6 +3975,7 @@ function torus(
 //   cap_h = If given, height above center where the shape will be truncated. Default: `undef` (no truncation)
 //   ---
 //   circum = produce a circumscribing teardrop shape.  Default: false
+//   bot_corner = create a bottom corner the specified distance below the given radius.  Default: 0
 //   r1 = Radius of circular portion of the front end of the teardrop shape.
 //   r2 = Radius of circular portion of the back end of the teardrop shape.
 //   d = Diameter of circular portion of the teardrop shape.
@@ -3649,10 +3986,10 @@ function torus(
 //   chamfer = Specifies size of chamfer as distance along the bottom and top faces.  Default: 0
 //   chamfer1 = Specifies size of chamfer on bottom as distance along bottom face.  Default: 0
 //   chamfer2 = Specifies size of chamfer on top as distance along top face.  Default: 0
-//   realign = Passes realign option to teardrop2d, which shifts face alignment.  Default: false
+//   realign = if true, bottom of teardrop is flat; if false, bottom of teardrop is a point.  Default: false
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //
 // Named Anchors:
 //   "cap" = The center of the top of the cap, oriented with the cap face normal.
@@ -3698,7 +4035,7 @@ module teardrop(h, r, ang=45, cap_h, r1, r2, d, d1, d2, cap_h1, cap_h2, l, lengt
                 chamfer, chamfer1, chamfer2,anchor=CENTER, spin=0, orient=UP, bot_corner1, bot_corner2, bot_corner=0)
 {
     length = one_defined([l, h, length, height],"l,h,length,height");
-    dummy=assert(is_finite(length) && length>0, "length must be positive");
+    dummy=assert(is_finite(length) && length>0, "\nlength must be positive.");
     r1 = get_radius(r=r, r1=r1, d=d, d1=d1);
     r2 = get_radius(r=r, r1=r2, d=d, d1=d2);
     tip_y1 = r1/cos(90-ang);
@@ -3726,7 +4063,7 @@ function teardrop(h, r, ang=45, cap_h, r1, r2, d, d1, d2, cap_h1, cap_h2,  chamf
         r1 = get_radius(r=r, r1=r1, d=d, d1=d1, dflt=1),
         r2 = get_radius(r=r, r1=r2, d=d, d1=d2, dflt=1),
         length = one_defined([l, h, length, height],"l,h,length,height"),
-        dummy0=assert(is_finite(length) && length>0, "length must be positive"),
+        dummy0=assert(is_finite(length) && length>0, "\nlength must be positive."),
         cap_h1 = first_defined([cap_h1, cap_h]),
         cap_h2 = first_defined([cap_h2, cap_h]),
         bot_corner1 = first_defined([bot_corner1, bot_corner]),
@@ -3742,14 +4079,14 @@ function teardrop(h, r, ang=45, cap_h, r1, r2, d, d1, d2, cap_h1, cap_h2,  chamf
         _cap_h2 = min(default(cap_h2, tip_y2), tip_y2),
         capvec = unit([0, _cap_h1-_cap_h2, length]),
         dummy=
-          assert(abs(chamfer1)+abs(chamfer2) <= length,"chamfers are too big to fit in the length")
-          assert(chamfer1<=r1 && chamfer2<=r2, "Chamfers cannot be larger than raduis")
+          assert(abs(chamfer1)+abs(chamfer2) <= length,"\nChamfers are too big to fit in the length.")
+          assert(chamfer1<=r1 && chamfer2<=r2, "\nChamfers cannot be larger than radius.")
           assert(bot_corner1==0 || bot_corner1>=chamfer1, "\nchamfer1 doesn't work with bottom corner: must have chamfer1 <= bot_corner1")
           assert(bot_corner2==0 || bot_corner2>=chamfer2, "\nchamfer2 doesn't work with bottom corner: must have chamfer2 <= bot_corner2")
           assert(bot_corner1==0 || bot_corner1>chamfer1 || sides%2==(realign?1:0), 
                  str("\nWith chamfer1==bot_corner1 and realign=",realign," must have ",realign?"odd":"even"," number of sides, but sides=",sides))
-          assert(is_undef(cap_h1) || cap_h1-chamfer1 > r1*sin(ang), "chamfer1 is too big to work with the specified cap_h1")
-          assert(is_undef(cap_h2) || cap_h2-chamfer2 > r2*sin(ang), "chamfer2 is too big to work with the specified cap_h2"),
+          assert(is_undef(cap_h1) || cap_h1-chamfer1 > r1*sin(ang)-_EPSILON, "chamfer1 is too big to work with the specified cap_h1")
+          assert(is_undef(cap_h2) || cap_h2-chamfer2 > r2*sin(ang)-_EPSILON, "chamfer2 is too big to work with the specified cap_h2"),
         cprof1 = r1==chamfer1 ? repeat([0,0],len(profile1))
                               : teardrop2d(r=r1-chamfer1, ang=ang, cap_h=u_add(cap_h1,-chamfer1), bot_corner=bot_corner1==0?0:bot_corner1-chamfer1,
                                            $fn=sides, circum=circum, realign=realign,_extrapt=true),
@@ -3792,15 +4129,15 @@ function teardrop(h, r, ang=45, cap_h, r1, r2, d, d1, d2, cap_h1, cap_h2,  chamf
 //   cap_h = If given, height above sphere center to truncate teardrop shape.  Default: `undef` (no truncation)
 //   ---
 //   circum = set to true to circumscribe the specified radius/diameter.  Default: False
-//   realign = adjust point alignment to determine if bottom is flat or pointy.  Default: False
+//   realign = if false then the bottom is a point.  If true then the bottom is a flat face.  Default: False
 //   d = diameter of spherical portion of bottom.
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //
 // Named Anchors:
 //   "cap" = The center of the top of the cap, oriented with the cap face normal.
-//   "tip" = The position where an un-capped onion would come to a point, oriented in the direction the point is from the center.
+//   "tip" = The position where an un-capped onion comes to a point, oriented in the direction the point is from the center.
 //
 // Example: Typical Shape
 //   onion(r=30, ang=30);
@@ -3855,7 +4192,7 @@ function onion(r, ang=45, cap_h, d, anchor=CENTER, spin=0, orient=UP) =
         sides = segs(r),
         step = 360 / sides,
         vnf = vnf_vertex_array(
-            points=[for (a = [0:step:360-EPSILON]) zrot(a, p=profile)],
+            points=[for (a = [0:step:360-_EPSILON]) zrot(a, p=profile)],
             caps=false, col_wrap=true, row_wrap=true, reverse=true
         )
     ) reorient(anchor,spin,orient, r=r, anchors=anchors, p=vnf);
@@ -3883,10 +4220,10 @@ function onion(r, ang=45, cap_h, d, anchor=CENTER, spin=0, orient=UP) =
 //   can differ significantly in the actual size of their characters.  Typographers
 //   customarily specify the size in the units of "points".  A point is 1/72 inch.  In
 //   OpenSCAD, you specify the size in OpenSCAD units (often treated as millimeters for 3d
-//   printing), so if you want points you will need to perform a suitable unit conversion.
+//   printing), so if you want points you need to perform a suitable unit conversion.
 //   In addition, the OpenSCAD font system has a bug: if you specify size=s you will
 //   instead get a font whose size is s/0.72.  For many fonts this means the size of
-//   capital letters will be approximately equal to s, because it is common for fonts to
+//   capital letters is approximately equal to s, because it is common for fonts to
 //   use about 70% of their height for the ascenders in the font.  To get the customary
 //   font size, you should multiply your desired size by 0.72.
 //   .
@@ -3895,7 +4232,7 @@ function onion(r, ang=45, cap_h, d, anchor=CENTER, spin=0, orient=UP) =
 // Arguments:
 //   text = Text to create.
 //   h / height / thickness = Extrusion height for the text.  Default: 1
-//   size = The font will be created at this size divided by 0.72.   Default: 10
+//   size = The font is created at this size divided by 0.72.   Default: 10
 //   font = Font to use.  Default: "Liberation Sans" (standard OpenSCAD default)
 //   ---
 //   spacing = The relative spacing multiplier between characters.  Default: `1.0`
@@ -3906,7 +4243,7 @@ function onion(r, ang=45, cap_h, d, anchor=CENTER, spin=0, orient=UP) =
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `"baseline"`
 //   center = Center the text.  Equivalent to `atype="center", anchor=CENTER`.  Default: false
 //   spin = Rotate this many degrees around the Z axis.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Anchor Types:
 //   baseline = Anchor center is relative to text baseline
 //   ycenter = Anchor center is relative to the actual y direction center of the text
@@ -3922,9 +4259,9 @@ module text3d(text, h, size=10, font, spacing=1.0, direction="ltr", language="en
               anchor, spin=0, orient=UP) {
     no_children($children);
     h = one_defined([h,height,thickness],"h,height,thickness",dflt=1);
-    assert(is_undef(atype) || in_list(atype,["ycenter","baseline"]), "atype must be \"ycenter\" or \"baseline\"");
+    assert(is_undef(atype) || in_list(atype,["ycenter","baseline"]), "\natype must be \"ycenter\" or \"baseline\".");
     assert(is_bool(center));
-    assert(is_undef($attach_to),"text3d() does not support parent-child anchor attachment with two parameters");
+    assert(is_undef($attach_to),"\ntext3d() does not support parent-child anchor attachment with two parameters.");
     atype = default(atype, center?"ycenter":"baseline");
     anchor = default(anchor, center?CENTER:LEFT);
     geom = attach_geom(size=[size,size,h]);
@@ -3984,17 +4321,17 @@ function _cut_interp(pathcut, path, data) =
 //   or user specified letter spacing.  The path can be 2D or 3D.  In 2D the text appears along the path with letters upright
 //   as determined by the path direction.  In 3D by default letters are positioned on the tangent line to the path with the path normal
 //   pointing toward the reader.  The path normal points away from the center of curvature (the opposite of the normal produced
-//   by path_normals()).  Note that this means that if the center of curvature switches sides the text will flip upside down.
+//   by path_normals()).  Note that this means that if the center of curvature switches sides, the text flips upside down.
 //   If you want text on such a path you must supply your own normal or top vector.
 //   .
-//   Text appears starting at the beginning of the path, so if the 3D path moves right to left
-//   then a left-to-right reading language will display in the wrong order. (For a 2D path text will appear upside down.)
+//   Text appears starting at the beginning of the path, so if the 3D path moves right to left,
+//   then a left-to-right reading language displays in the wrong order (for a 2D path text appears upside down).
 //   The text for a 3D path appears positioned to be read from "outside" of the curve (from a point on the other side of the
 //   curve from the center of curvature).  If you need the text to read properly from the inside, you can set reverse to
 //   true to flip the text, or supply your own normal.
 //   .
 //   If you do not have the experimental textmetrics feature enabled then you must specify the space for the letters
-//   using lettersize, which can be a scalar or array.  You will have the easiest time getting good results by using
+//   using lettersize, which can be a scalar or array.  You can easily get good results by using
 //   a monospace font such as "Liberation Mono".  Note that even with text metrics, spacing may be different because path_text()
 //   doesn't do kerning to adjust positions of individual glyphs.  Also if your font has ligatures they won't be used.
 //   .
@@ -4004,7 +4341,7 @@ function _cut_interp(pathcut, path, data) =
 //   You can specify your own normal by setting `normal` to a direction or a list of directions.  Your normal vector should
 //   point toward the reader.  You can also specify
 //   top, which directs the top of the letters in a desired direction.  If you specify your own directions and they
-//   are not perpendicular to the path then the direction you specify will take priority and the
+//   are not perpendicular to the path, then the direction you specify takes priority and the
 //   letters will not rest on the tangent line of the path.  Note that the normal or top directions that you
 //   specify must not be parallel to the path.
 //   .
@@ -4018,10 +4355,10 @@ function _cut_interp(pathcut, path, data) =
 //   can differ significantly in the actual size of their characters.  Typographers
 //   customarily specify the size in the units of "points".  A point is 1/72 inch.  In
 //   OpenSCAD, you specify the size in OpenSCAD units (often treated as millimeters for 3d
-//   printing), so if you want points you will need to perform a suitable unit conversion.
-//   In addition, the OpenSCAD font system has a bug: if you specify size=s you will
+//   printing), so if you want points you need to perform a suitable unit conversion.
+//   In addition, the OpenSCAD font system has a bug: if you specify size=s you
 //   instead get a font whose size is s/0.72.  For many fonts this means the size of
-//   capital letters will be approximately equal to s, because it is common for fonts to
+//   capital letters is approximately equal to s, because it is common for fonts to
 //   use about 70% of their height for the ascenders in the font.  To get the customary
 //   font size, you should multiply your desired size by 0.72.
 //   .
@@ -4030,18 +4367,18 @@ function _cut_interp(pathcut, path, data) =
 // Arguments:
 //   path = path to place the text on
 //   text = text to create
-//   size = The font will be created at this size divided by 0.72.   
+//   size = The font is created at this size divided by 0.72.   
 //   thickness / h / height = thickness of letters (not allowed for 2D path)
 //   font = Font to use.  Default: "Liberation Sans" (standard OpenSCAD default)
 //   ---
 //   lettersize = scalar or array giving size of letters
 //   center = center text on the path instead of starting at the first point.  Default: false
-//   offset = distance to shift letters "up" (towards the reader).  Not allowed for 2D path.  Default: 0
-//   normal = direction or list of directions pointing towards the reader of the text.  Not allowed for 2D path.
+//   offset = distance to shift letters "up" (toward the reader).  Not allowed for 2D path.  Default: 0
+//   normal = direction or list of directions pointing toward the reader of the text.  Not allowed for 2D path.
 //   top = direction or list of directions pointing toward the top of the text
 //   reverse = reverse the letters if true.  Not allowed for 2D path.  Default: false
 //   textmetrics = if set to true and lettersize is not given then use the experimental textmetrics feature.  You must be running a dev snapshot that includes this feature and have the feature turned on in your preferences.  Default: false
-//   valign = align text to the path using "top", "bottom", "center" or "baseline".  You can also adjust position with a numerical offset as in "top-5" or "bottom+2".  This only works with textmetrics enabled.  You can give a simple numerical offset, which will be relative to the baseline and works even without textmetrics.  Default: "baseline"
+//   valign = align text to the path using "top", "bottom", "center" or "baseline".  You can also adjust position with a numerical offset as in "top-5" or "bottom+2".  This works only with textmetrics enabled.  You can give a simple numerical offset, which is relative to the baseline and works even without textmetrics.  Default: "baseline"
 //   kern = scalar or array giving spacing adjusments between each letter.  If it's an array it should have one less entry than the text string.  Default: 0
 //   language = text language, passed to OpenSCAD `text()`.  Default: "en"
 //   script = text script, passed to OpenSCAD `text()`.  Default: "latin" 
@@ -4081,7 +4418,7 @@ function _cut_interp(pathcut, path, data) =
 //   path = arc(100, points = [[-20, 0, 20], [0,0,5], [20,0,20]]);
 //   color("red")stroke(path,width=.2);
 //   path_text(path, "Example Text", size=5, lettersize=5/1.2, font="Liberation Mono", top=UP);
-// Example(3D,Med,NoScales): This sine wave wrapped around the cylinder has a twisting normal that produces wild letter layout.  We fix it with a custom normal which is different at every path point.
+// Example(3D,Med,NoScales): This sine wave wrapped around the cylinder has a twisting normal that produces wild letter layout.  We fix it with a custom normal that is different at every path point.
 //   path = [for(theta = [0:360]) [25*cos(theta), 25*sin(theta), 4*cos(theta*4)]];
 //   normal = [for(theta = [0:360]) [cos(theta), sin(theta),0]];
 //   zrot(-120)
@@ -4111,19 +4448,19 @@ module path_text(path, text, font, size, thickness, lettersize, offset=0, revers
                  textmetrics=false, kern=0, height,h, valign="baseline", language, script)
 {
   no_children($children);
-  dummy2=assert(is_path(path,[2,3]),"Must supply a 2d or 3d path")
-         assert(num_defined([normal,top])<=1, "Cannot define both \"normal\" and \"top\"")
-         assert(all_positive([size]), "Must give positive text size");
+  dummy2=assert(is_path(path,[2,3]),"\nMust supply a 2d or 3d path.")
+         assert(num_defined([normal,top])<=1, "\nCannot define both \"normal\" and \"top\".")
+         assert(all_positive([size]), "\nMust give positive text size.");
   dim = len(path[0]);
   normalok = is_undef(normal) || is_vector(normal,3) || (is_path(normal,3) && len(normal)==len(path));
   topok = is_undef(top) || is_vector(top,dim) || (dim==2 && is_vector(top,3) && top[2]==0)
                         || (is_path(top,dim) && len(top)==len(path));
-  dummy4 = assert(dim==3 || !any_defined([thickness,h,height]), "Cannot give a thickness or height with 2d path")
-           assert(dim==3 || !reverse, "Reverse not allowed with 2d path")
-           assert(dim==3 || offset==0, "Cannot give offset with 2d path")
-           assert(dim==3 || is_undef(normal), "Cannot define \"normal\" for a 2d path, only \"top\"")
-           assert(normalok,"\"normal\" must be a vector or path compatible with the given path")
-           assert(topok,"\"top\" must be a vector or path compatible with the given path");
+  dummy4 = assert(dim==3 || !any_defined([thickness,h,height]), "\nCannot give a thickness or height with 2d path.")
+           assert(dim==3 || !reverse, "\nReverse not allowed with 2d path.")
+           assert(dim==3 || offset==0, "\nCannot give offset with 2d path.")
+           assert(dim==3 || is_undef(normal), "\nCannot define \"normal\" for a 2d path, only \"top\".")
+           assert(normalok,"\n\"normal\" must be a vector or path compatible with the given path.")
+           assert(topok,"\n\"top\" must be a vector or path compatible with the given path.");
   thickness = one_defined([thickness,h,height],"thickness,h,height",dflt=1);
   normal = is_vector(normal) ? repeat(normal, len(path))
          : is_def(normal) ? normal
@@ -4134,11 +4471,11 @@ module path_text(path, text, font, size, thickness, lettersize, offset=0, revers
          : undef;
 
   kern = force_list(kern, len(text)-1);
-  dummy3 = assert(is_list(kern) && len(kern)==len(text)-1, "kern must be a scalar or list whose length is len(text)-1");
+  dummy3 = assert(is_list(kern) && len(kern)==len(text)-1, "\nkern must be a scalar or list whose length is len(text)-1.");
 
   lsize = is_def(lettersize) ? force_list(lettersize, len(text))
         : textmetrics ? [for(letter=text) let(t=textmetrics(letter, font=font, size=size)) t.advance[0]]
-        : assert(false, "textmetrics disabled: Must specify letter size");
+        : assert(false, "\ntextmetrics disabled: Must specify letter size.");
   lcenter = convolve(lsize,[1,1]/2)+[0,each kern,0] ;
   textlength = sum(lsize)+sum(kern);
 
@@ -4148,7 +4485,7 @@ module path_text(path, text, font, size, thickness, lettersize, offset=0, revers
           : textmetrics(text, font=font, size=size).descent;
 
   vadjustment = is_num(valign) ? -valign
-              : !textmetrics ? assert(valign=="baseline","valign requires textmetrics support") 0
+              : !textmetrics ? assert(valign=="baseline","\nvalign requires textmetrics support.") 0
               : let(
                      table = [
                               ["baseline", 0],
@@ -4158,10 +4495,10 @@ module path_text(path, text, font, size, thickness, lettersize, offset=0, revers
                              ],
                      match = [for(i=idx(table)) if (starts_with(valign,table[i][0])) i]
                 )
-                assert(len(match)==1, "Invalid valign value")
+                assert(len(match)==1, "\nInvalid valign value.")
                 table[match[0]][1] - parse_num(substr(valign,len(table[match[0]][0])));
 
-  dummy1 = assert(textlength<=path_length(path),"Path is too short for the text");
+  dummy1 = assert(textlength<=path_length(path),"\nPath is too short for the text.");
 
   start = center ? (path_length(path) - textlength)/2 : 0;
    
@@ -4176,9 +4513,9 @@ module path_text(path, text, font, size, thickness, lettersize, offset=0, revers
       tangent = pts[i][2];
       checks =
           assert(!usetop || !approx(tangent*toppts[i],norm(top[i])*norm(tangent)),
-                 str("Specified top direction parallel to path at character ",i))
+                 str("\nSpecified top direction parallel to path at character ",i))
           assert(usetop || !approx(tangent*normpts[i],norm(normpts[i])*norm(tangent)),
-                 str("Specified normal direction parallel to path at character ",i));
+                 str("\nSpecified normal direction parallel to path at character ",i));
       adjustment = usetop ?  (tangent*toppts[i])*toppts[i]/(toppts[i]*toppts[i])
                  : usernorm ?  (tangent*normpts[i])*normpts[i]/(normpts[i]*normpts[i])
                  : [0,0,0];
@@ -4225,7 +4562,7 @@ module path_text(path, text, font, size, thickness, lettersize, offset=0, revers
 //   Note that this module is the same as {{rounding_edge_mask()}}, except that it does not
 //   apply the default "remove" tag and has a different default angle.
 //   It can be convenient to {{attach()}} the fillet to the edge of a parent object.
-//   Many objects propagate the $edge_angle and $edge_length which are used as defaults for the fillet.
+//   Many objects propagate the $edge_angle and $edge_length, which are used as defaults for the fillet.
 //   If you attach the fillet to the edge, it will be hovering in space and you need to apply {{yrot()}}
 //   to place it on the parent object, generally either 90 degrees or -90 degrees dependong on which
 //   face you want the fillet.  
@@ -4252,7 +4589,7 @@ module path_text(path, text, font, size, thickness, lettersize, offset=0, revers
 //   chamfer2 = Chamfer size of chamfer at top end
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //
 // Example:
 //   union() {
@@ -4329,7 +4666,7 @@ module fillet(l, r, ang, r1, r2, excess=0.01, d1, d2,d,length, h, height, anchor
 //   the value of the function.  You can specify the grid using a range or using a list of points that
 //   need not be uniformly spaced.  To create a valid polyhedron, the graph is closed at the sides and
 //   a base is added below the smallest value.  By default this base has unit thickness, but you can
-//   adjust it by setting the `base` parameter.  If you set `base=0` then you will get a a zero thickness
+//   adjust it by setting the `base` parameter.  If you set `base=0` then you get a a zero thickness
 //   sheet that is not a manifold without sides or a bottom.
 //   .
 //   Your function may have have excessively large values at some points, or you may not know exactly 
@@ -4337,8 +4674,8 @@ module fillet(l, r, ang, r1, r2, excess=0.01, d1, d2,d,length, h, height, anchor
 //   parameter (but not both).  The `zclip` parameter is a 2-vector giving a minimum and maximum
 //   value, either of which can be infinite.  If the function falls below the minimum it is set
 //   equal to the minimum, and if it rises above the maximum it is set equal to the maximum.  The
-//   `zspan` parameter is a 2-vector giving a minum and maximum value which must both be finite.
-//   The function's values will be scaled and shifted to exactly cover the range you specifiy
+//   `zspan` parameter is a 2-vector giving a minum and maximum value that must both be finite.
+//   The function's values are scaled and shifted to exactly cover the range you specifiy
 //   in `zspan`.  
 // Arguments:
 //   f = function literal accepting two arguments (x and y) that defines the function to compute
@@ -4352,7 +4689,7 @@ module fillet(l, r, ang, r1, r2, excess=0.01, d1, d2,d,length, h, height, anchor
 //   convexity = Max number of times a line could intersect a wall of the surface being formed. Module only.  Default: 10
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
 //   orient = Vector to rotate top toward, after spin. See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //   atype = Select "hull" or "intersect" anchor type.  Default: "hull"
@@ -4367,7 +4704,7 @@ module fillet(l, r, ang, r1, r2, excess=0.01, d1, d2,d,length, h, height, anchor
 //    plot3d(func, [-180:4:180], [-180:4:180]);
 // Example(NoScales):  Here we give the function inline and since it blows up we add clipping
 //    plot3d(function (x,y) 1/norm([x,y]), [-2:.1:2], [-2:.1:2], zclip=[0,2],style="default");
-// Example(NoScales):  Clipped edges often don't look very good and may be improved somewhat with more points.  Here we give lists with varying point spacing to improve the point density around the clipped top of the shape.
+// Example(NoScales):  Clipped edges often don't look good and may be improved somewhat with more points.  Here we give lists with varying point spacing to improve the point density around the clipped top of the shape.
 //    range = concat( 
 //             lerpn(-2,-1,10,endpoint=false),
 //             lerpn(-1,1,75,endpoint=false),
@@ -4385,18 +4722,18 @@ module plot3d(f,x,y,zclip, zspan, base=1, anchor="origin", orient=UP, spin=0, at
    vnf_polyhedron(plot3d(f,x,y,zclip, zspan,base, style=style), atype=atype, orient=orient, anchor=anchor, cp=cp, convexity=convexity) children();
    
 function plot3d(f,x,y,zclip, zspan, base=1, anchor="origin", orient=UP, spin=0, atype="hull", cp="box", style="default") =
-   assert(is_finite(base) && base>=0, "base must be a nonnegative number")
-   assert(is_vector(x) || valid_range(x), "x must be a vector or nonempty range")
-   assert(is_vector(y) || valid_range(y), "y must be a vector or nonempty range")
-   assert(is_range(x) || is_increasing(x, strict=true), "x must be strictly increasing")
-   assert(is_range(y) || is_increasing(y, strict=true), "y must be strictly increasing")
-   assert(num_defined([zclip,zspan])<2, "Cannot give both zclip and zspan")
-   assert(is_undef(zclip) || (is_list(zclip) && len(zclip)==2 && is_num(zclip[0]) && is_num(zclip[1])), "zclip must be a list of two values (which may be infinite)")
-   assert(is_undef(zspan) || (is_vector(zspan,2) && zspan[0]<zspan[1]) ,"zspan must be a 2-vector whose first entry is smaller than the second")
+   assert(is_finite(base) && base>=0, "\nbase must be a nonnegative number.")
+   assert(is_vector(x) || valid_range(x), "\nx must be a vector or nonempty range.")
+   assert(is_vector(y) || valid_range(y), "\ny must be a vector or nonempty range.")
+   assert(is_range(x) || is_increasing(x, strict=true), "\nx must be strictly increasing.")
+   assert(is_range(y) || is_increasing(y, strict=true), "\ny must be strictly increasing.")
+   assert(num_defined([zclip,zspan])<2, "\nCannot give both zclip and zspan.")
+   assert(is_undef(zclip) || (is_list(zclip) && len(zclip)==2 && is_num(zclip[0]) && is_num(zclip[1])), "zclip must be a list of two values (which may be infinite).")
+   assert(is_undef(zspan) || (is_vector(zspan,2) && zspan[0]<zspan[1]) ,"\nzspan must be a 2-vector whose first entry is smaller than the second.")
    let(
        zclip = default(zclip, [-INF,INF]), 
        data = [for(x=x) [for(y=y) [x,y,min(max(f(x,y),zclip[0]),zclip[1])]]],
-       dummy=assert(len(data[0])>1 && len(data)>1, "x and y must both provide at least 2 points"),
+       dummy=assert(len(data[0])>1 && len(data)>1, "\nx and y must both provide at least 2 points."),
        minval = min(column(flatten(data),2)),
        maxval = max(column(flatten(data),2)),
        sdata = is_undef(zspan) ? data
@@ -4415,7 +4752,7 @@ function plot3d(f,x,y,zclip, zspan, base=1, anchor="origin", orient=UP, spin=0, 
                 each sdata,
                 [for(p=last(sdata)) [p.x,p.y,bottom]]
               ],
-       vnf = vnf_vertex_array(transpose(data), col_wrap=true, caps=true, style=style)
+       vnf = vnf_vertex_array(transpose(data), col_wrap=true, caps=true, style=style, reverse=true)
    )
    reorient(anchor,spin,orient, vnf=vnf, p=vnf);
 
@@ -4438,15 +4775,15 @@ function plot3d(f,x,y,zclip, zspan, base=1, anchor="origin", orient=UP, spin=0, 
 //   Given a function literal, `f`, sets `r=f(theta,z)` over a range of theta and z values, and uses the
 //   computed r values to define the offset from a cylinder or surface of revolution.  You can specify
 //   the theta range as a `angle` to give an angle range in degrees or with `arclength` to give an arc length
-//   range in distance units.  Your function will receive its parameters in
+//   range in distance units.  Your function receives its parameters in
 //   the form you specify, as angle or as arclength.  If you use `angle` then as the radius decreases, the
 //   function shrinks in the horizontal direction to fit.  If you use `arclength` distance is preserved for
-//   the function and as you move toward the top of a cone, the function will occupy a larger amount
+//   the function and as you move toward the top of a cone, the function occupies a larger amount
 //   of total angle so that the arc length stays the same.  
 //   .
-//   If the computed value produces a radius smaller than zero it will be rounded up to 0.01.  You can
+//   If the computed value produces a radius smaller than zero, it is rounded up to 0.01.  You can
 //   specify a cylinder using the usual length and
-//   radius or diameter parameters, or you can give `path`, a path which whose x values are strictly positive
+//   radius or diameter parameters, or you can give `path`, a path having strictly positive x values
 //   to define the textured surface of revolution.  
 //   .
 //   Your function may have have excessively large values at some points, or you may not know exactly 
@@ -4454,8 +4791,8 @@ function plot3d(f,x,y,zclip, zspan, base=1, anchor="origin", orient=UP, spin=0, 
 //   parameter (but not both).  The `rclip` parameter is a 2-vector giving a minimum and maximum
 //   value, either of which can be infinite.  If the function falls below the minimum it is set
 //   equal to the minimum, and if it rises above the maximum it is set equal to the maximum.  The
-//   `rspan` parameter is a 2-vector giving a minum and maximum value which must both be finite.
-//   The function's values will be scaled and shifted to exactly cover the range you specifiy
+//   `rspan` parameter is a 2-vector giving a minum and maximum value, which must both be finite.
+//   The function's values are scaled and shifted to exactly cover the range you specifiy
 //   in `rspan`.
 //   .
 //   The default is to erect the function normal to the surface.  You can also set `horiz=true` to
@@ -4479,7 +4816,7 @@ function plot3d(f,x,y,zclip, zspan, base=1, anchor="origin", orient=UP, spin=0, 
 //   convexity = Max number of times a line could intersect a wall of the surface being formed. Module only.  Default: 10
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
 //   orient = Vector to rotate top toward, after spin. See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //   atype = Select "hull" or "intersect" anchor type.  Default: "hull"
@@ -4525,12 +4862,12 @@ module plot_revolution(f,angle,z,arclength, path, rclip, rspan, horiz=false,r1,r
  
 function plot_revolution(f,angle,z,arclength, path, rclip, rspan, horiz=false,r1,r2,r,d1,d2,d,
                          anchor="origin", orient=UP, spin=0, atype="hull", cp="centroid", style="min_edge", reverse=false) =
-   assert(num_defined([angle,arclength])==1, "must define exactly one of angle and arclength")
-   assert(is_undef(z) || is_vector(z) || valid_range(z), "z must be a vector or nonempty range")
-   assert(is_undef(path) || num_defined([r1,r2,d1,d2,r,d,z])==0, "Cannot define the z parameter or any radius or diameter parameters in combination with path")
-   assert(num_defined([rclip,rspan])<2, "Cannot give both rclip and rspan")
+   assert(num_defined([angle,arclength])==1, "\nMust define exactly one of angle and arclength.")
+   assert(is_undef(z) || is_vector(z) || valid_range(z), "\nz must be a vector or nonempty range.")
+   assert(is_undef(path) || num_defined([r1,r2,d1,d2,r,d,z])==0, "\nCannot define the z parameter or any radius or diameter parameters in combination with path.")
+   assert(num_defined([rclip,rspan])<2, "\nCannot give both rclip and rspan.")
    assert(is_undef(rclip) || (is_list(rclip) && len(rclip)==2 && is_finite(rclip[0]) && rclip[0]>0 && is_num(rclip[1])),
-          "rclip must be a list of two values (r[1] may be infinite)")
+          "\nrclip must be a list of two values (r[1] may be infinite).")
    assert(is_undef(rspan) || (is_vector(rspan,2) && rspan[0]>0 && rspan[0]<rspan[1]) ,"rspan must be a 2-vector whose first entry is smaller than the second")
    let(
        r1 = get_radius(r1=r1, r=r, d1=d1, d=d),
@@ -4540,9 +4877,9 @@ function plot_revolution(f,angle,z,arclength, path, rclip, rspan, horiz=false,r1
        z = list(z),
        thetarange = list(first_defined([angle,arclength])),
        dummy = assert(is_vector(thetarange) && len(thetarange)>1 && is_increasing(thetarange,strict=true),
-                      "angle/arclength must be a strictly increasing array or range with at least 2 elements")
-               assert(is_def(path)|| (len(z)>1 && is_increasing(z, strict=true)),"z must be a strictly increasing array or range with at least 2 elements")
-               assert(is_def(arclength) || (last(thetarange)-thetarange[0])<=360, "angle span exceeds 360 degrees"),
+                      "\nangle/arclength must be a strictly increasing array or range with at least 2 elements.")
+               assert(is_def(path)|| (len(z)>1 && is_increasing(z, strict=true)),"\nz must be a strictly increasing array or range with at least 2 elements.")
+               assert(is_def(arclength) || (last(thetarange)-thetarange[0])<=360, "\nAngle span exceeds 360°."),
        path = is_def(path) ? path
             : let(
                    rvals = add_scalar(add_scalar(z,-z[0]) / (last(z)-z[0]) * (r2-r1) ,r1)
@@ -4553,7 +4890,7 @@ function plot_revolution(f,angle,z,arclength, path, rclip, rspan, horiz=false,r1
        rclip = default(rclip, [-INF,INF]),
        rdata = [for(pt=path)
                   [for(theta=thetarange) min(max(f(theta,pt.y),rclip[0]),rclip[1])]],
-       dummy2=assert(len(rdata[0])>1 && len(rdata)>1, "xrange and yrange must both provide at least 2 points"),
+       dummy2=assert(len(rdata[0])>1 && len(rdata)>1, "\nxrange and yrange must both provide at least 2 points."),
        minval = min(flatten(rdata)),
        maxval = max(flatten(rdata)),
        sdata = is_undef(rspan) ? rdata
@@ -4567,7 +4904,7 @@ function plot_revolution(f,angle,z,arclength, path, rclip, rspan, horiz=false,r1
                       angscale = is_def(angle) ? 1
                                : 360/2/PI/path[i].x
                   )
-                  assert(angscale*(last(thetarange)-thetarange[0])<=360, str("arclength span is more than 360 degrees at profile index ",i," with radius ",path[i].x))
+                  assert(angscale*(last(thetarange)-thetarange[0])<=360, str("\nArclength span is more than 360° at profile index ",i," with radius ",path[i].x,"."))
                   [
                    if (!closed) [0,0,path[i].y],
                    for(j=idx(sdata[0]))
@@ -4595,11 +4932,11 @@ function plot_revolution(f,angle,z,arclength, path, rclip, rspan, horiz=false,r1
 ///   One script to convert a grayscale image to a heightfield array in a .scad file can be found at:
 ///   https://raw.githubusercontent.com/BelfrySCAD/BOSL2/master/scripts/img2scad.py
 ///   The bottom value defines a planar base for the resulting shape and it must be strictly less than
-///   the model data to produce valid geometry, so data which is too small is set to 0.1 units above the bottom value. 
+///   the model data to produce valid geometry, so data that is too small is set to 0.1 units above the bottom value. 
 /// Arguments:
 ///   data = This is either the 2D rectangular array of heights, or a function literal that takes X and Y arguments.
 ///   size = The [X,Y] size of the surface to create.  If given as a scalar, use it for both X and Y sizes. Default: `[100,100]`
-///   bottom = The Z coordinate for the bottom of the heightfield object to create.  Any heights lower than this will be truncated to very slightly (0.1) above this height.  Default: -20
+///   bottom = The Z coordinate for the bottom of the heightfield object to create.  Any heights lower than this are truncated to slightly (0.1) above this height.  Default: -20
 ///   maxz = The maximum height to model.  Truncates anything taller to this height.  Set to INF for no truncation.  Default: 100
 ///   xrange = A range of values to iterate X over when calculating a surface from a function literal.  Default: [-1 : 0.01 : 1]
 ///   yrange = A range of values to iterate Y over when calculating a surface from a function literal.  Default: [-1 : 0.01 : 1]
@@ -4608,7 +4945,7 @@ function plot_revolution(f,angle,z,arclength, path, rclip, rspan, horiz=false,r1
 ///   convexity = Max number of times a line could intersect a wall of the surface being formed. Module only.  Default: 10
 ///   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 ///   spin = Rotate this many degrees around the Z axis.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-///   orient = Vector to rotate top towards.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+///   orient = Vector to rotate top toward.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 /// Example:
 ///   heightfield(size=[100,100], bottom=-20, data=[
 ///       for (y=[-180:4:180]) [
@@ -4741,7 +5078,7 @@ function heightfield(data, size=[100,100], bottom=-20, maxz=100, xrange=[-1:0.04
 ///   d = The diameter of the cylinder to wrap around.
 ///   d1 = The diameter of the bottom of the cylinder to wrap around.
 ///   d2 = The diameter of the top of the cylinder to wrap around.
-///   base = The radius for the bottom of the heightfield object to create.  Any heights smaller than this will be truncated to very slightly above this height.  Default: -20
+///   base = The radius for the bottom of the heightfield object to create.  Any heights smaller than this are truncated to slightly above this height.  Default: -20
 ///   transpose = If true, swaps the radial and length axes of the data.  Default: false
 ///   aspect = The aspect ratio of the generated heightfield at the surface of the cylinder.  Default: 1
 ///   xrange = A range of values to iterate X over when calculating a surface from a function literal.  Default: [-1 : 0.01 : 1]
@@ -4751,7 +5088,7 @@ function heightfield(data, size=[100,100], bottom=-20, maxz=100, xrange=[-1:0.04
 ///   convexity = Max number of times a line could intersect a wall of the surface being formed. Module only.  Default: 10
 ///   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 ///   spin = Rotate this many degrees around the Z axis.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-///   orient = Vector to rotate top towards.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+///   orient = Vector to rotate top toward.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 /// Example(VPD=400;VPR=[55,0,150]):
 ///   cylindrical_heightfield(l=100, r=30, base=5, data=[
 ///       for (y=[-180:4:180]) [
@@ -4794,18 +5131,18 @@ function cylindrical_heightfield(
         r1 = get_radius(r1=r1, r=r, d1=d1, d=d),
         r2 = get_radius(r1=r2, r=r, d1=d2, d=d)
     )
-    assert(is_finite(l) && l>0, "Must supply one of l=, h=, or height= as a finite positive number.")
-    assert(is_finite(r1) && r1>0, "Must supply one of r=, r1=, d=, or d1= as a finite positive number.")
-    assert(is_finite(r2) && r2>0, "Must supply one of r=, r2=, d=, or d2= as a finite positive number.")
-    assert(is_finite(base) && base>0, "Must supply base= as a finite positive number.")
-    assert(is_matrix(data)||is_function(data), "data= must be a function literal, or contain a 2D array of numbers.")
+    assert(is_finite(l) && l>0, "\nMust supply one of l=, h=, or height= as a finite positive number.")
+    assert(is_finite(r1) && r1>0, "\nMust supply one of r=, r1=, d=, or d1= as a finite positive number.")
+    assert(is_finite(r2) && r2>0, "\nMust supply one of r=, r2=, d=, or d2= as a finite positive number.")
+    assert(is_finite(base) && base>0, "\nMust supply base= as a finite positive number.")
+    assert(is_matrix(data)||is_function(data), "\ndata= must be a function literal, or contain a 2D array of numbers.")
     let(
         xvals = is_list(data)? [for (x = idx(data[0])) x] :
             is_range(xrange)? [for (x = xrange) x] :
-            assert(false, "xrange= must be given as a range if data= is a function literal."),
+            assert(false, "\nxrange= must be given as a range if data= is a function literal."),
         yvals = is_list(data)? [for (y = idx(data)) y] :
             is_range(yrange)? [for (y = yrange) y] :
-            assert(false, "yrange= must be given as a range if data= is a function literal."),
+            assert(false, "\nyrange= must be given as a range if data= is a function literal."),
         xlen = len(xvals),
         ylen = len(yvals),
         stepy = l / (ylen-1),
@@ -4817,7 +5154,7 @@ function cylindrical_heightfield(
         bsteps = round(segs(maxr-base) * arc / 360),
         bstep = arc / bsteps
     )
-    assert(stepx*xlen <= circ, str("heightfield (",xlen," x ",ylen,") needs a radius of at least ",maxr*stepx*xlen/circ))
+    assert(stepx*xlen <= circ, str("\nheightfield (",xlen," x ",ylen,") needs a radius of at least ",maxr*stepx*xlen/circ,"."))
     let(
         verts = [
             for (yi = idx(yvals)) let(
@@ -4892,7 +5229,7 @@ module cylindrical_heightfield(
 //   inch = set to true for a ruler scaled to inches (assuming base dimension is mm).  Default: false
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `LEFT+BACK+TOP`
 //   spin = Rotate this many degrees around the Z axis.  See [spin](attachments.scad#subsection-spin).  Default: `0`
-//   orient = Vector to rotate top towards.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+//   orient = Vector to rotate top toward.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Examples(2D,Big):
 //   ruler(100,depth=3);
 //   ruler(100,depth=3,labels=true);
@@ -4909,11 +5246,11 @@ module ruler(length=100, width, thickness=1, depth=3, labels=false, pipscale=1/3
 {
     if ($preview){
         checks =
-            assert(depth<=5, "Cannot render scales smaller than depth=5")
-            assert(len(colors)==2, "colors must contain a list of exactly two colors.");
+            assert(depth<=5, "\nCannot render scales smaller than depth=5")
+            assert(len(colors)==2, "\n'colors' must contain a list of exactly two colors.");
         length = inch ? INCH * length : length;
         unit = inch ? INCH*unit : unit;
-        maxscale = is_def(maxscale)? maxscale : floor(log(length/unit-EPSILON));
+        maxscale = is_def(maxscale)? maxscale : floor(log(length/unit-_EPSILON));
         scales = unit * [for(logsize = [maxscale:-1:maxscale-depth+1]) pow(10,logsize)];
         widthfactor = (1-pipscale) / (1-pow(pipscale,depth));
         width = default(width, scales[0]);
@@ -4948,7 +5285,7 @@ module ruler(length=100, width, thickness=1, depth=3, labels=false, pipscale=1/3
                                 }
                             }
                         }
-                        if (labels && scales[i]/unit+EPSILON >= 1) {
+                        if (labels && scales[i]/unit+_EPSILON >= 1) {
                             color(colors[($idx+1)%2], alpha=alpha) {
                                 linear_extrude(height=thickness+scales[i]/100, convexity=2, center=true) {
                                     back(scales[i]*.02) {

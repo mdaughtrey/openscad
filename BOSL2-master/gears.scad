@@ -9,6 +9,9 @@
 // FileSummary: Gears, racks, worms, and worm gears.
 //////////////////////////////////////////////////////////////////////////////////////////////
 
+_BOSL2_GEARS = is_undef(_BOSL2_STD) && (is_undef(BOSL2_NO_STD_WARNING) || !BOSL2_NO_STD_WARNING) ?
+       echo("Warning: gears.scad included without std.scad; dependencies may be missing\nSet BOSL2_NO_STD_WARNING = true to mute this warning.") true : true;
+
 
 _GEAR_PITCH = 5;
 _GEAR_HELICAL = 0;
@@ -934,6 +937,8 @@ function spur_gear(
     let(
         profile_shift = auto_profile_shift(teeth,PA,helical,profile_shift=profile_shift),
         pr = pitch_radius(circ_pitch, teeth, helical),
+                feee=echo(pr_spur = pr, circ_pitch, teeth, helical), 
+
         or = outer_radius(circ_pitch, teeth, helical=helical, profile_shift=profile_shift, internal=internal,shorten=shorten),
         rr = _root_radius_basic(circ_pitch, teeth, clearance, profile_shift=profile_shift, internal=internal),
         anchor_rad = atype=="pitch" ? pr
@@ -1016,7 +1021,9 @@ module spur_gear(
     profile_shift = auto_profile_shift(teeth,PA,helical,profile_shift=profile_shift);
     pr = pitch_radius(circ_pitch, teeth, helical);
     or = outer_radius(circ_pitch, teeth, helical=helical, profile_shift=profile_shift, internal=internal,shorten=shorten);
-    rr = _root_radius_basic(circ_pitch, teeth, clearance, profile_shift=profile_shift, internal=internal);
+    rr = root_radius(circ_pitch=circ_pitch, teeth=teeth, helical=helical, clearance=clearance, internal=internal,
+                     profile_shift=profile_shift, pressure_angle=PA,  backlash=backlash);
+    convexity = ceil(2 * teeth * hyp_adj_to_ang(or,rr)/180);
     anchor_rad = atype=="pitch" ? pr
                : atype=="tip" ? or
                : atype=="root" ? rr
@@ -1032,7 +1039,7 @@ module spur_gear(
                 linear_extrude(
                     height=thickness/2+0.01, center=false,
                     twist=twist/2, slices=ceil(slices/2),
-                    convexity=teeth/2
+                    convexity=convexity
                 ) {
                     spur_gear2d(
                         circ_pitch = circ_pitch,
@@ -1053,7 +1060,7 @@ module spur_gear(
                 linear_extrude(
                     height=thickness, center=true,
                     twist=twist, slices=slices,
-                    convexity=teeth/2
+                    convexity=convexity
                 ) {
                     spur_gear2d(
                         circ_pitch = circ_pitch,
@@ -1323,7 +1330,8 @@ module spur_gear2d(
     );
     pr = pitch_radius(circ_pitch, teeth, helical=helical);
     or = outer_radius(circ_pitch, teeth, helical=helical, profile_shift=profile_shift, internal=internal,shorten=shorten);
-    rr = _root_radius_basic(circ_pitch, teeth, clearance, profile_shift=profile_shift, internal=internal);
+    rr = root_radius(circ_pitch=circ_pitch, teeth=teeth, helical=helical, clearance=clearance, internal=internal,
+                     profile_shift=profile_shift, pressure_angle=PA,  backlash=backlash);
     anchor_rad = atype=="pitch" ? pr
                : atype=="tip" ? or
                : atype=="root" ? rr
@@ -1434,7 +1442,9 @@ module ring_gear(
         assert(is_finite(gear_spin));
     pr = pitch_radius(circ_pitch, teeth, helical=helical);
     ar = outer_radius(circ_pitch, teeth, helical=helical, profile_shift=profile_shift, internal=true);
-    rr=_root_radius_basic(circ_pitch, teeth, clearance, profile_shift=profile_shift, internal=true);
+    //rr=_root_radius_basic(circ_pitch, teeth, clearance, profile_shift=profile_shift, internal=true, helical=helical);
+    rr = root_radius(circ_pitch=circ_pitch, teeth=teeth, helical=helical, clearance=clearance, internal=true,
+                     profile_shift=profile_shift);
     or = is_def(or) ?
             assert(is_finite(or) && or>ar, "or is invalid or too small for teeth")
             or
@@ -1455,7 +1465,7 @@ module ring_gear(
         zrot(gear_spin)
         if (herringbone) {
             zflip_copy() down(0.01)
-            linear_extrude(height=thickness/2, center=false, twist=twist/2, slices=ceil(slices/2), convexity=teeth/4) {
+            linear_extrude(height=thickness/2, center=false, twist=twist/2, slices=ceil(slices/2), convexity=12) {
                 difference() {
                     circle(r=or);
                     spur_gear2d(
@@ -1472,7 +1482,7 @@ module ring_gear(
             }
         } else {
             zrot(twist/2)
-            linear_extrude(height=thickness,center=true, twist=twist, convexity=teeth/4) {
+            linear_extrude(height=thickness,center=true, twist=twist, convexity=12) {
                 difference() {
                     circle(r=or);
                     spur_gear2d(
@@ -1580,7 +1590,9 @@ module ring_gear2d(
         assert(is_finite(gear_spin));
     pr = pitch_radius(circ_pitch, teeth, helical=helical);
     ar = outer_radius(circ_pitch, teeth, helical=helical, profile_shift=profile_shift, internal=true);
-    rr=_root_radius_basic(circ_pitch, teeth, clearance, profile_shift=profile_shift, internal=true);
+    //rr=_root_radius_basic(circ_pitch, teeth, clearance, profile_shift=profile_shift, internal=true);
+    rr = root_radius(circ_pitch=circ_pitch, teeth=teeth, helical=helical, clearance=clearance, internal=true,
+                     profile_shift=profile_shift);
     or = is_def(or) ?
             assert(is_finite(or) && or>ar, "or is invalid or too small for teeth")
             or
@@ -2312,7 +2324,7 @@ module crown_gear(
         gear_spin=gear_spin
     );
     attachable(anchor,spin,orient, r=pr+face_width, h=2*bottom) {
-        vnf_polyhedron(vnf, convexity=teeth/2);
+        vnf_polyhedron(vnf, convexity=12);
         children();
     }
 }
@@ -2684,7 +2696,7 @@ module bevel_gear(
     thickness = vnf_anchors[2];
     attachable(anchor,spin,orient, vnf=vnf, extent=true, anchors=anchors) {        
         difference() {
-           vnf_polyhedron(vnf, convexity=teeth/2);
+           vnf_polyhedron(vnf, convexity=12);
            if (shaft_diam > 0)
                cylinder(h=2*thickness, r=shaft_diam/2, center=true, $fn=max(12,segs(shaft_diam/2)));
         }
@@ -2772,10 +2784,20 @@ function worm(
                 profile_shift=0
             ), 1, -2)
         ),
+
         rack_profile = [
             for (t = xcopies(trans_pitch, n=2*ceil(l/trans_pitch)+1))
                 each apply(t, tooth)
         ],
+        nrp = select(rack2d(
+                pitch=circ_pitch,
+                teeth=2*ceil(l/trans_pitch)+1,
+                pressure_angle=PA,
+                clearance=clearance,
+                backlash=backlash,
+                helical=helical,
+                profile_shift=0
+            ), 1, -2),
         steps = max(36, segs(d/2)),
         step = 360 / steps,
         zsteps = ceil(l / trans_pitch / starts * steps),
@@ -2980,7 +3002,7 @@ function enveloping_worm(
         vnf1 = vnf_vertex_array(transpose(rows), col_wrap=true, caps=true),
         m = product([
             zrot(gear_spin),
-            if (!left_handed) xflip(),
+            if (left_handed) xflip(),
             zrot(90),
         ]),
         vnf = apply(m, vnf1)
@@ -3047,7 +3069,7 @@ module enveloping_worm(
 //   worm_diam = The pitch diameter of the worm gear to match to.  Default: 30
 //   worm_starts = The number of lead starts on the worm gear to match to.  Default: 1
 //   worm_arc = The arc of the worm to mate with, in degrees. Default: 45 degrees
-//   crowning = The amount to oversize the virtual hobbing cutter used to make the teeth, to add a slight crowning to the teeth to make them fit the work easier.  Default: 1
+//   crowning = The amount to oversize the virtual hobbing cutter used to make the teeth, to add a slight crowning to the teeth to make them fit the work easier.  Default: 0.1
 //   left_handed = If true, the gear returned will have a left-handed spiral.  Default: false
 //   pressure_angle = Controls how straight or bulged the tooth sides are. In degrees. Default: 20
 //   backlash = Gap between two meshing teeth, in the direction along the circumference of the pitch circle.  Default: 0
@@ -3129,7 +3151,7 @@ function worm_gear(
     )
     assert(is_finite(worm_diam) && worm_diam>0)
     assert(is_integer(teeth) && teeth>7)
-    assert(is_finite(worm_arc) && worm_arc>0 && worm_arc <= 60)
+    assert(is_finite(worm_arc) && worm_arc>0 && worm_arc<=90, "worm_arc must be between 0 and 90 degrees")
     assert(is_integer(worm_starts) && worm_starts>0)
     assert(is_bool(left_handed))
     assert(is_finite(backlash))
@@ -3139,24 +3161,36 @@ function worm_gear(
     let(
         gear_arc = 2 * PA,
         helical = asin(worm_starts * circ_pitch / PI / worm_diam),
-        full_tooth = apply(
-            zrot(90) * scale(0.99),
-            _gear_tooth_profile(
-                circ_pitch, teeth=teeth,
-                pressure_angle=PA,
-                profile_shift=-profile_shift,
-                clearance=clearance,
-                helical=helical,
-                center=true
-            )
-        ),
+        full_tooth = path3d(reverse(zrot(90, _gear_tooth_profile(
+                                                 circ_pitch, teeth=teeth,
+                                                 pressure_angle=PA,
+                                                 profile_shift=profile_shift,
+                                                 clearance=clearance,//shorten=.3,
+                                                 backlash=backlash,
+                                                 helical=helical, internal=false,
+                                                 center=true)))),
+        bnd = pointlist_bounds(full_tooth),
+        tooth_bot = pointlist_bounds(full_tooth)[1].x,
         ftl = len(full_tooth),
-        tooth_half1 = (select(full_tooth, 0, ftl/2-1)),
-        tooth_half2 = (select(full_tooth, ftl/2, -1)),
+        tooth_half1 = select(full_tooth, 0, ftl/2-1),
+        tooth_half2 = select(full_tooth, ftl/2, -1),
         tang = 360 / teeth,
-        rteeth = quantdn(teeth * gear_arc / 360, 2) / 2 + 0.5,
+
         pr = pitch_radius(circ_pitch, teeth, helical=helical),
+
+        // Compute thickness based on tooth form and worm_arc for no crowning
+        half_thickness = sin(worm_arc/2)*(worm_diam/2+tooth_bot),
+        // Update worm_arc to account for crowning and produce same thickness
+        worm_arc = 2*asin(half_thickness / (worm_diam/2 + crowning + tooth_bot)),
+
+        // When multiplied by z this gives the spin required to rotationally shear
+        // a straight tooth so that it follows the specified helical angle.  
+        shear_angle_per_z = (left_handed?-1:1) * 360 * tan(helical) / (2*PI*pr),
+        
         oslices = slices * 4,
+        // Tooth is in xy plane, centered, pointing in Y+ direction
+        // 
+        
         rows = [
             for (data = [[tooth_half1,1], [tooth_half2,-1]])
             let (
@@ -3168,14 +3202,17 @@ function worm_gear(
                 let (
                     u = i / oslices,
                     w_ang = worm_arc * (u - 0.5),
-                    g_ang_delta = w_ang/360 * tang * worm_starts * (left_handed?1:-1),
-                    m = zrot(dir*rteeth*tang+g_ang_delta, cp=[worm_diam/2+pr,0,0]) *
-                        left(crowning) *
+                    m = left(crowning) *
                         yrot(w_ang) *
-                        right(worm_diam/2+crowning) *
-                        zrot(-dir*rteeth*tang+g_ang_delta, cp=[pr,0,0]) *
-                        xrot(180)
-                ) apply(m, point3d(pt))
+                        right(worm_diam/2+crowning), 
+                   pt = apply(m, pt),
+                   L = 2*PI*worm_diam/2*w_ang/360 * tan(helical),
+//                   zang = -360*L/(2*PI*pr),
+//                    zang = -asin(L/pr),
+//                   angled_pt = zrot(shear_angle_per_z * pt.z, pt, cp=[worm_diam/2+pr,0,0])
+//                   angled_pt = zrot(zang, pt, cp=[worm_diam/2+pr,0,0])
+                    angled_pt = back(L,pt)
+                  ) angled_pt
             ]
         ],
         midrow = len(rows)/2,
@@ -3252,7 +3289,7 @@ module worm_gear(
         assert(is_integer(teeth) && teeth>10)
         assert(is_finite(worm_diam) && worm_diam>0)
         assert(is_integer(worm_starts) && worm_starts>0)
-        assert(is_finite(worm_arc) && worm_arc>0 && worm_arc<90)
+        assert(is_finite(worm_arc) && worm_arc>0 && worm_arc<=90, "worm_arc must be between 0 and 90 degrees")
         assert(is_finite(crowning) && crowning>=0)
         assert(is_bool(left_handed))
         assert(is_finite(PA) && PA>=0 && PA<90, "Bad pressure_angle value.")
@@ -3278,11 +3315,11 @@ module worm_gear(
         profile_shift = profile_shift,
         slices = slices
     );
-    thickness = pointlist_bounds(vnf[0])[1].z;
+    thickness = 2*pointlist_bounds(vnf[0])[1].z;
     attachable(anchor,spin,orient, r=pr, l=thickness) {
         zrot(gear_spin)
         difference() {
-            vnf_polyhedron(vnf, convexity=teeth/2);
+            vnf_polyhedron(vnf, convexity=12);
             if (shaft_diam > 0) {
                 cylinder(h=2*thickness+1, r=shaft_diam/2, center=true, $fn=max(12,segs(shaft_diam/2)));
             }
@@ -3485,7 +3522,7 @@ function _gear_tooth_profile(
                    ipt = line_intersection([[0,0],polar_to_xy(1,90+180/teeth)], select(tooth_half,ind,ind+1)),
                    c = prad - mod*(1-profile_shift) - norm(ipt)
               )
-              echo(str(teeth, " tooth gear profile clipped at clearance = ",c))
+              //echo(str(teeth, " tooth gear profile clipped at clearance = ",c))
               [
                  ipt,
                  each slice(tooth_half, ind+1,-1)
@@ -3970,7 +4007,6 @@ function outer_radius(circ_pitch, teeth, clearance, internal=false, helical=0, p
 //   root radius so that you can, for example, place a partial tooth gear onto a matching circle.   The `backlash` parameter may seem
 //   unnecessary, but when large pressure angle teeth are clipped, the value of backlash changes the clipping radius.  For regular
 //   gear teeth, `backlash` has no effect on the radius.    
-
 // Arguments:
 //   teeth = The number of teeth on the gear.
 //   helical = The helical angle (from vertical) of the teeth on the gear.  Default: 0
@@ -3990,11 +4026,11 @@ function outer_radius(circ_pitch, teeth, clearance, internal=false, helical=0, p
 //   spur_gear2d(mod=mod, teeth=teeth, hide=floor(teeth/2));
 //   circle(r=rr, $fn=64);
 
-function root_radius(teeth, helical=0, clearance, internal=false, profile_shift="auto", pressure_angle=20, mod, pitch, diam_pitch, backlash=0) =
+function root_radius(teeth, helical=0, clearance, internal=false, profile_shift="auto", pressure_angle=20, mod, circ_pitch, diam_pitch, backlash=0) =
   let(
       profile_shift = auto_profile_shift(teeth, pressure_angle, helical, profile_shift=profile_shift),
       tooth = _gear_tooth_profile(teeth=teeth, pressure_angle=pressure_angle, clearance=clearance, backlash=backlash, helical=helical,
-                                  internal=internal, profile_shift=profile_shift, mod=mod, diam_pitch=diam_pitch, pitch=pitch),
+                                  internal=internal, profile_shift=profile_shift, mod=mod, diam_pitch=diam_pitch, pitch=circ_pitch),
       miny = norm(tooth[0])
   )
   miny;
@@ -4123,7 +4159,7 @@ function bevel_pitch_angle(teeth, mate_teeth, drive_angle=90) =
 //   ---
 //   worm_arc = The arc of the worm to mate with, in degrees. Default: 45 degrees
 //   pressure_angle = Pressure angle in degrees.  Controls how straight or bulged the tooth sides are.  Default: 20º
-//   crowning = The amount to oversize the virtual hobbing cutter used to make the teeth, to add a slight crowning to the teeth to make them fit the work easier.  Default: 1
+//   crowning = The amount to oversize the virtual hobbing cutter used to make the teeth, to add a slight crowning to the teeth to make them fit the work easier.  Default: 0.1
 //   clearance = Clearance gap at the bottom of the inter-tooth valleys.  Default: module/4
 //   mod = The module of the gear (pitch diameter / teeth)
 //   diam_pitch = The diametral pitch, or number of teeth per inch of pitch diameter.  The diametral pitch is a completely different thing than the pitch diameter.
@@ -4454,13 +4490,20 @@ function gear_skew_angle(teeth1,teeth2,helical1,helical2,profile_shift1,profile_
 //   Compute the total profile shift, split between two gears, needed to place those gears with a specified separation.
 //   If the requested separation is too small, returns NaN.  The profile shift returned may also be impractically
 //   large or small and does not necessarily lead to a valid gear configuration.  You will need to split the profile shift
-//   between the two gears.  Note that for helical gears, much more adjustment is available by modifying the helical angle.  
+//   between the two gears.  Note that for helical gears, much more adjustment is available by modifying the helical angle.
+//   . 
+//   For a ring gear you can specify internal teeth.  The computed profile shift must equal the **difference** of the ring gear
+//   profile shift and its mated spur gear profile shift.  You can only increase the spacing using profile shifting, because
+//   decreasing spacing would require that the profile shift of the ring gear is smaller than that of the spur gear, and
+//   that is not a valid configuration.  
 // Arguments:
 //   desired = desired gear center separation
 //   teeth1 = number of teeth on first gear
 //   teeth2 = number of teeth on second gear
 //   helical = The helical angle (from vertical) of the teeth on the gear.  Default: 0
 //   ---
+//   internal1 = first gear is a ring gear with internal teeth.  Default: false
+//   internal2 = second gear is a ring gear with internal teeth.  Default: false
 //   mod = The module of the gear (pitch diameter / teeth)
 //   diam_pitch = The diametral pitch, or number of teeth per inch of pitch diameter.  The diametral pitch is a completely different thing than the pitch diameter.
 //   circ_pitch = The circular pitch, the distance between teeth centers around the pitch circle.
@@ -4493,8 +4536,33 @@ function gear_skew_angle(teeth1,teeth2,helical1,helical2,profile_shift1,profile_
 //   right(d)
 //     spur_gear2d(mod=mod,teeth=teeth2,profile_shift=ps2,shorten=shorten,gear_spin=-90,shaft_diam=5);
 //   stroke([rect([desired,40], anchor=LEFT)],color="red");
-function get_profile_shift(desired,teeth1,teeth2,helical=0,pressure_angle=20,mod,diam_pitch,circ_pitch) =
+// Example(2D,Med,NoScales,VPR=[0.00,0.00,0.00],VPD=245,VPT=[0.16,24.60,28.81]): The natural center distance between these gears is 32.  Using profile shifting we increase this to 34. With a ring gear and spur gear the **difference** in profile shifts must equal the computed value.  The only way to divide the profile shift is hence to place negative shift onto the spur gear, which is only acceptable for large tooth count spur gears.  It is not possible to use profile shifting to decrease the distance, because that would requires the ring gear profile shift to be less than the spur gear profile shift.  
+//   teeth_ring = 57;
+//   teeth_spur = 25;
+//   mod = 2;
+//   desired = 34;     
+//   ps = get_profile_shift(desired, teeth1=teeth_ring, internal1=true,  // Returns 1.2
+//                                   teeth2=teeth_spur, mod=mod);
+//   ps_spur = -0.4;       // The biggest negative profile shift that looks reasonable
+//   ps_ring = ps+ps_spur; // Must have ps_ring - ps_spur = ps
+//   d = gear_dist(mod=mod, teeth1=teeth_ring, internal1=true, profile_shift1=ps_ring,
+//                          teeth2=teeth_spur, profile_shift2=ps_spur);
+//   ring_gear2d(mod=mod, teeth=teeth_ring, profile_shift=ps_ring)
+//   back(d)
+//     spur_gear2d(mod=mod, teeth=teeth_spur, profile_shift=ps_spur, shaft_diam=3);
+//   stroke([[0,0],[0,desired]], endcaps="arrow2", color="red");
+
+function get_profile_shift(desired,teeth1,teeth2,helical=0,pressure_angle=20,internal1=false, internal2=false,mod,diam_pitch,circ_pitch) =
+  assert(all_nonnegative([teeth1,teeth2]),"Must give nonnegative values for teeth")
+  assert(teeth1>0 || teeth2>0, "One of the teeth counts must be nonzero")
+  assert(is_bool(internal1))
+  assert(is_bool(internal2))
+  assert(is_finite(helical))
+  assert(!(internal1&&internal2), "Cannot specify both gears as internal")
+  assert(!(internal1 || internal2) || (teeth1>0 && teeth2>0), "Cannot specify internal gear with rack (zero tooth count)")
   let(
+       teeth1 = internal2? -teeth1 : teeth1,
+       teeth2 = internal1? -teeth2 : teeth2,
        mod = module_value(mod=mod, circ_pitch=circ_pitch, diam_pitch=diam_pitch),
        teethsum = teeth1+teeth2,
        pressure_angle_trans = atan(tan(pressure_angle)/cos(helical)),

@@ -8,6 +8,9 @@
 // FileSummary: Joiner shapes for connecting separately printed objects.
 //////////////////////////////////////////////////////////////////////
 
+_BOSL2_JOINERS = is_undef(_BOSL2_STD) && (is_undef(BOSL2_NO_STD_WARNING) || !BOSL2_NO_STD_WARNING) ?
+       echo("Warning: joiners.scad included without std.scad; dependencies may be missing\nSet BOSL2_NO_STD_WARNING = true to mute this warning.") true : true;
+
 
 include <rounding.scad>
 
@@ -559,7 +562,7 @@ module joiner(l=40, w=10, base=10, ang=30, screwsize, anchor=CENTER, spin=0, ori
 // See Also: joiner(), snap_pin(), rabbit_clip(), partition(), partition_mask(), partition_cut_mask()
 //
 // Usage:
-//   dovetail(gender, w=|width, h=|height, slide|thickness=, [slope=|angle=], [taper=|back_width=], [chamfer=], [r=|radius=], [round=], [extra=], [$slop=])
+//   dovetail(gender, w=|width, h=|height, slide|thickness=, [slope=|angle=], [taper=|back_width=], [chamfer=], [r=|radius=], [round=], [extra=], [entry_slot_length=], [$slop=])
 //
 // Description:
 //   Produces a possibly tapered dovetail joint shape to attach to or subtract from two parts you wish to join together.
@@ -569,9 +572,17 @@ module joiner(l=40, w=10, base=10, ang=30, screwsize, anchor=CENTER, spin=0, ori
 //   parallel to the Y axis and projecting upwards, so in its default orientation it will slide together with a translation
 //   in the positive Y direction.  The gender determines whether the shape is meant to be added to your model or
 //   differenced, and it also changes the anchor and orientation.  The default anchor for dovetails is BOTTOM;
-//   the default orientation depends on the gender, with male dovetails oriented UP and female ones DOWN.  The dovetails by default
-//   have extra extension of 0.01 for unions and differences.  You should ensure that attachment is done with overlap=0 to ensure that
-//   the sizing and positioning is correct.  To adjust the fit, use the $slop variable, which increases the depth and width of
+//   the default orientation depends on the gender, with male dovetails oriented UP and female ones DOWN.
+//   .
+//   For a male dovetail of length X to slide into a female dovetail, there must be a space of length X at the
+//   end of the dovetail.  In many cases, this space is naturally present, but if you want to create dovetails
+//   in the middle of a surface, you need cut cut out an additional space to allow the male dovetail space to enter.
+//   Setting `entry_slot_length=X` for a female dovetail will add an entry slot of length X, projecting forward
+//   from the dovetail mask.  Anchoring is done on the dovetail itself: the slot is ignored by anchoring.
+//   .
+//   The dovetails by default have extra extension of 0.01 for unions and differences.
+//   You should ensure that attachment is done with overlap=0 to ensure
+//   sizing and positioning is correct.  To adjust the fit, use the $slop variable, which increases the depth and width of
 //   the female part of the joint to allow a clearance gap of $slop on each of the three sides.
 //
 // Arguments:
@@ -589,6 +600,7 @@ module joiner(l=40, w=10, base=10, ang=30, screwsize, anchor=CENTER, spin=0, ori
 //   round = true to round both corners of the dovetail and give it a puzzle piece look.  Default: false.
 //   $slop = Increase the width of socket by double this amount and depth by this amount to allow adjustment of the fit.
 //   extra = amount of extra length and base extension added to dovetails for unions and differences.  Default: 0.01
+//   entry_slot_length = length of a mask of sufficient width and depth for a male dovetail to fit ahead of the female dovetail. Ignored when gender == "male".
 // Example: Ordinary straight dovetail, male version (sticking up) and female version (below the xy plane)
 //   dovetail("male", width=15, height=8, slide=30);
 //   right(20) dovetail("female", width=15, height=8, slide=30);
@@ -640,8 +652,19 @@ module joiner(l=40, w=10, base=10, ang=30, screwsize, anchor=CENTER, spin=0, ori
 //   diff("remove")
 //     cuboid([50,30,10])
 //       tag("remove")position(TOP+BACK) xcopies(10,5) dovetail("female", slide=10, width=7, taper=4, height=4, anchor=BOTTOM+FRONT,spin=180);
-function dovetail(gender, width, height, slide, h, w, angle, slope, thickness, taper, back_width, chamfer, extra=0.01, r, radius, round=false, anchor=BOTTOM, spin=0, orient) = no_function("dovetail");
-module dovetail(gender, width, height, slide, h, w, angle, slope, thickness, taper, back_width, chamfer, extra=0.01, r, radius, round=false, anchor=BOTTOM, spin=0, orient)
+// Example: Housed sliding dovetail (similar to okuri ari).  If the left piece is rotated 90 degrees clockwise, it can be inserted downward with the male dovetail entering the entry slot, then sliding backward, making a 40x40x20 cuboid with no visible connectors. The opening is 2 units longer than the male dovetail so it's easier to assemble.
+//   xdistribute(spacing=60){
+//     cuboid([10,40,40])
+//       attach(RIGHT,BOT,align=BACK,spin=90,inset=5)
+//       dovetail("male", slide=15, width=20, height=8, slope=2);
+//     diff()
+//       cuboid([40,40,10])
+//         attach(TOP,BOT,align=BACK,inside=true,inset=5)
+//           tag("remove") dovetail("female", slide=15, width=20,
+//                                  height=8, slope=2, entry_slot_length=17);
+//   }
+function dovetail(gender, width, height, slide, h, w, angle, slope, thickness, taper, back_width, chamfer, extra=0.01, entry_slot_length=0, r, radius, round=false, anchor=BOTTOM, spin=0, orient) = no_function("dovetail");
+module dovetail(gender, width, height, slide, h, w, angle, slope, thickness, taper, back_width, chamfer, extra=0.01, entry_slot_length=0, r, radius, round=false, anchor=BOTTOM, spin=0, orient)
 {
     radius = get_radius(r1=radius,r2=r);
     slide = one_defined([slide,thickness],"slide,thickness");
@@ -687,7 +710,7 @@ module dovetail(gender, width, height, slide, h, w, angle, slope, thickness, tap
 
     type = is_def(chamfer) && chamfer>0 ? "chamfer" : "circle";
 
-    smallend_half = round_corners(
+    bigend_half = round_corners(
         move(
             [0,-slide/2-extra,0],
             p=[
@@ -700,13 +723,13 @@ module dovetail(gender, width, height, slide, h, w, angle, slope, thickness, tap
         method=type, cut = fullsize, closed=false
     );
 
-    smallend_points = concat(select(smallend_half, 1, -2), [down(extra,p=select(smallend_half, -2))]);
+    bigend_points = concat(select(bigend_half, 1, -2), [down(extra,p=select(bigend_half, -2))]);
     offset = is_def(taper) ? -slide * tan(taper)
            : is_def(back_width) ? (back_width-width) / 2
            : 0;
-    bigend_points = move([offset+2*extra_offset,slide+2*extra,0], p=smallend_points);
+    smallend_points = move([offset+2*extra_offset,slide+2*extra,0], p=bigend_points);
 
-    bigenough = all_nonnegative(column(smallend_half,0)) && all_nonnegative(column(bigend_points,0));
+    bigenough = all_nonnegative(column(bigend_half,0)) && all_nonnegative(column(smallend_points,0));
 
     assert(bigenough, "Width (or back_width) of dovetail is not large enough for its geometry (angle and taper");
 
@@ -715,7 +738,7 @@ module dovetail(gender, width, height, slide, h, w, angle, slope, thickness, tap
 
     // This code computes the true normal from which the exact width factor can be obtained
     // as the x component.  Comparing to wfactor above shows that they agree.
-    //   pts = [smallend_points[0], smallend_points[1], bigend_points[1],bigend_points[0]];
+    //   pts = [bigend_points[0], bigend_points[1], smallend_points[1],smallend_points[0]];
     //   n = -polygon_normal(pts);
     //   echo(n=n);
     //   echo(invwfactor = 1/wfactor, error = n.x-1/wfactor);
@@ -726,11 +749,13 @@ module dovetail(gender, width, height, slide, h, w, angle, slope, thickness, tap
 
             skin(
                 [
-                    reverse(concat(smallend_points, xflip(p=reverse(smallend_points)))),
-                    reverse(concat(bigend_points, xflip(p=reverse(bigend_points))))
+                    reverse(concat(bigend_points, xflip(p=reverse(bigend_points)))),
+                    reverse(concat(smallend_points, xflip(p=reverse(smallend_points))))
                 ],
                 slices=0, convexity=4
-            );
+            )
+            if(entry_slot_length>0 && gender=="female")
+                down(extra) align(FWD,TOP,overlap=extra) cuboid([width-2*extra_offset,entry_slot_length+extra+get_slop(),height+extra]);
         }
         children();
     }
@@ -979,14 +1004,14 @@ module snap_pin_socket(size, r, radius, l,length, d,diameter,nub_depth, snap, fi
 // Usage:
 //   rabbit_clip(type, length, width, snap, thickness, depth, [compression=], [clearance=], [lock=], [lock_clearance=], [splineteps=], [anchor=], [orient=], [spin=]) [ATTACHMENTS];
 // Description:
-//   Creates a clip with two flexible ears to lock into a mating socket, or create a mask to produce the appropriate
+//   Creates a clip with two flexible ears to snap into a mating socket, or create a mask to produce the appropriate
 //   mating socket.  The clip can be made to insert and release easily, or to hold much better, or it can be
 //   created with locking flanges that will make it very hard or impossible to remove.  Unlike the snap pin, this clip
 //   is rectangular and can be made at any height, so a suitable clip could be very thin.  It's also possible to get a
 //   solid connection with a short pin.
 //   .
 //   The type parameters specifies whether to make a clip, a socket mask, or a double clip.  The length is the
-//   total nominal length of the clip.  (The actual length will be very close, but not equal to this.)  The width
+//   total nominal length of the (single) clip.  (The actual length will be very close, but not equal to this.)  The width
 //   gives the nominal width of the clip, which is the actual width of the clip at its base.  The snap parameter
 //   gives the depth of the clip sides, which controls how easy the clip is to insert and remove.  The clip "ears" are
 //   made over-wide by the compression value.  A nonzero compression helps make the clip secure in its socket.
@@ -996,9 +1021,17 @@ module snap_pin_socket(size, r, radius, l,length, d,diameter,nub_depth, snap, fi
 //   make the socket with a larger depth than the clip (try 0.4 mm) to allow ease of insertion of the clip.  The clearance
 //   value does not apply to the depth.  The splinesteps parameter increases the sampling of the clip curves.
 //   .
-//   By default clips appear with orient=UP and sockets with orient=DOWN.  The clips and sockets extend 0.02 units below
+//   By default clips appear with orient=UP and sockets with orient=DOWN.  With double clips the default is orient=BACK, the
+//   proper position for stand-alone printing.  The clips and sockets extend 0.02 units below
 //   their base so that unions and differences will work without trouble, but be sure that the attach overlap is smaller
 //   than 0.02.
+//   .
+//   When you set `lock=true` the clip has locking flanges that allow it to be easily inserted but block removal of the clip.
+//   You you leave an access point in the socket wall this can allow a clip that locks in place but can be released by pressing
+//   on the ears of the clip.  You can also set lock to a direction like LEFT or RIGHT to create just one locking clip.
+//   When you make a double clip, setting `lock=LEFT` will create a locking flange on the left side of both clips, and
+//   setting `lock=TOP` will create locking flanges at the top end (which points along the Y axis by default because of the
+//   default BACK orientation).  You can also use corners like `BACK+LEFT` or give a list like `[BACK+LEFT,FWD+RIGHT]`
 //   .
 //   The first figure shows the dimensions of the rabbit clip.  The second figure shows the clip in red overlayed on
 //   its socket in yellow.  The left clip has a nonzero clearance, so its socket is bigger than the clip all around.
@@ -1031,7 +1064,6 @@ module snap_pin_socket(size, r, radius, l,length, d,diameter,nub_depth, snap, fi
 //      stroke([[tip.x+2, 19.3], tip+[.1,.1]], width=.15, endcap2="arrow2");
 //   }
 //   }
-//
 // Figure(2DMed,NoAxes):
 //   snap=1.5;
 //   comp=0;
@@ -1060,7 +1092,7 @@ module snap_pin_socket(size, r, radius, l,length, d,diameter,nub_depth, snap, fi
 //   ---
 //   compression = excess width at the "ears" to lock more tightly.  Default: 0.1
 //   clearance = extra space in the socket for easier insertion.  Default: 0.1
-//   lock = set to true to make a locking clip that may be irreversible.  Default: false
+//   lock = set to true to make a locking clip that may be irreversible. LEFT or RIGHT may be specified for all types to add a locking latch to just that side. For "double" type, TOP or BOTTOM is valid as well as a single corner (e.g. TOP+LEFT) or an array of corners or sides (e.g. [TOP, BOTTOM+RIGHT]). Default: false
 //   lock_clearance = give clearance for the lock.  Default: 0
 //   splinesteps = number of samples in the curves of the clip.  Default: 8
 //   anchor = anchor point for clip
@@ -1092,10 +1124,11 @@ module snap_pin_socket(size, r, radius, l,length, d,diameter,nub_depth, snap, fi
 //   right(17)ydistribute(spacing=28){
 //     test_pair(length=12, width=10, snap=1, thickness=1.2, compression=0.2);
 //     test_pair(length=8, width=7, snap=0.75, thickness=0.8, compression=0.2, lock=true); // With lock, very firm and irreversible
-//     test_pair(length=8, width=7, snap=0.75, thickness=0.8, compression=0.2, lock=true); // With lock, very firm and irreversible
 //   }
 // Example: Double clip to connect two sockets
 //   rabbit_clip("double",length=8, width=7, snap=0.75, thickness=0.8, compression=0.2,depth=5);
+// Example: Double clip with locking top
+//   rabbit_clip("double",length=8, width=7, snap=0.75, thickness=0.8, compression=0.2,depth=5,lock=TOP);
 // Example:  A modified version of the clip that acts like a backpack strap clip, where it locks tightly but you can squeeze to release.
 //   cuboid([25,15,5],anchor=BOTTOM)
 //       attach(BACK)rabbit_clip("pin", length=25, width=25, thickness=1.5, snap=2, compression=0, lock=true, depth=5, lock_clearance=3);
@@ -1108,6 +1141,8 @@ module snap_pin_socket(size, r, radius, l,length, d,diameter,nub_depth, snap, fi
 //         xscale(0.8)
 //         tag("remove")zcyl(l=20,r=13.5, $fn=64);
 //   }
+// Example: Clip that locks only on the right side
+//   rabbit_clip("pin",length=8, width=7, snap=0.75, thickness=0.8, compression=0.2,depth=5,lock=RIGHT);
 
 function rabbit_clip(type, length, width,  snap, thickness, depth, compression=0.1,  clearance=.1, lock=false, lock_clearance=0,
                    splinesteps=8, anchor, orient, spin=0) = no_function("rabbit_clip");
@@ -1116,6 +1151,12 @@ module rabbit_clip(type, length, width,  snap, thickness, depth, compression=0.1
                    splinesteps=8, anchor, orient, spin=0)
 {
   legal_types = ["pin","socket","male","female","double"];
+
+  // TOP, BOTTOM, LEFT, RIGHT, or any corner thereof
+  function valid_edge_or_corner(v) = same_shape(v, TOP) && v[1] == 0 && (abs(v[0]) == 1 || abs(v[2]) == 1);
+  function valid_edge_or_corner_vector(v) = is_consistent(v, TOP) && all( [for (i = v) valid_edge_or_corner(i)] );
+  function valid_double_lock() = valid_edge_or_corner(lock) || valid_edge_or_corner_vector(lock);
+  function valid_lock() = is_bool(lock) || lock == LEFT || lock == RIGHT || (type == "double" && valid_double_lock());
   check =
     assert(is_num(width) && width>0,"Width must be a positive value")
     assert(is_num(length) && length>0, "Length must be a positive value")
@@ -1123,16 +1164,45 @@ module rabbit_clip(type, length, width,  snap, thickness, depth, compression=0.1
     assert(is_num(snap) && snap>=0, "Snap must be a non-negative value")
     assert(is_num(depth) && depth>0, "Depth must be a positive value")
     assert(is_num(compression) && compression >= 0, "Compression must be a nonnegative value")
-    assert(is_bool(lock))
     assert(is_num(lock_clearance))
+    assert(valid_lock(), type != "double" ? str("lock must be one of true, false, LEFT, or RIGHT for type \"", type, "\"")
+            : "for type \"double\", lock must be either true, false, a direction with no Y component (no FWD or BACK), or a list of such directions (e.g. [LEFT,RIGHT+TOP])")
     assert(in_list(type,legal_types),str("type must be one of ",legal_types));
+
+  module apply_lock() {
+    if( lock == RIGHT )
+      children();
+    else if( lock == LEFT )
+      xflip()
+        children();
+    else if( lock )
+      xflip_copy()
+        children();
+    // ignore children otherwise
+  }
+
+  function is_edge_or_corner(v, e1, e2) = v == e1 || v == e2 || v == e1 + e2;
+  function relative_lock_vector_value(edge) = let(left = len([for (v = lock) if(is_edge_or_corner(v, LEFT, edge)) v]) > 0,
+          right = len([for (v = lock) if (is_edge_or_corner(v, RIGHT, edge)) v]) > 0)
+      left && right ? true :
+      left ? LEFT :
+      right ? RIGHT :
+      false;
+  function relative_lock_value(edge) = is_bool(lock) ? lock :
+      lock == TOP || lock == BOTTOM ? lock == edge :
+      lock == LEFT || lock == RIGHT ? lock :
+      same_shape(lock, TOP) && lock * edge == 1 ? lock - edge :
+      relative_lock_vector_value(edge);
+
   if (type=="double") {
     attachable(size=[width+2*compression, depth, 2*length], anchor=default(anchor,BACK), spin=spin, orient=default(orient,BACK)){
       union(){
         rabbit_clip("pin", length=length, width=width, snap=snap, thickness=thickness, depth=depth, compression=compression,
-                    lock=lock, anchor=BOTTOM, orient=UP);
+                    lock=relative_lock_value(TOP), lock_clearance=lock_clearance, anchor=BOTTOM, orient=UP);
+        bottom_lock = relative_lock_value(BOTTOM);
+        // the bottom pin is rotated when it is attached, so it needs to be flipped when applying LEFT or RIGHT
         rabbit_clip("pin", length=length, width=width, snap=snap, thickness=thickness, depth=depth, compression=compression,
-                    lock=lock, anchor=BOTTOM, orient=DOWN);
+                    lock=is_bool(bottom_lock) ? bottom_lock : xflip(bottom_lock), lock_clearance=lock_clearance, anchor=BOTTOM, orient=DOWN);
         cuboid([width-thickness, depth, thickness]);
       }
       children();
@@ -1201,8 +1271,7 @@ module rabbit_clip(type, length, width,  snap, thickness, depth, compression=0.1
       xrot(90)
         translate([0,-(bounds[1].y-bounds[0].y)/2+default_overlap,-depth/2])
         linear_extrude(height=depth, convexity=10) {
-            if (lock)
-              xflip_copy()
+            apply_lock()
               right(clearance)
               polygon([sidepath[1]+[-thickness/10,lock_clearance],
                        sidepath[2]-[thickness*.75,0],

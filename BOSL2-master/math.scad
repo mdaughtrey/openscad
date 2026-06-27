@@ -11,6 +11,11 @@
 // FileFootnotes: STD=Included in std.scad
 //////////////////////////////////////////////////////////////////////
 
+
+_BOSL2_MATH = is_undef(_BOSL2_STD) && (is_undef(BOSL2_NO_STD_WARNING) || !BOSL2_NO_STD_WARNING) ?
+       echo("Warning: math.scad included without std.scad; dependencies may be missing\nSet BOSL2_NO_STD_WARNING = true to mute this warning.") true : true;
+
+
 // Section: Math Constants
 
 // Constant: PHI
@@ -21,23 +26,24 @@
 PHI = (1+sqrt(5))/2;
 
 // Constant: EPSILON
-// Synopsis: A tiny value to compare floating point values.  `1e-9`
+// Synopsis: A tiny value to compare floating point values.  1e-9
 // Topics: Constants, Math
-// See Also: PHI, EPSILON, INF, NAN
-// Description: A really small value useful in comparing floating point numbers.  ie: abs(a-b)<EPSILON  `1e-9`
+// See Also: PHI, INF, NAN
+// Description: A really small value useful in comparing floating point numbers.  ie: abs(a-b)<EPSILON.  This is set to 1e-9, which is larger than machine epsilon, but generally works well in geometric computations.  
 EPSILON = 1e-9;
+_EPSILON = 1e-9;  // This is the private library version
 
 // Constant: INF
 // Synopsis: The floating point value for Infinite.
 // Topics: Constants, Math
-// See Also: PHI, EPSILON, INF, NAN
+// See Also: PHI, EPSILON, NAN
 // Description: The value `inf`, useful for comparisons.
 INF = 1/0;
 
 // Constant: NAN
 // Synopsis: The floating point value for Not a Number.
 // Topics: Constants, Math
-// See Also: PHI, EPSILON, INF, NAN
+// See Also: PHI, EPSILON, INF
 // Description: The value `nan`, useful for comparisons.
 NAN = acos(2);
 
@@ -121,13 +127,13 @@ function lerp(a,b,u) =
 //   x = lerpn(a, b, n, [endpoint]);
 // Description:
 //   Returns exactly `n` values, linearly interpolated between `a` and `b`.
-//   If `endpoint` is true, then the last value will exactly equal `b`.
-//   If `endpoint` is false, then the last value will be `a+(b-a)*(1-1/n)`.
+//   If `endpoint` is true, then the last value equals `b`.
+//   If `endpoint` is false, then the last value is `a+(b-a)*(1-1/n)`.
 // Arguments:
 //   a = First value or vector.
 //   b = Second value or vector.
 //   n = The number of values to return.
-//   endpoint = If true, the last value will be exactly `b`.  If false, the last value will be one step less.
+//   endpoint = If true, the last value equals `b`.  If false, the last value is one step less. Default: true
 // Example:
 //   l = lerpn(-4,4,9);        // Returns: [-4,-3,-2,-1,0,1,2,3,4]
 //   l = lerpn(-4,4,8,false);  // Returns: [-4,-3,-2,-1,0,1,2,3]
@@ -139,6 +145,7 @@ function lerpn(a,b,n,endpoint=true) =
     assert(is_bool(endpoint))
     let( d = n - (endpoint? 1 : 0) )
     [for (i=[0:1:n-1]) let(u=i/d) (1-u)*a + u*b];
+
 
 // Function: bilerp()
 // Synopsis: Bi-linear interpolation between four values
@@ -173,9 +180,76 @@ function lerpn(a,b,n,endpoint=true) =
 //   x = First proportional distance
 //   y = Second proportional distance
 
-
 function bilerp(points,x,y) =
      [1,y,x,x*y]*[[1, 0, 0, 0],[-1, 0, 1, 0],[-1,1,0,0],[1,-1,-1,1]]*points;
+
+
+// Function: slerp()
+// Synopsis: Spherical lerp(), great-circle interpolation on a unit sphere.
+// Topics: Interpolation, Math
+// See Also: slerpn(), lerp()
+// Usage:
+//   interp_vector = slerp(v1, v2, u);
+// Description:
+//   Given two points on a sphere represented by 3-vectors from the sphere's center, return a vector that is interpolated along a great-circle arc between the original two points. The input vectors need not be unit size, but the output vectors correspond to a unit sphere, so you should scale the result back to your original radius.
+//   * If `u` is given as a number, returns the single interpolated value.
+//   * If `u` is 0.0, then the unit-size value of `v1` is returned.
+//   * If `u` is 1.0, then the unit-size value of `v2` is returned.
+//   * If `u` is a range, or list of numbers, returns a list of interpolated values.
+// Arguments:
+//   v1 = First 3D vector, needn't be unit size.
+//   v2 = Second 3D vector, needn't be unit size.
+//   u = The proportion from `v1` to `v2` to calculate. Standard range is 0.0 to 1.0, inclusive. If given as a list or range of values, returns a list of results.
+function slerp(v1, v2, u) =
+    assert(is_vector(v1,3) && is_vector(v2,3), "\nv1 and v2 must be 3-vectors.")
+    let(
+        a = unit(v1),
+        b = unit(v2),
+        theta = acos(max(-1, min(1, a*b))),
+        err = assert(abs(theta-180)>_EPSILON, "\nNo solution when vectors v1 and v2 are 180° apart."),
+        sin_theta = sin(theta)
+    ) sin_theta < _EPSILON ? unit(a+b) // fallback
+    : is_finite(u) ? (sin_theta < _EPSILON ? unit(a+b)
+        : (a * sin((1 - u) * theta) + b * sin(u * theta)) / sin_theta)
+    : [for(t=u) sin_theta < _EPSILON ? unit(a+b)
+        : (a * sin((1 - t) * theta) + b * sin(t * theta)) / sin_theta];
+
+
+// Function: slerpn()
+// Synopsis: Spherical lerpn(), returns exactly `n` vectors interpolated on a great circle.
+// Topics: Interpolation, Math
+// See Also: slerp(), lerpn()
+// Usage:
+//   vec_list = slerpn(v1, v2, n);
+//   vec_list = slerpn(v1, v2, n, [endpoint]);
+// Description:
+//   Returns exactly `n` values, interpolated along a great-circle arc on a unit sphere between 3D vectors `v1` and `v2`. The input vectors need not be unit size, although the result is always a list of unit vectors, which should be scaled by your original sphere radius.
+// Arguments:
+//   v1 = First 3D vector, needn't be unit size.
+//   v2 = Second 3D vector, needn't be unit size.
+//   n = The number of values to return.
+//   endpoint = If true, the last value is `v2`. If false, the last value is one step less. Default: true
+// Example(3D,VPD=220,VPT=[0,0,0]): Seven points interpolated along a great-circle arc.
+//   radius = 40;
+//   interps = slerpn([-1,-1,0],[1,0.5,1], 7);
+//   stroke(interps*radius, dots=true, width=2);
+//   %sphere(radius);
+function slerpn(v1, v2, n, endpoint=true) =
+    assert(is_vector(v1,3) && is_vector(v2,3), "\nv1 and v2 must be 3-vectors.")
+    assert(is_int(n))
+    assert(is_bool(endpoint))
+    let(
+        a = unit(v1),
+        b = unit(v2),
+        theta = acos(max(-1, min(1, a*b))),
+        err = assert(abs(theta-180)>_EPSILON, "\nNo solution when vectors v1 and v2 are 180° apart."),
+        sin_theta = sin(theta),
+        d = n - (endpoint ? 1 : 0)
+    ) [
+    for(i=[0:n-1]) let(u=i/d)
+        sin_theta < _EPSILON ? unit(a+b) // fallback
+        : (a * sin((1 - u) * theta) + b * sin(u * theta)) / sin_theta
+];
 
 
 
@@ -931,7 +1005,7 @@ function cumprod(list,right=false) =
                     a]
    :  
     assert(is_vector(list) || (is_matrix(list[0],square=true) && is_consistent(list)),
-           "\nInput must be a listector, a list of listectors, or a list of matrices.")
+           "\nInput must be a vector, a list of vectors, or a list of matrices.")
     [for (a = list[0],
           i = 1
             ;
@@ -1025,7 +1099,7 @@ function sum_of_sines(a, sines) =
 //   ints = rand_int(0,100,3);
 //   int = rand_int(-10,10,1)[0];
 function rand_int(minval, maxval, n, seed=undef) =
-    assert( is_finite(minval+maxval+n) && (is_undef(seed) || is_finite(seed) ), "\nInput must be finite numbers.")
+    assert( is_vector([minval,maxval,n]) && (is_undef(seed) || is_finite(seed) ), "\nInput must be finite numbers.")
     assert(maxval >= minval, "\nMax value cannot be smaller than minval.")
     let (rvect = is_def(seed) ? rands(minval,maxval+1,n,seed) : rands(minval,maxval+1,n))
     [for(entry = rvect) floor(entry)];
@@ -1102,10 +1176,10 @@ function gaussian_rands(n=1, mean=0, cov=1, seed=undef) =
 //   Returns random numbers with an exponential distribution with parameter lambda, and hence mean 1/lambda.  
 // Arguments:
 //   n = number of points to return.  Default: 1
-//   lambda = distribution parameter.  The mean will be 1/lambda.  Default: 1
+//   lambda = distribution parameter.  The mean is 1/lambda.  Default: 1
 function exponential_rands(n=1, lambda=1, seed) =
-    assert( is_int(n) && n>=1, "The number of points should be an integer greater than zero.")
-    assert( is_num(lambda) && lambda>0, "The lambda parameter must be a positive number.")
+    assert( is_int(n) && n>=1, "\nThe number of points should be an integer greater than zero.")
+    assert( is_num(lambda) && lambda>0, "\nThe lambda parameter must be a positive number.")
     let(
          unif = is_def(seed) ? rands(0,1,n,seed=seed) : rands(0,1,n)
     )
@@ -1127,8 +1201,8 @@ function exponential_rands(n=1, lambda=1, seed) =
 
 // See https://mathworld.wolfram.com/SpherePointPicking.html
 function spherical_random_points(n=1, radius=1, seed) =
-    assert( is_int(n) && n>=1, "The number of points should be an integer greater than zero.")
-    assert( is_num(radius) && radius>0, "The radius should be a non-negative number.")
+    assert( is_int(n) && n>=1, "\nThe number of points should be an integer greater than zero.")
+    assert( is_num(radius) && radius>0, "\nThe radius should be a non-negative number.")
     let( theta = is_undef(seed) 
                 ? rands(0,360,n)
                 : rands(0,360,n, seed),
@@ -1141,29 +1215,55 @@ function spherical_random_points(n=1, radius=1, seed) =
 
 
 // Function: random_polygon()
-// Synopsis: Returns the CCW path of a simple random polygon.
+// Synopsis: Returns the clockwise path of a simple random polygon.
 // Topics: Random, Polygon
 // See Also: random_points(), spherical_random_points()
 // Usage:
-//    points = random_polygon([n], [size], [seed]);
+//    points = random_polygon([n], [size], [angle_sep], [seed]);
 // Description:
-//    Generate the `n` vertices of a random counter-clockwise simple 2d polygon 
-//    inside a circle centered at the origin with radius `size`.
+//   Generate the `n` vertices of a random clockwise star-shaped 2d polygon 
+//   inside a circle centered at the origin with radius `size`.
+//   The polygons have the property that they always contain the origin and a line segment connecting
+//   the origin to a vertex is always contained in the polygon.
+//   .
+//   If size is a vector, then
+//   The polygon's vertices lie inside a ring with inner radius `size[0]` and outer radius `size[1]`.  
+//   The first vertex of the polygon will be the first vertex below the X+ axis.  
+//   .
+//   The angular position of the vertices are randomly chosen.  
+//   The `angle_sep` parameter controls the separation in angle required between vertices.  If you set it
+//   to zero, no separation is required.  If you set it to 1 then the angular separation is maximal,
+//   which means the angles are spread uniformly without any randomness.
 // Arguments:
-//    n = number of vertices of the polygon. Default: 3
-//    size = the radius of a circle centered at the origin containing the polygon. Default: 1
-//    seed = an optional seed for the random generation.
-function random_polygon(n=3,size=1, seed) =
-    assert( is_int(n) && n>2, "Improper number of polygon vertices.")
-    assert( is_num(size) && size>0, "Improper size.")
-    let( 
-        seed = is_undef(seed) ? rands(0,1,1)[0] : seed,
-        cumm = cumsum(rands(0.1,10,n+1,seed)),
-        angs = 360*cumm/cumm[n-1],
-        rads = rands(.01,size,n,seed+cumm[0])
+//   n = number of vertices of the polygon. Default: 3
+//   size = the [min,max] radius of a ring centered at the origin containing the polygon's vertices. If you give a single number `s` then that is equivalent to `[s/2,s]`.  Default: [0.5,1]
+//   ---
+//   angle_sep = values in [0,1] specifying minimum angular separation between adjacent points, where 0 means none and 1 is maximal (points are uniform in angle).  Default: 0.2
+//   seed = an optional seed for the random generation.
+// Example(2D): A 17-sided polygon with vertices between radii 10 and 20.
+//   polygon(random_polygon(17, [10,20], seed=888));
+// Example(2D): A 17-sided polygon with vertices between radii 0.1 and 20.
+//   polygon(random_polygon(17, [0.1,20], seed=888));
+function random_polygon(n=3,size=1, angle_sep=0.2, seed) =
+    assert( is_int(n) && n>2, "\nPolygon vertex count must be an integer larger than 2.")
+    assert(all_positive(size) && (is_vector(size,2) || is_num(size)), "\nsize must be a positive value or list of two positive values.")
+    assert(is_finite(angle_sep) && angle_sep>=0 && angle_sep<=1, "\nangle_sep must be a number in [0,1]")
+    let(
+        rmin = is_num(size) ? size/2 : size[0],
+        rmax = is_num(size) ? size : size[1],
+        ang_space = (1-angle_sep)*360,
+        // Create random angle list where angles are separated based on ang_sep but all angular differences < 180
+        randang = function(seed)
+                     let (
+                          rand = is_undef(seed) ? rands(0,ang_space,n) : rands(0,ang_space,n,seed=seed),
+                          angs = sort(rand)+lerpn(0,1,n)*(360-ang_space),
+                          dang = [each deltas(angs),angs[0]-last(angs)+360]
+                     )
+                     max(dang)<180 ? angs : randang(seed=u_add(seed,angs[0])),
+        angs = randang(seed), 
+        rads = is_undef(seed) ? rands(rmin,rmax,n) : rands(rmin,rmax,n,seed+angs[0])
       )
-    [for(i=count(n)) rads[i]*[cos(angs[i]), sin(angs[i])] ];
-
+      [for(i=count(n)) rads[i]*[cos(angs[i]), -sin(angs[i])]];
 
 
 // Section: Calculus
@@ -1191,11 +1291,11 @@ function random_polygon(n=3,size=1, seed) =
 //   h = the parametric sampling of the data.
 //   closed = boolean to indicate if the data set should be wrapped around from the end to the start.
 function deriv(data, h=1, closed=false) =
-    assert( is_consistent(data) , "Input list is not consistent or not numerical.") 
-    assert( len(data)>=2, "Input `data` should have at least 2 elements.") 
-    assert( is_finite(h) || is_vector(h), "The sampling `h` must be a number or a list of numbers." )
+    assert( is_consistent(data) , "\nInput list is not consistent or not numerical.") 
+    assert( len(data)>=2, "\nInput `data` should have at least 2 elements.") 
+    assert( is_finite(h) || is_vector(h), "\nThe sampling `h` must be a number or a list of numbers.")
     assert( is_num(h) || len(h) == len(data)-(closed?0:1),
-            str("Vector valued `h` must have length ",len(data)-(closed?0:1)))
+            str("\nVector valued `h` must have length ",len(data)-(closed?0:1)))
     is_vector(h) ? _deriv_nonuniform(data, h, closed=closed) :
     let( L = len(data) )
     closed
@@ -1257,10 +1357,10 @@ function _deriv_nonuniform(data, h, closed) =
 //   h = the constant parametric sampling of the data.
 //   closed = boolean to indicate if the data set should be wrapped around from the end to the start.
 function deriv2(data, h=1, closed=false) =
-    assert( is_consistent(data) , "Input list is not consistent or not numerical.") 
-    assert( is_finite(h), "The sampling `h` must be a number." )
+    assert( is_consistent(data) , "\nInput list is not consistent or not numerical.") 
+    assert( is_finite(h), "\nThe sampling `h` must be a number." )
     let( L = len(data) )
-    assert( L>=3, "Input list has less than 3 elements.") 
+    assert( L>=3, "\nInput list has less than 3 elements.") 
     closed
     ? [
         for(i=[0:1:L-1])
@@ -1303,9 +1403,9 @@ function deriv2(data, h=1, closed=false) =
 //   h = the constant parametric sampling of the data.
 //   closed = boolean to indicate if the data set should be wrapped around from the end to the start.
 function deriv3(data, h=1, closed=false) =
-    assert( is_consistent(data) , "Input list is not consistent or not numerical.") 
-    assert( len(data)>=5, "Input list has less than 5 elements.") 
-    assert( is_finite(h), "The sampling `h` must be a number." )
+    assert( is_consistent(data) , "\nInput list is not consistent or not numerical.") 
+    assert( len(data)>=5, "\nInput list has less than 5 elements.") 
+    assert( is_finite(h), "\nThe sampling `h` must be a number." )
     let(
         L = len(data),
         h3 = h*h*h
@@ -1397,8 +1497,8 @@ function _c_mul(z1,z2) =
 //   z1 = First complex number, given as a 2D vector [REAL, IMAGINARY]
 //   z2 = Second complex number, given as a 2D vector [REAL, IMAGINARY]
 function c_div(z1,z2) = 
-    assert( is_vector(z1,2) && is_vector(z2), "Complex numbers should be represented by 2D vectors." )
-    assert( !approx(z2,0), "The divisor `z2` cannot be zero." ) 
+    assert( is_vector(z1,2) && is_vector(z2), "\nComplex numbers should be represented by 2D vectors.")
+    assert( !approx(z2,0), "\nThe divisor `z2` cannot be zero.") 
     let(den = z2.x*z2.x + z2.y*z2.y)
     [(z1.x*z2.x + z1.y*z2.y)/den, (z1.y*z2.x - z1.x*z2.y)/den];
 
@@ -1480,16 +1580,20 @@ function c_norm(z) = norm_fro(z);
 //    coefficients are real numbers.  If real is true, then returns only the
 //    real roots.  Otherwise returns a pair of complex values.  This method
 //    may be more reliable than the general root finder at distinguishing
-//    real roots from complex roots.  
+//    real roots from complex roots.  If the input is a linear equation the
+//    function returns a single root, and it returns the empty list when no
+//    appropriate roots exist (such as when all the roots are complex and real=true).
+
 //    Algorithm from: https://people.csail.mit.edu/bkph/articles/Quadratics.pdf
 function quadratic_roots(a,b,c,real=false) =
   real ? [for(root = quadratic_roots(a,b,c,real=false)) if (root.y==0) root.x]
   :
   is_undef(b) && is_undef(c) && is_vector(a,3) ? quadratic_roots(a[0],a[1],a[2]) :
   assert(is_num(a) && is_num(b) && is_num(c))
-  assert(a!=0 || b!=0 || c!=0, "Quadratic must have a nonzero coefficient")
+  assert(a!=0 || b!=0 || c!=0, "\nQuadratic must have a nonzero coefficient.")
   a==0 && b==0 ? [] :     // No solutions
-  a==0 ? [[-c/b,0]] : 
+  a==0 ? [[-c/b,0]] :     // linear case, only one root
+  b==0 && c==0 ? [[0,0],[0,0]] :   // a*x^2=0, zero is a double root
   let(
       descrim = b*b-4*a*c,
       sqrt_des = sqrt(abs(descrim))
@@ -1518,8 +1622,8 @@ function quadratic_roots(a,b,c,real=false) =
 //   The result is a number if `z` is a number and a complex number otherwise.
 function polynomial(p,z,k,total) =
   is_undef(k)
-  ? assert( is_vector(p) , "Input polynomial coefficients must be a vector." )
-    assert( is_finite(z) || is_vector(z,2), "The value of `z` must be a real or a complex number." )
+  ? assert( is_vector(p) , "\nInput polynomial coefficients must be a vector.")
+    assert( is_finite(z) || is_vector(z,2), "\nThe value of `z` must be a real or a complex number.")
     polynomial( _poly_trim(p), z, 0, is_num(z) ? 0 : [0,0])
   : k==len(p) ? total
   : polynomial(p,z,k+1, is_num(z) ? total*z+p[k] : c_mul(total,z)+[p[k],0]);
@@ -1541,7 +1645,7 @@ function poly_mult(p,q) =
         ? poly_mult(p[0],p[1]) 
     : poly_mult(p[0], poly_mult(list_tail(p)))
   :
-  assert( is_vector(p) && is_vector(q),"Invalid arguments to poly_mult")
+  assert( is_vector(p) && is_vector(q),"\nInvalid arguments to poly_mult.")
     p*p==0 || q*q==0
     ? [0]
     : _poly_trim(convolve(p,q));
@@ -1559,10 +1663,10 @@ function poly_mult(p,q) =
 //    the zero polynomial [0] is returned for the remainder.  Similarly if the quotient is zero
 //    the returned quotient is [0].  
 function poly_div(n,d) =
-    assert( is_vector(n) && is_vector(d) , "Invalid polynomials." )
+    assert( is_vector(n) && is_vector(d) , "\nInvalid polynomials.")
     let( d = _poly_trim(d), 
          n = _poly_trim(n) )
-    assert( d!=[0] , "Denominator cannot be a zero polynomial." )
+    assert( d!=[0] , "\nDenominator cannot be a zero polynomial.")
     n==[0]
     ? [[0],[0]]
     : _poly_div(n,d,q=[]);
@@ -1597,7 +1701,7 @@ function _poly_trim(p,eps=0) =
 // Description:
 //    Computes the sum of two polynomials.  
 function poly_add(p,q) = 
-    assert( is_vector(p) && is_vector(q), "Invalid input polynomial(s)." )
+    assert( is_vector(p) && is_vector(q), "\nInvalid input polynomial(s).")
     let(  plen = len(p),
           qlen = len(q),
           long = plen>qlen ? p : q,
@@ -1628,9 +1732,9 @@ function poly_add(p,q) =
 // Dario Bini. "Numerical computation of polynomial zeros by means of Aberth's Method", Numerical Algorithms, Feb 1996.
 // https://www.researchgate.net/publication/225654837_Numerical_computation_of_polynomial_zeros_by_means_of_Aberth's_method
 function poly_roots(p,tol=1e-14,error_bound=false) =
-    assert( is_vector(p), "Invalid polynomial." )
+    assert( is_vector(p), "\nInvalid polynomial.")
     let( p = _poly_trim(p,eps=0) )
-    assert( p!=[0], "Input polynomial cannot be zero." )
+    assert( p!=[0], "\nInput polynomial cannot be zero.")
     p[len(p)-1] == 0 ?                                       // Strip trailing zero coefficients
         let( solutions = poly_roots(list_head(p),tol=tol, error_bound=error_bound))
         (error_bound ? [ [[0,0], each solutions[0]], [0, each solutions[1]]]
@@ -1665,7 +1769,7 @@ function poly_roots(p,tol=1e-14,error_bound=false) =
 // tol = root tolerance
 // i=iteration counter
 function _poly_roots(p, pderiv, s, z, tol, i=0) =
-    assert(i<45, str("Polyroot exceeded iteration limit.  Current solution:", z))
+    assert(i<45, str("\nPolyroot exceeded iteration limit. Current solution:", z))
     let(
         n = len(z),
         svals = [for(zk=z) tol*polynomial(s,norm(zk))],
@@ -1703,9 +1807,9 @@ function _poly_roots(p, pderiv, s, z, tol, i=0) =
 //   tol = tolerance for the complex polynomial root finder
 
 function real_roots(p,eps=undef,tol=1e-14) =
-    assert( is_vector(p), "Invalid polynomial." )
+    assert( is_vector(p), "\nInvalid polynomial.")
     let( p = _poly_trim(p,eps=0) )
-    assert( p!=[0], "Input polynomial cannot be zero." )
+    assert( p!=[0], "\nInput polynomial cannot be zero.")
     let( 
        roots_err = poly_roots(p,error_bound=true),
        roots = roots_err[0],
@@ -1762,11 +1866,11 @@ function root_find(f,x0,x1,tol=1e-15) =
    // Check endpoints
    y0==0 || _rfcheck(x0, y0,yrange,tol) ? x0 :
    y1==0 || _rfcheck(x1, y1,yrange,tol) ? x1 :
-   assert(y0*y1<0, "Sign of function must be different at the interval endpoints")
+   assert(y0*y1<0, "\nSign of function must be different at the interval endpoints.")
    _rootfind(f,[x0,x1],[y0,y1],yrange,tol);
 
 function _rfcheck(x,y,range,tol) =
-   assert(is_finite(y), str("Function not finite at ",x))
+   assert(is_finite(y), str("\nFunction not finite at ",x))
    abs(y) < tol*(range[1]-range[0]);
 
 // xpts and ypts are arrays whose first two entries contain the
@@ -1774,7 +1878,7 @@ function _rfcheck(x,y,range,tol) =
 // yrange is the total observed range of y values (used for the
 // tolerance test).  
 function _rootfind(f, xpts, ypts, yrange, tol, i=0) =
-    assert(i<100, "root_find did not converge to a solution")
+    assert(i<100, "\nroot_find did not converge to a solution.")
     let(
          xmid = (xpts[0]+xpts[1])/2,
          ymid = f(xmid),

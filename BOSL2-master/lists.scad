@@ -9,6 +9,10 @@
 // FileFootnotes: STD=Included in std.scad
 //////////////////////////////////////////////////////////////////////
 
+_BOSL2_LISTS = is_undef(_BOSL2_STD) && (is_undef(BOSL2_NO_STD_WARNING) || !BOSL2_NO_STD_WARNING) ?
+       echo("Warning: lists.scad included without std.scad; dependencies may be missing\nSet BOSL2_NO_STD_WARNING = true to mute this warning.") true : true;
+
+
 // Terminology:
 //   **List** = An ordered collection of zero or more arbitrary items.  ie: `["a", "b", "c"]`, or `[3, "a", [4,5]]`
 //   **Vector** = A list of numbers. ie: `[4, 5, 6]`
@@ -689,6 +693,26 @@ function list_set(list=[],indices,values,dflt=0,minlen=0) =
        each repeat(dflt, minlen-max(len(list),max(indices)+1))
     ];
 
+
+// Function: list_swap()
+// Synopsis: Swaps two items in a list by index
+// Topics: List Handling
+// See Also: list_insert(), list_remove(), list_remove_values()
+// Usage:
+//   list = list_swap(list, i, j);
+// Description:
+//   Takes the input list and returns a new list where `list[i]` and `list[j]` have switched values.  
+// Arguments:
+//   list = List to set items in.  Default: []
+//   i = first index to swap. 
+//   j = second index to swap. 
+// Example:
+//   a = list_swap([2,3,4,5], 0, 2);  // Returns: [4,3,2,5]
+
+function list_swap(list,i,j) =
+    assert(is_list(list))
+    assert(i>=0 && j>=0 && i<len(list) && j<len(list),"indices out of bounds")
+    [for(m=[0:len(list)-1]) m==i ? list[j] : m==j ? list[i] : list[m]];
 
 
 // Function: list_insert()

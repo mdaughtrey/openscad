@@ -15,8 +15,11 @@
 // FileFootnotes: STD=Included in std.scad
 //////////////////////////////////////////////////////////////////////
 
-use <builtins.scad>
+BOSL2_SHAPES2D = is_undef(_BOSL2_STD) && (is_undef(BOSL2_NO_STD_WARNING) || !BOSL2_NO_STD_WARNING) ?
+       echo("Warning: shapes2d.scad included without std.scad; dependencies may be missing\nSet BOSL2_NO_STD_WARNING = true to mute this warning.") true : true;
 
+
+use <builtins.scad>
 
 
 // Section: 2D Primitives
@@ -181,9 +184,10 @@ function rect(size=1, rounding=0, chamfer=0, atype="box", anchor=CENTER, spin=0,
                  [-size.x/2, -size.y/2],
                  [-size.x/2,  size.y/2],
                  [ size.x/2,  size.y/2],
-             ]
+             ],
+             rotpath = rot(spin, p=move(-v_mul(anchor,size/2), p=path))
         )
-        rot(spin, p=move(-v_mul(anchor,size/2), p=path))
+        _return_override ? [rotpath,undef] : rotpath
     :
     assert(all_zero(v_mul(chamfer,rounding),0), "Cannot specify chamfer and rounding at the same corner")
     let(
@@ -353,14 +357,21 @@ module circle(r, d, points, corner, anchor=CENTER, spin=0) {
 //   attachments to the ellipse will retain their dimensions, whereas scaling a circle with attachments will also scale the attachments.
 //   If you set `uniform` to true then you will get a polygon with congruent sides whose vertices lie on the ellipse.  The `circum` option
 //   requests a polygon that circumscribes the requested ellipse (so the specified ellipse will fit into the resulting polygon).  Note that
-//   you cannot gives `circum=true` and `uniform=true`.  
+//   you cannot gives `circum=true` and `uniform=true`.
+//   .
+//   When the `realign` parameter is false the shape appears with its first vertex on the X+ axis and points moving counterclockwise from there.
+//   If `realign` is true then the midpoint of an edge is on the X+ axis and the first point of the polygon is below the X+ axis.  By default,
+//   `realign` is false when `circum` is false and true if `circum` is true.  This means that when `$fn` is a multiple of four the ellipse always
+//   has exactly correct dimensions on the X and Y axes regardless of the setting for circum, and it also means that circles match "octa"
+//   style spheroids on any of the coordinate planes.  For circles, `realign` just rotates the circle.  But for noncircular ellipses with `uniform=true`
+//   setting `realign=true` completely changes the shape compared to `realign=false`.  
 // Arguments:
 //   r = Radius of the circle or pair of semiaxes of ellipse 
 //   ---
-//   d = Diameter of the circle or a pair giving the full X and Y axis lengths.  
-//   realign = If false starts the approximate ellipse with a point on the X+ axis.  If true the midpoint of a side is on the X+ axis and the first point of the polygon is below the X+ axis.  This can result in a very different polygon when $fn is small.  Default: false
-//   uniform = If true, the polygon that approximates the circle will have segments of equal length.  Only works if `circum=false`.  Default: false
-//   circum = If true, the polygon that approximates the circle will be upsized slightly to circumscribe the theoretical circle.  If false, it inscribes the theoretical circle.  If this is true then `uniform` must be false.  Default: false
+//   d = Diameter of the circle or a pair giving the width and height of the ellipse.
+//   realign = If false a vertex is on the X+ axis.  If true the midpoint of an edge is on the X+ axis.  Default: false if `circum=false` and true if `circum=true`
+//   uniform = If true, the polygon that approximates the ellipse will have segments of equal length.  Only supported when `circum=false`.  Default: false
+//   circum = If true, the polygon that approximates the ellipse will circumscribe the ideal ellipse.  If false, it inscribes the ideal ellipse.  If this is true then `uniform` must be false.  Default: false
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
 // Example(2D): By Radius
@@ -421,10 +432,13 @@ module circle(r, d, points, corner, anchor=CENTER, spin=0) {
 //       stroke([ellipse(r=r, $fn=5,realign=false,uniform=true)],width=0.2,color="red");
 //     }
 //   }
-module ellipse(r, d, realign=false, circum=false, uniform=false, anchor=CENTER, spin=0)
+module ellipse(r, d, realign, circum=false, uniform=false, anchor=CENTER, spin=0)
 {
+    realign = assert(is_bool(circum))
+              default(realign,circum);
     r = force_list(get_radius(r=r, d=d, dflt=1),2);
-    dummy = assert(is_vector(r,2) && all_positive(r), "Invalid radius or diameter for ellipse");
+    dummy = assert(is_bool(realign))
+            assert(is_vector(r,2) && all_positive(r), "Invalid radius or diameter for ellipse");
     sides = segs(max(r));
     sc = circum? (1 / cos(180/sides)) : 1;
     rx = r.x * sc;
@@ -432,7 +446,7 @@ module ellipse(r, d, realign=false, circum=false, uniform=false, anchor=CENTER, 
     attachable(anchor,spin, two_d=true, r=[rx,ry]) {
         if (uniform) {
             check = assert(!circum, "Circum option not allowed when \"uniform\" is true");
-            polygon(ellipse(r,realign=realign, circum=circum, uniform=true));
+            polygon(ellipse(r, realign=realign, circum=circum, uniform=true));
         }
         else if (rx < ry) {
             xscale(rx/ry) {
@@ -463,7 +477,7 @@ function _ellipse_refine(a,b,N, _theta=[]) =
        meanlen = mean(lenlist),
        error = lenlist/meanlen
    )
-   all_equal(error,EPSILON) ? pts
+   all_equal(error,_EPSILON) ? pts
    :
    let(
         dtheta = [each deltas(_theta),
@@ -487,7 +501,7 @@ function _ellipse_refine_realign(a,b,N, _theta=[],i=0) =
        meanlen = mean(lenlist),
        error = lenlist/meanlen
    )
-   all_equal(error,EPSILON) ? pts
+   all_equal(error,_EPSILON) ? pts
    :
    let(
         dtheta = [each deltas(_theta),
@@ -499,13 +513,15 @@ function _ellipse_refine_realign(a,b,N, _theta=[],i=0) =
    )
    _ellipse_refine_realign(a,b,N,adjusted, i+1);
 
-
-
-function ellipse(r, d, realign=false, circum=false, uniform=false, anchor=CENTER, spin=0) =
+                             
+function ellipse(r, d, realign, circum=false, uniform=false, anchor=CENTER, spin=0) =
+    assert(is_bool(circum))
     let(
         r = force_list(get_radius(r=r, d=d, dflt=1),2),
-        sides = segs(max(r))
+        sides = segs(max(r)),
+        realign = default(realign,circum)
     )
+    assert(is_bool(realign))  
     assert(all_positive(r), "All components of the radius must be positive.")
     uniform
       ? assert(!circum, "Circum option not allowed when \"uniform\" is true")
@@ -1145,9 +1161,9 @@ module trapezoid(h, w1, w2, ang, shift, chamfer=0, rounding=0, flip=false, ancho
 //   d/od = The diameter to the tips of the star.
 //   id = The diameter to the inner corners of the star.
 //   step = Calculates the radius of the inner star corners by virtually drawing a straight line `step` tips around the star.  2 <= step < n/2
-//   realign = If false, vertex 0 will lie on the X+ axis.  If true then the midpoint of the last edge will lie on the X+ axis, and vertex 0 will be below the X axis.    Default: false
-//   align_tip = If given as a 2D vector, rotates the whole shape so that the first star tip points in that direction.  This occurs before spin.
-//   align_pit = If given as a 2D vector, rotates the whole shape so that the first inner corner is pointed towards that direction.  This occurs before spin.
+//   realign = If false, the shape starts with a star point on the X+ axis.  If true then a star pit (the last vertex) will be on the X+ axis and the first vertex will be a point below the X+ axis.  Default: false
+//   align_tip = If given as a 2D vector, rotates the whole shape so that the first star tip points in that direction.  This occurs before spin.  If realign is true this aligns a pit instead. 
+//   align_pit = If given as a 2D vector, rotates the whole shape so that the first inner corner is pointed towards that direction.  This occurs before spin.  If realign is true this aligns a tip instead.
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
 //   atype = Choose "hull" or "intersect" anchor methods.  Default: "hull"
@@ -1341,9 +1357,12 @@ module jittered_poly(path, dist=1/512) {
 //   the result will be the full, untruncated shape.  You can set `cap_h` smaller than the radius to produce a truncated circle.  The segments of the round section of the teardrop 
 //   are the same as a circle or cylinder with matching `$fn` when rotated 90 degrees.  The number of facets in the teardrop is only approximately
 //   equal to `$fn`, and may also change if you set `realign=true`, which adjusts the facets so the bottom of the teardrop has a flat base.  
-//   If `$fn` is a multiple of four then the teardrop will reach its extremes on all four axes.  The circum option
-//   produces a teardrop that circumscribes the circle; in this, `realign=true` produces a teardrop that meets its internal extremes
-//   on the axes.  You can add a bottom corner using the `bot_corner` parameter, which specifies the length that the corner protrudes from the ideal circle.
+//   If `$fn` is a multiple of four then the teardrop will always reach its extremes on all four axes.  The `circum` option
+//   produces a teardrop that circumscribes the circle.  Unlike {{cyl()}} and {{ellipse()}}, the default for `realign` is always false for teardrops.  This is to
+//   optimize for 3d printing, where it's best to have a corner at the bottom when `circum=true` to ensure space for the hole.  To be certain of sufficient
+//   space you can add a bottom corner using the `bot_corner` parameter, which specifies the length that the corner protrudes from the ideal circle.
+//   .
+//   When `circum` and `realign` have the same values a teardrop and {{cyl()}} or {{ellipse()}} will have edges that match each other.  
 // Usage: As Module
 //   teardrop2d(r/d=, [ang], [cap_h], [circum=], [realign=], [bot_corner=]) [ATTACHMENTS];
 // Usage: As Function
@@ -1356,7 +1375,7 @@ module jittered_poly(path, dist=1/512) {
 //   d = diameter of circular portion of bottom. (Use instead of r)
 //   circum = if true, create a circumscribing teardrop.  Default: false
 //   bot_corner = create a bottom corner the specified distance below the given radius.  Default: 0
-//   realign = if true, change whether bottom of teardrop is a point or a flat.  Default: false
+//   realign = if true, bottom of teardrop is flat; if false, bottom of teardrop is a point.  Default: false
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
 // Example(2D): Typical Shape
@@ -1419,7 +1438,7 @@ function teardrop2d(r, ang=45, cap_h, d, circum=false, realign=false, anchor=CEN
         fullcircle = ellipse(r=r, realign=realign, circum=circum,spin=90),        
         
         // Chose the point on the circle that is lower than the cap but also creates a segment bigger than
-        // seglen/skipfactor so we don't have a teeny tiny segment at the end of the cap, except for the hexagoin
+        // seglen/skipfactor so we don't have a teeny tiny segment at the end of the cap, except for the hexagon
         // case which is treated specially
         skipfactor = len(fullcircle)==6 ? 15 : 3,
         path = !circum ?
@@ -1428,7 +1447,7 @@ function teardrop2d(r, ang=45, cap_h, d, circum=false, realign=false, anchor=CEN
                    each cap,
                    for (p=fullcircle)
                           if (
-                               p.y<last(cap).y-EPSILON
+                               p.y<last(cap).y-_EPSILON
                                  && norm([abs(p.x)-last(cap).x,p.y-last(cap.y)])>seglen/skipfactor
                              ) p,
                    xflip(cap[1]),
@@ -1445,7 +1464,7 @@ function teardrop2d(r, ang=45, cap_h, d, circum=false, realign=false, anchor=CEN
                [
                  cap[0],
                  p,
-                 each select(fullcircle,i+1,-i-1-(realign?1:0)),
+                 each select(fullcircle,i+1,-i-1-(realign==true && circum==true?1:0)),
                  xflip(p),
                  if(_extrapt || !pointycap) xflip(cap[0])
                ]
@@ -1723,24 +1742,102 @@ function ring(n,ring_width,r,r1,r2,angle,d,d1,d2,cp,points,corner, width,thickne
      ) new_r>r_actual ? concat(arc2, reverse(arc1)) : concat(arc1,reverse(arc2));
 
 
+
 // Function&Module: glued_circles()
 // Synopsis: Creates a shape of two circles joined by a curved waist.
 // SynTags: Geom, Path
 // Topics: Shapes (2D), Paths (2D), Path Generators, Attachable
 // See Also: circle(), ellipse(), egg(), keyhole()
 // Usage: As Module
-//   glued_circles(r/d=, [spread], [tangent], ...) [ATTACHMENTS];
+//   glued_circles(r/d=, [spread], [r1=/d1=], [r2=/d2=], [tangent=], [bulge=], [width=], [blendR=/blendD=], anchor=, spin=) [ATTACHMENTS];
 // Usage: As Function
-//   path = glued_circles(r/d=, [spread], [tangent], ...);
+//   path = glued_circles(r/d=, [spread], [r1=/d1=], [r2=/d2=], [tangent=], [bulge=], [width=], [blendR=/blendD=], anchor=, spin=) [ATTACHMENTS];
 // Description:
-//   When called as a function, returns a 2D path forming a shape of two circles joined by curved waist.
-//   When called as a module, creates a 2D shape of two circles joined by curved waist.  Uses "hull" style anchoring.  
+//   Computes a shape created by joining two circles with arcs.  The arcs can join the circles to create a convex, egg shape
+//   or they can join the circles to create a concave shape.  The circles being joined are permitted to overlap each other.  
+//   When called a function returns the path describing shape with its first point on the X+ axis.  This module uses "hull" style anchoring.
+//   When the circles are different sizes, the circle on the left has radius `r1` and the right hand circle has radius `r2`, and both
+//   circles always have an exact point on the X axis.  
+//   This construction can join arcs of widely varying radius, so it is better to use `$fa` and `$fs` instead of $fn to specify the number of arc segments.
+//   .
+//   The joining arcs can be specified in four different ways.  You can simply specify the radius of the arc using `blendR=` or `blendD=`.
+//   In this case a positive radius results in a convex shape and a negative radius results in a concave shape.  A forbidden radius range exists
+//   where the requested configuration is impossible; the exact bounds of this range depend on the specific geometry.
+//   When `abs(blendR)` is very large the connection will be nearly a straight line.
+//   .
+//   You can specify the angle of the tangent line at the point where the blending arc meets the left hand circle.  This angle is 
+//   measured between the tangent line and the X- axis, so an angle of zero gives a horizontal tangent, which will produces a straight
+//   joining "arc" if the circles are the same size.  A positive angle will rotate the tangent point to the right around the circle
+//   and a negative one will rotate it around the left.  When the tangent angle approaches -90 the shape approaches a circle that covers the
+//   two circles being joined.  The degenerate case of `tangent=-90` is not permitted.  A maximum legal tangent angle exists that depends on
+//   the geometry.
+//   .
+//   You can specify the `bulge=` parameter, which measures how the blending arc deviates from a straight line.  A positive value means
+//   it deviates by the specified distance to create a convex, bulging shape.  A negative value means it deviates by the specified distance
+//   to create a concave shape.  A value of zero produces a flat connection.
+//   .
+//   Finally you can give `width=`.  When `width` is smaller than either circle diameter it specifies the width of the waist of the shape (the
+//   narrowest point).  In this case the shape is concave.  When `width` is larger than either circle diameter it specifies the maximum width of
+//   shape.  In this case the shape is convex.  The width parameter cannot be in between the diameters of the two circles.  
+// Figure(2D,Med,NoScales,VPD=155.5,VPT=[-5.3,0,0]): This figure shows width and bulge on a concave shape, when width is smaller than the smallest circle or bulge is negative.  The black line shows the flat connection between the two circles, which is the bulge=0 case. 
+//   r1=25;
+//   r2=15;
+//   s=35;
+//   h=7;
+//   $fa=5;$fs=1;
+//   path = glued_circles(r1=r1,r2=r2,spread=s, bulge=-h);
+//   pathflat = glued_circles(r1=r1,r2=r2,spread=s, bulge=0);
+//   stroke(pathflat,width=.5,color="black");
+//   stroke(path,width=.5);
+//   rr=_gs_indent_R(r1,r2,s,h);
+//   pts=circle_circle_intersection( abs(r1+rr),[-s/2,0], abs(r2+rr), [s/2,0]);
+//   cp = pts[rr<0?1:0];
+//   tan_pts = circle_circle_tangents(r1,[-s/2,0],r2,[s/2,0])[0];
+//   dir = unit(zrot(-90,tan_pts[1]-tan_pts[0]));
+//   stroke(tan_pts, width=.1, color="black");
+//   isect = line_intersection([cp,cp+dir], tan_pts, LINE, LINE);
+//   stroke([isect, cp+rr*dir], endcaps="arrow2", width=.5, color="blue");
+//   left(2)back(15)color("blue")text("bulge < 0", size=4,anchor=RIGHT);
+//   width=11.6;
+//   color("green"){
+//     stroke([[cp.x,-width],[cp.x,width]], endcaps="arrow2", width=.5);
+//     fwd(4)right(cp.x+2)text("width", size=4, anchor=LEFT);
+//   }
+// Figure(2D,Med,NoScales,VPD=155.5,VPT=[-5.3,0,0]): This figure shows width and bulge on a convexe shape, when width is larger than the largest circle or bulge is positive.  The black line shows the flat connection between the two circles, which is the bulge=0 case. 
+//    r1=25;
+//    r2=15;
+//    s=35;
+//    h=-5.5;
+//    $fa=5;$fs=1;
+//    path = glued_circles(r1=r1,r2=r2,spread=s, bulge=-h);
+//    pathflat = glued_circles(r1=r1,r2=r2,spread=s, bulge=0);
+//    stroke(pathflat,width=.5,color="black");
+//    stroke(path,width=.5);
+//    rr=_gs_indent_R(r1,r2,s,h);
+//    pts=circle_circle_intersection( abs(r1+rr),[-s/2,0], abs(r2+rr), [s/2,0]);
+//    cp = pts[rr<0?1:0];
+//    tan_pts = circle_circle_tangents(r1,[-s/2,0],r2,[s/2,0])[0];
+//    dir = unit(zrot(-90,tan_pts[1]-tan_pts[0]));
+//    stroke(tan_pts, width=.1, color="black");
+//    isect = line_intersection([cp,cp+dir], tan_pts, LINE, LINE);
+//    stroke([isect, cp+rr*dir], endcaps="arrow2", width=.5, color="blue");
+//    left(3.2)back(12)color("blue")text("bulge > 0", size=4,anchor=LEFT);
+//    width=27;
+//    color("green"){
+//      stroke([[cp.x,-width],[cp.x,width]], endcaps="arrow2", width=.5);
+//      fwd(4)right(cp.x-2)text("width", size=4, anchor=RIGHT);
+//    }  
 // Arguments:
-//   r = The radius of the end circles.
-//   spread = The distance between the centers of the end circles.  Default: 10
-//   tangent = The angle in degrees of the tangent point for the joining arcs, measured away from the Y axis.  Default: 30
+//   r = The radius or diameter of the end circles.
+//   spread = The distance between the centers of the end circles.
 //   ---
+//   tangent = The angle in degrees of the tangent point for the joining arcs, measured away from the X- axis, a positive or negative value.  Default: 30
+//   bulge = Deviation of the blending arc from a straight line connection, positive for a convex shape or negative for a concave shape.
+//   blendR / blendD = The radius or diameter of the blending arc, a positive for a convex shape, negative for a concave shape.  
+//   width = width of the narrowest or widest point of the shape.  A positive value.  
 //   d = The diameter of the end circles.
+//   r1 / d1 = Radius or diameter of left circle.
+//   r2 / d2 = Radius or diameter of right circle.  
 //   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
 //   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
 // Examples(2D):
@@ -1750,44 +1847,184 @@ function ring(n,ring_width,r,r1,r2,angle,d,d1,d2,cp,points,corner, width,thickne
 //   glued_circles(d=30, spread=30, tangent=-30);
 // Example(2D): Called as Function
 //   stroke(closed=true, glued_circles(r=15, spread=40, tangent=45));
-function glued_circles(r, spread=10, tangent=30, d, anchor=CENTER, spin=0) =
-    let(
-        r = get_radius(r=r, d=d, dflt=10),
-        r2 = (spread/2 / sin(tangent)) - r,
-        cp1 = [spread/2, 0],
-        cp2 = [0, (r+r2)*cos(tangent)],
-        sa1 = 90-tangent,
-        ea1 = 270+tangent,
-        lobearc = ea1-sa1,
-        lobesegs = ceil(segs(r)*lobearc/360),
-        sa2 = 270-tangent,
-        ea2 = 270+tangent,
-        subarc = ea2-sa2,
-        arcsegs = ceil(segs(r2)*abs(subarc)/360),
-        // In the tangent zero case the inner curves are missing so we need to complete the two
-        // outer curves.  In the other case the inner curves are present and endpoint=false
-        // prevents point duplication.  
-        path = tangent==0 ?
-                    concat(arc(n=lobesegs+1, r=r, cp=-cp1, angle=[sa1,ea1]),
-                           arc(n=lobesegs+1, r=r, cp=cp1, angle=[sa1+180,ea1+180]))
-                :
-                    concat(arc(n=lobesegs, r=r, cp=-cp1, angle=[sa1,ea1], endpoint=false),
-                           [for(theta=lerpn(ea2+180,ea2-subarc+180,arcsegs,endpoint=false))  r2*[cos(theta),sin(theta)] - cp2],
-                           arc(n=lobesegs, r=r, cp=cp1, angle=[sa1+180,ea1+180], endpoint=false),
-                           [for(theta=lerpn(ea2,ea2-subarc,arcsegs,endpoint=false))  r2*[cos(theta),sin(theta)] + cp2]),
-        maxx_idx = max_index(column(path,0)),
-        path2 = reverse_polygon(list_rotate(path,maxx_idx))
-    ) reorient(anchor,spin, two_d=true, path=path2, extent=true, p=path2);
+// Example(2D): Circles with different sizes
+//   glued_circles(r1=15, r2=25, spread=40, tangent=30);
+// Example(2D): Setting negative bulge value
+//   $fa=1;$fs=1;
+//   glued_circles(r1=15, r2=25, spread=40, bulge=-4);
+// Example(2D): Setting positive bulge value
+//   $fa=1;$fs=1;
+//   glued_circles(r1=15, r2=25, spread=40, bulge=4);
+// Example(2D): Zero bulge gives a flat connection
+//   glued_circles(r1=15, r2=25, spread=40, bulge=0);
+// Example(2D): Specifying negative blending radius
+//   $fa=1;$fs=1;
+//   glued_circles(r1=25, r2=10, spread=40, blendR=-15);
+// Example(2D): Giving positive blending radius
+//   $fa=1;$fs=1;
+//   glued_circles(r1=25, r2=10, spread=40, blendR=45);
+// Example(2D): Overlapping circles
+//   $fa=1;$fs=1;
+//   glued_circles(r1=25, r2=20, spread=30, blendR=-10);
+// Example(2D): Overlapping circles with no blending arc
+//   glued_circles(r1=25, r2=20, spread=30, blendR=0);
+// Example(2D): Giving a width smaller than either circle diameter
+//   glued_circles(r1=25, r2=10, spread=40, width=8);
+// Example(2D): Giving a width larger than either circle diameter
+//   $fs=1;$fa=1;
+//   glued_circles(r1=25, r2=10, spread=40, width=58);
+// Example(2D): Largest possible concave width is the diameter of the smaller circle
+//   glued_circles(r1=25, r2=10, spread=40, width=20);
+// Example(2D): Smallest possible convex width is the diameter of the larger circle
+//   glued_circles(r1=25, r2=10, spread=40, width=50);
+
+function glued_circles(r, spread, tangent, r1,r2,d,d1,d2, bulge, blendR,blendD, width, anchor=CENTER, spin=0) =
+  let(
+      spread = is_undef(spread) ? echo("In glued_circles: setting spread=10.  This legacy default value is deprecated and will be removed.") 10
+             : spread,
+      r1 = get_radius(r=r,r1=r1,d=d,d1=d1),
+      r2 = get_radius(r=r,r2=r2,d=d,d2=d2),
+      blendR = get_radius(r=blendR, d=blendD)
+  )
+  assert(num_defined([tangent,bulge,blendR,width])<=1, "Can define at most one of tangent, bulge, width, and blendR/blendD")
+  assert(spread>abs(r1-r2), "Spread is too small: one circle is inside the other one")
+  let(
+      tangent = num_defined([tangent,bulge,blendR,width])==0 ?
+                    echo("In glued_circles: setting tangent=30.  This legacy default value is deprecated and will be removed")
+                    echo("Explicitly specify tangent= or instead use bulge=, width= or blendR=") 30 : tangent,
+      cp1 = [-spread/2,0],
+      cp2 = [spread/2,0],
+      blendR = is_def(blendR) ? let(
+                                    max_indent = spread<=r1+r2 ? 0 : -_gs_waist_R(r1,r2,spread,0),
+                                    max_bulge = (r1+r2+spread)/2
+                                )
+                                assert(blendR>max_bulge || blendR<=max_indent,
+                                       str("For this geometry must have blendR <= ",max_indent," or blendR > ",max_bulge," but blendR = ",blendR))
+                                -blendR
+             : is_def(tangent) ? gs_get_tangent_R(r1,r2,spread,tangent)
+             : is_def(width) ? let(
+                                   pts = circle_circle_intersection(r1,cp1,r2,cp2),
+                                   minwidth = len(pts)==0 ? 0 : 2*pts[0].y,
+                                   maxwidth = (r1+r2)+spread
+                               )
+                               assert(width>=minwidth, str("For this geometry must have width >= ",minwidth," but width is ",width))
+                               assert(width<maxwidth, str("For this geometry must have width < ",maxwidth," but width is ",width))
+                               assert(width <= 2*min(r1,r2) || width >= 2*max(r1,r2),"The width parameter cannot be between 2*r1 and 2*r2")
+                               let( fact=width>=2*max(r1,r2) ? -1 : 1)
+                               fact*_gs_waist_R(fact*r1,fact*r2,spread,fact*width)
+             : _gs_indent_R(r1,r2,spread,-bulge),
+      cp_blend = is_finite(blendR) ?
+                     let(
+                        pts=circle_circle_intersection(abs(r1+blendR), cp1, abs(r2+blendR), cp2)
+                     )
+                     pts[blendR<0?0:1]
+               : undef,
+      // The endpoints of the arcs of the left and right circles
+      pts = blendR==0 ? let(    // No joining arc case
+                            result = circle_circle_intersection(r1,cp1,r2,cp2)
+                        )
+                        assert(len(result)!=0, "Circles expected to intersect but don't")
+                        assert(len(result)!=1, "When circles are tangent, must have blendR nonzero")
+                        [result[1],result[1]]
+          : is_finite(blendR) ?
+                 let(
+                     result = [ cp1 + sign(blendR)*r1*unit(cp_blend-cp1),
+                                cp2 + sign(blendR)*r2*unit(cp_blend-cp2)]
+                 )
+                 result
+          : let(           // Flat joint case
+                 tan_pts = circle_circle_tangents(r1,cp1,r2,cp2)
+            )
+            tan_pts[1],
+      botpath = [
+                 each arc(r=r2, cp=cp2, points=[right(r2,cp2),pts[1]],endpoint=false),
+                 if (is_finite(blendR) && blendR!=0)
+                   each arc(r=r2, cp=cp_blend, points=reverse(pts),endpoint=false)
+                 else if (blendR!=0)
+                   pts[1],
+                 each arc(r=r1, cp=cp1, points=[pts[0],left(r1,cp1)], endpoint=false)],
+      toppath = yflip(reverse(botpath)),
+      path = [each botpath, left(r1,cp1), each select(toppath,0,-2)]
+  )
+  reorient(anchor,spin, two_d=true, path=path, extent=true, p=path);
 
 
-module glued_circles(r, spread=10, tangent=30, d, anchor=CENTER, spin=0) {
-    path = glued_circles(r=r, d=d, spread=spread, tangent=tangent);
+module glued_circles(r,spread, tangent, r1,r2,d,d1,d2, bulge, blendR,blendD, width, anchor=CENTER, spin=0)
+{  
+    path = glued_circles(r=r, spread=spread, tangent=tangent, r1=r1, r2=r2, d=d, d1=d1, d2=d2,
+                         bulge=bulge, blendR=blendR, blendD=blendD,width=width);
     attachable(anchor,spin, two_d=true, path=path, extent=true) {
         polygon(path);
         children();
     }
 }
 
+
+
+function _gs_waist_R(r1,r2,s,waist) =
+  let(
+       A = (r1^2-r2^2)/2/s+s/2,
+       B = (r1-r2)/s,
+       coefs = [B^2,
+                2*A*B-2*r1+waist,
+                A^2+(waist/2)^2 - r1^2],
+       rts = waist<0 && approx(waist, 2*min(r1,r2))
+                ? [-coefs[1]/2/coefs[0]]
+                : quadratic_roots(coefs,real=true)
+  )
+  min(rts);
+
+function gs_get_tangent_R(r1,r2,s,ang) =
+  let(
+       pts = circle_circle_intersection(r1,[-s/2,0],r2,[s/2,0]),
+       minang = len(pts)==0 ? let( minr=_gs_waist_R(r1,r2,s,0),
+                                   pts=circle_circle_intersection(r1+minr,[-s/2,0], r2+minr, [s/2,0]))
+                              atan2(pts[0].y, pts[0].x+s/2)
+              : atan2(pts[0].y, pts[0].x+s/2),
+       dummy = assert(ang>-90 && ang<=90-minang, 
+                      str("Tangent angle must be > -90 and <= ", 90-minang, " for this geometry but was ",ang)),
+       A = (r1^2-r2^2)/2/s+s/2,
+       B = (r1-r2)/s,
+       flatang = acos(B)
+  )
+  approx(90-ang,flatang,eps=1e-3) ? INF
+  :
+  let(
+       alpha = 90-ang > flatang ? 90+ang : 90-ang,
+       rts = quadratic_roots(B^2-cos(alpha)^2,
+                             2*A*B-2*cos(alpha)^2*r1,
+                             A^2-cos(alpha)^2*r1^2,real=true)
+  )
+  90-ang>flatang ? alpha>=90 ? rts[0] : rts[1]
+                :  alpha<=90 ? rts[0] : rts[1];
+
+
+function _gs_indent_R(r1,r2,s,h) =
+   let(
+        tan_pts = circle_circle_tangents(r1,[-s/2,0],r2,[s/2,0])[0],
+        circ_int = circle_circle_intersection(r1,[-s/2,0],r2,[s/2,0]),
+        minR = h<0 ? -2500 : len(circ_int)==0 ? _gs_waist_R(r1,r2,s,0) : 0,
+        maxR = h>=0 ? 2500 : -(r1+r2+s)/2,
+        dir = unit(zrot(-90,tan_pts[1]-tan_pts[0])),
+        gap = function(rr)
+                 let(
+                     pts=circle_circle_intersection( abs(r1+rr),[-s/2,0], abs(r2+rr), [s/2,0]),
+                     cp = len(pts)==1 ? pts[0] : pts[rr<0?1:0],
+                     isect = line_intersection([cp,cp+dir], tan_pts, LINE, LINE)
+                 )
+                 norm(isect - cp-rr*dir)
+    )
+    h==0 || abs(h) < min(gap(minR),gap(maxR)) ? INF
+    :
+    let(
+        maxh = gap(minR),
+        minh = gap(maxR),
+        dummy = assert(h<0 || h<=maxh, str("For this geometry must have h < ",maxh," but h=",h))
+                assert(h>0 || abs(h)<minh, str("For this geometry must have abs(h) < ",minh," but h=",h)),
+        error = function(r) gap(r)-abs(h),
+        goodR = root_find(error, minR, maxR, tol=1e-7)
+    )
+    goodR;
 
 
 // Function&Module: squircle()
@@ -1800,6 +2037,10 @@ module glued_circles(r, spread=10, tangent=30, d, anchor=CENTER, spin=0) {
 // Usage: As Function
 //   path = squircle(size, [squareness], [style=]);
 // Description:
+//   When called as a module, creates a 2D squircle with the specified squareness.    
+//   When called as a function, returns a 2D path for a squircle.
+
+//   .
 //   A [squircle](https://en.wikipedia.org/wiki/Squircle) is a shape intermediate between a square/rectangle and a
 //   circle/ellipse. Squircles are sometimes used to make dinner plates (more area for the same radius as a circle), keyboard
 //   buttons, and smartphone icons. Old CRT television screens also resembled elongated squircles.
@@ -1819,8 +2060,9 @@ module glued_circles(r, spread=10, tangent=30, d, anchor=CENTER, spin=0) {
 //   Unlike the other styles, when the `size` parameter defines a rectangle, the bezier style retains the the corner
 //   proportions for the short side of the corner rather than stretching the entire corner.
 //   .
-//   When called as a module, creates a 2D squircle with the specified squareness.    
-//   When called as a function, returns a 2D path for a squircle.
+//   By design, the squircle segments generated are neither constant-length nor constant-angle spacing. The number of
+//   segments is $fn rounded to the nearest multiple of 4, and the length of each segment is dependent on its proximity
+//   to the corner, with the segments at the corner being the shortest.
 // Arguments:
 //   size = Same as the `size` parameter in `square()`, can be a single number or a vector `[xsize,ysize]`.
 //   squareness = Value between 0 and 1. Controls the shape, setting the location of a squircle "corner" at the specified interpolated position between a circle and a square. When `squareness=0` the shape is a circle, and when `squareness=1` the shape is a square. Default: 0.5
