@@ -34,7 +34,7 @@ module locking_collar(
            {
                 zrot_copies(n=tabs,d=od+tabout) 
                     pie_slice(d=od+tabout, h=115, ang=21, anchor=TOP+RIGHT)
-                    position(TOP+RIGHT) pie_slice(d=od+tabout, h=tabdown+2, ang=11, anchor=BOT+RIGHT);
+                    position(TOP+RIGHT) pie_slice(d=od+tabout, h=tabdown+20, ang=11, anchor=BOT+RIGHT);
            }
         }
     }

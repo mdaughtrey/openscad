@@ -43,20 +43,26 @@ module endring(anchor=CENTER,spin=0,orient=UP)
 
 module forViewing()
 {
-    *endring()
+    endring()
     position(BOT) 
     locking_collar(od=od,id=id,orient=DOWN,tabout=200);
-    endring()
+    recolor("blue")
+    down(795)
+    zrot(49.5)
+    endring(orient=DOWN)
     position(TOP)
     locking_collar(female=true,id=od-10,od=od+110,tabout=200,tabdown=250,h=1000,orient=DOWN,anchor=BOT);
-
 }
 
 module forPrinting()
 {
+    endring(orient=DOWN)
+    position(TOP)
+    locking_collar(female=true,id=od-10,od=od+110,tabout=200,tabdown=250,h=1000,orient=DOWN,anchor=BOT);
 }
 
 scale(ViewScale)
 {
-    forViewing();
+//    forViewing();
+    forPrinting();
 }
