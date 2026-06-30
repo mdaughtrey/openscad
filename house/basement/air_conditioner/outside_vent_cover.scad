@@ -1,6 +1,6 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
 include <../../../BOSL2-master/std.scad>
-//$fn=96;
+$fn=96;
 
 module model(anchor=CENTER,spin=0,orient=UP)
 {
@@ -29,9 +29,9 @@ module model(anchor=CENTER,spin=0,orient=UP)
 }
 
 
-module cover(anchor=CENTER,spin=0,orient=UP)
+module cover0(anchor=CENTER,spin=0,orient=UP)
 {
-    module cover_()
+    module cover0_()
     {
         // s_r=1120;
         s_r=2000;
@@ -101,6 +101,92 @@ module cover(anchor=CENTER,spin=0,orient=UP)
                     cyl(d=200,h=300,anchor=BOT);
 //                    cuboid([200, 200, 300],anchor=TOP);
 //            }
+        }
+    }
+        
+    attachable(anchor,spin,orient,size=[100,100,100])
+    {
+        cover0_();
+        children();
+    }
+}
+
+module cover(anchor=CENTER,spin=0,orient=UP)
+{
+    module cover_()
+    {
+        // s_r=1120;
+        s_r=2000;
+        cover_wall=200;
+        rmtag="r09vrtq1";
+        diff(rmtag)
+        {
+            top_half(s=15000)
+            {
+                //*rect_tube(size=[7500, 3950], wall=200, h=2000, rounding=300)
+                {
+                 //   position(TOP) down(1) cuboid([7500, 3950, 200], edges="Z", rounding=300,anchor=BOT);
+                    // Mounting Tabs
+                    //position(BOT)
+                    {
+                        translate([-(8620/2)-600, 0, 0])
+                        cuboid([800,1000,300], edges=[LEFT+BACK,LEFT+FRONT], rounding=400, anchor=BOT)
+                        tag(rmtag) position(TOP) up(1) cyl(d=300,h=150,anchor=TOP)
+                        position(BOT) up(1) cyl(d=200,h=152,anchor=TOP);
+
+                        translate([(8620/2)+600, 0, 0])
+                        cuboid([800,1000,300], edges=[RIGHT+BACK,RIGHT+FRONT], rounding=400, anchor=BOT)
+                        tag(rmtag) position(TOP) up(1) cyl(d=300,h=150,anchor=TOP)
+                        position(BOT) up(1) cyl(d=200,h=152,anchor=TOP);
+
+                        translate([0, -(5070/2)-600, 0])
+                        position(FRONT) cuboid([1000,800,300], edges=[RIGHT+FRONT,LEFT+FRONT], rounding=400, anchor=BOT)
+                        tag(rmtag) position(TOP) up(1) cyl(d=300,h=150,anchor=TOP)
+                        position(BOT) up(1) cyl(d=200,h=152,anchor=TOP);
+
+                        translate([0, (5070/2)+600, 0])
+                        position(BACK) cuboid([1000,800,300], edges=[RIGHT+BACK,LEFT+BACK], rounding=400, anchor=BOT)
+                        tag(rmtag) position(TOP) up(1) cyl(d=300,h=150,anchor=TOP)
+                        position(BOT) up(1) cyl(d=200,h=152,anchor=TOP);
+                    }
+                }
+            
+                up(1000)
+                conv_hull()
+                {
+                    translate([(7500/2)-1120, (3950/2)-1120,0]) sphere(r=s_r)
+                    cyl(r=s_r,h=2000, anchor=TOP);
+                    translate([(7500/2)-1120, -(3950/2)+1120,0]) sphere(r=s_r)
+                    cyl(r=s_r,h=2000, anchor=TOP);
+                    translate([-(7500/2)+1120, (3950/2)-1120,0]) sphere(r=s_r)
+                    cyl(r=s_r,h=2000, anchor=TOP);
+                    translate([-(7500/2)+1120, -(3950/2)+1120,0]) sphere(r=s_r)
+                    cyl(r=s_r,h=2000, anchor=TOP);
+                }
+
+
+
+                tag(rmtag) up(1000) down(cover_wall) conv_hull()
+                {
+                    s_r2=s_r-cover_wall;
+                    translate([(7500/2)-1120, (3950/2)-1120,0]) sphere(r=s_r2)
+                    cyl(r=s_r2,h=2000-cover_wall, anchor=TOP);
+                    translate([(7500/2)-1120, -(3950/2)+1120,0]) sphere(r=s_r2)
+                    cyl(r=s_r2,h=2000-cover_wall, anchor=TOP);
+                    translate([-(7500/2)+1120, (3950/2)-1120,0]) sphere(r=s_r2)
+                    cyl(r=s_r2,h=2000-cover_wall, anchor=TOP);
+                    translate([-(7500/2)+1120, -(3950/2)+1120,0]) sphere(r=s_r2)
+                    cyl(r=s_r2,h=2000-cover_wall, anchor=TOP);
+                }
+                tag(rmtag) grid_copies(spacing=600,size=[8000,5000]) up(3200)
+                    cuboid([500, 500, 3000],anchor=TOP);
+//                *tag(rmtag) translate([0, -4050/2, 1500]) xrot(-90) grid_copies(spacing=300,size=[6500,800]) 
+//                    cyl(d=200,h=300,anchor=BOT);
+//                    //cuboid([200, 200, 300],anchor=BOT);
+//                *tag(rmtag) translate([0, 4050/2, 1500]) xrot(-90) grid_copies(spacing=300,size=[6500,800]) 
+//                    cyl(d=200,h=300,anchor=BOT);
+//                    cuboid([200, 200, 300],anchor=TOP);
+            }
         }
     }
         
