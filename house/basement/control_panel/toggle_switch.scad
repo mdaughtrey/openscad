@@ -166,6 +166,53 @@ module cover(anchor=CENTER,spin=0,orient=UP)
     }
 }
 
+module cover_inside_mount(anchor=CENTER,spin=0,orient=UP)
+{
+    module cover_inside_mount_()
+    {
+        rmtag="rfxx15cr";
+        diff(rmtag)
+        {  
+            rect_tube(isize=[405, 1010], wall=30, h=620)
+            {
+                position(TOP) down(1)
+                cuboid([480, 1070, 50], anchor=BOT)
+                {
+                    *position(TOP) prismoid(size1=[580, 1110], size2=[480, 1070], h=50, anchor=TOP);
+                    position(TOP)
+                    {
+                        tag(rmtag) up(1) cuboid([420, 200, 51], anchor=TOP);
+                    }
+                }
+                position(BOT+FRONT) up(181) cuboid([430,100,100], anchor=BOT+FRONT);
+                position(BOT+BACK) up(181) cuboid([430,100,100], anchor=BOT+BACK);
+                // Front Retention Clip
+                *position(TOP+FRONT) down(70) wedge([200, 30, 100], anchor=BOT+FRONT, spin=180, orient=BOT)
+                tag(rmtag)
+                {
+                    position(LEFT) back(50) cuboid([20, 150, 130], anchor=LEFT+BACK);
+                    position(RIGHT) back(50) cuboid([20, 150, 130], anchor=RIGHT+BACK);
+                    position(BOT)  cuboid([200, 150, 15], anchor=TOP);
+                }
+                // Rear Retention Clip
+                *position(TOP+BACK) down(70) wedge([200, 30, 100], spin=0, anchor=BOT+FRONT, orient=BOT)
+                tag(rmtag)
+                {
+                    position(LEFT) back(50) cuboid([20, 150, 130], anchor=LEFT+BACK);
+                    position(RIGHT) back(50) cuboid([20, 150, 130], anchor=RIGHT+BACK);
+                    position(BOT)  cuboid([200, 150, 15], anchor=TOP);
+                }
+            }
+
+        }
+    }
+    attachable(anchor,spin,orient,size=[405,1010,671])
+    {
+        cover_inside_mount_();
+        children();
+    }
+}
+
 module panel(anchor=CENTER,spin=0,orient=UP)
 {
     module panel_()
@@ -192,6 +239,24 @@ module toggle_switch()
     down(190) base()
     position(BOT) down(50)
     cover();
+}
+
+module toggle_switch_inside_mount(anchor=CENTER,spin=0,orient=UP)
+{
+    module toggle_switch_inside_mount_()
+    {
+        paddle();
+        down(250) fwd(250) button();
+        down(250) back(250) button();
+        down(190) base()
+        position(BOT) down(50)
+        cover_inside_mount();
+    }
+    attachable(anchor,spin,orient,size=[405,1010,671])
+    {
+        toggle_switch_inside_mount_();
+        children();
+    }
 }
 
 ///scale(ViewScale)

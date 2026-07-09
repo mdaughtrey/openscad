@@ -1,3 +1,4 @@
+ViewScale = [0.0254, 0.0254, 0.0254];
 include <../BOSL2-master/std.scad>
 include <../models/model_pcb_pushbuttons.scad>
 $fn=96;
@@ -190,5 +191,13 @@ module reset_switch()
     down(250) back(250) button();
     down(190) base()
     position(BOT) down(50)
+    cover();
+}
+
+scale(ViewScale)
+{
+//    reset_switch();
+//    paddle();
+//    base();
     cover();
 }
