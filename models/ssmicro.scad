@@ -1,28 +1,28 @@
-ViewScale = [0.0254, 0.0254, 0.0254];
-
-module ssmicro()
+module ssmicro(anchor=CENTER,spin=0,orient=UP)
 {
-    color("Cyan")
-    linear_extrude(35)
-    square([300, 300], center=true);
-
-    translate([0, 0, 35])
+    module ssmicro_()
     {
-        linear_extrude(81)
+        rmtag="rt53r";
+        diff(rmtag)
+        recolor("blue")
+        cuboid([800, 750, 80])
         {
-            square([802,770], center=true);
-            translate([0, -(770/2)-(435/2)+1, 0])
-            square([480,435], center=true);
+            position(FRONT+BOT) cuboid([470,430,80], anchor=BACK+BOT);
+            recolor("black") position(TOP) cuboid([275,275,25], anchor=BOT);
+            recolor("cornflowerblue") position(BOT) cuboid([550,550,80], anchor=TOP);
+            tag(rmtag)
+            {
+                position(BOT+LEFT) down(1) right(60) ycopies(n=6, spacing=100) cyl(d=50,h=82,anchor=BOT);
+                position(BOT+RIGHT) down(1) left(60) ycopies(n=6, spacing=100) cyl(d=50,h=82,anchor=BOT);
+                position(BOT+BACK) down(1) fwd(60) xcopies(n=6, spacing=100) cyl(d=50,h=82,anchor=BOT);
+            }
         }
     }
-
-    color("Cyan")
-    translate([0, 0, 35+81])
-    linear_extrude(62)
-    square([600, 600], center=true);
+    attachable(anchor,spin,orient,size=[800,1180,180])
+    {
+        down(40+25)
+        up(180/2)
+        ssmicro_();
+        children();
+    }
 }
-
-//scale(ViewScale)
-//{
-//    ssmicro();
-//}
