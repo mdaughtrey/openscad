@@ -42,12 +42,12 @@ module usbc_sink_cover(anchor=CENTER,spin=0,orient=UP)
             *position(BOT+LEFT) right(500)
             cuboid([400,620,45],anchor=TOP+LEFT);
             // Screw Holes
-            position(FRONT+BOT) back(50) cyl(d=300,h=145,anchor=BOT+BACK)
+            position(FRONT+BOT) back(50) right(150) cyl(d=300,h=145,anchor=BOT+BACK)
             tag(rmtag)
             position(TOP) up(1) cyl(d=220,h=62,anchor=TOP)
             position(BOT) up(1) cyl(d=100,h=87,anchor=TOP);
 
-            position(BACK+BOT) fwd(50) cyl(d=300,h=145,anchor=BOT+FRONT)
+            position(BACK+BOT) fwd(50) right(150) cyl(d=300,h=145,anchor=BOT+FRONT)
             tag(rmtag)
             position(TOP) up(1) cyl(d=220,h=62,anchor=TOP)
             position(BOT) up(1) cyl(d=100,h=87,anchor=TOP);
