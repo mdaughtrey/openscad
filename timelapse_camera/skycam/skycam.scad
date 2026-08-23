@@ -65,6 +65,30 @@ models=0;
 //     }
 // }
 
+module pi_screwdown(anchor=CENTER,spin=0,orient=UP)
+{
+    module pi_screwdown_()
+    {
+        rmtag="rcr45q23";
+        diff(rmtag)
+        {
+            cuboid([300, 1320, 200], edges="Z", rounding=150)
+            {
+                tag(rmtag) position(TOP) up(1)
+                {
+                    back(510) cyl(d=200, l=102, anchor=TOP) position(BOT) up(1) cyl(d=100, l=102, anchor=TOP);
+                    fwd(510) cyl(d=200, l=102, anchor=TOP) position(BOT) up(1) cyl(d=100, l=102, anchor=TOP);
+                }
+            }
+        }
+    }
+    attachable(anchor,spin,orient,size=[300,1320,200])
+    {
+        pi_screwdown_();
+        children();
+    }
+}
+
 module case(anchor=CENTER,spin=0,orient=UP)
 {
     pcbW = model_rpi_zero_wireless_pcbW;
@@ -269,7 +293,8 @@ module forPrinting()
 //    case();
 //    lid();
 //    usbc_sink_cover();
-    base();
+//    base();
+    pi_screwdown();
 }
 
 
