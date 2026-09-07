@@ -4,9 +4,15 @@ joystick_outer_shaft_length = 1400;
 joystick_inner_shaft_dia = joystick_outer_shaft_dia - 220;
 joystick_sphere_dia = 1000;
 joystick_sliding_plate_thickness = 100;
+
+// Screws
 heat_insert_dia = 120;
 screw_head_cutout_dia = 200;
 screw_shaft_dia = 110;
+
+// heat_insert_dia = 25.4/2.75*1000;
+// screw_head_cutout_dia = heat_insert_dia;
+// screw_shaft_dia = head_insert_dia;
 
 // module modname(anchor=CENTER,spin=0,orient=UP)
 // {
@@ -56,7 +62,7 @@ module joystick_inner_shaft(anchor=CENTER,spin=0,orient=UP)
         rmtag="rqm.nb";
         itag="iqm.nb";
         diff(rmtag)
-        cyl(d=joystick_inner_shaft_dia, l=joystick_outer_shaft_length+1000)
+        cyl(d=joystick_inner_shaft_dia, l=joystick_outer_shaft_length+1000-270)
         {
             tag(rmtag) position(TOP) up(1) cyl(d=joystick_inner_shaft_dia-100, l=joystick_outer_shaft_length+1002, anchor=TOP);
             // Twist paddles
@@ -88,14 +94,14 @@ module joystick_outer_shaft(anchor=CENTER,spin=0,orient=UP)
         itag="irvq4ea";
         ktag="krvq4ea";
         diff(rmtag)
-        cyl(d=joystick_outer_shaft_dia,  l=joystick_outer_shaft_length)
+        cyl(d=joystick_outer_shaft_dia, l=joystick_outer_shaft_length)
         {
             // Sliding plate insert
-            position(BOT) up(50) cuboid([joystick_outer_shaft_dia, joystick_outer_shaft_dia, 100], edges="Z", rounding=100, anchor=BOT);
+            position(BOT) cuboid([joystick_outer_shaft_dia, joystick_outer_shaft_dia, 150], edges="Z", rounding=100, anchor=BOT);
             // Ball
             position(BOT) up(800) sphere(d=joystick_sphere_dia);
             // Shaft hole
-            tag(rmtag) position(BOT) down(1) cyl(d=joystick_inner_shaft_dia+20, l=joystick_outer_shaft_length+2, anchor=BOT);
+            tag(rmtag) position(BOT) down(1) cyl(d=joystick_inner_shaft_dia+10, l=joystick_outer_shaft_length+2, anchor=BOT);
             // Upper tabs
             *position(TOP) down(200) 
             {
@@ -124,9 +130,9 @@ module joystick_sliding_plate(anchor=CENTER,spin=0,orient=UP)
                 diff(rmtag)
                 cuboid([1100, 500, 200], edges="Z", rounding=125)
                 {
-                   tag(rmtag) position(TOP) up(1) cuboid([1000, 400, 202], edges="Z", rounding=100, anchor=TOP);
+                   tag(rmtag) position(TOP) up(1) cuboid([1000-20, 400, 202], edges="Z", rounding=100, anchor=TOP);
                 }
-                tag(itag) position(TOP+BACK) back(100) cuboid([1100,300,200], anchor=TOP+BACK);
+                tag(itag) position(TOP+BACK) back(100) cuboid([1100,380,200], anchor=TOP+BACK);
             }
         }
         attachable(anchor,spin,orient,size=[1100,300,200])
@@ -141,8 +147,7 @@ module joystick_sliding_plate(anchor=CENTER,spin=0,orient=UP)
         diff(rmtag)
         cuboid([1500, 1500, joystick_sliding_plate_thickness], edges="Z", rounding=100)
         {
-             tag(rmtag) position(TOP) up(1) cuboid([joystick_outer_shaft_dia+50, joystick_outer_shaft_dia+50, 202],
-                 edges="Z", rounding=125, anchor=TOP);
+             tag(rmtag) position(TOP) up(1) cuboid([joystick_outer_shaft_dia+25, joystick_outer_shaft_dia+25, 202], anchor=TOP);
             // Button supports
             position(BOT) back(150)
             {
@@ -153,11 +158,11 @@ module joystick_sliding_plate(anchor=CENTER,spin=0,orient=UP)
                 //left(500) cuboid([400, 200, 300], anchor=TOP);
             }
             // Cutouts
-            tag(rmtag) position(BOT+FRONT) down(1) fwd(70) cuboid([1000, 400, 202], edges="Z", rounding=100, anchor=BOT+FRONT);
-            tag(rmtag) position(BOT+BACK) down(1) back(70) cuboid([1000, 400, 202], edges="Z", rounding=100, anchor=BOT+BACK);
+            tag(rmtag) position(BOT+FRONT) translate([20, -70, -1]) cuboid([1000-20, 400, 202], edges="Z", rounding=100, anchor=BOT+FRONT);
+            tag(rmtag) position(BOT+BACK) translate([-20, 70, -1]) cuboid([1000-20, 400, 202], edges="Z", rounding=100, anchor=BOT+BACK);
             // Baffles
-            position(BOT+FRONT) fwd(20) button_baffle(anchor=TOP+FRONT);
-            position(BOT+BACK) back(20) button_baffle(anchor=TOP+FRONT,spin=180);
+            position(BOT+FRONT) translate([20, -20, 0])  button_baffle(anchor=TOP+FRONT);
+            position(BOT+BACK) translate([-20, 20, 0])  button_baffle(anchor=TOP+FRONT,spin=180);
             
         }
     }
@@ -248,14 +253,15 @@ module joystick_switch_lower(anchor=CENTER,spin=0,orient=UP)
 
             // Screw mounts for upper assembly
             zrot_copies(n=4, r=1250,sa=45)
-            position(BOT) cyl(d=350,l=600,anchor=BOT)
-                tag(rmtag) position(TOP) up(1) cyl(d=heat_insert_dia, l=602, anchor=TOP);
+            position(BOT) cyl(d=350,l=520,anchor=BOT)
+                tag(rmtag) position(BOT) down(1) cyl(d=screw_head_cutout_dia, l=500, anchor=BOT)
+                    position(TOP) down(1) cyl(d=screw_shaft_dia, l=90, anchor=BOT);
 
             // Sliding plate retainers
-            position(TOP+LEFT+FRONT) cuboid([400,500,400], anchor=BOT+LEFT+FRONT,edges="Z", rounding=100);
-            position(TOP+RIGHT+FRONT) cuboid([400,500,400], anchor=BOT+RIGHT+FRONT,edges="Z", rounding=100);
-            position(TOP+LEFT+BACK) cuboid([400,500,400], anchor=BOT+LEFT+BACK,edges="Z", rounding=100);
-            position(TOP+RIGHT+BACK) cuboid([400,500,400], anchor=BOT+RIGHT+BACK,edges="Z", rounding=100);
+            position(TOP+LEFT+FRONT) cuboid([400,500,320], anchor=BOT+LEFT+FRONT,edges="Z", rounding=100);
+            position(TOP+RIGHT+FRONT) cuboid([400,500,320], anchor=BOT+RIGHT+FRONT,edges="Z", rounding=100);
+            position(TOP+LEFT+BACK) cuboid([400,500,320], anchor=BOT+LEFT+BACK,edges="Z", rounding=100);
+            position(TOP+RIGHT+BACK) cuboid([400,500,320], anchor=BOT+RIGHT+BACK,edges="Z", rounding=100);
         }
     }
     attachable(anchor,spin,orient,size=[100,100,100])
@@ -314,8 +320,13 @@ module joystick_switch_upper(anchor=CENTER,spin=0,orient=UP)
             // Screw mounts for lower assembly
             zrot_copies(n=4, r=1250,sa=45)
             position(TOP) cyl(d=350,l=320,anchor=TOP)
-                tag(rmtag) position(TOP) up(1) cyl(d=screw_head_cutout_dia, l=76, anchor=TOP)
-                 position(BOT) up(1) cyl(d=screw_shaft_dia, l=249, anchor=TOP);
+                tag(rmtag) position(TOP) up(1) cyl(d=heat_insert_dia, l=322, anchor=TOP);
+
+            // Screw mounts for panel mount
+            zrot_copies(n=4, r=1250,sa=45)
+            position(TOP) cyl(d=350,l=520,anchor=BOT)
+                tag(rmtag) position(TOP) up(1) cyl(d=heat_insert_dia, l=522, anchor=TOP);
+
 
             // Buttons
             recolor("red")

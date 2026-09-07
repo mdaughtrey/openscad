@@ -221,14 +221,14 @@ module forViewing()
     joystick_outer_shaft();
 
     *recolor("skyblue")
-    up(290-300)
+    up(290-300-135)
     joystick_inner_shaft();
 
     recolor("cornflowerblue")
     down(900) 
     joystick_sliding_plate();
 
-    *down(740)
+    down(740)
     recolor("ForestGreen")
     joystick_switch_upper();
 
@@ -257,15 +257,15 @@ module forPrinting()
 //    joystick_inner_shaft();
 //    joystick_upper_trap();
 //  joystick_knob_inner();
-//    joystick_sliding_plate();
+    joystick_sliding_plate();
 //    joystick_switch_lower();
-//    joystick_switch_upper();
+//   joystick_switch_upper();
 }
 
 scale(ViewScale)
 {
-//    forPrinting();
-    forViewing();
+    forPrinting();
+//    forViewing();
 //    button_and_mount();
 //    joystick_switch_upper();
 }
