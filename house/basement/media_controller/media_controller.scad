@@ -3,6 +3,8 @@ include <../../../BOSL2-master/std.scad>
 include <joystick.scad>
 $fn=96;
 
+models=1;
+
 //module model_tv(anchor=CENTER,spin=0,orient=UP)
 //{
 //    module model_tv_()
@@ -215,24 +217,55 @@ module case()
 
 module forViewing()
 {
+    *down(300)
     joystick_outer_shaft();
-    recolor("skyblue")
+
+    *recolor("skyblue")
+    up(290-300)
     joystick_inner_shaft();
+
     recolor("cornflowerblue")
-    down(1100) 
-    joystick_switch_base();
-    down(900)
+    down(900) 
+    joystick_sliding_plate();
+
+    *down(740)
     recolor("ForestGreen")
     joystick_switch_upper();
+
+    *recolor("tan")
+    up(90)
+    joystick_upper_trap(orient=DOWN);
+
+    *recolor("SeaGreen")
+    down(1490)
+    joystick_switch_lower();
+
+    *recolor("Crimson")
+    up(1000)
+    joystick_knob_inner();
+
+    *recolor("Crimson")
+    up(1480)
+    joystick_knob_button_mount();
+
+    *button_and_mount();
 }
 
 module forPrinting()
 {
+//    joystick_outer_shaft();
+//    joystick_inner_shaft();
+//    joystick_upper_trap();
+//  joystick_knob_inner();
+//    joystick_sliding_plate();
+//    joystick_switch_lower();
+//    joystick_switch_upper();
 }
 
 scale(ViewScale)
 {
+//    forPrinting();
     forViewing();
-//     joystick_sphere_dia=1000;
-//     joystick_halfball(inner_d=joystick_sphere_dia+30, outer_d=joystick_sphere_dia+100);
+//    button_and_mount();
+//    joystick_switch_upper();
 }
