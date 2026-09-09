@@ -62,13 +62,14 @@ module joystick_inner_shaft(anchor=CENTER,spin=0,orient=UP)
         rmtag="rqm.nb";
         itag="iqm.nb";
         diff(rmtag)
-        cyl(d=joystick_inner_shaft_dia, l=joystick_outer_shaft_length+1000-270)
+        cyl(d=joystick_inner_shaft_dia+10, l=joystick_outer_shaft_length+1000-300)
         {
             tag(rmtag) position(TOP) up(1) cyl(d=joystick_inner_shaft_dia-100, l=joystick_outer_shaft_length+1002, anchor=TOP);
             // Twist paddles
             position(BOT) 
             {
                 mydia = 1600 + joystick_sphere_dia;
+                fwd(50)
                 intersect(itag)
                 {
                     back((mydia-joystick_outer_shaft_dia)/2) cyl(d=mydia, l=200, anchor=BOT)
@@ -97,9 +98,9 @@ module joystick_outer_shaft(anchor=CENTER,spin=0,orient=UP)
         cyl(d=joystick_outer_shaft_dia, l=joystick_outer_shaft_length)
         {
             // Sliding plate insert
-            position(BOT) cuboid([joystick_outer_shaft_dia, joystick_outer_shaft_dia, 150], edges="Z", rounding=100, anchor=BOT);
+            position(BOT) cuboid([joystick_outer_shaft_dia+10, joystick_outer_shaft_dia+10, 150], edges="Z", rounding=100, anchor=BOT);
             // Ball
-            position(BOT) up(800) sphere(d=joystick_sphere_dia);
+            position(BOT) up(800) sphere(d=joystick_sphere_dia+10);
             // Shaft hole
             tag(rmtag) position(BOT) down(1) cyl(d=joystick_inner_shaft_dia+10, l=joystick_outer_shaft_length+2, anchor=BOT);
             // Upper tabs
@@ -147,7 +148,7 @@ module joystick_sliding_plate(anchor=CENTER,spin=0,orient=UP)
         diff(rmtag)
         cuboid([1500, 1500, joystick_sliding_plate_thickness], edges="Z", rounding=100)
         {
-             tag(rmtag) position(TOP) up(1) cuboid([joystick_outer_shaft_dia+25, joystick_outer_shaft_dia+25, 202], anchor=TOP);
+             tag(rmtag) position(TOP) up(1) cuboid([joystick_outer_shaft_dia+5, joystick_outer_shaft_dia+25, 202], anchor=TOP);
             // Button supports
             position(BOT) back(150)
             {
@@ -207,14 +208,18 @@ module joystick_upper_trap(anchor=CENTER,spin=0,orient=UP)
     module joystick_upper_trap_()
     {
         rmtag="rawer";
+        itag="iawer";
         diff(rmtag)
+        intersect(itag)
         joystick_halfball(inner_d=sphere_inner_d, outer_d=sphere_outer_d)
         {
+            offset=50;
+            tag(itag) position(BOT) cyl(d=sphere_outer_d+600, l=sphere_outer_d/2-offset, anchor=BOT);
             // Ball Holder screw mounts
-            position(TOP)
+            position(TOP) down(offset)
             {
-               right(sphere_outer_d/2-30) tube(id=screw_shaft_dia, od=250, l=100, anchor=TOP+LEFT);
-               left(sphere_outer_d/2-30) tube(id=screw_shaft_dia, od=250, l=100, anchor=TOP+RIGHT);
+               right(sphere_outer_d/2-30) tube(id=screw_shaft_dia, od=250, l=140-offset, anchor=TOP+LEFT);
+               left(sphere_outer_d/2-30) tube(id=screw_shaft_dia, od=250, l=140-offset, anchor=TOP+RIGHT);
             }
             tag(rmtag) position(BOT) 
             {
@@ -241,7 +246,7 @@ module joystick_switch_lower(anchor=CENTER,spin=0,orient=UP)
             sphere_r = joystick_sphere_dia/2;
             sphere_outer_d = joystick_sphere_dia + 100;
             sphere_inner_d = joystick_sphere_dia + 30;
-            tag(rmtag) position(BOT) down(1) cyl(d=joystick_outer_shaft_dia+100, l=502, anchor=BOT);
+            tag(rmtag) position(BOT) down(1) cyl(d=joystick_outer_shaft_dia+800, l=502, anchor=BOT);
             // Ball Holder
             *position(TOP) down(100) joystick_halfball(inner_d=sphere_inner_d, outer_d=sphere_outer_d, anchor=BOT);
             // Ball Holder screw mounts
@@ -251,17 +256,19 @@ module joystick_switch_lower(anchor=CENTER,spin=0,orient=UP)
                left(sphere_outer_d/2-30) tube(id=100, od=250, l=sphere_outer_d/2-100, anchor=BOT+RIGHT);
             }
 
+            screw_mount_length = 360;
+
             // Screw mounts for upper assembly
             zrot_copies(n=4, r=1250,sa=45)
-            position(BOT) cyl(d=350,l=520,anchor=BOT)
+            position(BOT) cyl(d=350,l=screw_mount_length+200,anchor=BOT)
                 tag(rmtag) position(BOT) down(1) cyl(d=screw_head_cutout_dia, l=500, anchor=BOT)
                     position(TOP) down(1) cyl(d=screw_shaft_dia, l=90, anchor=BOT);
 
             // Sliding plate retainers
-            position(TOP+LEFT+FRONT) cuboid([400,500,320], anchor=BOT+LEFT+FRONT,edges="Z", rounding=100);
-            position(TOP+RIGHT+FRONT) cuboid([400,500,320], anchor=BOT+RIGHT+FRONT,edges="Z", rounding=100);
-            position(TOP+LEFT+BACK) cuboid([400,500,320], anchor=BOT+LEFT+BACK,edges="Z", rounding=100);
-            position(TOP+RIGHT+BACK) cuboid([400,500,320], anchor=BOT+RIGHT+BACK,edges="Z", rounding=100);
+            position(TOP+LEFT+FRONT) cuboid([400,500,screw_mount_length], anchor=BOT+LEFT+FRONT,edges="Z", rounding=100);
+            position(TOP+RIGHT+FRONT) cuboid([400,500,screw_mount_length], anchor=BOT+RIGHT+FRONT,edges="Z", rounding=100);
+            position(TOP+LEFT+BACK) cuboid([400,500,screw_mount_length], anchor=BOT+LEFT+BACK,edges="Z", rounding=100);
+            position(TOP+RIGHT+BACK) cuboid([400,500,screw_mount_length], anchor=BOT+RIGHT+BACK,edges="Z", rounding=100);
         }
     }
     attachable(anchor,spin,orient,size=[100,100,100])
@@ -270,6 +277,7 @@ module joystick_switch_lower(anchor=CENTER,spin=0,orient=UP)
         children();
     }
 }
+
 module joystick_switch_upper(anchor=CENTER,spin=0,orient=UP)
 {
     module retainer(anchor=CENTER,spin=0,orient=UP,l=500)
@@ -278,13 +286,13 @@ module joystick_switch_upper(anchor=CENTER,spin=0,orient=UP)
         {
             rmtag="rl;iu";
             diff(rmtag)
-            cuboid([l,l,120], edges="Z", rounding=100)
+            cuboid([l,l,110], edges="Z", rounding=100)
             {
                 tag(rmtag) position(TOP+RIGHT+BACK) right(1) back(1) cuboid([l-200,l-200,121], anchor=TOP+RIGHT+BACK);
                 *position(BOT+LEFT+FRONT) cuboid([l, l, 130], edges="Z", rounding=100, anchor=TOP+LEFT+FRONT);
             }
         }
-        attachable(anchor,spin,orient,size=[l,l,120])
+        attachable(anchor,spin,orient,size=[l,l,110])
         {
             retainer_();
             children();
@@ -300,10 +308,12 @@ module joystick_switch_upper(anchor=CENTER,spin=0,orient=UP)
             sphere_outer_d = joystick_sphere_dia + 100;
             sphere_inner_d = joystick_sphere_dia + 30;
             tag(rmtag) position(BOT) down(1) 
-                cyl(d=joystick_outer_shaft_dia+100, l=502, anchor=BOT)
-                position(BOT) cuboid([joystick_outer_shaft_dia+20, joystick_outer_shaft_dia+20, 502], edges="Z", rounding=100, anchor=BOT);
+                cyl(d=joystick_outer_shaft_dia+200, l=702, anchor=BOT)
+                tag("keep") position(BOT) tube(id=joystick_outer_shaft_dia+200,wall=100,l=240,anchor=BOT);
+//                position(BOT) cuboid([joystick_outer_shaft_dia+20, joystick_outer_shaft_dia+20, 502], edges="Z", rounding=100, anchor=BOT);
             // Ball Holder
             position(TOP) down(100) joystick_halfball(inner_d=sphere_inner_d, outer_d=sphere_outer_d, anchor=BOT);
+            position(TOP) down(100) tube(od=sphere_outer_d, id=sphere_inner_d, l=sphere_outer_d/2, anchor=BOT);
             // Ball Holder screw mounts
             position(TOP)
             {
@@ -379,7 +389,7 @@ module joystick_knob_inner(anchor=CENTER,spin=0,orient=UP)
         rmtag="rqiqaser";
         diff(rmtag)
         {
-            tube(id=joystick_inner_shaft_dia+10,l=500,wall=100)
+            tube(id=joystick_inner_shaft_dia+5,l=500,wall=100)
             {
                 position(LEFT+TOP) right(75) tube(id=heat_insert_dia, l=500, wall=100, anchor=RIGHT+TOP);
                 position(RIGHT+TOP) left(75) tube(id=heat_insert_dia, l=500, wall=100, anchor=LEFT+TOP);
