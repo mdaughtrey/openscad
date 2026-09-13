@@ -1,6 +1,6 @@
 ViewScale = [0.0254, 0.0254, 0.0254];
-include <../../../BOSL2-master/std.scad>
 include <joystick_v1.scad>
+include <../../../BOSL2-master/std.scad>
 $fn=96;
 
 models=1;
@@ -217,24 +217,22 @@ module case()
 
 module forViewing()
 {
-    *down(300)
     joystick_outer_shaft();
 
     *recolor("skyblue")
     up(290-300-135)
     joystick_inner_shaft();
 
-    *recolor("cornflowerblue")
-    down(890) 
+    recolor("cornflowerblue")
+    down(800) 
     joystick_sliding_plate();
 
-    *down(740)
-    recolor("ForestGreen")
+    *recolor("ForestGreen")
+    down(500)
     joystick_switch_upper();
-    joystick_halfball();
 
     *recolor("tan")
-    up(90)
+    up(80)
     joystick_upper_trap(orient=DOWN);
 
     *recolor("SeaGreen")
@@ -248,6 +246,7 @@ module forViewing()
     *recolor("Crimson")
     up(1480)
     joystick_knob_button_mount();
+
 }
 
 module forPrinting()
@@ -265,6 +264,8 @@ scale(ViewScale)
 {
 //    forPrinting();
     forViewing();
+//    joystick_inner_shaft();
+//    joystick_sliding_plate();
 //    button_and_mount();
 //    joystick_switch_upper();
 }
