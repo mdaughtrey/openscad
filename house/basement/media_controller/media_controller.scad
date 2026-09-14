@@ -219,19 +219,19 @@ module forViewing()
 {
     joystick_outer_shaft();
 
-    *recolor("skyblue")
-    up(290-300-135)
+    recolor("skyblue")
+    down(50)
     joystick_inner_shaft();
 
     recolor("cornflowerblue")
     down(800) 
     joystick_sliding_plate();
 
-    *recolor("ForestGreen")
+    recolor("ForestGreen")
     down(500)
     joystick_switch_upper();
 
-    *recolor("tan")
+    recolor("tan")
     up(80)
     joystick_upper_trap(orient=DOWN);
 
@@ -239,7 +239,7 @@ module forViewing()
     down(1490)
     joystick_switch_lower();
 
-    *recolor("Crimson")
+    recolor("Crimson")
     up(1000)
     joystick_knob_inner();
 
@@ -254,16 +254,23 @@ module forPrinting()
 //    joystick_outer_shaft();
 //    joystick_inner_shaft();
 //    joystick_upper_trap();
-//  joystick_knob_inner();
 //    joystick_sliding_plate();
 //    joystick_switch_lower();
 //   joystick_switch_upper();
+    joystick_knob_inner()
+    position(TOP) up(180)
+    joystick_knob_button_mount();
+//    joystick_knob_top();
 }
 
 scale(ViewScale)
 {
-//    forPrinting();
-    forViewing();
+    forPrinting();
+//    button_mount_cutout();
+//    forViewing();
+//    joystick_knob_inner();
+//    up(350)
+//    model_pushbutton_6_6(add_top=true);
 //    joystick_inner_shaft();
 //    joystick_sliding_plate();
 //    button_and_mount();

@@ -28,25 +28,27 @@ screw_shaft_dia = 110;
 
 module button_mount_cutout(anchor=CENTER,spin=0,orient=UP)
 {
+    height = 210+214-214/2;
     module button_mount_cutout_()
     {
-        cuboid([300,360,210])
+        cuboid([240,320,210])
         {
-            position(FRONT+LEFT) translate([55,-1,1]) cuboid([50,60,214], anchor=TOP+FRONT);
-            position(FRONT+RIGHT) translate([-55,-1,1]) cuboid([50,60,214], anchor=TOP+FRONT);
-            position(BACK+LEFT) translate([55,1,1]) cuboid([50,60,214], anchor=TOP+BACK);
-            position(BACK+RIGHT) translate([-55,1,1]) cuboid([50,60,214], anchor=TOP+BACK);
+            position(FRONT) translate([146/2,-1,1]) cuboid([50,60,214], anchor=TOP);
+            position(FRONT) translate([-146/2,-1,1]) cuboid([50,60,214], anchor=TOP);
+            position(BACK) translate([146/2,1,1]) cuboid([50,60,214], anchor=TOP);
+            position(BACK) translate([-146/2,1,1]) cuboid([50,60,214], anchor=TOP);
         }
     }
-    attachable(anchor,spin,orient,size=[245,305,150+214-55])
+    attachable(anchor,spin,orient,size=[300,360,height])
     {
-        down(75) up((150+214-55)/2)
+        down(210/2)
+        up(height/2)
         button_mount_cutout_();
         children();
     }
 }
 
-module button_and_mount(anchor=CENTER,spin=0,orient=UP,height_mm=7)
+module button_and_mount(anchor=CENTER,spin=0,orient=UP,height_mm=7,add_top=false)
 {
     module button_and_mount_()
     {
@@ -64,13 +66,33 @@ module button_and_mount(anchor=CENTER,spin=0,orient=UP,height_mm=7)
                 position(BACK+RIGHT) translate([-55,1,1]) cuboid([50,60,214], anchor=TOP+BACK);
             }
             down(20)
-            model_pushbutton_6_6(height_mm=height_mm);
+            model_pushbutton_6_6(height_mm=height_mm,add_top=add_top);
             position(TOP) down(1) rect_tube(isize=[295,355], size=[400,440], l=210, anchor=TOP);
         }
     }
     attachable(anchor,spin,orient,size=[400,400,210])
     {
         button_and_mount_();
+        children();
+    }
+}
+
+module joystick_knob_top(anchor=CENTER,spin=0,orient=UP)
+{
+    module joystick_knob_top_()
+    {
+        rmtag="rc123134";
+        diff(rmtag)
+        {
+            cyl(d=1300, rounding=200, l=500);
+            tag(rmtag) position(BOT) cyl(d=1000, h=300, anchor=BOT)
+                tag("keep") position(TOP) zrot_copies(n=2, r=300) tube(id=heat_insert_dia, wall=50, l=100, anchor=TOP);
+            tag(rmtag) position(TOP) up(1) cyl(d=300, h=240, anchor=TOP);
+        }
+    }
+    attachable(anchor,spin,orient,d=1000,l=500)
+    {
+        joystick_knob_top_();
         children();
     }
 }
@@ -82,17 +104,17 @@ module joystick_inner_shaft(anchor=CENTER,spin=0,orient=UP)
         rmtag="rqm.nb";
 //        itag="iqm.nb";
         diff(rmtag)
-        cyl(d=joystick_inner_shaft_dia+10, l=joystick_outer_shaft_length+1000-300)
+        cyl(d=joystick_inner_shaft_dia, l=joystick_outer_shaft_length+1000-300)
         {
             tag(rmtag) position(TOP) up(1) cyl(d=joystick_inner_shaft_dia-100, l=joystick_outer_shaft_length+1002, anchor=TOP);
             // Twist paddles
             position(BOT) 
             {
                 mydia = 1600 + joystick_sphere_dia;
-                fwd(50)
+//                fwd(50)
 //                intersect(itag)
 //                {
-                    fwd(50) position(FRONT) cuboid([700, 200, 200], anchor=FRONT,edges="Z", rounding=50);
+                    fwd(100) position(FRONT) cuboid([700, 200, 200], anchor=FRONT+BOT,edges="Z", rounding=50);
                     *back((mydia-joystick_outer_shaft_dia)/2) cyl(d=mydia, l=200, anchor=BOT);
                     *tag(itag) position(FRONT) cuboid([mydia-1100, joystick_outer_shaft_dia/2, 200], 
                         edges=[BACK+TOP, BACK+BOT, BACK+LEFT, BACK+RIGHT], rounding=50, anchor=FRONT);
@@ -183,13 +205,21 @@ module joystick_sliding_plate(anchor=CENTER,spin=0,orient=UP)
             position(BOT) rect_tube(isize=[350, 350], size=[550,550], l=50, anchor=TOP);
 //             tag(rmtag) position(TOP) up(1) cuboid([joystick_outer_shaft_dia+5, joystick_outer_shaft_dia+25, 202], anchor=TOP);
             // Button supports
-            position(BOT) back(150)
+            *position(BOT) back(150)
             {
                 recolor("green")
-                position(BOT) move([225,250,-99]) button_and_mount(orient=FRONT,spin=90,height_mm=11.5);
-                position(BOT) move([-225,250,-99]) button_and_mount(orient=FRONT,spin=90,height_mm=11.5);
+                position(BOT) move([225,250,-130]) button_and_mount(orient=FRONT,spin=90,height_mm=11.5);
+                position(BOT) move([-225,250,-130]) button_and_mount(orient=FRONT,spin=90,height_mm=11.5);
                 //right(500) cuboid([400, 200, 300], anchor=TOP);
                 //left(500) cuboid([400, 200, 300], anchor=TOP);
+            }
+            position(BOT) back(400)
+            {
+                cuboid([900,260,400],anchor=TOP)
+                {
+                    tag(rmtag) position(LEFT+FRONT) move([250, -1, 0]) button_mount_cutout(orient=FRONT,spin=90,anchor=TOP);
+                    tag(rmtag) position(RIGHT+FRONT) move([-250, -1, 0]) button_mount_cutout(orient=FRONT,spin=90,anchor=TOP);
+                }
             }
             // Cutouts
             *tag(rmtag) position(BOT+FRONT) translate([20, -70, -1]) cuboid([1000-20, 400, 202], edges="Z", rounding=100, anchor=BOT+FRONT);
@@ -249,26 +279,16 @@ module joystick_upper_trap(anchor=CENTER,spin=0,orient=UP)
             // Push button cutouts
             tag(rmtag) zrot_copies(n=4, r=600) position(TOP) up(2)  cuboid([200, 350, 250],anchor=TOP+RIGHT);
             offset=50;
-            *tag(itag) position(BOT) cyl(d=sphere_outer_d+600, l=sphere_outer_d/2-offset, anchor=BOT);
-            // Ball Holder screw mounts
-            *position(TOP) down(offset)
-            {
-               right(sphere_outer_d/2-30) tube(id=screw_shaft_dia, od=250, l=140-offset, anchor=TOP+LEFT);
-               left(sphere_outer_d/2-30) tube(id=screw_shaft_dia, od=250, l=140-offset, anchor=TOP+RIGHT);
-            }
             // Upper cutout
             tag(rmtag) position(BOT) 
             {
                 cyl(d=joystick_outer_shaft_dia+500, l=200, anchor=BOT);
-                // position(TOP) cuboid([150, sphere_outer_d, 200]);
             }
             // Screw mounts for base
             zrot_copies(n=4, r=700,sa=45)
             position(TOP) cyl(d=250,l=170,anchor=TOP)
                 tag(rmtag) position(TOP) up(1) cyl(d=screw_shaft_dia, l=172, anchor=TOP);
 
-
-cyl(d=heat_insert_dia, l=172, anchor=TOP);
         }
     }
     attachable(anchor,spin,orient,size=[100,100,100])
@@ -323,24 +343,6 @@ module joystick_switch_lower(anchor=CENTER,spin=0,orient=UP)
 
 module joystick_switch_upper(anchor=CENTER,spin=0,orient=UP)
 {
-//    module retainer(anchor=CENTER,spin=0,orient=UP,l=500)
-//    {
-//        module retainer_()
-//        {
-//            rmtag="rl;iu";
-//            diff(rmtag)
-//            cuboid([l,l,110], edges="Z", rounding=100)
-//            {
-//                tag(rmtag) position(TOP+RIGHT+BACK) right(1) back(1) cuboid([l-200,l-200,121], anchor=TOP+RIGHT+BACK);
-//                *position(BOT+LEFT+FRONT) cuboid([l, l, 130], edges="Z", rounding=100, anchor=TOP+LEFT+FRONT);
-//            }
-//        }
-//        attachable(anchor,spin,orient,size=[l,l,110])
-//        {
-//            retainer_();
-//            children();
-//        }
-//    }
     module joystick_switch_upper_()
     {
         rmtag="rvclkfiqw";
@@ -355,7 +357,7 @@ module joystick_switch_upper(anchor=CENTER,spin=0,orient=UP)
             zrot_copies(n=4, r=joystick_sphere_dia-300) position(TOP)
                 {
                     tag(rmtag) up(1) button_mount_cutout(anchor=TOP);
-                    tag(ktag) recolor("cornflowerblue") up(70) model_pushbutton_6_6(height_mm=7,anchor=TOP);
+//                    tag(ktag) recolor("cornflowerblue") up(70) model_pushbutton_6_6(height_mm=7,anchor=TOP);
                 }
             *tag(rmtag) position(BOT) down(1) 
                 cyl(d=joystick_outer_shaft_dia+200, l=702, anchor=BOT)
@@ -392,8 +394,8 @@ module joystick_switch_upper(anchor=CENTER,spin=0,orient=UP)
 
             // Screw mounts for upper trap
             zrot_copies(n=4, r=700,sa=45)
-            position(TOP) cyl(d=250,l=170,anchor=BOT)
-                tag(rmtag) position(TOP) up(1) cyl(d=heat_insert_dia, l=382, anchor=TOP);
+            position(TOP) cyl(d=250,l=210,anchor=BOT)
+                tag(rmtag) position(TOP) up(1) cyl(d=heat_insert_dia, l=422, anchor=TOP);
 
 
             // Buttons
@@ -419,7 +421,17 @@ module joystick_knob_button_mount(anchor=CENTER,spin=0,orient=UP)
     {
         rmtag="rcqfe2w";
         diff(rmtag)
-        button_and_mount()
+        cyl(d=970, l=210)
+        {
+            tag(rmtag) position(TOP)
+            {
+                zrot_copies(n=2, r=320) up(1) cyl(d=screw_shaft_dia, l=212, anchor=TOP);
+                up(1) button_mount_cutout(anchor=TOP);
+            }
+            *tag("keep") button_and_mount(height_mm=11.5,add_top=true);
+        }
+
+        *button_and_mount()
         {
             position(LEFT+TOP) cuboid([100,400,200], anchor=TOP+RIGHT)
             {
@@ -442,19 +454,25 @@ module joystick_knob_button_mount(anchor=CENTER,spin=0,orient=UP)
 
 module joystick_knob_inner(anchor=CENTER,spin=0,orient=UP)
 {
+    dia=joystick_inner_shaft_dia;
     module joystick_knob_inner_()
     {
         rmtag="rqiqaser";
         diff(rmtag)
         {
-            tube(id=joystick_inner_shaft_dia,l=500,wall=100)
+            tube(id=dia-100,od=dia+200,l=50)
             {
-                position(LEFT+TOP) right(75) tube(id=heat_insert_dia, l=500, wall=100, anchor=RIGHT+TOP);
-                position(RIGHT+TOP) left(75) tube(id=heat_insert_dia, l=500, wall=100, anchor=LEFT+TOP);
+                position(BOT) tube(id=dia,l=500,od=dia+200, anchor=TOP);
+                zrot_copies(n=2, r=320)
+                   position(TOP) up(300) cyl(d=300, l=500, anchor=TOP)
+//                   tag(rmtag) position(TOP) up(1) cyl(d=screw_shaft_dia,l=150,anchor=TOP)
+                    tag(rmtag) position(TOP)  up(1) cyl(d=screw_head_cutout_dia, l=870, anchor=TOP);
+//cytube(id=heat_insert_dia, l=500, wall=100, anchor=TOP);
+//                position(RIGHT+TOP) left(75) tube(id=heat_insert_dia, l=500, wall=100, anchor=LEFT+TOP);
             }
         }
     }
-    attachable(anchor,spin,orient,size=[100,100,100])
+    attachable(anchor,spin,orient,size=[620,dia+200,480])
     {
         joystick_knob_inner_();
         children();
